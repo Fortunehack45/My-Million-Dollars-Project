@@ -37,7 +37,7 @@
         color: #F4F4F5;
         -webkit-font-smoothing: antialiased;
         margin: 0;
-        overflow: hidden;
+        overflow-x: hidden;
       }
 
       /* CRT / Grain Overlay */
@@ -75,7 +75,25 @@
         border: 1px solid #141416;
       }
 
-      .btn-terminal {
+      .btn-primary {
+        background: #F43F5E;
+        color: #FFFFFF;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.7rem;
+        padding: 0.85rem 1.5rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-primary:hover {
+        background: #FFFFFF;
+        color: #000000;
+      }
+
+      .btn-secondary {
         background: transparent;
         border: 1px solid #27272A;
         color: #A1A1AA;
@@ -88,11 +106,10 @@
         cursor: pointer;
       }
 
-      .btn-terminal:hover {
+      .btn-secondary:hover {
         background: #F43F5E;
         color: #FFFFFF;
         border-color: #F43F5E;
-        box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
       }
 
       .label-meta {
@@ -104,20 +121,16 @@
         color: #52525B;
       }
 
-      .value-data {
-        font-family: 'JetBrains Mono', monospace;
-      }
-
       ::-selection { background-color: #F43F5E; color: white; }
     </style>
   <script type="importmap">
 {
   "imports": {
     "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
-    "firebase/": "https://esm.sh/firebase@^12.9.0/",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
+    "firebase/": "https://esm.sh/firebase@^12.9.0/",
     "react-router": "https://esm.sh/react-router@^7.13.0"
   }
 }

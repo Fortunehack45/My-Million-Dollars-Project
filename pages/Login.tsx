@@ -8,8 +8,6 @@ import {
   Globe, 
   Cpu, 
   Lock,
-  Wifi,
-  Database,
   Terminal as TerminalIcon,
   Server
 } from 'lucide-react';
@@ -61,7 +59,6 @@ const Login = () => {
 
           {/* Main Telemetry Grid */}
           <div className="grid grid-cols-2 gap-1 px-1 border border-zinc-900 bg-zinc-900/20 mb-12">
-            {/* Live Chart Block */}
             <div className="p-8 border-r border-zinc-900 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -79,19 +76,8 @@ const Login = () => {
                   ></div>
                 ))}
               </div>
-              <div className="flex justify-between border-t border-zinc-900 pt-4">
-                <div className="space-y-1">
-                  <p className="label-meta opacity-40">Validator_Load</p>
-                  <p className="text-sm font-mono font-bold">84.22%</p>
-                </div>
-                <div className="space-y-1 text-right">
-                  <p className="label-meta opacity-40">Queue_Depth</p>
-                  <p className="text-sm font-mono font-bold text-emerald-500">OPTIMAL</p>
-                </div>
-              </div>
             </div>
 
-            {/* Network Topology */}
             <div className="p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -107,9 +93,6 @@ const Login = () => {
                   </div>
                 ))}
               </div>
-              <p className="text-[9px] text-zinc-500 font-mono leading-relaxed italic">
-                Cross-continental block replication verified across 1,842 nodes.
-              </p>
             </div>
           </div>
 
@@ -125,7 +108,7 @@ const Login = () => {
             <div className="space-y-1 text-zinc-600">
               <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting NexusNode Kernel v2.4.0...</p>
               <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Initializing encrypted tunnel layers...</p>
-              <p><span className="text-primary mr-2">!!</span> {timestamp} Waiting for Operator Credentials (Handshake required)</p>
+              <p><span className="text-primary mr-2">!!</span> {timestamp} Waiting for Operator Credentials</p>
               <div className="pt-2 flex items-center gap-3">
                 <div className="h-[2px] bg-zinc-800 flex-1 overflow-hidden">
                   <div className="h-full bg-primary" style={{ width: `${bootSequence}%` }}></div>
@@ -139,19 +122,8 @@ const Login = () => {
 
       {/* Right Pane: Access Portal */}
       <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-12 relative bg-zinc-950">
-        
-        {/* Industrial Branding */}
-        <div className="absolute top-12 left-12 lg:hidden flex items-center gap-3">
-           <Hexagon className="w-6 h-6 text-primary" />
-           <span className="font-black text-white uppercase tracking-widest text-lg">Nexus</span>
-        </div>
-
         <div className="w-full max-w-sm space-y-16">
           <header className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 border border-zinc-800 bg-zinc-900/50 rounded-sm">
-              <Lock className="w-3 h-3 text-zinc-600" />
-              <span className="label-meta text-[8px]">Secure Handshake Port</span>
-            </div>
             <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-tight">
               Access_Authority
             </h2>
@@ -161,45 +133,33 @@ const Login = () => {
           </header>
 
           <div className="space-y-10">
-            {/* The Main Auth Button - Styled for Utility, Not Just Looks */}
             <div className="p-1 border border-zinc-900 bg-zinc-900/20 rounded-md">
               <button
                 onClick={login}
                 className="w-full bg-zinc-950 border border-zinc-800 hover:border-primary/50 py-5 flex items-center justify-between group px-8 transition-all relative overflow-hidden active:scale-[0.98]"
               >
-                <div className="absolute inset-0 bg-primary/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 pointer-events-none"></div>
                 <div className="flex items-center gap-6 relative z-10">
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-5 h-5 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
                   <div className="text-left">
                     <span className="block text-[10px] font-black text-white uppercase tracking-widest">Connect Identity</span>
-                    <span className="block text-[8px] text-zinc-600 uppercase font-mono group-hover:text-primary transition-colors">Via Google Auth Relay</span>
+                    <span className="block text-[8px] text-zinc-600 uppercase font-mono group-hover:text-primary">Via Google Auth Relay</span>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
               </button>
             </div>
 
-            {/* System Status Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div className="p-5 border border-zinc-900 space-y-2 bg-zinc-950">
                 <ShieldCheck className="w-4 h-4 text-zinc-700" />
-                <p className="label-meta text-[8px] opacity-40">Hardware_ID</p>
-                <p className="text-[9px] font-mono text-zinc-400">UUID-7742-88X</p>
+                <p className="label-meta text-[8px] opacity-40">Security</p>
+                <p className="text-[9px] font-mono text-zinc-400">RSA-4096-AES</p>
               </div>
               <div className="p-5 border border-zinc-900 space-y-2 bg-zinc-950">
                 <Cpu className="w-4 h-4 text-zinc-700" />
-                <p className="label-meta text-[8px] opacity-40">Encryption</p>
-                <p className="text-[9px] font-mono text-zinc-400">RSA-4096-AES</p>
+                <p className="label-meta text-[8px] opacity-40">System</p>
+                <p className="text-[9px] font-mono text-zinc-400">Node_v2.4</p>
               </div>
-            </div>
-
-            {/* Bottom Links */}
-            <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest text-zinc-700">
-               <span className="hover:text-zinc-300 cursor-pointer transition-colors">Handshake FAQ</span>
-               <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
-               <span className="hover:text-zinc-300 cursor-pointer transition-colors">Dev Documentation</span>
-               <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
-               <span className="hover:text-zinc-300 cursor-pointer transition-colors">Support</span>
             </div>
           </div>
 
@@ -208,7 +168,6 @@ const Login = () => {
               <Server className="w-3 h-3 text-zinc-800" />
               <p className="text-[8px] text-zinc-600 font-mono font-bold uppercase">System: OPERATIONAL</p>
             </div>
-            <p className="text-[8px] text-zinc-800 font-mono font-bold uppercase">Argus Protocol v2.4.0</p>
           </footer>
         </div>
       </div>

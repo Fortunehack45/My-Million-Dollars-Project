@@ -1,3 +1,4 @@
+
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -15,14 +16,14 @@ import {
   increment,
   collection,
   query,
-  orderBy,
+  where,
   limit,
   getDocs,
-  arrayUnion
+  arrayUnion,
+  orderBy
 } from 'firebase/firestore';
 import { User, LeaderboardEntry } from '../types';
 
-// Your web app's Firebase configuration for Argus Protocol
 const firebaseConfig = {
   apiKey: "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
   authDomain: "argus-protocol.firebaseapp.com",
@@ -33,7 +34,6 @@ const firebaseConfig = {
   measurementId: "G-6EVXT8DJMK"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -47,38 +47,57 @@ export const getUserData = async (uid: string): Promise<User | null> => {
   return null;
 };
 
-export const signInWithGoogle = async (): Promise<User | null> => {
+// Only performs the login, doesn't create the profile yet
+export const signInWithGoogle = async (): Promise<FirebaseUser> => {
   const provider = new GoogleAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const fbUser = result.user;
-    const userRef = doc(db, 'users', fbUser.uid);
-    const userSnap = await getDoc(userRef);
+  const result = await signInWithPopup(auth, provider);
+  return result.user;
+};
 
-    if (userSnap.exists()) {
-      return userSnap.data() as User;
-    } else {
-      const newUser: User = {
-        uid: fbUser.uid,
-        displayName: fbUser.displayName,
-        email: fbUser.email,
-        photoURL: fbUser.photoURL,
-        points: 50, // Starting bonus
-        miningActive: false,
-        miningStartTime: null,
-        referralCode: 'ARG-' + fbUser.uid.substring(0, 5).toUpperCase(),
-        referredBy: null,
-        referralCount: 0,
-        completedTasks: [],
-        ownedNFT: false
-      };
-      await setDoc(userRef, newUser);
-      return newUser;
-    }
-  } catch (error) {
-    console.error("Authentication Service Error:", error);
-    throw error;
+export const validateReferralCode = async (code: string): Promise<string | null> => {
+  if (!code) return null;
+  const q = query(collection(db, "users"), where("referralCode", "==", code.toUpperCase()), limit(1));
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    return querySnapshot.docs[0].id; // Return the UID of the referrer
   }
+  return null;
+};
+
+export const createInitialProfile = async (
+  fbUser: FirebaseUser, 
+  username: string, 
+  referrerUid: string | null
+): Promise<User> => {
+  const userRef = doc(db, 'users', fbUser.uid);
+  
+  const newUser: User = {
+    uid: fbUser.uid,
+    displayName: username,
+    email: fbUser.email,
+    photoURL: fbUser.photoURL,
+    points: 50, // Welcome bonus
+    miningActive: false,
+    miningStartTime: null,
+    referralCode: 'ARG-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+    referredBy: referrerUid,
+    referralCount: 0,
+    completedTasks: [],
+    ownedNFT: false
+  };
+
+  await setDoc(userRef, newUser);
+
+  // If referred by someone, increment their count
+  if (referrerUid) {
+    const referrerRef = doc(db, 'users', referrerUid);
+    await updateDoc(referrerRef, {
+      referralCount: increment(1),
+      points: increment(25) // Referrer bonus
+    });
+  }
+
+  return newUser;
 };
 
 export const logout = async () => {
@@ -87,10 +106,7 @@ export const logout = async () => {
 
 export const startMiningSession = async (uid: string) => {
   const userRef = doc(db, 'users', uid);
-  await updateDoc(userRef, { 
-    miningActive: true, 
-    miningStartTime: Date.now() 
-  });
+  await updateDoc(userRef, { miningActive: true, miningStartTime: Date.now() });
 };
 
 export const claimPoints = async (uid: string, amount: number) => {
@@ -114,16 +130,14 @@ export const mintNFT = async (uid: string, cost: number) => {
   const userRef = doc(db, 'users', uid);
   const userSnap = await getDoc(userRef);
   if (userSnap.exists() && userSnap.data().points >= cost) {
-    await updateDoc(userRef, {
-      points: increment(-cost),
-      ownedNFT: true
-    });
+    await updateDoc(userRef, { points: increment(-cost), ownedNFT: true });
     return true;
   }
   return false;
 };
 
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
+  // Added orderBy to the query
   const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
   const querySnapshot = await getDocs(q);
   const leaderboard: LeaderboardEntry[] = [];

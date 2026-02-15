@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
 import { auth, signInWithGoogle, logout as serviceLogout, getUserData } from '../services/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface AuthContextType {
-  user: User | null;
+  user: User | null; // Firestore Profile
+  firebaseUser: FirebaseUser | null; // Firebase Auth User
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
@@ -15,15 +16,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen for Firebase Auth state changes
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setFirebaseUser(fbUser);
+      if (fbUser) {
         try {
-          // If auth exists, fetch the custom profile from Firestore
-          const profile = await getUserData(firebaseUser.uid);
+          const profile = await getUserData(fbUser.uid);
           setUser(profile);
         } catch (error) {
           console.error("Error fetching user profile:", error);
@@ -40,17 +41,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async () => {
     try {
-      const userData = await signInWithGoogle();
-      setUser(userData);
+      const fbUser = await signInWithGoogle();
+      setFirebaseUser(fbUser);
+      const profile = await getUserData(fbUser.uid);
+      setUser(profile);
     } catch (e) {
       console.error(e);
-      alert("Login failed. Check browser console for Firebase errors.");
     }
   };
 
   const logout = async () => {
     try {
       await serviceLogout();
+      setFirebaseUser(null);
       setUser(null);
     } catch (error) {
       console.error("Logout error:", error);
@@ -62,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
