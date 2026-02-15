@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
-import { auth, signInWithGoogle, logout as serviceLogout } from '../services/firebase';
+import { auth, signInWithGoogle, logout as serviceLogout, getUserData } from '../services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 interface AuthContextType {
@@ -17,32 +17,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initial Check (Simulate mostly for Mock Mode persistence or Firebase listener)
   useEffect(() => {
-    const checkAuth = async () => {
-      // For Mock Mode, check local storage
-      const mockData = localStorage.getItem('nexus_mock_user');
-      if (mockData) {
-        setUser(JSON.parse(mockData));
-        setLoading(false);
-        return;
-      }
-
-      // For Real Firebase
-      if (auth) {
-        onAuthStateChanged(auth, async (firebaseUser) => {
-            // In a real app, you would fetch the full User object from Firestore here
-            // For simplicity in this hybrid logic, we'll let the Login component handle the initial set
-            if (!firebaseUser) {
-                setUser(null);
-            }
-            setLoading(false);
-        });
+    // Listen for Firebase Auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          // If auth exists, fetch the custom profile from Firestore
+          const profile = await getUserData(firebaseUser.uid);
+          setUser(profile);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUser(null);
+        }
       } else {
-          setLoading(false);
+        setUser(null);
       }
-    };
-    checkAuth();
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async () => {
@@ -51,13 +44,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
     } catch (e) {
       console.error(e);
-      alert("Login failed. See console.");
+      alert("Login failed. Check browser console for Firebase errors.");
     }
   };
 
   const logout = async () => {
-    await serviceLogout();
-    setUser(null);
+    try {
+      await serviceLogout();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const refreshUser = (updatedUser: User) => {

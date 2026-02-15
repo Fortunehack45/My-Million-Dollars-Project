@@ -4,7 +4,6 @@ import {
   signInWithPopup, 
   GoogleAuthProvider, 
   signOut as firebaseSignOut,
-  onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
@@ -18,58 +17,37 @@ import {
   query,
   orderBy,
   limit,
-  getDocs
+  getDocs,
+  arrayUnion
 } from 'firebase/firestore';
 import { User, LeaderboardEntry } from '../types';
 
-// Environment variables for production deployment
+// Your web app's Firebase configuration for Argus Protocol
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
+  authDomain: "argus-protocol.firebaseapp.com",
+  projectId: "argus-protocol",
+  storageBucket: "argus-protocol.firebasestorage.app",
+  messagingSenderId: "803748553158",
+  appId: "1:803748553158:web:c1547b3ddfa148eb4b92c7",
+  measurementId: "G-6EVXT8DJMK"
 };
 
-// If no API Key is provided, default to Mock Mode for instant preview/deployment capability
-const isMockMode = !firebaseConfig.apiKey || firebaseConfig.apiKey === "demo-key";
-const app = !isMockMode ? initializeApp(firebaseConfig) : null;
-const auth = app ? getAuth(app) : null;
-const db = app ? getFirestore(app) : null;
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-const MOCK_STORAGE_KEY = 'nexus_mock_user';
-
-const getMockUser = (): User | null => {
-  const data = localStorage.getItem(MOCK_STORAGE_KEY);
-  return data ? JSON.parse(data) : null;
-};
-
-const setMockUser = (user: User) => {
-  localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(user));
+export const getUserData = async (uid: string): Promise<User | null> => {
+  const userRef = doc(db, 'users', uid);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    return userSnap.data() as User;
+  }
+  return null;
 };
 
 export const signInWithGoogle = async (): Promise<User | null> => {
-  if (isMockMode) {
-    const mockUser: User = getMockUser() || {
-      uid: 'node-operator-001',
-      displayName: 'Nexus Operator',
-      email: 'operator@nexus.node',
-      photoURL: 'https://ui-avatars.com/api/?name=Nexus+Operator&background=111114&color=F43F5E',
-      points: 250,
-      miningActive: false,
-      miningStartTime: null,
-      referralCode: 'NEX-GENESIS',
-      referredBy: null,
-      referralCount: 0,
-      completedTasks: [],
-      ownedNFT: false
-    };
-    if (!getMockUser()) setMockUser(mockUser);
-    return mockUser;
-  }
-
-  if (!auth || !db) throw new Error("Firebase configuration missing or invalid.");
   const provider = new GoogleAuthProvider();
   try {
     const result = await signInWithPopup(auth, provider);
@@ -85,10 +63,10 @@ export const signInWithGoogle = async (): Promise<User | null> => {
         displayName: fbUser.displayName,
         email: fbUser.email,
         photoURL: fbUser.photoURL,
-        points: 50,
+        points: 50, // Starting bonus
         miningActive: false,
         miningStartTime: null,
-        referralCode: 'NEX-' + fbUser.uid.substring(0, 5).toUpperCase(),
+        referralCode: 'ARG-' + fbUser.uid.substring(0, 5).toUpperCase(),
         referredBy: null,
         referralCount: 0,
         completedTasks: [],
@@ -104,41 +82,18 @@ export const signInWithGoogle = async (): Promise<User | null> => {
 };
 
 export const logout = async () => {
-  if (isMockMode) {
-    localStorage.removeItem(MOCK_STORAGE_KEY);
-    window.location.reload();
-    return;
-  }
-  if (auth) await firebaseSignOut(auth);
+  await firebaseSignOut(auth);
 };
 
 export const startMiningSession = async (uid: string) => {
-  if (isMockMode) {
-    const user = getMockUser();
-    if (user) {
-      user.miningActive = true;
-      user.miningStartTime = Date.now();
-      setMockUser(user);
-    }
-    return;
-  }
-  if (!db) return;
   const userRef = doc(db, 'users', uid);
-  await updateDoc(userRef, { miningActive: true, miningStartTime: Date.now() });
+  await updateDoc(userRef, { 
+    miningActive: true, 
+    miningStartTime: Date.now() 
+  });
 };
 
 export const claimPoints = async (uid: string, amount: number) => {
-  if (isMockMode) {
-    const user = getMockUser();
-    if (user) {
-      user.points += amount;
-      user.miningActive = false;
-      user.miningStartTime = null;
-      setMockUser(user);
-    }
-    return;
-  }
-  if (!db) return;
   const userRef = doc(db, 'users', uid);
   await updateDoc(userRef, {
     points: increment(amount),
@@ -148,16 +103,6 @@ export const claimPoints = async (uid: string, amount: number) => {
 };
 
 export const completeTask = async (uid: string, taskId: string, reward: number) => {
-  if (isMockMode) {
-    const user = getMockUser();
-    if (user && !user.completedTasks.includes(taskId)) {
-      user.completedTasks.push(taskId);
-      user.points += reward;
-      setMockUser(user);
-    }
-    return;
-  }
-  if (!db) return;
   const userRef = doc(db, 'users', uid);
   await updateDoc(userRef, {
     completedTasks: arrayUnion(taskId),
@@ -166,37 +111,19 @@ export const completeTask = async (uid: string, taskId: string, reward: number) 
 };
 
 export const mintNFT = async (uid: string, cost: number) => {
-  if (isMockMode) {
-    const user = getMockUser();
-    if (user && user.points >= cost && !user.ownedNFT) {
-      user.points -= cost;
-      user.ownedNFT = true;
-      setMockUser(user);
-      return true;
-    }
-    return false;
-  }
-  if (!db) return false;
   const userRef = doc(db, 'users', uid);
-  await updateDoc(userRef, {
-    points: increment(-cost),
-    ownedNFT: true
-  });
-  return true;
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists() && userSnap.data().points >= cost) {
+    await updateDoc(userRef, {
+      points: increment(-cost),
+      ownedNFT: true
+    });
+    return true;
+  }
+  return false;
 };
 
-const arrayUnion = (val: string) => [val]; 
-
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
-  if (isMockMode) {
-    return Array.from({ length: 10 }).map((_, i) => ({
-      uid: `mock-${i}`,
-      displayName: `Operator_${1000 + i}`,
-      points: 8500 - (i * 600),
-      rank: i + 1
-    }));
-  }
-  if (!db) return [];
   const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
   const querySnapshot = await getDocs(q);
   const leaderboard: LeaderboardEntry[] = [];
@@ -213,4 +140,4 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   return leaderboard;
 };
 
-export { auth };
+export { auth, db };
