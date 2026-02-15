@@ -92,7 +92,9 @@ const Login = () => {
               <div className="space-y-2 font-mono text-[10px]">
                 <p className="text-zinc-600"><span className="text-primary mr-2">OK</span> [14:42:01] Block #840,122 validated by Peer_0492</p>
                 <p className="text-zinc-600"><span className="text-primary mr-2">OK</span> [14:42:05] Consensus reached for Staging_Epoch_12</p>
-                <p className="text-zinc-400 font-bold underline cursor-default tracking-tight">>> SYSTEM READY FOR OPERATOR HANDSHAKE</p>
+                <p className="text-zinc-400 font-bold underline cursor-default tracking-tight">
+                  {">> "}SYSTEM READY FOR OPERATOR HANDSHAKE
+                </p>
               </div>
             </div>
           </div>
