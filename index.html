@@ -12,9 +12,9 @@
             colors: {
               primary: '#F43F5E',
               zinc: {
-                950: '#09090B',
-                900: '#111114',
-                800: '#1C1C21',
+                950: '#050507',
+                900: '#0E0E12',
+                800: '#18181B',
                 700: '#27272A',
                 400: '#A1A1AA',
                 100: '#F4F4F5'
@@ -33,33 +33,43 @@
       
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #09090B;
+        background-color: #050507;
         color: #F4F4F5;
         -webkit-font-smoothing: antialiased;
         margin: 0;
+        overflow: hidden;
       }
 
-      /* Uniform Etched Surface */
+      /* Scanline Effect */
+      body::before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+        z-index: 100;
+        background-size: 100% 4px, 3px 100%;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+
       .surface {
-        background: #111114;
-        border: 1px solid #1C1C21;
+        background: #0E0E12;
+        border: 1px solid #18181B;
       }
 
-      .surface-hover:hover {
-        border-color: #27272A;
-        background: #151518;
-      }
-
-      /* Consistent Button */
       .btn-primary {
         background: #F43F5E;
         color: #FFFFFF;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.65rem;
-        padding: 0.75rem 1.5rem;
-        transition: all 0.2s ease;
+        letter-spacing: 0.05em;
+        font-size: 0.7rem;
+        padding: 0.85rem 1.5rem;
+        transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -68,43 +78,20 @@
       }
 
       .btn-primary:hover {
-        background: #E11D48;
-        transform: translateY(-1px);
+        background: #FFFFFF;
+        color: #000000;
       }
 
-      .btn-secondary {
-        border: 1px solid #1C1C21;
-        background: transparent;
-        color: #A1A1AA;
+      .label-meta {
+        font-size: 10px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        font-size: 0.65rem;
-        padding: 0.75rem 1.5rem;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-      }
-
-      .btn-secondary:hover {
-        border-color: #F43F5E;
-        color: #F43F5E;
-      }
-
-      /* Utility Labels */
-      .label-meta {
-        font-size: 9px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: #71717A;
+        color: #52525B;
       }
 
       .value-data {
         font-family: 'JetBrains Mono', monospace;
-        letter-spacing: -0.02em;
       }
 
       ::-selection { background-color: #F43F5E; color: white; }
@@ -112,19 +99,18 @@
   <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+    "firebase/": "https://esm.sh/firebase@^12.9.0/",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
-    "firebase/": "https://esm.sh/firebase@^12.9.0/",
-    "react-router": "https://esm.sh/react-router@^7.13.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.564.0"
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-router": "https://esm.sh/react-router@^7.13.0"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
-    <!-- Entry point for the React application -->
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>
