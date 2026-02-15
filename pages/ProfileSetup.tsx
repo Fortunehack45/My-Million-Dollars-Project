@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { createInitialProfile, validateReferralCode, checkUsernameTaken } from '../services/firebase';
+import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData } from '../services/firebase';
 import { 
   Fingerprint, 
   ArrowRight, 
@@ -22,7 +22,6 @@ const ProfileSetup = () => {
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Debounced username check
   useEffect(() => {
     if (username.length < 3) {
       setIsNameTaken(null);
@@ -61,14 +60,23 @@ const ProfileSetup = () => {
         }
       }
 
+      // Check one last time if they exist to avoid race conditions
+      const preCheck = await getUserData(firebaseUser.uid);
+      if (preCheck) {
+        refreshUser(preCheck);
+        return;
+      }
+
       const profile = await createInitialProfile(firebaseUser, username, referrerUid);
       refreshUser(profile);
     } catch (err: any) {
       if (err.message === "USERNAME_TAKEN") {
-        setError("CONFLICT: This handle was claimed during transmission.");
+        setError("CONFLICT: Handle claimed by another operator.");
         setIsNameTaken(true);
+      } else if (err.message?.includes("permission")) {
+        setError("SECURITY_FAULT: Database rules denied access. Verify Security Rules in Firebase Console.");
       } else {
-        setError("CRITICAL_SYSTEM_ERROR: " + err.message);
+        setError("CRITICAL_FAULT: " + err.message);
       }
     } finally {
       setIsSubmitting(false);
@@ -108,12 +116,7 @@ const ProfileSetup = () => {
                   placeholder="Operator_Handle"
                   className={`w-full bg-zinc-900/50 border text-white font-mono text-sm py-4 pl-12 pr-12 rounded-xl transition-all outline-none ${isNameTaken === true ? 'border-primary/50' : isNameTaken === false ? 'border-emerald-500/30' : 'border-zinc-800 focus:border-primary/50'}`}
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                   {isNameTaken === true && <XCircle className="w-4 h-4 text-primary" />}
-                   {isNameTaken === false && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                </div>
               </div>
-              <p className="text-[9px] text-zinc-600 font-mono pl-1 uppercase">A-Z, 0-9, and underscores | Min 3 chars</p>
             </div>
 
             <div className="space-y-2">
@@ -142,10 +145,7 @@ const ProfileSetup = () => {
             className={`btn-primary w-full flex items-center justify-center gap-3 relative overflow-hidden ${isSubmitting || !username || isNameTaken !== false || username.length < 3 ? 'opacity-30 cursor-not-allowed' : ''}`}
           >
             {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="tracking-[0.2em]">Processing_Handshake</span>
-              </>
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
                 <span className="tracking-[0.2em]">Establish_Presence</span>
@@ -154,16 +154,6 @@ const ProfileSetup = () => {
             )}
           </button>
         </form>
-
-        <footer className="pt-6 border-t border-zinc-900">
-           <div className="flex justify-between items-center text-[8px] font-mono text-zinc-700 uppercase font-bold tracking-widest">
-              <div className="flex items-center gap-2">
-                 <Cpu className="w-3 h-3" />
-                 <span>Unique_Identity_Module</span>
-              </div>
-              <span>Protocol_v2.5_STABLE</span>
-           </div>
-        </footer>
       </div>
     </div>
   );

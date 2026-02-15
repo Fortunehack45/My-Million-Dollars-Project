@@ -23,6 +23,7 @@ export interface Task {
   link: string;
   actionLabel: string;
   createdAt?: number;
+  timerSeconds?: number; // Optional countdown timer in seconds
 }
 
 export interface NetworkStats {

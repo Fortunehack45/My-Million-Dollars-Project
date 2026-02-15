@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   ShieldCheck,
-  Settings
+  Settings,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL } from '../services/firebase';
@@ -22,18 +23,24 @@ const Sidebar = () => {
 
   const isActive = (path: string) => location.pathname === path;
   
-  // Case-insensitive check for Admin access
-  const isAuthorizedAdmin = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  // High-priority robust admin check
+  const isAuthorizedAdmin = 
+    firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() || 
+    user?.role === 'admin';
 
-  const NavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any }) => (
+  const NavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean }) => (
     <Link
       to={to}
       onClick={() => setIsOpen(false)}
       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-        isActive(to) ? 'bg-zinc-900 text-white border border-zinc-800' : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50'
+        isActive(to) 
+          ? 'bg-zinc-900 text-white border border-zinc-800 shadow-[0_0_15px_rgba(244,63,94,0.1)]' 
+          : highlight 
+            ? 'text-primary hover:bg-primary/5' 
+            : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50'
       }`}
     >
-      <Icon className={`w-4 h-4 ${isActive(to) ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
+      <Icon className={`w-4 h-4 ${isActive(to) || highlight ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
       <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
     </Link>
   );
@@ -61,20 +68,23 @@ const Sidebar = () => {
               <Hexagon className="w-6 h-6 text-primary" />
               <span className="font-black text-xl tracking-tighter text-white uppercase italic">NexusNode</span>
             </div>
-            <p className="label-meta mt-1 opacity-40">Infrastructure v2.5</p>
+            <p className="label-meta mt-1 opacity-40">Infrastructure v2.6</p>
           </div>
 
           <nav className="flex-1 space-y-1">
             <NavItem to="/" label="Dashboard" icon={LayoutDashboard} />
-            <NavItem to="/tasks" label="Verification" icon={CheckSquare} />
+            <NavItem to="/tasks" label="Tasks" icon={CheckSquare} />
             <NavItem to="/nft" label="Authority" icon={ShieldCheck} />
             <NavItem to="/referrals" label="Peer Network" icon={Users} />
             <NavItem to="/leaderboard" label="Protocol Rank" icon={Trophy} />
             
             {isAuthorizedAdmin && (
-              <div className="pt-8 mt-8 border-t border-zinc-900">
-                <p className="label-meta text-[8px] mb-4 text-primary px-4">Privileged Access</p>
-                <NavItem to="/admin" label="Command Center" icon={Settings} />
+              <div className="pt-8 mt-8 border-t border-zinc-900/50">
+                <div className="flex items-center gap-2 px-4 mb-4">
+                  <ShieldAlert className="w-3 h-3 text-primary animate-pulse" />
+                  <p className="label-meta text-[8px] text-primary">Root Access</p>
+                </div>
+                <NavItem to="/admin" label="Command Center" icon={Settings} highlight={true} />
               </div>
             )}
           </nav>

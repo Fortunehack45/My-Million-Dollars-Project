@@ -21,7 +21,8 @@ import {
   arrayUnion,
   orderBy,
   onSnapshot,
-  runTransaction
+  runTransaction,
+  deleteDoc
 } from 'firebase/firestore';
 import { 
   getDatabase, 
@@ -57,8 +58,8 @@ export const REFERRAL_BONUS_POINTS = 0.5;
 
 export const setupPresence = (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
-  const isOfflineForDatabase = { state: 'offline', last_changed: serverTimestamp() };
-  const isOnlineForDatabase = { state: 'online', last_changed: serverTimestamp() };
+  const isOfflineForDatabase = { state: 'offline', last_changed: serverTimestamp(), uid };
+  const isOnlineForDatabase = { state: 'online', last_changed: serverTimestamp(), uid };
   const connectedRef = ref(rtdb, '.info/connected');
   onValue(connectedRef, (snapshot) => {
     if (snapshot.val() === false) return;
@@ -68,12 +69,14 @@ export const setupPresence = (uid: string) => {
   });
 };
 
-export const subscribeToOnlineUsers = (callback: (onlineCount: number) => void) => {
+export const subscribeToOnlineUsers = (callback: (onlineUids: string[]) => void) => {
   const statusRef = ref(rtdb, 'status');
   return onValue(statusRef, (snapshot) => {
     const statuses = snapshot.val() || {};
-    const onlineCount = Object.values(statuses).filter((s: any) => s.state === 'online').length;
-    callback(onlineCount);
+    const onlineUids = Object.values(statuses)
+      .filter((s: any) => s.state === 'online')
+      .map((s: any) => s.uid);
+    callback(onlineUids);
   });
 };
 
@@ -126,30 +129,25 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
   };
 
   await runTransaction(db, async (transaction) => {
-    // 1. Check Username Uniqueness Atomically
     const nameSnap = await transaction.get(nameRef);
     if (nameSnap.exists()) {
       throw new Error("USERNAME_TAKEN");
     }
 
-    // 2. Check if user already exists (Safety)
     const existingUserSnap = await transaction.get(userRef);
     if (existingUserSnap.exists()) {
-      return; // Already established
+      return; 
     }
 
-    // 3. Write Profile and Username Registry
     transaction.set(userRef, newUser);
     transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
     
-    // 4. Update global stats (Force create if missing)
     transaction.set(statsRef, { 
       totalUsers: increment(1), 
       totalMined: increment(5.0),
       activeNodes: increment(0)
     }, { merge: true });
 
-    // 5. Handle Referrals with Cap (20 Max)
     if (referrerUid) {
       const referrerRef = doc(db, 'users', referrerUid);
       const referrerSnap = await transaction.get(referrerRef);
@@ -196,6 +194,14 @@ export const fetchTasks = async (): Promise<Task[]> => {
   return snap.docs.map(doc => doc.data() as Task);
 };
 
+export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
+  const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    const tasks = snapshot.docs.map(doc => doc.data() as Task);
+    callback(tasks);
+  });
+};
+
 export const getAllUsers = async (): Promise<User[]> => {
   const snap = await getDocs(collection(db, 'users'));
   return snap.docs.map(doc => doc.data() as User);
@@ -210,6 +216,11 @@ export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void)
 export const addNewTask = async (task: Omit<Task, 'id'>) => {
   const taskRef = doc(collection(db, 'tasks'));
   await setDoc(taskRef, { ...task, id: taskRef.id, createdAt: Date.now() });
+};
+
+export const deleteTask = async (taskId: string) => {
+  const taskRef = doc(db, 'tasks', taskId);
+  await deleteDoc(taskRef);
 };
 
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
