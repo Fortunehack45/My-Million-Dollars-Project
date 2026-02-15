@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.html'; // Helps some bundlers recognize the entry relationship
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
