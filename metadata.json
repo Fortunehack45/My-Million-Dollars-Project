@@ -1,0 +1,9 @@
+{
+  "name": "NexusNode | Infrastructure Terminal",
+  "description": "Enterprise-grade node validator dashboard. Participate in the staging epoch, mine network credits, and secure Genesis assets.",
+  "requestFramePermissions": [],
+  "short_name": "NexusNode",
+  "theme_color": "#09090B",
+  "background_color": "#09090B",
+  "display": "standalone"
+}
