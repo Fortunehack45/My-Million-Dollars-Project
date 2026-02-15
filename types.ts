@@ -12,6 +12,7 @@ export interface User {
   completedTasks: string[];
   ownedNFT: boolean;
   role?: 'admin' | 'user'; // Admin role support
+  createdAt?: number;
 }
 
 export interface Task {

@@ -99,7 +99,12 @@ const Sidebar = () => {
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-zinc-950/95 backdrop-blur-2xl border-t border-zinc-900 z-50 px-2 pb-safe safe-area-bottom">
         <div className="flex justify-around items-center h-full pb-2">
           {navItems.map((item) => (
-            <MobileNavItem key={item.to} {...item} />
+            <MobileNavItem 
+              key={item.to} 
+              to={item.to} 
+              label={item.label} 
+              icon={item.icon} 
+            />
           ))}
         </div>
       </div>
@@ -117,7 +122,12 @@ const Sidebar = () => {
 
           <nav className="flex-1 space-y-1">
             {navItems.map((item) => (
-              <DesktopNavItem key={item.to} {...item} />
+              <DesktopNavItem 
+                key={item.to} 
+                to={item.to} 
+                label={item.label} 
+                icon={item.icon} 
+              />
             ))}
             
             {isAuthorizedAdmin && (

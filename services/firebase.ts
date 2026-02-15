@@ -124,12 +124,12 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     referralCount: 0,
     completedTasks: [],
     ownedNFT: false,
-    role: fbUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user'
+    role: fbUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user',
+    createdAt: Date.now()
   };
 
   // 1. Critical Transaction: Identity Creation
-  // We strictly limit the transaction to creating the user's own data to avoid security rule violations
-  // that often occur when trying to write to other users' documents (referrers) or global stats.
+  // We only write to the user's own document and the username reservation.
   await runTransaction(db, async (transaction) => {
     const nameSnap = await transaction.get(nameRef);
     const existingUserSnap = await transaction.get(userRef);
@@ -146,8 +146,7 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
   });
 
-  // 2. Best-Effort Non-Blocking Updates
-  // These run independently. If they fail due to permissions, they won't block the user's signup.
+  // 2. Best-Effort Global Stats Update
   try {
     const statsRef = doc(db, 'global_stats', 'network');
     await setDoc(statsRef, { 
@@ -159,31 +158,58 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     console.warn("Global stats update skipped (permission/network issue).");
   }
 
-  if (referrerUid) {
-    try {
-      const referrerRef = doc(db, 'users', referrerUid);
-      await updateDoc(referrerRef, { 
-        referralCount: increment(1), 
-        points: increment(REFERRAL_BONUS_POINTS) 
-      });
-      
-      // Attempt to update global stats for the bonus points if referral succeeded
-      const statsRef = doc(db, 'global_stats', 'network');
-      await updateDoc(statsRef, { totalMined: increment(REFERRAL_BONUS_POINTS) }).catch(() => {});
-      
-    } catch (e) {
-      console.warn("Referral reward skipped (permission/network issue).");
-    }
-  }
-
+  // Note: We DO NOT update the referrer here. 
+  // The referrer will "pull" their new referral count when they next login via `syncReferralStats`.
+  
   return newUser;
+};
+
+// New Function: Self-healing referral sync
+// Call this on dashboard load to ensure user gets points for anyone who used their code
+export const syncReferralStats = async (uid: string, currentReferralCount: number, currentPoints: number) => {
+  try {
+    // Query actual number of users who claim this user as their referrer
+    const q = query(collection(db, "users"), where("referredBy", "==", uid));
+    const snapshot = await getDocs(q);
+    const realCount = snapshot.size;
+
+    // Only update if we found more referrals than currently recorded
+    if (realCount > currentReferralCount) {
+      const userRef = doc(db, 'users', uid);
+      
+      // Calculate how many NEW referrals we need to reward
+      // We cap the *rewardable* count at MAX_REFERRALS, but we track the *total* count accurately
+      const previousRewardable = Math.min(currentReferralCount, MAX_REFERRALS);
+      const newRewardable = Math.min(realCount, MAX_REFERRALS);
+      const rewardableDiff = Math.max(0, newRewardable - previousRewardable);
+      
+      const pointsToAdd = rewardableDiff * REFERRAL_BONUS_POINTS;
+
+      await updateDoc(userRef, {
+        referralCount: realCount,
+        points: increment(pointsToAdd)
+      });
+
+      // Update global stats if we added points
+      if (pointsToAdd > 0) {
+        const statsRef = doc(db, 'global_stats', 'network');
+        try { await updateDoc(statsRef, { totalMined: increment(pointsToAdd) }); } catch(e) {}
+      }
+
+      console.log(`Synced referrals: Found ${realCount}, was ${currentReferralCount}. Added ${pointsToAdd} points.`);
+      
+      return { referralCount: realCount, points: currentPoints + pointsToAdd };
+    }
+  } catch (error) {
+    console.error("Referral Sync Failed:", error);
+  }
+  return null;
 };
 
 export const startMiningSession = async (uid: string) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { miningActive: true, miningStartTime: Date.now() });
-  // Best effort stats update
   try { await updateDoc(statsRef, { activeNodes: increment(1) }); } catch(e) {}
 };
 
@@ -191,7 +217,6 @@ export const claimPoints = async (uid: string, amount: number) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(amount), miningActive: false, miningStartTime: null });
-  // Best effort stats update
   try { await updateDoc(statsRef, { totalMined: increment(amount), activeNodes: increment(-1) }); } catch(e) {}
 };
 
@@ -199,7 +224,6 @@ export const completeTask = async (uid: string, taskId: string, points: number) 
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(points), completedTasks: arrayUnion(taskId) });
-  // Best effort stats update
   try { await updateDoc(statsRef, { totalMined: increment(points) }); } catch(e) {}
 };
 

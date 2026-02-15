@@ -4,6 +4,7 @@ import {
   startMiningSession, 
   claimPoints, 
   subscribeToNetworkStats, 
+  syncReferralStats,
   TOTAL_SUPPLY,
   BASE_MINING_RATE,
   REFERRAL_BOOST,
@@ -24,6 +25,22 @@ const Dashboard = () => {
   const referrals = Math.min(user?.referralCount || 0, MAX_REFERRALS);
   const currentHourlyRate = BASE_MINING_RATE + (referrals * REFERRAL_BOOST);
   const ratePerSecond = currentHourlyRate / 3600;
+
+  // Sync Referrals on Mount
+  useEffect(() => {
+    if (user) {
+      syncReferralStats(user.uid, user.referralCount, user.points)
+        .then((updatedData) => {
+          if (updatedData) {
+            refreshUser({ 
+              ...user, 
+              referralCount: updatedData.referralCount, 
+              points: updatedData.points 
+            });
+          }
+        });
+    }
+  }, [user?.uid]); // Only run when user ID changes (login)
 
   useEffect(() => {
     const unsubscribe = subscribeToNetworkStats(setNetStats);
