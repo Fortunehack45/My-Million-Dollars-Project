@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   addNewTask, 
-  getAllUsers, 
+  subscribeToUsers, 
   subscribeToNetworkStats, 
   subscribeToOnlineUsers, 
   subscribeToTasks,
@@ -24,7 +24,8 @@ import {
   Radio,
   Trash2,
   Clock,
-  List
+  List,
+  Globe
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -33,7 +34,6 @@ const AdminPanel = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [onlineUids, setOnlineUids] = useState<string[]>([]);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
-  const [loading, setLoading] = useState(true);
   
   const [newTask, setNewTask] = useState<Omit<Task, 'id'>>({
     title: '',
@@ -52,20 +52,13 @@ const AdminPanel = () => {
   useEffect(() => {
     if (!isAuthorized) return;
     
-    const loadData = async () => {
-      try {
-        const allUsers = await getAllUsers();
-        setUsers(allUsers);
-        setLoading(false);
-      } catch (err) { console.error("Admin Access Fault:", err); }
-    };
-
-    loadData();
+    const unsubscribeUsers = subscribeToUsers(setUsers);
     const unsubscribeStats = subscribeToNetworkStats(setNetStats);
     const unsubscribeOnline = subscribeToOnlineUsers(setOnlineUids);
     const unsubscribeTasks = subscribeToTasks(setTasks);
     
     return () => {
+      unsubscribeUsers();
       unsubscribeStats();
       unsubscribeOnline();
       unsubscribeTasks();
@@ -106,7 +99,10 @@ const AdminPanel = () => {
     );
   }
 
+  // Derived Metrics from Real-time Data
   const onlineUsers = users.filter(u => onlineUids.includes(u.uid));
+  const activeMiningCount = users.filter(u => u.miningActive).length;
+  const totalRegistered = users.length;
 
   return (
     <div className="space-y-12 max-w-7xl mx-auto py-8">
@@ -124,40 +120,44 @@ const AdminPanel = () => {
 
       {/* Metric Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Total Network Nodes */}
+        <div className="surface p-8 rounded-2xl">
+           <div className="flex items-center gap-3 mb-6">
+              <Globe className="w-4 h-4 text-zinc-400" />
+              <p className="label-meta text-zinc-500">Total Network Nodes</p>
+           </div>
+           <h3 className="text-3xl font-mono font-bold text-white">{totalRegistered}</h3>
+           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Registered Identities</p>
+        </div>
+
+        {/* Active Mining Nodes */}
+        <div className="surface p-8 rounded-2xl border-primary/20 bg-primary/5">
+           <div className="flex items-center gap-3 mb-6">
+              <Cpu className="w-4 h-4 text-primary" />
+              <p className="label-meta text-primary/70">Active Miners</p>
+           </div>
+           <h3 className="text-3xl font-mono font-bold text-white">{activeMiningCount}</h3>
+           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Computing Clusters</p>
+        </div>
+
+        {/* Live Presence */}
         <div className="surface p-8 rounded-2xl border-emerald-500/20 bg-emerald-500/5">
            <div className="flex items-center gap-3 mb-6">
               <Radio className="w-4 h-4 text-emerald-500 animate-ping" />
               <p className="label-meta text-emerald-500/70">Live Presence</p>
            </div>
-           <h3 className="text-3xl font-mono font-bold text-white">{onlineUids.length} NODES</h3>
-           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Active Web Sessions</p>
+           <h3 className="text-3xl font-mono font-bold text-white">{onlineUsers.length}</h3>
+           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Online Sessions</p>
         </div>
 
-        <div className="surface p-8 rounded-2xl border-primary/20 bg-primary/5">
-           <div className="flex items-center gap-3 mb-6">
-              <Cpu className="w-4 h-4 text-primary" />
-              <p className="label-meta text-primary/70">Mining Clusters</p>
-           </div>
-           <h3 className="text-3xl font-mono font-bold text-white">{netStats.activeNodes}</h3>
-           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Actively Computing NEX</p>
-        </div>
-
+        {/* Distribution */}
         <div className="surface p-8 rounded-2xl">
            <div className="flex items-center gap-3 mb-6">
               <Database className="w-4 h-4 text-zinc-600" />
-              <p className="label-meta">Ecosystem Liquidity</p>
+              <p className="label-meta">Liquidity</p>
            </div>
            <h3 className="text-3xl font-mono font-bold text-white">{Math.floor(netStats.totalMined).toLocaleString()}</h3>
-           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Total Distributed Credits</p>
-        </div>
-
-        <div className="surface p-8 rounded-2xl">
-           <div className="flex items-center gap-3 mb-6">
-              <TrendingUp className="w-4 h-4 text-zinc-600" />
-              <p className="label-meta">Scarcity</p>
-           </div>
-           <h3 className="text-3xl font-mono font-bold text-white">{((TOTAL_SUPPLY - netStats.totalMined) / 1000000).toFixed(2)}M</h3>
-           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Genesis Supply Remainder</p>
+           <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2">Total Mined NEX</p>
         </div>
       </div>
 
@@ -257,7 +257,9 @@ const AdminPanel = () => {
                   </div>
                   <div className="flex gap-4">
                      <span className="text-emerald-500">[STATUS: AUTHENTICATED]</span>
-                     <span className="text-zinc-600">{u.miningActive ? "CORE: MINING" : "CORE: IDLE"}</span>
+                     <span className={`${u.miningActive ? "text-primary font-bold" : "text-zinc-600"}`}>
+                       {u.miningActive ? "CORE: MINING (ACTIVE)" : "CORE: IDLE"}
+                     </span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -269,7 +271,7 @@ const AdminPanel = () => {
          <div className="p-6 bg-zinc-900/20 border-t border-zinc-800 mt-auto">
             <div className="flex items-center gap-3 text-zinc-600">
                <Server className="w-3 h-3" />
-               <p className="text-[8px] font-bold uppercase tracking-widest">Protocol Kernel v2.6.0 | Total Operator Count: {users.length}</p>
+               <p className="text-[8px] font-bold uppercase tracking-widest">Protocol Kernel v2.6.0 | Total Operator Count: {totalRegistered}</p>
             </div>
          </div>
       </div>

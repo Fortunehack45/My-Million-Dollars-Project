@@ -207,6 +207,14 @@ export const getAllUsers = async (): Promise<User[]> => {
   return snap.docs.map(doc => doc.data() as User);
 };
 
+export const subscribeToUsers = (callback: (users: User[]) => void) => {
+  const q = query(collection(db, 'users'), orderBy('points', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    const users = snapshot.docs.map(doc => doc.data() as User);
+    callback(users);
+  });
+};
+
 export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void) => {
   return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
     if (snapshot.exists()) callback(snapshot.data() as NetworkStats);
