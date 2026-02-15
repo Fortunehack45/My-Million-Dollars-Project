@@ -21,7 +21,7 @@ const Referrals = () => {
   const remaining = Math.max(0, MAX_REFERRALS - user.referralCount);
 
   return (
-    <div className="space-y-12 max-w-5xl mx-auto py-8">
+    <div className="w-full space-y-12">
       <header className="space-y-2">
         <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">Peer Network</h1>
         <p className="text-zinc-500 text-sm font-medium">Expand network topology to earn speed boosts and direct credit bonuses.</p>

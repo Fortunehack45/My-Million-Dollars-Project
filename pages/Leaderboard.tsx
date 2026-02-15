@@ -19,7 +19,7 @@ const Leaderboard = () => {
   }, []);
 
   return (
-    <div className="space-y-12 max-w-5xl mx-auto py-8">
+    <div className="w-full space-y-12">
       <header className="space-y-2">
         <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">Protocol Rank</h1>
         <p className="text-zinc-500 text-sm font-medium">Global index of verified node performance and network contribution.</p>

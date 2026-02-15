@@ -93,7 +93,7 @@ const Dashboard = () => {
   const isSessionComplete = miningTimer >= MAX_SESSION_TIME;
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto py-8">
+    <div className="w-full space-y-8">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
           <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Infrastructure</h1>

@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { completeTask, subscribeToTasks } from '../services/firebase';
 import { Task } from '../types';
 import { Twitter, MessageCircle, Send, Globe, ShieldCheck, Loader2, Clock, AlertCircle } from 'lucide-react';
 
-// Added Promise<void> to onComplete type to fix assignment error and used React.FC to handle built-in props correctly
 const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => void | Promise<void> }> = ({ task, user, onComplete }) => {
   const [timer, setTimer] = useState<number | null>(null);
   const isCompleted = user.completedTasks.includes(task.id);
@@ -16,7 +14,6 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
     if (task.timerSeconds && task.timerSeconds > 0) {
       setTimer(task.timerSeconds);
     } else {
-      // Simulate verification delay even if no timer
       setTimeout(() => onComplete(task), 2000);
     }
   };
@@ -121,7 +118,7 @@ const SocialTasks = () => {
   if (!user) return null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-8">
+    <div className="w-full space-y-12">
       <header className="space-y-2">
         <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Protocol Tasks</h1>
         <p className="text-zinc-500 text-sm font-medium">Authenticate your identity by completing high-priority network directives.</p>

@@ -33,7 +33,7 @@ const NFTSection = () => {
   if (!user) return null;
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto py-8">
+    <div className="w-full space-y-12">
       <header className="space-y-2">
         <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">Authority Assets</h1>
         <p className="text-zinc-500 text-sm font-medium">Acquire Genesis credentials to elevate your node's infrastructure priority.</p>

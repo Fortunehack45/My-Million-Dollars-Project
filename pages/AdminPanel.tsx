@@ -105,7 +105,7 @@ const AdminPanel = () => {
   const totalRegistered = users.length;
 
   return (
-    <div className="space-y-12 max-w-7xl mx-auto py-8">
+    <div className="w-full space-y-12">
       <header className="space-y-2">
         <div className="flex items-center gap-4">
            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded">
