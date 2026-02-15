@@ -129,39 +129,49 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
   };
 
   await runTransaction(db, async (transaction) => {
+    // 1. Perform ALL Reads first
     const nameSnap = await transaction.get(nameRef);
+    const existingUserSnap = await transaction.get(userRef);
+    
+    let referrerRef = null;
+    let referrerSnap = null;
+
+    if (referrerUid) {
+      referrerRef = doc(db, 'users', referrerUid);
+      referrerSnap = await transaction.get(referrerRef);
+    }
+
+    // 2. Perform Checks
     if (nameSnap.exists()) {
       throw new Error("USERNAME_TAKEN");
     }
 
-    const existingUserSnap = await transaction.get(userRef);
     if (existingUserSnap.exists()) {
       return; 
     }
 
+    // 3. Perform ALL Writes
     transaction.set(userRef, newUser);
     transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
     
-    transaction.set(statsRef, { 
-      totalUsers: increment(1), 
-      totalMined: increment(5.0),
-      activeNodes: increment(0)
-    }, { merge: true });
+    let totalMinedToAdd = 5.0; // Base starting points
 
-    if (referrerUid) {
-      const referrerRef = doc(db, 'users', referrerUid);
-      const referrerSnap = await transaction.get(referrerRef);
-      if (referrerSnap.exists()) {
-        const refData = referrerSnap.data() as User;
-        if (refData.referralCount < MAX_REFERRALS) {
-          transaction.update(referrerRef, { 
-            referralCount: increment(1), 
-            points: increment(REFERRAL_BONUS_POINTS) 
-          });
-          transaction.update(statsRef, { totalMined: increment(REFERRAL_BONUS_POINTS) });
-        }
+    if (referrerUid && referrerSnap && referrerSnap.exists() && referrerRef) {
+      const refData = referrerSnap.data() as User;
+      if (refData.referralCount < MAX_REFERRALS) {
+        transaction.update(referrerRef, { 
+          referralCount: increment(1), 
+          points: increment(REFERRAL_BONUS_POINTS) 
+        });
+        totalMinedToAdd += REFERRAL_BONUS_POINTS;
       }
     }
+
+    transaction.set(statsRef, { 
+      totalUsers: increment(1), 
+      totalMined: increment(totalMinedToAdd),
+      activeNodes: increment(0)
+    }, { merge: true });
   });
 
   return newUser;
