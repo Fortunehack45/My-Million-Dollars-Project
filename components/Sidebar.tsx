@@ -16,11 +16,48 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL } from '../services/firebase';
 
+// Extracted components to avoid inline component definition issues with TypeScript
+const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+        isActive 
+          ? 'bg-zinc-900 text-white border border-zinc-800 shadow-[0_0_15px_rgba(244,63,94,0.1)]' 
+          : highlight 
+            ? 'text-primary hover:bg-primary/5' 
+            : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50'
+      }`}
+    >
+      <Icon className={`w-4 h-4 ${isActive || highlight ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
+      <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
+    </Link>
+  );
+};
+
+const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative group`}
+    >
+      {isActive && (
+        <div className="absolute top-0 w-8 h-1 bg-primary rounded-b-full shadow-[0_0_10px_#f43f5e]"></div>
+      )}
+      <Icon className={`w-5 h-5 transition-colors duration-200 ${isActive ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
+      <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-zinc-600'}`}>{label}</span>
+    </Link>
+  );
+};
+
 const Sidebar = () => {
   const { user, firebaseUser, logout } = useAuth();
-  const location = useLocation();
-
-  const isActive = (path: string) => location.pathname === path;
   
   // High-priority robust admin check
   const isAuthorizedAdmin = 
@@ -34,37 +71,6 @@ const Sidebar = () => {
     { to: '/referrals', label: 'Network', icon: Users },
     { to: '/leaderboard', label: 'Rank', icon: Trophy },
   ];
-
-  // Desktop Navigation Item
-  const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean }) => (
-    <Link
-      to={to}
-      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-        isActive(to) 
-          ? 'bg-zinc-900 text-white border border-zinc-800 shadow-[0_0_15px_rgba(244,63,94,0.1)]' 
-          : highlight 
-            ? 'text-primary hover:bg-primary/5' 
-            : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50'
-      }`}
-    >
-      <Icon className={`w-4 h-4 ${isActive(to) || highlight ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
-      <span className="text-[11px] font-bold uppercase tracking-widest">{label}</span>
-    </Link>
-  );
-
-  // Mobile Bottom Navigation Item
-  const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any }) => (
-    <Link
-      to={to}
-      className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative group`}
-    >
-      {isActive(to) && (
-        <div className="absolute top-0 w-8 h-1 bg-primary rounded-b-full shadow-[0_0_10px_#f43f5e]"></div>
-      )}
-      <Icon className={`w-5 h-5 transition-colors duration-200 ${isActive(to) ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
-      <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive(to) ? 'text-white' : 'text-zinc-600'}`}>{label}</span>
-    </Link>
-  );
 
   return (
     <>

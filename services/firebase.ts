@@ -110,7 +110,6 @@ export const checkUsernameTaken = async (username: string): Promise<boolean> => 
 export const createInitialProfile = async (fbUser: FirebaseUser, username: string, referrerUid: string | null): Promise<User> => {
   const userRef = doc(db, 'users', fbUser.uid);
   const nameRef = doc(db, 'usernames', username.toLowerCase());
-  const statsRef = doc(db, 'global_stats', 'network');
   
   const newUser: User = {
     uid: fbUser.uid,
@@ -128,20 +127,13 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     role: fbUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'user'
   };
 
+  // 1. Critical Transaction: Identity Creation
+  // We strictly limit the transaction to creating the user's own data to avoid security rule violations
+  // that often occur when trying to write to other users' documents (referrers) or global stats.
   await runTransaction(db, async (transaction) => {
-    // 1. Perform ALL Reads first
     const nameSnap = await transaction.get(nameRef);
     const existingUserSnap = await transaction.get(userRef);
-    
-    let referrerRef = null;
-    let referrerSnap = null;
 
-    if (referrerUid) {
-      referrerRef = doc(db, 'users', referrerUid);
-      referrerSnap = await transaction.get(referrerRef);
-    }
-
-    // 2. Perform Checks
     if (nameSnap.exists()) {
       throw new Error("USERNAME_TAKEN");
     }
@@ -150,29 +142,39 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
       return; 
     }
 
-    // 3. Perform ALL Writes
     transaction.set(userRef, newUser);
     transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
-    
-    let totalMinedToAdd = 5.0; // Base starting points
+  });
 
-    if (referrerUid && referrerSnap && referrerSnap.exists() && referrerRef) {
-      const refData = referrerSnap.data() as User;
-      if (refData.referralCount < MAX_REFERRALS) {
-        transaction.update(referrerRef, { 
-          referralCount: increment(1), 
-          points: increment(REFERRAL_BONUS_POINTS) 
-        });
-        totalMinedToAdd += REFERRAL_BONUS_POINTS;
-      }
-    }
-
-    transaction.set(statsRef, { 
+  // 2. Best-Effort Non-Blocking Updates
+  // These run independently. If they fail due to permissions, they won't block the user's signup.
+  try {
+    const statsRef = doc(db, 'global_stats', 'network');
+    await setDoc(statsRef, { 
       totalUsers: increment(1), 
-      totalMined: increment(totalMinedToAdd),
+      totalMined: increment(5.0),
       activeNodes: increment(0)
     }, { merge: true });
-  });
+  } catch (e) {
+    console.warn("Global stats update skipped (permission/network issue).");
+  }
+
+  if (referrerUid) {
+    try {
+      const referrerRef = doc(db, 'users', referrerUid);
+      await updateDoc(referrerRef, { 
+        referralCount: increment(1), 
+        points: increment(REFERRAL_BONUS_POINTS) 
+      });
+      
+      // Attempt to update global stats for the bonus points if referral succeeded
+      const statsRef = doc(db, 'global_stats', 'network');
+      await updateDoc(statsRef, { totalMined: increment(REFERRAL_BONUS_POINTS) }).catch(() => {});
+      
+    } catch (e) {
+      console.warn("Referral reward skipped (permission/network issue).");
+    }
+  }
 
   return newUser;
 };
@@ -181,21 +183,24 @@ export const startMiningSession = async (uid: string) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { miningActive: true, miningStartTime: Date.now() });
-  await updateDoc(statsRef, { activeNodes: increment(1) });
+  // Best effort stats update
+  try { await updateDoc(statsRef, { activeNodes: increment(1) }); } catch(e) {}
 };
 
 export const claimPoints = async (uid: string, amount: number) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(amount), miningActive: false, miningStartTime: null });
-  await updateDoc(statsRef, { totalMined: increment(amount), activeNodes: increment(-1) });
+  // Best effort stats update
+  try { await updateDoc(statsRef, { totalMined: increment(amount), activeNodes: increment(-1) }); } catch(e) {}
 };
 
 export const completeTask = async (uid: string, taskId: string, points: number) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(points), completedTasks: arrayUnion(taskId) });
-  await updateDoc(statsRef, { totalMined: increment(points) });
+  // Best effort stats update
+  try { await updateDoc(statsRef, { totalMined: increment(points) }); } catch(e) {}
 };
 
 export const fetchTasks = async (): Promise<Task[]> => {
