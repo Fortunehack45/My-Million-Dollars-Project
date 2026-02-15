@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { createInitialProfile, validateReferralCode } from '../services/firebase';
+import { createInitialProfile, validateReferralCode, checkUsernameTaken } from '../services/firebase';
 import { 
   Fingerprint, 
   ArrowRight, 
@@ -8,7 +8,9 @@ import {
   Terminal, 
   AlertCircle,
   Cpu,
-  Loader2
+  Loader2,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 
 const ProfileSetup = () => {
@@ -16,17 +18,39 @@ const ProfileSetup = () => {
   const [username, setUsername] = useState('');
   const [refCode, setRefCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkingName, setCheckingName] = useState(false);
+  const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Debounced username check
+  useEffect(() => {
+    if (username.length < 3) {
+      setIsNameTaken(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setCheckingName(true);
+      try {
+        const taken = await checkUsernameTaken(username);
+        setIsNameTaken(taken);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setCheckingName(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [username]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firebaseUser || !username) return;
+    if (!firebaseUser || !username || isNameTaken) return;
     
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Validate referral code if provided
       let referrerUid = null;
       if (refCode.trim()) {
         referrerUid = await validateReferralCode(refCode.trim());
@@ -40,7 +64,12 @@ const ProfileSetup = () => {
       const profile = await createInitialProfile(firebaseUser, username, referrerUid);
       refreshUser(profile);
     } catch (err: any) {
-      setError("CRITICAL_SYSTEM_ERROR: " + err.message);
+      if (err.message === "USERNAME_TAKEN") {
+        setError("CONFLICT: This handle was claimed during transmission.");
+        setIsNameTaken(true);
+      } else {
+        setError("CRITICAL_SYSTEM_ERROR: " + err.message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -48,7 +77,6 @@ const ProfileSetup = () => {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Decorative Elements */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '30px 30px' }}>
       </div>
@@ -59,28 +87,35 @@ const ProfileSetup = () => {
              <Fingerprint className="w-6 h-6 text-primary" />
           </div>
           <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">Identity_Setup</h1>
-          <p className="label-meta text-zinc-500">Initialize operator credentials for the Nexus network</p>
+          <p className="label-meta text-zinc-500">Initialize unique operator credentials</p>
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
-            {/* Username Input */}
             <div className="space-y-2">
-              <label className="label-meta text-[10px] block pl-1">Assign_Handle *</label>
+              <div className="flex justify-between items-center px-1">
+                <label className="label-meta text-[10px] block">Assign_Handle *</label>
+                {checkingName && <Loader2 className="w-3 h-3 text-zinc-600 animate-spin" />}
+                {!checkingName && isNameTaken === true && <span className="text-[8px] font-bold text-primary uppercase">Unavailable</span>}
+                {!checkingName && isNameTaken === false && <span className="text-[8px] font-bold text-emerald-500 uppercase">Unique</span>}
+              </div>
               <div className="relative group">
-                <Terminal className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-primary transition-colors" />
+                <Terminal className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isNameTaken === true ? 'text-primary' : isNameTaken === false ? 'text-emerald-500' : 'text-zinc-700'}`} />
                 <input 
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                  placeholder="Operator_Name"
-                  className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-primary/50 text-white font-mono text-sm py-4 pl-12 pr-4 rounded-xl transition-all outline-none"
+                  placeholder="Operator_Handle"
+                  className={`w-full bg-zinc-900/50 border text-white font-mono text-sm py-4 pl-12 pr-12 rounded-xl transition-all outline-none ${isNameTaken === true ? 'border-primary/50' : isNameTaken === false ? 'border-emerald-500/30' : 'border-zinc-800 focus:border-primary/50'}`}
                 />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                   {isNameTaken === true && <XCircle className="w-4 h-4 text-primary" />}
+                   {isNameTaken === false && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                </div>
               </div>
-              <p className="text-[9px] text-zinc-600 font-mono pl-1 uppercase">A-Z, 0-9, and underscores allowed</p>
+              <p className="text-[9px] text-zinc-600 font-mono pl-1 uppercase">A-Z, 0-9, and underscores | Min 3 chars</p>
             </div>
 
-            {/* Referral Input */}
             <div className="space-y-2">
               <label className="label-meta text-[10px] block pl-1">Peer_Referral_Code (Optional)</label>
               <div className="relative group">
@@ -88,7 +123,7 @@ const ProfileSetup = () => {
                 <input 
                   value={refCode}
                   onChange={(e) => setRefCode(e.target.value.toUpperCase())}
-                  placeholder="ARG-XXXXX"
+                  placeholder="NEX-XXXXX"
                   className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-primary/50 text-white font-mono text-sm py-4 pl-12 pr-4 rounded-xl transition-all outline-none uppercase"
                 />
               </div>
@@ -103,8 +138,8 @@ const ProfileSetup = () => {
           )}
 
           <button 
-            disabled={isSubmitting || !username}
-            className={`btn-primary w-full flex items-center justify-center gap-3 relative overflow-hidden ${isSubmitting || !username ? 'opacity-30 cursor-not-allowed' : ''}`}
+            disabled={isSubmitting || !username || isNameTaken !== false || username.length < 3}
+            className={`btn-primary w-full flex items-center justify-center gap-3 relative overflow-hidden ${isSubmitting || !username || isNameTaken !== false || username.length < 3 ? 'opacity-30 cursor-not-allowed' : ''}`}
           >
             {isSubmitting ? (
               <>
@@ -124,9 +159,9 @@ const ProfileSetup = () => {
            <div className="flex justify-between items-center text-[8px] font-mono text-zinc-700 uppercase font-bold tracking-widest">
               <div className="flex items-center gap-2">
                  <Cpu className="w-3 h-3" />
-                 <span>Layer_2_Identity</span>
+                 <span>Unique_Identity_Module</span>
               </div>
-              <span>Protocol_Handshake_v2</span>
+              <span>Protocol_v2.5_STABLE</span>
            </div>
         </footer>
       </div>

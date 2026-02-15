@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
-import { auth, signInWithGoogle, logout as serviceLogout, getUserData } from '../services/firebase';
+import { auth, signInWithGoogle, logout as serviceLogout, getUserData, setupPresence } from '../services/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface AuthContextType {
-  user: User | null; // Firestore Profile
-  firebaseUser: FirebaseUser | null; // Firebase Auth User
+  user: User | null;
+  firebaseUser: FirebaseUser | null;
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
@@ -23,11 +23,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
+        setupPresence(fbUser.uid); // establish heartbeat
         try {
           const profile = await getUserData(fbUser.uid);
           setUser(profile);
         } catch (error) {
-          console.error("Error fetching user profile:", error);
           setUser(null);
         }
       } else {
@@ -45,9 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setFirebaseUser(fbUser);
       const profile = await getUserData(fbUser.uid);
       setUser(profile);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const logout = async () => {
@@ -55,14 +53,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await serviceLogout();
       setFirebaseUser(null);
       setUser(null);
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    } catch (error) { console.error(error); }
   };
 
-  const refreshUser = (updatedUser: User) => {
-    setUser(updatedUser);
-  };
+  const refreshUser = (updatedUser: User) => setUser(updatedUser);
 
   return (
     <AuthContext.Provider value={{ user, firebaseUser, loading, login, logout, refreshUser }}>
