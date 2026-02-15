@@ -12,9 +12,9 @@
             colors: {
               primary: '#F43F5E',
               zinc: {
-                950: '#050507',
-                900: '#0E0E12',
-                800: '#18181B',
+                950: '#030303',
+                900: '#0A0A0B',
+                800: '#141416',
                 700: '#27272A',
                 400: '#A1A1AA',
                 100: '#F4F4F5'
@@ -33,14 +33,28 @@
       
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #050507;
+        background-color: #030303;
         color: #F4F4F5;
         -webkit-font-smoothing: antialiased;
         margin: 0;
         overflow: hidden;
       }
 
-      /* Scanline Effect */
+      /* CRT / Grain Overlay */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+        opacity: 0.04;
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      /* Scanline Effect - Sharper */
       body::before {
         content: " ";
         display: block;
@@ -49,44 +63,44 @@
         left: 0;
         bottom: 0;
         right: 0;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
         z-index: 100;
-        background-size: 100% 4px, 3px 100%;
+        background-size: 100% 2px, 3px 100%;
         pointer-events: none;
-        opacity: 0.3;
+        opacity: 0.4;
       }
 
       .surface {
-        background: #0E0E12;
-        border: 1px solid #18181B;
+        background: #0A0A0B;
+        border: 1px solid #141416;
       }
 
-      .btn-primary {
-        background: #F43F5E;
-        color: #FFFFFF;
-        font-weight: 800;
+      .btn-terminal {
+        background: transparent;
+        border: 1px solid #27272A;
+        color: #A1A1AA;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: 0.7rem;
-        padding: 0.85rem 1.5rem;
-        transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
+        letter-spacing: 0.15em;
+        font-size: 10px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.05s ease-out;
         cursor: pointer;
       }
 
-      .btn-primary:hover {
-        background: #FFFFFF;
-        color: #000000;
+      .btn-terminal:hover {
+        background: #F43F5E;
+        color: #FFFFFF;
+        border-color: #F43F5E;
+        box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
       }
 
       .label-meta {
-        font-size: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.2em;
         color: #52525B;
       }
 

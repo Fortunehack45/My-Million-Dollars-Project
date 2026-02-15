@@ -4,175 +4,211 @@ import {
   Hexagon, 
   ArrowRight, 
   ShieldCheck, 
-  Terminal, 
-  Fingerprint, 
   Activity, 
   Globe, 
   Cpu, 
-  Lock
+  Lock,
+  Wifi,
+  Database,
+  Terminal as TerminalIcon,
+  Server
 } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
   const [timestamp, setTimestamp] = useState(new Date().toISOString());
+  const [bootSequence, setBootSequence] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => setTimestamp(new Date().toISOString()), 1000);
-    return () => clearInterval(timer);
+    // Boot sequence animation
+    const bootTimer = setInterval(() => {
+      setBootSequence(prev => (prev < 100 ? prev + 1 : 100));
+    }, 20);
+    return () => {
+      clearInterval(timer);
+      clearInterval(bootTimer);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row relative">
+    <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row relative selection:bg-primary selection:text-white">
       
-      {/* Left Pane: Network Status (Desktop Only) */}
-      <div className="hidden lg:flex lg:w-3/5 border-r border-zinc-900 flex-col p-10 relative overflow-hidden">
-        {/* Dynamic Grid Background */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}>
+      {/* Left Pane: Heavy Telemetry Dashboard */}
+      <div className="hidden lg:flex lg:w-7/12 border-r border-zinc-900 flex-col p-12 relative overflow-hidden bg-zinc-950">
+        {/* Fine Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
         </div>
 
         <div className="relative z-10 flex flex-col h-full">
-          <div className="flex items-center gap-6 mb-16">
-            <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
-              <Hexagon className="w-8 h-8 text-primary" />
+          {/* Header */}
+          <div className="flex items-start justify-between mb-20">
+            <div className="flex gap-4 items-center">
+              <div className="w-10 h-10 border border-primary flex items-center justify-center bg-primary/5">
+                <Hexagon className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-white tracking-widest uppercase leading-none">Nexus_Terminal</h1>
+                <p className="label-meta mt-1 opacity-50">Infrastructure Authorization Service</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-black text-white tracking-tighter uppercase leading-none">Nexus_Staging</h1>
-              <p className="label-meta mt-1">V2.4.0 // Global Infrastructure</p>
+            <div className="text-right">
+              <p className="label-meta">Region: AWS-EAST-1</p>
+              <p className="label-meta text-primary">Status: Secure_Protocol_v2</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 mb-16">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Activity className="w-3 h-3 text-primary" />
-                <span className="label-meta text-zinc-400">Network_Health</span>
+          {/* Main Telemetry Grid */}
+          <div className="grid grid-cols-2 gap-1 px-1 border border-zinc-900 bg-zinc-900/20 mb-12">
+            {/* Live Chart Block */}
+            <div className="p-8 border-r border-zinc-900 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-3 h-3 text-primary" />
+                  <span className="label-meta">Epoch_Sync_Health</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-600">L: 14ms</span>
               </div>
-              <div className="h-24 surface rounded-lg flex items-end p-4 gap-1">
-                {[40, 70, 45, 90, 65, 80, 50, 85, 95, 60, 75, 55].map((h, i) => (
-                  <div key={i} className="flex-1 bg-primary/20 hover:bg-primary transition-colors cursor-help" style={{ height: `${h}%` }}></div>
+              <div className="h-32 flex items-end gap-[2px]">
+                {Array.from({ length: 40 }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="flex-1 bg-primary/10 hover:bg-primary/40 transition-all cursor-crosshair" 
+                    style={{ height: `${Math.random() * 80 + 20}%` }}
+                  ></div>
                 ))}
               </div>
-              <div className="flex justify-between font-mono text-[9px] text-zinc-600">
-                <span>00:00:00</span>
-                <span>LATENCY: 14MS</span>
+              <div className="flex justify-between border-t border-zinc-900 pt-4">
+                <div className="space-y-1">
+                  <p className="label-meta opacity-40">Validator_Load</p>
+                  <p className="text-sm font-mono font-bold">84.22%</p>
+                </div>
+                <div className="space-y-1 text-right">
+                  <p className="label-meta opacity-40">Queue_Depth</p>
+                  <p className="text-sm font-mono font-bold text-emerald-500">OPTIMAL</p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Globe className="w-3 h-3 text-zinc-400" />
-                <span className="label-meta text-zinc-400">Node_Distribution</span>
-              </div>
-              <div className="surface p-4 rounded-lg flex flex-col justify-center space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-500 font-mono">NORTH_AMERICA</span>
-                  <span className="text-[10px] text-white font-mono">1,402 ACTIVE</span>
-                </div>
-                <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full w-3/4"></div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-500 font-mono">EUROPE_WEST</span>
-                  <span className="text-[10px] text-white font-mono">942 ACTIVE</span>
-                </div>
-                <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                  <div className="bg-primary/50 h-full w-1/2"></div>
+            {/* Network Topology */}
+            <div className="p-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-3 h-3 text-zinc-500" />
+                  <span className="label-meta">Topology_Overview</span>
                 </div>
               </div>
+              <div className="grid grid-cols-3 gap-3">
+                {['NA_W', 'NA_E', 'EU_W', 'EU_C', 'AS_E', 'AU_S'].map((node) => (
+                  <div key={node} className="border border-zinc-800 p-3 flex flex-col items-center gap-2 bg-zinc-900/40 hover:border-primary/50 transition-colors">
+                    <span className="text-[8px] font-mono text-zinc-500">{node}</span>
+                    <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_5px_#10b981]"></div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[9px] text-zinc-500 font-mono leading-relaxed italic">
+                Cross-continental block replication verified across 1,842 nodes.
+              </p>
             </div>
           </div>
 
-          <div className="mt-auto space-y-4">
-            <div className="surface p-6 rounded-xl bg-zinc-900/20">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <p className="label-meta text-zinc-300">Live_Protocol_Feed</p>
-              </div>
-              <div className="space-y-2 font-mono text-[10px]">
-                <p className="text-zinc-600"><span className="text-primary mr-2">OK</span> [14:42:01] Block #840,122 validated by Peer_0492</p>
-                <p className="text-zinc-600"><span className="text-primary mr-2">OK</span> [14:42:05] Consensus reached for Staging_Epoch_12</p>
-                <p className="text-zinc-400 font-bold underline cursor-default tracking-tight">
-                  {">> "}SYSTEM READY FOR OPERATOR HANDSHAKE
-                </p>
+          {/* Console Feed */}
+          <div className="mt-auto border border-zinc-900 bg-zinc-950 p-6 space-y-4 font-mono text-[10px]">
+            <div className="flex justify-between items-center border-b border-zinc-900 pb-3 mb-3">
+               <div className="flex items-center gap-2">
+                 <TerminalIcon className="w-3 h-3 text-zinc-600" />
+                 <span className="label-meta text-zinc-400">Handshake_Sequence</span>
+               </div>
+               <span className="text-zinc-700">PID: 8042</span>
+            </div>
+            <div className="space-y-1 text-zinc-600">
+              <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting NexusNode Kernel v2.4.0...</p>
+              <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Initializing encrypted tunnel layers...</p>
+              <p><span className="text-primary mr-2">!!</span> {timestamp} Waiting for Operator Credentials (Handshake required)</p>
+              <div className="pt-2 flex items-center gap-3">
+                <div className="h-[2px] bg-zinc-800 flex-1 overflow-hidden">
+                  <div className="h-full bg-primary" style={{ width: `${bootSequence}%` }}></div>
+                </div>
+                <span className="text-primary font-bold">{bootSequence}%</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Pane: Access Terminal */}
-      <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-24 relative bg-zinc-950">
+      {/* Right Pane: Access Portal */}
+      <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-12 relative bg-zinc-950">
         
-        {/* Top Meta Info */}
-        <div className="absolute top-10 right-10 flex flex-col items-end space-y-1">
-          <p className="label-meta text-[9px]">{timestamp}</p>
-          <p className="label-meta text-[9px] text-primary">ACCESS_MODE: ENCRYPTED</p>
+        {/* Industrial Branding */}
+        <div className="absolute top-12 left-12 lg:hidden flex items-center gap-3">
+           <Hexagon className="w-6 h-6 text-primary" />
+           <span className="font-black text-white uppercase tracking-widest text-lg">Nexus</span>
         </div>
 
-        <div className="w-full max-w-sm space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">
-              Terminal_Access
+        <div className="w-full max-w-sm space-y-16">
+          <header className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 border border-zinc-800 bg-zinc-900/50 rounded-sm">
+              <Lock className="w-3 h-3 text-zinc-600" />
+              <span className="label-meta text-[8px]">Secure Handshake Port</span>
+            </div>
+            <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-tight">
+              Access_Authority
             </h2>
-            <p className="text-zinc-500 text-sm leading-relaxed font-medium">
-              Initialize your validator identity to secure the Argus network protocol.
+            <p className="text-zinc-500 text-sm leading-relaxed font-medium border-l-2 border-zinc-900 pl-4">
+              Authorized operators only. Connect your system identity to begin node validation.
             </p>
-          </div>
+          </header>
 
-          <div className="space-y-6">
-            <div className="surface p-8 rounded-2xl space-y-8 relative group">
-              {/* Corner Accents */}
-              <div className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-primary opacity-40"></div>
-              <div className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-primary opacity-40"></div>
-
-              <div className="space-y-6">
-                <button
-                  onClick={login}
-                  className="btn-primary w-full py-4 flex items-center justify-between group px-6"
-                >
-                  <div className="flex items-center gap-4">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-4 h-4 grayscale brightness-200 contrast-200" />
-                    <span className="tracking-[0.15em]">Auth_Google</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-
-                <div className="flex items-center gap-4 py-2">
-                  <div className="h-[1px] bg-zinc-900 flex-1"></div>
-                  <span className="label-meta opacity-20">OR</span>
-                  <div className="h-[1px] bg-zinc-900 flex-1"></div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 bg-zinc-950 border border-zinc-900 rounded-xl flex flex-col items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-zinc-600" />
-                    <span className="text-[8px] font-black text-zinc-600 uppercase">Hardware_Key</span>
-                  </div>
-                  <div className="p-4 bg-zinc-950 border border-zinc-900 rounded-xl flex flex-col items-center gap-2">
-                    <Lock className="w-4 h-4 text-zinc-600" />
-                    <span className="text-[8px] font-black text-zinc-600 uppercase">Seed_Phrase</span>
+          <div className="space-y-10">
+            {/* The Main Auth Button - Styled for Utility, Not Just Looks */}
+            <div className="p-1 border border-zinc-900 bg-zinc-900/20 rounded-md">
+              <button
+                onClick={login}
+                className="w-full bg-zinc-950 border border-zinc-800 hover:border-primary/50 py-5 flex items-center justify-between group px-8 transition-all relative overflow-hidden active:scale-[0.98]"
+              >
+                <div className="absolute inset-0 bg-primary/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 pointer-events-none"></div>
+                <div className="flex items-center gap-6 relative z-10">
+                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-5 h-5 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                  <div className="text-left">
+                    <span className="block text-[10px] font-black text-white uppercase tracking-widest">Connect Identity</span>
+                    <span className="block text-[8px] text-zinc-600 uppercase font-mono group-hover:text-primary transition-colors">Via Google Auth Relay</span>
                   </div>
                 </div>
+                <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              </button>
+            </div>
+
+            {/* System Status Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-5 border border-zinc-900 space-y-2 bg-zinc-950">
+                <ShieldCheck className="w-4 h-4 text-zinc-700" />
+                <p className="label-meta text-[8px] opacity-40">Hardware_ID</p>
+                <p className="text-[9px] font-mono text-zinc-400">UUID-7742-88X</p>
+              </div>
+              <div className="p-5 border border-zinc-900 space-y-2 bg-zinc-950">
+                <Cpu className="w-4 h-4 text-zinc-700" />
+                <p className="label-meta text-[8px] opacity-40">Encryption</p>
+                <p className="text-[9px] font-mono text-zinc-400">RSA-4096-AES</p>
               </div>
             </div>
 
-            <div className="flex justify-between items-center px-2">
-              <div className="flex items-center gap-2">
-                <Cpu className="w-3 h-3 text-zinc-700" />
-                <span className="text-[9px] font-mono font-bold text-zinc-700 uppercase">Sys_Arch: 64-bit</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-3 h-3 text-emerald-500/50" />
-                <span className="text-[9px] font-mono font-bold text-zinc-700 uppercase">SSL: AES-256</span>
-              </div>
+            {/* Bottom Links */}
+            <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest text-zinc-700">
+               <span className="hover:text-zinc-300 cursor-pointer transition-colors">Handshake FAQ</span>
+               <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+               <span className="hover:text-zinc-300 cursor-pointer transition-colors">Dev Documentation</span>
+               <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+               <span className="hover:text-zinc-300 cursor-pointer transition-colors">Support</span>
             </div>
           </div>
 
-          <footer className="pt-8 opacity-20 hover:opacity-100 transition-opacity">
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed text-center">
-              NexusNode Operating Environment // Proprietary & Confidential // Restricted Access 
-            </p>
+          <footer className="pt-8 border-t border-zinc-900 flex justify-between items-center">
+            <div className="flex gap-2 items-center">
+              <Server className="w-3 h-3 text-zinc-800" />
+              <p className="text-[8px] text-zinc-600 font-mono font-bold uppercase">System: OPERATIONAL</p>
+            </div>
+            <p className="text-[8px] text-zinc-800 font-mono font-bold uppercase">Argus Protocol v2.4.0</p>
           </footer>
         </div>
       </div>
