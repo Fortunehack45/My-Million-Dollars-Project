@@ -5,12 +5,13 @@ export interface User {
   photoURL: string | null;
   points: number;
   miningActive: boolean;
-  miningStartTime: number | null; // Timestamp
+  miningStartTime: number | null;
   referralCode: string;
   referredBy: string | null;
   referralCount: number;
-  completedTasks: string[]; // Array of Task IDs
-  ownedNFT: boolean; // Flag for Genesis NFT ownership
+  completedTasks: string[];
+  ownedNFT: boolean;
+  role?: 'admin' | 'user'; // Admin role support
 }
 
 export interface Task {
@@ -21,6 +22,13 @@ export interface Task {
   icon: 'twitter' | 'discord' | 'telegram' | 'youtube' | 'web';
   link: string;
   actionLabel: string;
+  createdAt?: number;
+}
+
+export interface NetworkStats {
+  totalMined: number;
+  totalUsers: number;
+  activeNodes: number;
 }
 
 export interface LeaderboardEntry {

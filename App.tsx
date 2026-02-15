@@ -9,6 +9,7 @@ import Referrals from './pages/Referrals';
 import NFTSection from './pages/NFTSection';
 import Login from './pages/Login';
 import ProfileSetup from './pages/ProfileSetup';
+import AdminPanel from './pages/AdminPanel';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
@@ -23,31 +24,22 @@ const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     </div>
   );
 
-  // 1. If not even signed in with Google, go to Login
   if (!firebaseUser) return <Navigate to="/login" />;
-  
-  // 2. If signed in with Google but no Firestore profile, go to Setup
   if (!user) return <Navigate to="/setup" />;
   
   return <Layout>{children}</Layout>;
 };
 
-// Public Route Wrapper (redirects to dashboard if logged in)
 const PublicRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, firebaseUser, loading } = useAuth();
-  
   if (loading) return null;
-  
-  // If fully logged in and profile exists
   if (firebaseUser && user) return <Navigate to="/" />;
-  // If authenticated but setup is missing, go to setup
   if (firebaseUser && !user) return <Navigate to="/setup" />;
-  
   return <>{children}</>;
 };
 
 const AppRoutes = () => {
-  const { firebaseUser, user, loading } = useAuth();
+  const { firebaseUser, user } = useAuth();
 
   return (
     <Routes>
@@ -88,6 +80,12 @@ const AppRoutes = () => {
       <Route path="/nft" element={
         <ProtectedRoute>
           <NFTSection />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/admin" element={
+        <ProtectedRoute>
+          <AdminPanel />
         </ProtectedRoute>
       } />
 

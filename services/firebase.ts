@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -20,9 +19,10 @@ import {
   limit,
   getDocs,
   arrayUnion,
-  orderBy
+  orderBy,
+  onSnapshot
 } from 'firebase/firestore';
-import { User, LeaderboardEntry } from '../types';
+import { User, Task, LeaderboardEntry, NetworkStats } from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
@@ -35,8 +35,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Total supply defined by the protocol
+export const TOTAL_SUPPLY = 1000000000;
 
 export const getUserData = async (uid: string): Promise<User | null> => {
   const userRef = doc(db, 'users', uid);
@@ -47,7 +50,6 @@ export const getUserData = async (uid: string): Promise<User | null> => {
   return null;
 };
 
-// Only performs the login, doesn't create the profile yet
 export const signInWithGoogle = async (): Promise<FirebaseUser> => {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
@@ -59,7 +61,7 @@ export const validateReferralCode = async (code: string): Promise<string | null>
   const q = query(collection(db, "users"), where("referralCode", "==", code.toUpperCase()), limit(1));
   const querySnapshot = await getDocs(q);
   if (!querySnapshot.empty) {
-    return querySnapshot.docs[0].id; // Return the UID of the referrer
+    return querySnapshot.docs[0].id;
   }
   return null;
 };
@@ -70,74 +72,119 @@ export const createInitialProfile = async (
   referrerUid: string | null
 ): Promise<User> => {
   const userRef = doc(db, 'users', fbUser.uid);
+  const statsRef = doc(db, 'global_stats', 'network');
   
   const newUser: User = {
     uid: fbUser.uid,
     displayName: username,
     email: fbUser.email,
     photoURL: fbUser.photoURL,
-    points: 50, // Welcome bonus
+    points: 50,
     miningActive: false,
     miningStartTime: null,
     referralCode: 'ARG-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
     referredBy: referrerUid,
     referralCount: 0,
     completedTasks: [],
-    ownedNFT: false
+    ownedNFT: false,
+    role: 'user'
   };
 
   await setDoc(userRef, newUser);
+  
+  // Update Global Stats
+  await updateDoc(statsRef, { 
+    totalUsers: increment(1),
+    totalMined: increment(50) 
+  }).catch(async () => {
+    // If doc doesn't exist, create it
+    await setDoc(statsRef, { totalUsers: 1, totalMined: 50, activeNodes: 0 });
+  });
 
-  // If referred by someone, increment their count
   if (referrerUid) {
     const referrerRef = doc(db, 'users', referrerUid);
     await updateDoc(referrerRef, {
       referralCount: increment(1),
-      points: increment(25) // Referrer bonus
+      points: increment(25)
     });
+    await updateDoc(statsRef, { totalMined: increment(25) });
   }
 
   return newUser;
 };
 
-export const logout = async () => {
-  await firebaseSignOut(auth);
-};
-
 export const startMiningSession = async (uid: string) => {
   const userRef = doc(db, 'users', uid);
+  const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { miningActive: true, miningStartTime: Date.now() });
+  await updateDoc(statsRef, { activeNodes: increment(1) });
 };
 
 export const claimPoints = async (uid: string, amount: number) => {
   const userRef = doc(db, 'users', uid);
+  const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, {
     points: increment(amount),
     miningActive: false,
     miningStartTime: null
   });
-};
-
-export const completeTask = async (uid: string, taskId: string, reward: number) => {
-  const userRef = doc(db, 'users', uid);
-  await updateDoc(userRef, {
-    completedTasks: arrayUnion(taskId),
-    points: increment(reward)
+  await updateDoc(statsRef, { 
+    totalMined: increment(amount),
+    activeNodes: increment(-1)
   });
 };
 
-export const mintNFT = async (uid: string, cost: number) => {
+export const completeTask = async (uid: string, taskId: string, points: number) => {
   const userRef = doc(db, 'users', uid);
-  const userSnap = await getDoc(userRef);
-  if (userSnap.exists() && userSnap.data().points >= cost) {
-    await updateDoc(userRef, { points: increment(-cost), ownedNFT: true });
+  const statsRef = doc(db, 'global_stats', 'network');
+  await updateDoc(userRef, {
+    points: increment(points),
+    completedTasks: arrayUnion(taskId)
+  });
+  await updateDoc(statsRef, { 
+    totalMined: increment(points)
+  });
+};
+
+export const mintNFT = async (uid: string, cost: number): Promise<boolean> => {
+  try {
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, {
+      points: increment(-cost),
+      ownedNFT: true
+    });
     return true;
+  } catch (error) {
+    console.error("Error minting NFT:", error);
+    return false;
   }
-  return false;
+};
+
+export const addNewTask = async (task: Omit<Task, 'id'>) => {
+  const taskRef = doc(collection(db, 'tasks'));
+  await setDoc(taskRef, { ...task, id: taskRef.id, createdAt: Date.now() });
+};
+
+export const fetchTasks = async (): Promise<Task[]> => {
+  const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => doc.data() as Task);
+};
+
+export const getAllUsers = async (): Promise<User[]> => {
+  const snap = await getDocs(collection(db, 'users'));
+  return snap.docs.map(doc => doc.data() as User);
+};
+
+export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void) => {
+  return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
+    if (snapshot.exists()) {
+      callback(snapshot.data() as NetworkStats);
+    }
+  });
 };
 
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
-  // Added orderBy to the query
   const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
   const querySnapshot = await getDocs(q);
   const leaderboard: LeaderboardEntry[] = [];
@@ -154,4 +201,6 @@ export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   return leaderboard;
 };
 
-export { auth, db };
+export const logout = async () => {
+  await firebaseSignOut(auth);
+};

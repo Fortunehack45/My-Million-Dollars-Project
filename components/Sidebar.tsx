@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  ShieldCheck
+  ShieldCheck,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -65,6 +66,11 @@ const Sidebar = () => {
             <NavItem to="/nft" label="Authority" icon={ShieldCheck} />
             <NavItem to="/referrals" label="Peer Network" icon={Users} />
             <NavItem to="/leaderboard" label="Protocol Rank" icon={Trophy} />
+            {user?.role === 'admin' && (
+              <div className="pt-4 mt-4 border-t border-zinc-900/50">
+                <NavItem to="/admin" label="Command Center" icon={Settings} />
+              </div>
+            )}
           </nav>
 
           {user && (
@@ -73,7 +79,7 @@ const Sidebar = () => {
                 <img src={user.photoURL || ''} className="w-8 h-8 rounded-lg grayscale border border-zinc-800" alt="" />
                 <div className="overflow-hidden">
                   <p className="text-[10px] font-bold text-white truncate">{user.displayName}</p>
-                  <p className="value-data text-[9px] text-zinc-500 uppercase">SYS_OP</p>
+                  <p className="label-meta text-[8px] text-zinc-500 uppercase">{user.role === 'admin' ? 'SYSTEM_ADMIN' : 'SYS_OP'}</p>
                 </div>
               </div>
               <button onClick={logout} className="mt-4 flex items-center space-x-3 w-full px-4 py-2 text-zinc-500 hover:text-white transition-colors">
