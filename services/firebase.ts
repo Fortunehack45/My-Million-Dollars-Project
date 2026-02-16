@@ -32,7 +32,17 @@ import {
   onDisconnect, 
   serverTimestamp 
 } from 'firebase/database';
-import { User, Task, LeaderboardEntry, NetworkStats, LandingConfig } from '../types';
+import { 
+  User, 
+  Task, 
+  LeaderboardEntry, 
+  NetworkStats, 
+  LandingConfig,
+  LegalConfig,
+  AboutConfig,
+  WhitepaperConfig,
+  ArchitecturePageConfig
+} from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
@@ -149,6 +159,64 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     copyright: "© 2026 ARGUS LABS.",
     links: {}
   }
+};
+
+export const DEFAULT_LEGAL_CONFIG: { terms: LegalConfig, privacy: LegalConfig } = {
+  terms: {
+    title: "Terms of Service",
+    lastUpdated: "January 1, 2025",
+    sections: [
+      { heading: "1. Use of Service", content: "You agree to use the service only for lawful purposes. You must not use the service to distribute malware, engage in illegal financial activities, or attack the network infrastructure." },
+      { heading: "2. No Financial Advice", content: "The ARG token and associated mining rewards are utility tokens for network participation. Nothing on this website constitutes financial advice. The value of cryptographic tokens is highly volatile." },
+      { heading: "3. Limitation of Liability", content: "Argus Labs is not liable for any damages arising from the use or inability to use the service, including but not limited to loss of funds, data, or profits." }
+    ]
+  },
+  privacy: {
+    title: "Privacy Policy",
+    lastUpdated: "January 1, 2025",
+    sections: [
+      { heading: "1. Data Collection", content: "We prioritize user anonymity. We do not collect personal identifying information (PII) unless explicitly provided (e.g., email for newsletter). Network interaction data (wallet addresses, transactions) is public on the blockchain." },
+      { heading: "2. Cookies & Analytics", content: "We use local storage for session management. We may use anonymous analytics to improve service performance." },
+      { heading: "3. Third Party Services", content: "Our authentication (Google Auth) is handled by Firebase. Please refer to Google's privacy policy for details on how they handle your login data." }
+    ]
+  }
+};
+
+export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
+  title: "Building the Foundation",
+  subtitle: "Argus Labs is a decentralized collective of engineers, cryptographers, and system architects. We are obsessed with uptime.",
+  mission: { title: "Our Mission", desc: "To eliminate the technical barrier to entry for blockchain participation through 'Zero-Touch' infrastructure." },
+  vision: { title: "Our Vision", desc: "A future where 'The Nexus' acts as the primary layer of trust for the internet, running on indestructible nodes." },
+  collective: { title: "The Collective", desc: "Distributed across 12 timezones. No headquarters. Governed by code and consensus." },
+  partners: ['SEQUOIA_COMPUTE', 'ANDREESSEN_CLOUD', 'BINANCE_LABS', 'COINBASE_VENTURES', 'POLYCHAIN_CAPITAL']
+};
+
+export const DEFAULT_WHITEPAPER_CONFIG: WhitepaperConfig = {
+  title: "Argus Protocol Whitepaper",
+  subtitle: "\"A specialized compute layer for the sovereign internet.\"",
+  version: "v1.0",
+  sections: [
+    { title: "1. Abstract", content: "The current landscape of decentralized networks suffers from a trilemma of scalability, security, and decentralization. Argus Protocol introduces a novel 'Proof-of-Uptime' consensus mechanism combined with GhostDAG topology to solve this. By decoupling execution from consensus and utilizing institutional-grade hardware requirements, Argus achieves 400,000 TPS without compromising on trustlessness." },
+    { title: "2. Introduction", content: "As Real World Assets (RWAs) move on-chain, the need for deterministic, high-frequency infrastructure becomes critical. Existing monolithic blockchains cannot handle the throughput required by global financial markets (NASDAQ, NYSE). Argus positions itself as the 'High-Speed Rail' connecting these markets to Web3." },
+    { title: "3. Technical Architecture", content: "Unlike traditional blockchains that discard orphan blocks, GhostDAG includes them in the ledger, ordering them topologically. This allows for parallel block production and utilizes the full bandwidth of the network. A custom implementation of WASM designed for parallel transaction execution. State access is sharded by account address, allowing non-conflicting transactions to execute simultaneously on different CPU cores." },
+    { title: "4. Tokenomics (ARG)", content: "The ARG token serves as gas, security staking, and governance voting weight. Total Supply: 1,000,000,000 ARG. Distribution: 40% Mining/Staking, 20% Investors, 20% Team (4yr Vest), 20% Ecosystem Fund." },
+    { title: "5. Conclusion", content: "Argus is not just another L1; it is a specialized execution environment for high-value data. By prioritizing uptime and performance, we create the necessary foundation for the next decade of crypto adoption." }
+  ]
+};
+
+export const DEFAULT_ARCHITECTURE_CONFIG: ArchitecturePageConfig = {
+  heroTitle: "The Global Truth Layer",
+  heroSubtitle: "Argus decouples consensus from execution using a novel BlockDAG topology. Linear scalability with atomic composability for institutional finance.",
+  layers: [
+    { title: 'GhostDAG Consensus', desc: 'Non-linear block ordering allowing parallel block creation without orphans.', stat: '400k TPS' },
+    { title: 'Hyper-Sharding', desc: 'Dynamic state partitioning based on account access patterns.', stat: 'Dynamic Shards' },
+    { title: 'ArgusVM', desc: 'Parallelized WASM execution environment with EVM transpiler.', stat: '< 400ms Latency' }
+  ],
+  features: [
+    { title: "Mempool Encryption", desc: "Transactions are encrypted until ordering is finalized to prevent MEV exploitation." },
+    { title: "Stake Slashing", desc: "Validators signing conflicting blocks are automatically penalized by the protocol." },
+    { title: "Global Sharding", desc: "Network automatically partitions state as node count increases." }
+  ]
 };
 
 /**
@@ -434,19 +502,8 @@ export const logout = async () => {
 export const subscribeToLandingConfig = (callback: (config: LandingConfig) => void) => {
   return onSnapshot(doc(db, 'site_content', 'landing'), (snapshot) => {
     if (snapshot.exists()) {
-      // Merge with default config to ensure all fields exist if DB is partial
       const data = snapshot.data();
-      const mergedConfig = {
-        ...DEFAULT_LANDING_CONFIG,
-        ...data,
-      };
-      // Manually ensure sections exist if deleted from DB
-      Object.keys(DEFAULT_LANDING_CONFIG).forEach(key => {
-        if (!mergedConfig[key as keyof LandingConfig]) {
-           // @ts-ignore
-           mergedConfig[key] = DEFAULT_LANDING_CONFIG[key];
-        }
-      });
+      const mergedConfig = { ...DEFAULT_LANDING_CONFIG, ...data };
       callback(mergedConfig as LandingConfig);
     } else {
       callback(DEFAULT_LANDING_CONFIG);
@@ -459,4 +516,28 @@ export const subscribeToLandingConfig = (callback: (config: LandingConfig) => vo
 
 export const updateLandingConfig = async (config: LandingConfig) => {
   await setDoc(doc(db, 'site_content', 'landing'), config, { merge: true });
+};
+
+// Generic subscribe for other pages
+export const subscribeToContent = <T>(
+  docId: string, 
+  defaultData: T, 
+  callback: (data: T) => void
+) => {
+  return onSnapshot(doc(db, 'site_content', docId), (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      const merged = { ...defaultData, ...data };
+      callback(merged as T);
+    } else {
+      callback(defaultData);
+    }
+  }, (error) => {
+    console.warn(`CMS Subscription Error [${docId}]:`, error);
+    callback(defaultData);
+  });
+};
+
+export const updateContent = async (docId: string, data: any) => {
+  await setDoc(doc(db, 'site_content', docId), data, { merge: true });
 };

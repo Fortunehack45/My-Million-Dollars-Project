@@ -4,6 +4,8 @@ import {
   GitMerge, Database, Cpu, Shield, Zap, 
   Lock, Globe, Activity, Hash, Clock, Layers
 } from 'lucide-react';
+import { subscribeToContent, DEFAULT_ARCHITECTURE_CONFIG } from '../services/firebase';
+import { ArchitecturePageConfig } from '../types';
 
 // --- Benchmark Chart Component ---
 const BenchmarkChart = () => {
@@ -58,7 +60,13 @@ const BenchmarkChart = () => {
 };
 
 const Architecture = () => {
+  const [content, setContent] = useState<ArchitecturePageConfig>(DEFAULT_ARCHITECTURE_CONFIG);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const unsubscribe = subscribeToContent('architecture_page', DEFAULT_ARCHITECTURE_CONFIG, setContent);
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -85,6 +93,9 @@ const Architecture = () => {
 
   const isVisible = (id: string) => visibleSections.has(id);
 
+  const layerIcons = [GitMerge, Database, Cpu];
+  const featureIcons = [Lock, Zap, Globe];
+
   return (
     <PublicLayout>
       <div className="relative pt-24 pb-32 overflow-hidden min-h-screen">
@@ -110,16 +121,14 @@ const Architecture = () => {
               data-id="hero-title"
               className={`text-6xl md:text-8xl font-black text-white uppercase tracking-tighter mb-8 leading-[0.9] transition-all duration-1000 delay-100 ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
             >
-              The Global<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-600">Truth Layer</span>
+              {content.heroTitle}
             </h1>
             
             <p 
               data-id="hero-desc"
               className={`text-lg md:text-xl text-zinc-400 leading-relaxed max-w-2xl mx-auto transition-all duration-1000 delay-200 ${isVisible('hero-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
             >
-              Argus decouples consensus from execution using a novel BlockDAG topology.
-              <br className="hidden md:block"/> Linear scalability with atomic composability for institutional finance.
+              {content.heroSubtitle}
             </p>
           </div>
 
@@ -146,32 +155,9 @@ const Architecture = () => {
              {/* Connection Lines (Desktop Only) */}
              <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent -translate-y-1/2 z-0"></div>
 
-             {[
-               { 
-                 id: 'layer-1',
-                 icon: GitMerge, 
-                 title: 'GhostDAG Consensus', 
-                 desc: 'Non-linear block ordering allowing parallel block creation without orphans.',
-                 stat: '400k TPS', 
-                 color: 'text-white' 
-               },
-               { 
-                 id: 'layer-2',
-                 icon: Database, 
-                 title: 'Hyper-Sharding', 
-                 desc: 'Dynamic state partitioning based on account access patterns.',
-                 stat: 'Dynamic Shards', 
-                 color: 'text-white' 
-               },
-               { 
-                 id: 'layer-3',
-                 icon: Cpu, 
-                 title: 'ArgusVM', 
-                 desc: 'Parallelized WASM execution environment with EVM transpiler.',
-                 stat: '< 400ms Latency', 
-                 color: 'text-white' 
-               }
-             ].map((layer, i) => (
+             {content.layers.map((layer, i) => {
+               const Icon = layerIcons[i] || Layers;
+               return (
                <div 
                  key={i}
                  data-id={`card-${i}`}
@@ -186,7 +172,7 @@ const Architecture = () => {
                      <div className="space-y-6 relative z-10">
                         <div className="w-14 h-14 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
                            {/* Unified Icon Color */}
-                           <layer.icon className={`w-7 h-7 text-white`} />
+                           <Icon className={`w-7 h-7 text-white`} />
                         </div>
                         <div>
                            <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest block mb-2">Layer 0{i + 1}</span>
@@ -203,7 +189,7 @@ const Architecture = () => {
                      </div>
                   </div>
                </div>
-             ))}
+             )})}
           </div>
 
           {/* New Performance Benchmarks Section */}
@@ -217,22 +203,20 @@ const Architecture = () => {
 
           {/* Security Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             {[
-                { title: "Mempool Encryption", desc: "Transactions are encrypted until ordering is finalized to prevent MEV exploitation.", icon: Lock },
-                { title: "Stake Slashing", desc: "Validators signing conflicting blocks are automatically penalized by the protocol.", icon: Zap },
-                { title: "Global Sharding", desc: "Network automatically partitions state as node count increases.", icon: Globe },
-             ].map((feat, i) => (
+             {content.features.map((feat, i) => {
+                const Icon = featureIcons[i] || Shield;
+                return (
                 <div 
                   key={i}
                   data-id={`sec-${i}`}
                   className={`p-8 rounded-2xl bg-zinc-900/20 border border-zinc-900 hover:bg-zinc-900/40 transition-all duration-700 ${isVisible(`sec-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                   style={{ transitionDelay: `${i * 150}ms` }}
                 >
-                   <feat.icon className="w-8 h-8 text-zinc-600 mb-4" />
+                   <Icon className="w-8 h-8 text-zinc-600 mb-4" />
                    <h4 className="text-white font-bold mb-2">{feat.title}</h4>
                    <p className="text-xs text-zinc-500 leading-relaxed">{feat.desc}</p>
                 </div>
-             ))}
+             )})}
           </div>
 
         </div>

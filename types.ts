@@ -40,7 +40,8 @@ export interface LeaderboardEntry {
   rank: number;
 }
 
-// CMS Types
+// --- CMS Types ---
+
 export interface LandingSection {
   isVisible: boolean;
   title: string;
@@ -58,4 +59,33 @@ export interface LandingConfig {
   faq: LandingSection & { items: Array<{q: string, a: string}> };
   cta: LandingSection & { buttonText: string };
   footer: LandingSection & { copyright: string, links: any };
+}
+
+export interface LegalConfig {
+  title: string;
+  lastUpdated: string;
+  sections: Array<{ heading: string; content: string }>;
+}
+
+export interface AboutConfig {
+  title: string;
+  subtitle: string;
+  mission: { title: string; desc: string };
+  vision: { title: string; desc: string };
+  collective: { title: string; desc: string };
+  partners: string[];
+}
+
+export interface WhitepaperConfig {
+  title: string;
+  subtitle: string;
+  version: string;
+  sections: Array<{ title: string; content: string }>;
+}
+
+export interface ArchitecturePageConfig {
+  heroTitle: string;
+  heroSubtitle: string;
+  layers: Array<{ title: string; desc: string; stat: string }>;
+  features: Array<{ title: string; desc: string }>;
 }
