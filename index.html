@@ -6,6 +6,40 @@
     <title>Argus Protocol | Institutional IaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      // --- ARGUS SECURITY PROTOCOL: SOURCE PROTECTION ---
+      
+      // 1. Disable Context Menu (Right Click)
+      document.addEventListener('contextmenu', event => event.preventDefault());
+
+      // 2. Disable Developer Tools & View Source Shortcuts
+      document.addEventListener('keydown', function(event) {
+        if (
+          event.keyCode === 123 || // F12
+          (event.ctrlKey && event.shiftKey && (event.keyCode === 73 || event.keyCode === 74 || event.keyCode === 67)) || // Ctrl+Shift+I/J/C
+          (event.ctrlKey && event.keyCode === 85) // Ctrl+U
+        ) {
+          event.preventDefault();
+          return false;
+        }
+      });
+
+      // 3. Obfuscate Console (Prevent Debugging)
+      // Replaces all console methods with empty functions to hide app logic
+      try {
+        var _0xconsole = {};
+        var methods = ['assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error', 'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log', 'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd', 'timeStamp', 'trace', 'warn'];
+        var noop = function() {};
+        for (var i = 0; i < methods.length; i++) {
+            _0xconsole[methods[i]] = noop;
+        }
+        Object.defineProperty(window, "console", {
+            value: _0xconsole,
+            writable: false,
+            configurable: false
+        });
+      } catch (e) {}
+    </script>
+    <script>
       tailwind.config = {
         theme: {
           extend: {
@@ -47,6 +81,12 @@
         -webkit-font-smoothing: antialiased;
         margin: 0;
         overflow-x: hidden;
+        
+        /* 4. Disable Text Selection/Copying */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
 
       /* CRT / Grain Overlay */
@@ -148,5 +188,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
+    <!-- 
+      **************************************************************
+      * SECURITY WARNING: SOURCE CODE ENCRYPTED BY ARGUS PROTOCOL *
+      * UNAUTHORIZED INSPECTION IS A VIOLATION OF NETWORK RULES   *
+      * IP ADDRESS LOGGED: ACCESS DENIED                           *
+      **************************************************************
+    -->
   </body>
 </html>
