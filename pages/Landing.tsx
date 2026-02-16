@@ -278,7 +278,7 @@ const Landing = () => {
                  <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
                 {content.hero.title}
               </h1>
               
