@@ -77,6 +77,7 @@ const Landing = () => {
   const beamRef = useRef({ x: 0, y: 0 });
   
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
+  const [memoryState, setMemoryState] = useState<number[]>(new Array(64).fill(0));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
 
@@ -84,6 +85,7 @@ const Landing = () => {
   useEffect(() => {
     const updateInitialPos = () => {
        const isDesktop = window.innerWidth >= 1024;
+       // Approximate location of the CPU Stats (red arrow target)
        const x = isDesktop ? window.innerWidth * 0.72 : window.innerWidth * 0.5;
        const y = isDesktop ? window.innerHeight * 0.42 : window.innerHeight * 0.6;
        
@@ -99,6 +101,20 @@ const Landing = () => {
     window.addEventListener('resize', updateInitialPos);
     return () => window.removeEventListener('resize', updateInitialPos);
   }, [hasInteracted]);
+
+  // Terminal Memory Map Simulation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMemoryState(prev => prev.map((val) => {
+         // Randomly change state: 0 (idle), 1 (active-green), 2 (locked-red), 3 (flash-white)
+         if (Math.random() > 0.98) return 3; // flash
+         if (Math.random() > 0.95) return Math.floor(Math.random() * 3); // change state
+         if (val === 3) return 1; // decay flash to active
+         return val;
+      }));
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   // Terminal Logs Simulation
   useEffect(() => {
@@ -125,7 +141,7 @@ const Landing = () => {
           level: isCrit ? 'crit' : 'info'
         };
         const newLogs = [...prev, newLog];
-        return newLogs.slice(-12);
+        return newLogs.slice(-8); // Reduced log count to make space for top dashboard
       });
     }, 600);
     return () => clearInterval(interval);
@@ -325,10 +341,61 @@ const Landing = () => {
                    </div>
                 </div>
                 
-                <div className="p-5 h-[360px] flex flex-col justify-end relative overflow-hidden bg-black/20">
+                <div className="p-5 h-[450px] flex flex-col justify-between relative overflow-hidden bg-black/20">
                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20"></div>
 
-                   <div className="space-y-1 relative z-0">
+                   {/* UPPER SYSTEM DASHBOARD */}
+                   <div className="grid grid-cols-2 gap-4 h-32 mb-4 relative z-0">
+                      {/* Memory Map Visualizer */}
+                      <div className="border border-zinc-800/50 bg-zinc-900/10 rounded p-3 flex flex-col">
+                          <div className="flex justify-between items-center text-[8px] text-zinc-500 mb-2 uppercase tracking-wider border-b border-zinc-800/50 pb-1">
+                              <span>HEAP_ALLOCATION_TABLE</span>
+                              <span className="text-primary animate-pulse">LIVE</span>
+                          </div>
+                          <div className="flex-1 grid grid-cols-8 gap-1 content-start">
+                               {memoryState.map((status, i) => (
+                                   <div 
+                                      key={i} 
+                                      className={`h-1.5 w-full rounded-[1px] transition-colors duration-300 ${
+                                          status === 3 ? 'bg-white shadow-[0_0_5px_white]' : 
+                                          status === 2 ? 'bg-primary/80' : 
+                                          status === 1 ? 'bg-emerald-500/60' : 
+                                          'bg-zinc-800/30'
+                                      }`} 
+                                   />
+                               ))}
+                          </div>
+                      </div>
+
+                      {/* Daemon Process Monitor */}
+                      <div className="border border-zinc-800/50 bg-zinc-900/10 rounded p-3 flex flex-col">
+                           <div className="flex justify-between items-center text-[8px] text-zinc-500 mb-2 uppercase tracking-wider border-b border-zinc-800/50 pb-1">
+                              <span>ACTIVE_DAEMONS</span>
+                              <span>PID</span>
+                          </div>
+                          <div className="space-y-1.5 overflow-hidden text-[9px] font-mono">
+                              <div className="flex justify-between items-center">
+                                  <span className="text-zinc-300">argus_core</span>
+                                  <span className="text-emerald-500">8022</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                  <span className="text-zinc-300">net_listener</span>
+                                  <span className="text-emerald-500">8023</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                  <span className="text-zinc-300">mempool_sync</span>
+                                  <span className="text-amber-500 animate-pulse">8041</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                  <span className="text-zinc-400">zk_prover</span>
+                                  <span className="text-zinc-600">SLEEP</span>
+                              </div>
+                          </div>
+                      </div>
+                   </div>
+
+                   {/* LOWER LOGS */}
+                   <div className="flex-1 flex flex-col justify-end space-y-1 relative z-0 min-h-0">
                      {logs.map((log) => (
                         <div key={log.id} className="grid grid-cols-[45px_1fr_60px] gap-3 items-baseline animate-slide-in-bottom">
                            <span className={`font-bold ${
@@ -350,7 +417,7 @@ const Landing = () => {
                      ))}
                    </div>
                    
-                   <div className="grid grid-cols-[45px_1fr] gap-3 items-center mt-3 pt-3 border-t border-zinc-800/50">
+                   <div className="grid grid-cols-[45px_1fr] gap-3 items-center mt-3 pt-3 border-t border-zinc-800/50 z-0">
                       <span className="text-primary font-bold">[CMD]</span>
                       <div className="flex items-center text-zinc-200">
                          sh run initialization_sequence<div className="h-4 w-2 bg-primary ml-1 animate-pulse"></div>
