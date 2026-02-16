@@ -87,15 +87,11 @@ const Landing = () => {
     let animationFrameId: number;
     const animateBeam = () => {
       setBeamPos(prev => {
-        const ease = 0.05;
+        const ease = 0.05; // Spring ease
         const dx = mousePos.x - prev.x;
         const dy = mousePos.y - prev.y;
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
-            const time = Date.now() * 0.001;
-            return {
-                x: prev.x + Math.sin(time) * 0.5,
-                y: prev.y + Math.cos(time) * 0.5
-            };
+            return prev;
         }
         return {
           x: prev.x + dx * ease,
@@ -108,37 +104,68 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos]);
 
+  // MATRIX RAIN EFFECT - Rose Themed with Vertical Fading
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     resize();
     window.addEventListener('resize', resize);
-    const alphabet = "01-ARGUS-PROTOCOL-HASH-BLOCK-";
-    const fontSize = 13;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops: number[] = Array(columns).fill(1).map(() => Math.random() * canvas.height / fontSize);
+
+    const chars = "01";
+    const fontSize = 16;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
+
     const draw = () => {
-      ctx.fillStyle = "rgba(3, 3, 3, 0.15)";
+      // Trail fade background
+      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.font = `${fontSize}px JetBrains Mono`;
+
+      ctx.font = fontSize + "px monospace";
+      const fadeSize = canvas.height * 0.25; // 25% fade area
+
       for (let i = 0; i < drops.length; i++) {
-        const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        const isHighlight = Math.random() > 0.98;
-        ctx.fillStyle = isHighlight ? "#fda4af" : "#F43F5E";
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.99) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // Opacity based on height (Fade In/Out)
+        let opacity = 1;
+        if (y < fadeSize) {
+          opacity = y / fadeSize;
+        } else if (y > canvas.height - fadeSize) {
+          opacity = (canvas.height - y) / fadeSize;
+        }
+        opacity = Math.max(opacity, 0);
+
+        // Character Color (Rose Theme)
+        // Glow effect for some characters
+        const isGlowing = Math.random() > 0.98;
+        if (isGlowing) {
+          ctx.fillStyle = `rgba(253, 164, 175, ${opacity})`; // rose-300
+        } else {
+          ctx.fillStyle = `rgba(244, 63, 94, ${opacity})`; // primary rose-500
+        }
+
+        ctx.fillText(char, x, y);
+
+        // Reset drops randomly with specific threshold
+        if (y > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
         }
-        drops[i] += 0.75;
+
+        drops[i]++;
       }
       requestRef.current = requestAnimationFrame(draw);
     };
+
     requestRef.current = requestAnimationFrame(draw);
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -195,14 +222,29 @@ const Landing = () => {
       className="bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden transition-all duration-700"
       onMouseMove={handleMouseMove}
     >
+      {/* PROFESSIONAL BACKGROUND SYSTEM */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.15]" />
+        {/* Matrix Rain Canvas */}
+        <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.25]" />
+        
+        {/* Static Grid Layer */}
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        
+        {/* Touch Light Cursor Effect */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           <div className="absolute inset-0 bg-zinc-950/80 mix-blend-multiply"></div>
+           <div className="absolute inset-0 bg-zinc-950/40 mix-blend-multiply"></div>
+           {/* Primary Beam */}
            <div 
-             className="absolute w-[300px] md:w-[500px] h-[800px] md:h-[1400px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-[60px] md:blur-[80px] will-change-transform"
-             style={{ transform: `translate3d(${beamPos.x - 250}px, ${beamPos.y - 400}px, 0) rotate(20deg)` }}
+             className="absolute w-[400px] md:w-[700px] h-[400px] md:h-[700px] bg-primary/15 blur-[100px] rounded-full will-change-transform mix-blend-screen"
+             style={{ 
+               transform: `translate3d(${beamPos.x - 350}px, ${beamPos.y - 350}px, 0)`,
+               transition: 'opacity 0.5s ease'
+             }}
+           />
+           {/* Secondary Focused Beam */}
+           <div 
+             className="absolute w-[150px] md:w-[250px] h-[150px] md:h-[250px] bg-white/5 blur-[50px] rounded-full will-change-transform mix-blend-screen"
+             style={{ transform: `translate3d(${beamPos.x - 125}px, ${beamPos.y - 125}px, 0)` }}
            />
         </div>
       </div>

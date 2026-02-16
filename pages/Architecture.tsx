@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { 
   GitMerge, Database, Cpu, Shield, Zap, 
@@ -62,10 +63,61 @@ const BenchmarkChart = () => {
 const Architecture = () => {
   const [content, setContent] = useState<ArchitecturePageConfig>(DEFAULT_ARCHITECTURE_CONFIG);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const requestRef = useRef<number>(null);
 
   useEffect(() => {
     const unsubscribe = subscribeToContent('architecture_page', DEFAULT_ARCHITECTURE_CONFIG, setContent);
     return () => unsubscribe();
+  }, []);
+
+  // MATRIX RAIN EFFECT
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const chars = "01";
+    const fontSize = 16;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = fontSize + "px monospace";
+      const fadeSize = canvas.height * 0.25;
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        let opacity = 1;
+        if (y < fadeSize) opacity = y / fadeSize;
+        else if (y > canvas.height - fadeSize) opacity = (canvas.height - y) / fadeSize;
+        opacity = Math.max(opacity, 0);
+
+        ctx.fillStyle = `rgba(244, 63, 94, ${opacity * 0.7})`; 
+        ctx.fillText(char, x, y);
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      requestRef.current = requestAnimationFrame(draw);
+    };
+
+    requestRef.current = requestAnimationFrame(draw);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      window.removeEventListener('resize', resize);
+    };
   }, []);
 
   useEffect(() => {
@@ -92,16 +144,16 @@ const Architecture = () => {
   }, []);
 
   const isVisible = (id: string) => visibleSections.has(id);
-
   const layerIcons = [GitMerge, Database, Cpu];
   const featureIcons = [Lock, Zap, Globe];
 
   return (
     <PublicLayout>
       <div className="relative pt-24 pb-32 overflow-hidden min-h-screen">
-        {/* Background Grid Animation */}
+        {/* Background Animation System */}
         <div className="fixed inset-0 z-0 pointer-events-none">
-           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+           <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.15]" />
+           <div className="absolute inset-0 bg-[linear-gradient(rgba(244,63,94,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(244,63,94,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-primary/10 blur-[120px] rounded-full mix-blend-screen"></div>
         </div>
 
@@ -150,9 +202,8 @@ const Architecture = () => {
              ))}
           </div>
 
-          {/* Core Layers Diagram - ICONS UNIFIED TO WHITE */}
+          {/* Core Layers Diagram */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-40 relative">
-             {/* Connection Lines (Desktop Only) */}
              <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent -translate-y-1/2 z-0"></div>
 
              {content.layers.map((layer, i) => {
@@ -166,12 +217,10 @@ const Architecture = () => {
                >
                   <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem]"></div>
                   <div className="bg-zinc-950 h-full rounded-[1.9rem] p-8 flex flex-col justify-between relative overflow-hidden border border-zinc-900 group-hover:border-zinc-700 transition-colors">
-                     {/* Hover Glow */}
                      <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                      
                      <div className="space-y-6 relative z-10">
                         <div className="w-14 h-14 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-                           {/* Unified Icon Color */}
                            <Icon className={`w-7 h-7 text-white`} />
                         </div>
                         <div>
@@ -192,7 +241,6 @@ const Architecture = () => {
              )})}
           </div>
 
-          {/* New Performance Benchmarks Section */}
           <div className="mb-32">
              <div className="text-center mb-12">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Protocol Benchmarks</h3>
@@ -201,7 +249,6 @@ const Architecture = () => {
              <BenchmarkChart />
           </div>
 
-          {/* Security Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
              {content.features.map((feat, i) => {
                 const Icon = featureIcons[i] || Shield;
