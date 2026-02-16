@@ -14,7 +14,7 @@
         extend: {
           colors: {
             primary: '#F43F5E',
-            zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a' }
+            zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a', 700: '#3f3f46' }
           },
           fontFamily: {
             mono: ['JetBrains Mono', 'monospace'],
@@ -26,6 +26,12 @@
             'scanline': 'scanline 8s linear infinite',
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             'marquee': 'marquee 30s linear infinite',
+            'fade-in': 'fadeIn 0.6s ease-out forwards',
+            'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'fade-in-right': 'fadeInRight 0.6s ease-out forwards',
+            'slide-in-bottom': 'slideInBottom 0.5s ease-out forwards',
+            'zoom-in': 'zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'spin-slow': 'spin 3s linear infinite',
           },
           keyframes: {
             shimmer: {
@@ -43,6 +49,26 @@
             marquee: {
               '0%': { transform: 'translateX(0)' },
               '100%': { transform: 'translateX(-50%)' }
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            fadeInRight: {
+              '0%': { opacity: '0', transform: 'translateX(-20px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            slideInBottom: {
+               '0%': { transform: 'translateY(10px)', opacity: '0' },
+               '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            zoomIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
             }
           }
         }
@@ -57,6 +83,27 @@
     body { background-color: #000000; margin: 0; font-family: 'Inter', sans-serif; }
     .mask-radial {
       mask-image: radial-gradient(circle at center, black, transparent 80%);
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    /* Custom Scrollbar for Terminals */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(24, 24, 27, 0.5); 
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #3f3f46; 
+      border-radius: 2px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #52525b; 
     }
   </style>
   <script type="importmap">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -40,10 +41,10 @@ const Dashboard = () => {
           }
         });
     }
-  }, [user?.uid]); // Only run when user ID changes (login)
+  }, [user?.uid]); 
 
   useEffect(() => {
-    const unsubscribe = subscribeToNetworkStats(setNetStats);
+    const unsubscribe = subscribeToNetworkStats(setStats => setNetStats(setStats));
     return () => unsubscribe();
   }, []);
 
@@ -110,8 +111,8 @@ const Dashboard = () => {
   const isSessionComplete = miningTimer >= MAX_SESSION_TIME;
 
   return (
-    <div className="w-full space-y-8 animate-in fade-in duration-500">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="w-full space-y-8 animate-fade-in pb-12">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -135,8 +136,8 @@ const Dashboard = () => {
       </header>
 
       {/* Boost Panel */}
-      <div className="surface p-6 md:p-8 rounded-3xl border-primary/20 bg-gradient-to-br from-zinc-900/80 to-primary/5 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+      <div className="surface p-6 md:p-8 rounded-3xl border-primary/20 bg-gradient-to-br from-zinc-900/80 to-primary/5 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden animate-zoom-in" style={{ animationDelay: '0.2s' }}>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 animate-pulse-slow"></div>
         
         <div className="flex items-center gap-6 relative z-10">
           <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/30 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
@@ -169,7 +170,7 @@ const Dashboard = () => {
           { label: 'Active Nodes', value: netStats.activeNodes.toLocaleString(), unit: 'LIVE', icon: Activity, color: 'text-primary' },
           { label: 'Cumulative Mined', value: Math.floor(netStats.totalMined).toLocaleString(), unit: 'ARG', icon: Box, color: 'text-indigo-400' }
         ].map((stat, i) => (
-          <div key={i} className="surface p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border border-zinc-900 bg-gradient-to-b from-zinc-900/40 to-zinc-950">
+          <div key={i} className="surface p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border border-zinc-900 bg-gradient-to-b from-zinc-900/40 to-zinc-950 animate-fade-in-up" style={{ animationDelay: `${0.3 + (i * 0.1)}s` }}>
             <div className="flex items-center justify-between mb-8">
               <div className="p-2.5 bg-zinc-950 border border-zinc-900 rounded-xl group-hover:border-zinc-700 transition-colors">
                  <stat.icon className={`w-4 h-4 text-zinc-500 group-hover:${stat.color} transition-colors`} />
@@ -186,8 +187,8 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 surface p-12 rounded-3xl flex flex-col items-center justify-center min-h-[420px] relative overflow-hidden border-zinc-900">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(244,63,94,0.05),transparent_70%)]"></div>
+        <div className="lg:col-span-3 surface p-12 rounded-3xl flex flex-col items-center justify-center min-h-[420px] relative overflow-hidden border-zinc-900 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(244,63,94,0.05),transparent_70%)] animate-pulse-slow"></div>
           
           <div className="absolute top-6 left-6 flex items-center gap-2 bg-zinc-950/50 px-3 py-1.5 rounded-full border border-zinc-900 backdrop-blur-md">
              <div className={`w-1.5 h-1.5 rounded-full ${user.miningActive ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`}></div>
@@ -195,7 +196,7 @@ const Dashboard = () => {
           </div>
 
           {user.miningActive ? (
-            <div className="text-center space-y-12 w-full max-w-sm relative z-10">
+            <div className="text-center space-y-12 w-full max-w-sm relative z-10 animate-zoom-in">
               <div className="space-y-4">
                 <div className="inline-block">
                   <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isSessionComplete ? 'text-emerald-500 animate-pulse' : 'text-primary'}`}>
@@ -228,8 +229,8 @@ const Dashboard = () => {
               </div>
             </div>
           ) : (
-            <div className="text-center space-y-10 max-w-sm relative z-10">
-              <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-3xl flex items-center justify-center mx-auto shadow-2xl relative group cursor-pointer" onClick={handleStartMining}>
+            <div className="text-center space-y-10 max-w-sm relative z-10 animate-fade-in">
+              <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-3xl flex items-center justify-center mx-auto shadow-2xl relative group cursor-pointer hover:border-primary/50 transition-all duration-500" onClick={handleStartMining}>
                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="absolute -inset-0.5 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-3xl opacity-50"></div>
                 <div className="relative w-full h-full bg-zinc-950 rounded-[22px] flex items-center justify-center border border-zinc-800 group-hover:border-primary/50 transition-colors">
@@ -253,8 +254,8 @@ const Dashboard = () => {
           )}
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
-          <div className="surface p-8 rounded-3xl flex-1 border-emerald-500/10 bg-emerald-500/[0.02] flex flex-col justify-between min-h-[220px]">
+        <div className="lg:col-span-2 space-y-6 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+          <div className="surface p-8 rounded-3xl flex-1 border-emerald-500/10 bg-emerald-500/[0.02] flex flex-col justify-between min-h-[220px] hover:bg-emerald-500/[0.04] transition-colors">
             <h3 className="label-meta mb-6 flex justify-between items-center text-emerald-500">
               Protocol Telemetry
               <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
@@ -269,7 +270,7 @@ const Dashboard = () => {
                 { msg: `${referrals}/20 Peering Status`, time: 'NODES', status: 'OK', color: 'text-zinc-400' },
                 { msg: `24H Cycle Initialized`, time: 'CORE', status: 'INFO', color: 'text-zinc-400' },
               ].map((log, i) => (
-                <div key={i} className="flex gap-4 border-l-2 border-emerald-500/10 pl-4 py-1 hover:bg-emerald-500/5 transition-colors rounded-r">
+                <div key={i} className="flex gap-4 border-l-2 border-emerald-500/10 pl-4 py-1 hover:bg-emerald-500/5 transition-colors rounded-r cursor-default">
                   <span className="text-zinc-600 w-12">{log.time}</span>
                   <p className="text-zinc-400 font-medium truncate">
                     <span className={`font-bold mr-2 ${log.color}`}>[{log.status}]</span> {log.msg}
@@ -279,7 +280,7 @@ const Dashboard = () => {
             </div>
           </div>
           
-          <div className="surface p-8 rounded-3xl bg-zinc-900/30 border-zinc-900 border-dashed">
+          <div className="surface p-8 rounded-3xl bg-zinc-900/30 border-zinc-900 border-dashed hover:border-zinc-700 transition-colors">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
                  <AlertTriangle className="w-4 h-4 text-amber-500" />
