@@ -243,7 +243,7 @@ const Landing = () => {
                 const index = parseInt(entry.target.getAttribute('data-index') || '0');
                 setVisibleItems((prev) => (prev.includes(index) ? prev : [...prev, index]));
             }
-            // Logic for General Sections (Architecture, Features, FAQ)
+            // Logic for General Sections (Architecture, Features, FAQ, CTA)
             const sectionId = entry.target.getAttribute('data-id');
             if (sectionId) {
                 setVisibleSections((prev) => {
@@ -717,18 +717,35 @@ const Landing = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 md:py-32 border-t border-zinc-900 relative">
+        <section className="py-20 md:py-32 border-t border-zinc-900 relative overflow-hidden">
            <div className="absolute inset-0 bg-primary/5"></div>
+           {/* Mobile-friendly ambient light */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none animate-pulse"></div>
+
            <div className="max-w-4xl mx-auto px-6 text-center relative z-10 space-y-8">
-              <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
+              <h2 
+                data-id="cta-title"
+                className={`text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.9] transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+              >
                  Secure the <br/> <span className="text-transparent bg-clip-text bg-gradient-to-b from-primary to-black/50">Genesis Block</span>
               </h2>
-              <p className="text-zinc-500 text-base md:text-lg max-w-xl mx-auto">
+              
+              <p 
+                data-id="cta-desc"
+                className={`text-zinc-500 text-base md:text-lg max-w-xl mx-auto transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: '200ms' }}
+              >
                  Join 24,000+ validators securing the next generation of decentralized compute. Early participation ensures maximum allocation.
               </p>
-              <div className="flex justify-center gap-6 pt-8">
-                 <button onClick={login} className="h-14 px-10 bg-primary text-white text-[13px] font-bold uppercase tracking-[0.1em] hover:bg-white hover:text-black transition-colors duration-300 shadow-[0_10px_40px_rgba(244,63,94,0.2)] flex items-center gap-3 rounded">
-                    Initialize Node <TerminalIcon className="w-4 h-4" />
+              
+              <div 
+                data-id="cta-btn"
+                className={`flex justify-center gap-6 pt-8 transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-btn') ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
+                style={{ transitionDelay: '400ms' }}
+              >
+                 <button onClick={login} className="h-14 px-10 bg-primary text-white text-[13px] font-bold uppercase tracking-[0.1em] hover:bg-white hover:text-black transition-all duration-300 shadow-[0_10px_40px_rgba(244,63,94,0.2)] hover:shadow-[0_0_60px_rgba(244,63,94,0.6)] flex items-center gap-3 rounded group relative overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-3">Initialize Node <TerminalIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" /></span>
+                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                  </button>
               </div>
            </div>
