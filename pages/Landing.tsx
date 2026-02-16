@@ -567,7 +567,7 @@ const Landing = () => {
               </div>
            </div>
            <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-zinc-900/50 flex justify-between items-center">
-              <span className="text-[10px] text-zinc-700 font-mono">© 2025 NEXUS LABS.</span>
+              <span className="text-[10px] text-zinc-700 font-mono">© 2026 NEXUS LABS.</span>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                  <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Systems Operational</span>
