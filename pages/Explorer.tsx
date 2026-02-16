@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { Search, Box, Activity, Clock, ChevronRight } from 'lucide-react';
+import { subscribeToNetworkStats, CURRENT_ARG_PRICE } from '../services/firebase';
+import { NetworkStats } from '../types';
 
 const Explorer = () => {
+  const [stats, setStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
   const [blocks, setBlocks] = useState<any[]>([]);
   const [txs, setTxs] = useState<any[]>([]);
 
   useEffect(() => {
-    // Generate mock data
+    const unsub = subscribeToNetworkStats(setStats);
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    // Generate simulated block/tx stream based on real network scale
     const genBlock = (i: number) => ({
       number: 14000000 + i,
       hash: '0x' + Math.random().toString(16).slice(2),
-      validator: 'Argus_Val_' + Math.floor(Math.random() * 100),
+      validator: 'Argus_Val_' + Math.floor(Math.random() * (stats.activeNodes || 100)),
       txs: Math.floor(Math.random() * 200),
       time: 'Just now'
     });
@@ -28,12 +36,14 @@ const Explorer = () => {
     setTxs(Array.from({ length: 8 }).map(() => genTx()));
 
     const interval = setInterval(() => {
-       setBlocks(prev => [genBlock(prev[0].number + 1), ...prev.slice(0, 5)]);
+       setBlocks(prev => [genBlock(prev[0]?.number ? prev[0].number + 1 : 14000000), ...prev.slice(0, 5)]);
        setTxs(prev => [genTx(), ...prev.slice(0, 7)]);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [stats.activeNodes]);
+
+  const marketCap = stats.totalMined * CURRENT_ARG_PRICE;
 
   return (
     <PublicLayout>
@@ -53,23 +63,23 @@ const Explorer = () => {
        </div>
 
        <div className="max-w-7xl mx-auto px-6 py-12">
-          {/* Stats */}
+          {/* Stats Bar - EXTRACTED FROM DATABASE */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
              <div className="surface p-6 rounded-xl">
                 <p className="label-meta text-zinc-500">ARG Price</p>
-                <p className="text-xl font-mono font-bold text-white">$4.20 <span className="text-emerald-500 text-xs">(+5.4%)</span></p>
+                <p className="text-xl font-mono font-bold text-white">${CURRENT_ARG_PRICE.toFixed(2)} <span className="text-emerald-500 text-xs">(+5.4%)</span></p>
              </div>
              <div className="surface p-6 rounded-xl">
                 <p className="label-meta text-zinc-500">Market Cap</p>
-                <p className="text-xl font-mono font-bold text-white">$842,000,000</p>
+                <p className="text-xl font-mono font-bold text-white">${Math.floor(marketCap).toLocaleString()}</p>
              </div>
              <div className="surface p-6 rounded-xl">
-                <p className="label-meta text-zinc-500">Transactions</p>
-                <p className="text-xl font-mono font-bold text-white">142.5M <span className="text-zinc-600 text-xs">(12.5 TPS)</span></p>
+                <p className="label-meta text-zinc-500">Total Credits Issued</p>
+                <p className="text-xl font-mono font-bold text-white">{Math.floor(stats.totalMined).toLocaleString()} <span className="text-zinc-600 text-xs">ARG</span></p>
              </div>
              <div className="surface p-6 rounded-xl">
                 <p className="label-meta text-zinc-500">Active Validators</p>
-                <p className="text-xl font-mono font-bold text-white">24,102</p>
+                <p className="text-xl font-mono font-bold text-white">{stats.activeNodes.toLocaleString()}</p>
              </div>
           </div>
 
@@ -77,7 +87,7 @@ const Explorer = () => {
              {/* Blocks */}
              <div className="surface rounded-2xl overflow-hidden border border-zinc-900">
                 <div className="p-6 border-b border-zinc-900 bg-zinc-900/50 flex justify-between items-center">
-                   <h3 className="font-bold text-white">Latest Blocks</h3>
+                   <h3 className="font-bold text-white uppercase text-xs tracking-widest">Latest Blocks</h3>
                    <button className="p-2 bg-zinc-900 rounded border border-zinc-800 text-zinc-500 hover:text-white"><ChevronRight className="w-4 h-4" /></button>
                 </div>
                 <div className="divide-y divide-zinc-900">
@@ -104,7 +114,7 @@ const Explorer = () => {
              {/* Txs */}
              <div className="surface rounded-2xl overflow-hidden border border-zinc-900">
                 <div className="p-6 border-b border-zinc-900 bg-zinc-900/50 flex justify-between items-center">
-                   <h3 className="font-bold text-white">Latest Transactions</h3>
+                   <h3 className="font-bold text-white uppercase text-xs tracking-widest">Latest Transactions</h3>
                    <button className="p-2 bg-zinc-900 rounded border border-zinc-800 text-zinc-500 hover:text-white"><ChevronRight className="w-4 h-4" /></button>
                 </div>
                 <div className="divide-y divide-zinc-900">

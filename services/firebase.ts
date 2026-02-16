@@ -65,6 +65,7 @@ export const BASE_MINING_RATE = 0.06; // ARG per hour
 export const REFERRAL_BOOST = 0.1; // ARG per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
+export const CURRENT_ARG_PRICE = 4.20; // Constant for valuation logic
 
 // --- DEFAULT CMS CONTENT ---
 export const DEFAULT_LANDING_CONFIG: LandingConfig = {
@@ -398,9 +399,15 @@ export const subscribeToUsers = (callback: (users: User[]) => void) => {
 
 export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void) => {
   return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
-    if (snapshot.exists()) callback(snapshot.data() as NetworkStats);
+    if (snapshot.exists()) {
+      callback(snapshot.data() as NetworkStats);
+    } else {
+      // Return actual initial state if DB is fresh
+      callback({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+    }
   }, (error) => {
     console.warn("Stats Subscription Error:", error);
+    callback({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
   });
 };
 
