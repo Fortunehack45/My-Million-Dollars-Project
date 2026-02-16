@@ -8,7 +8,7 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
-  getFirestore,
+  initializeFirestore,
   doc, 
   setDoc, 
   getDoc, 
@@ -57,7 +57,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Use initializeFirestore with long polling enabled to resolve connectivity timeouts 
+// often caused by WebSocket restrictions in restricted network environments.
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+
 export const rtdb = getDatabase(app);
 
 export const TOTAL_SUPPLY = 1000000000;
