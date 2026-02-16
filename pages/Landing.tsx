@@ -77,9 +77,9 @@ const Landing = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // 4. Matrix Background Logic
+  // 4. Matrix Background Logic (Professional Rain)
   useEffect(() => {
-    if (!isMatrixActive || !canvasRef.current) return;
+    if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -99,15 +99,21 @@ const Landing = () => {
     const drops: number[] = Array(columns).fill(1);
 
     const draw = () => {
-      ctx.fillStyle = "rgba(3, 3, 3, 0.05)";
+      // Fade effect for trails
+      ctx.fillStyle = "rgba(3, 3, 3, 0.1)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = isEmergency ? "#F43F5E" : "#10b981";
+      
+      // Select color based on state
+      ctx.fillStyle = isEmergency ? "#F43F5E" : (isMatrixActive ? "#10b981" : "#14532d");
       ctx.font = `${fontSize}px JetBrains Mono`;
 
       for (let i = 0; i < drops.length; i++) {
         const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        
+        // Speed control
+        const speed = isMatrixActive ? 0.98 : 0.992;
+        if (drops[i] * fontSize > canvas.height && Math.random() > speed) drops[i] = 0;
         drops[i]++;
       }
     };
@@ -124,36 +130,42 @@ const Landing = () => {
       className={`min-h-screen bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white transition-all duration-700 ${isEmergency ? 'grayscale contrast-150' : ''}`}
       onMouseMove={handleMouseMove}
     >
-      {/* --- BACKGROUND EFFECTS LAYER --- */}
+      {/* --- INFRASTRUCTURE BACKGROUND SYSTEM --- */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Matrix Canvas Rain */}
+        {/* Layer 1: Digital Rain Matrix (Subtle background texture) */}
         <canvas 
           ref={canvasRef} 
-          className={`absolute inset-0 transition-opacity duration-[3000ms] ${isMatrixActive ? 'opacity-30' : 'opacity-0'}`}
+          className={`absolute inset-0 transition-opacity duration-[3000ms] ${isMatrixActive ? 'opacity-40' : 'opacity-[0.08]'}`}
         />
 
-        {/* Diagnostic Clues (Visible only under scanner) */}
-        <div className="absolute inset-0 opacity-10">
-           <span className="absolute top-[12%] left-[8%] -rotate-6 font-mono text-[10px] text-zinc-600">INFRA_PATTERN_VERIFIED</span>
-           <span className="absolute top-[45%] right-[15%] rotate-12 font-mono text-[10px] text-zinc-600 border border-zinc-900 p-2">↑ ↑ ↓ ↓ ← →</span>
-           <span className="absolute bottom-[20%] left-[20%] -rotate-2 font-mono text-[10px] text-zinc-600">0x8F_KERNEL_OFFSET</span>
-           <span className="absolute bottom-[10%] right-[30%] rotate-3 font-mono text-[10px] text-zinc-600">ROOT_B_A_INITIALIZE</span>
+        {/* Layer 2: Encrypted Metadata Clues (Revealed by scanner) */}
+        <div className="absolute inset-0 opacity-[0.15]">
+           <span className="absolute top-[15%] left-[12%] -rotate-12 font-mono text-[9px] text-zinc-600 tracking-widest uppercase">INFRA_PROTOCOL_IDENTIFIED</span>
+           <span className="absolute top-[35%] right-[22%] rotate-3 font-mono text-[9px] text-zinc-600 border border-zinc-900/50 p-2">CODE: ↑ ↑ ↓ ↓ ← →</span>
+           <span className="absolute bottom-[30%] left-[18%] rotate-6 font-mono text-[9px] text-zinc-600">OFFSET_GENESIS_0x8F</span>
+           <span className="absolute bottom-[12%] right-[28%] -rotate-2 font-mono text-[9px] text-zinc-600">ROOT_B_A_SEQUENCE</span>
+           <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20rem] text-zinc-900 font-black select-none opacity-20 italic">?</span>
         </div>
 
-        {/* Structural Grid */}
+        {/* Layer 3: Structural Grid Geometry */}
         <div className="absolute inset-0 opacity-[0.03]" 
              style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
         </div>
 
-        {/* Diagnostic Scanner (Flashlight) */}
+        {/* Layer 4: Diagnostic Scanner (High-Fidelity Flashlight) */}
         <div 
           className={`absolute inset-0 transition-opacity duration-1000 ${isMatrixActive ? 'opacity-0' : 'opacity-100'}`}
           style={{
-            background: `radial-gradient(circle 350px at ${mousePos.x}px ${mousePos.y}px, transparent 0%, rgba(3,3,3,0.4) 30%, rgba(3,3,3,0.9) 60%, #030303 100%)`
+            background: `radial-gradient(circle 320px at ${mousePos.x}px ${mousePos.y}px, 
+              transparent 0%, 
+              rgba(16, 185, 129, 0.05) 15%, 
+              rgba(3, 3, 3, 0.45) 40%, 
+              rgba(3, 3, 3, 0.92) 65%, 
+              #030303 100%)`
           }}
         />
       </div>
-      {/* --- END BACKGROUND EFFECTS --- */}
+      {/* --- END BACKGROUND SYSTEM --- */}
 
       {/* Navigation */}
       <nav className="sticky top-0 z-[100] bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-900">
@@ -180,9 +192,9 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Main Content (Z-Index ensures it stays above effects) */}
+      {/* Main Content (Elevated Z-Index) */}
       <div className="relative z-10">
-        {/* Hero */}
+        {/* Hero Section */}
         <section className="pt-24 pb-40 px-6 max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
             <div className="lg:col-span-7 space-y-10">
@@ -266,7 +278,7 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Ticker */}
+        {/* Ticker Bar */}
         <div className="border-y border-zinc-900 bg-zinc-950/50 backdrop-blur-md relative py-4 overflow-hidden">
           <div className="flex items-center gap-24 animate-marquee whitespace-nowrap">
             {Array.from({length: 6}).map((_, i) => (
@@ -284,7 +296,7 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Info Sections */}
+        {/* Feature Sections */}
         <section id="protocol" className="py-40 px-6 max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             <div className="lg:col-span-4 space-y-12">
