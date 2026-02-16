@@ -10,8 +10,6 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   const navLinks = [
     { label: 'Architecture', path: '/architecture' },
-    { label: 'Validators', path: '/validators' },
-    { label: 'Explorer', path: '/explorer' },
     { label: 'Whitepaper', path: '/whitepaper' },
     { label: 'Docs', path: '/docs' },
   ];
@@ -105,9 +103,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                <div className="flex flex-col gap-4">
                   <span className="text-[10px] font-bold text-white uppercase tracking-widest">Protocol</span>
                   <Link to="/architecture" className="text-xs text-zinc-500 hover:text-primary transition-colors">Architecture</Link>
-                  <Link to="/validators" className="text-xs text-zinc-500 hover:text-primary transition-colors">Validators</Link>
                   <Link to="/whitepaper" className="text-xs text-zinc-500 hover:text-primary transition-colors">Whitepaper</Link>
-                  <Link to="/explorer" className="text-xs text-zinc-500 hover:text-primary transition-colors">Network Explorer</Link>
                </div>
                <div className="flex flex-col gap-4">
                   <span className="text-[10px] font-bold text-white uppercase tracking-widest">Company</span>

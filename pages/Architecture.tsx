@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { 
-  Layers, Database, Cpu, Network, Shield, Zap, Server, Code, 
-  GitMerge, Box, Lock, Globe, Info, Activity, Hash, 
-  Clock, ArrowUpRight, CheckCircle2, Share2 
+  GitMerge, Database, Cpu, Network, Shield, Zap, Server, Code, 
+  Lock, Globe, Activity, Hash, Clock, Share2, ArrowUpRight, 
+  CheckCircle2, Box, Layers, PlayCircle, PauseCircle
 } from 'lucide-react';
 
-// --- Advanced GhostDAG Visualization Component ---
+// --- Professional GhostDAG Visualization Component ---
 const GhostDAGVisual = () => {
   const [activeId, setActiveId] = useState<string>('tip');
+  const [isSimulating, setIsSimulating] = useState(true);
   const [tick, setTick] = useState(0);
 
-  // Simulation loop for "live" feel
+  // Simulation loop for "live" telemetry feel
   useEffect(() => {
-    const interval = setInterval(() => setTick(t => t + 1), 2000);
+    if (!isSimulating) return;
+    const interval = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isSimulating]);
 
-  // Topological Data Structure
+  // Topology Data - Statically defined for stability but styled dynamically
   const nodes = [
-    { id: 'gen', x: 60, y: 250, type: 'finalized', label: 'GEN', hash: '0x0000...0000', score: 0, time: 'T-12s' },
-    { id: 'a1', x: 160, y: 150, type: 'blue', label: 'A1', hash: '0x3F2A...91B2', score: 140, time: 'T-9s' },
-    { id: 'b1', x: 160, y: 350, type: 'red', label: 'B1', hash: '0x81C2...29A1', score: 132, time: 'T-9s' },
-    { id: 'a2', x: 280, y: 180, type: 'blue', label: 'A2', hash: '0x9B21...11C2', score: 290, time: 'T-6s' },
-    { id: 'b2', x: 280, y: 320, type: 'red', label: 'B2', hash: '0x1C99...44D3', score: 285, time: 'T-6s' },
-    { id: 'c1', x: 400, y: 120, type: 'blue', label: 'C1', hash: '0x77A1...88B2', score: 450, time: 'T-3s' },
-    { id: 'tip', x: 520, y: 250, type: 'pending', label: 'TIP', hash: '0xFFFF...EEEE', score: 610, time: 'NOW' },
+    { id: 'gen', x: 50, y: 200, type: 'finalized', label: 'GEN', hash: '0x0000...0000', score: 0, time: 'T-12s' },
+    { id: 'a1', x: 150, y: 120, type: 'blue', label: 'A1', hash: '0x3F2A...91B2', score: 140, time: 'T-9s' },
+    { id: 'b1', x: 150, y: 280, type: 'red', label: 'B1', hash: '0x81C2...29A1', score: 132, time: 'T-9s' },
+    { id: 'a2', x: 280, y: 150, type: 'blue', label: 'A2', hash: '0x9B21...11C2', score: 290, time: 'T-6s' },
+    { id: 'b2', x: 280, y: 300, type: 'red', label: 'B2', hash: '0x1C99...44D3', score: 285, time: 'T-6s' },
+    { id: 'c1', x: 400, y: 100, type: 'blue', label: 'C1', hash: '0x77A1...88B2', score: 450, time: 'T-3s' },
+    { id: 'tip', x: 520, y: 200, type: 'pending', label: 'TIP', hash: '0xFFFF...EEEE', score: 610, time: 'NOW' },
   ];
 
   const edges = [
@@ -44,21 +46,38 @@ const GhostDAGVisual = () => {
   const activeNode = nodes.find(n => n.id === activeId) || nodes[nodes.length - 1];
 
   return (
-    <div className="w-full h-[550px] bg-[#050505] rounded-3xl border border-zinc-900 overflow-hidden relative group shadow-2xl flex">
-       {/* --- LEFT: Graph Visualization Area (70%) --- */}
-       <div className="flex-1 relative h-full overflow-hidden cursor-crosshair" onClick={() => setActiveId('tip')}>
-          {/* Cyberpunk Grid Background */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(244,63,94,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(244,63,94,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent"></div>
+    <div className="w-full h-[600px] bg-[#09090b] rounded-3xl border border-zinc-900 overflow-hidden relative shadow-2xl flex flex-col md:flex-row">
+       {/* --- LEFT: Interactive Graph Area --- */}
+       <div className="flex-1 relative h-full bg-[#050505] overflow-hidden group select-none">
+          {/* Background Grid */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
           
+          {/* Controls */}
+          <div className="absolute top-6 left-6 z-30 flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/80 border border-zinc-800 rounded-full backdrop-blur-md">
+                <div className={`w-2 h-2 rounded-full ${isSimulating ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div>
+                <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-widest">
+                    {isSimulating ? 'LIVE_NET' : 'PAUSED'}
+                </span>
+            </div>
+            <button onClick={() => setIsSimulating(!isSimulating)} className="text-zinc-500 hover:text-white transition-colors">
+                {isSimulating ? <PauseCircle className="w-5 h-5" /> : <PlayCircle className="w-5 h-5" />}
+            </button>
+          </div>
+
           <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
              <defs>
-                <linearGradient id="lineGradientBlue" x1="0%" y1="0%" x2="100%" y2="0%">
-                   <stop offset="0%" stopColor="#3f3f46" stopOpacity="0.2" />
+                <linearGradient id="parentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                   <stop offset="0%" stopColor="#27272a" stopOpacity="0.1" />
                    <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.8" />
                 </linearGradient>
+                <linearGradient id="mergeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                   <stop offset="0%" stopColor="#27272a" stopOpacity="0.1" />
+                   <stop offset="100%" stopColor="#52525b" stopOpacity="0.5" />
+                </linearGradient>
                 <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                   <feGaussianBlur stdDeviation="3" result="blur" />
+                   <feGaussianBlur stdDeviation="4" result="blur" />
                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
              </defs>
@@ -68,25 +87,26 @@ const GhostDAGVisual = () => {
                 const f = nodes.find(n => n.id === edge.from)!;
                 const t = nodes.find(n => n.id === edge.to)!;
                 const isActivePath = activeId === edge.to || activeId === edge.from;
+                const isParent = edge.type === 'parent';
                 
                 return (
                    <g key={i}>
                       <path 
-                         d={`M ${f.x} ${f.y} C ${f.x + 50} ${f.y}, ${t.x - 50} ${t.y}, ${t.x} ${t.y}`}
+                         d={`M ${f.x} ${f.y} C ${f.x + 80} ${f.y}, ${t.x - 80} ${t.y}, ${t.x} ${t.y}`}
                          fill="none"
-                         stroke={edge.type === 'parent' ? "url(#lineGradientBlue)" : "#27272a"}
-                         strokeWidth={edge.type === 'parent' ? 2 : 1}
-                         strokeDasharray={edge.type === 'merge' ? "4 4" : "none"}
+                         stroke={isParent ? "url(#parentGrad)" : "url(#mergeGrad)"}
+                         strokeWidth={isParent ? 2 : 1}
+                         strokeDasharray={isParent ? "0" : "4 4"}
                          className="transition-all duration-500"
-                         style={{ opacity: isActivePath ? 1 : 0.4 }}
+                         style={{ opacity: isActivePath ? 1 : 0.3 }}
                       />
-                      {/* Data Particle */}
-                      {edge.type === 'parent' && (
-                         <circle r="2" fill="#F43F5E">
+                      {/* Data Packet Animation */}
+                      {isSimulating && isParent && (
+                         <circle r="2" fill={isActivePath ? "#fff" : "#F43F5E"}>
                             <animateMotion 
-                               dur={`${2 + (i % 2)}s`} 
+                               dur={`${1.5 + (i * 0.2)}s`} 
                                repeatCount="indefinite"
-                               path={`M ${f.x} ${f.y} C ${f.x + 50} ${f.y}, ${t.x - 50} ${t.y}, ${t.x} ${t.y}`}
+                               path={`M ${f.x} ${f.y} C ${f.x + 80} ${f.y}, ${t.x - 80} ${t.y}, ${t.x} ${t.y}`}
                             />
                          </circle>
                       )}
@@ -95,7 +115,7 @@ const GhostDAGVisual = () => {
              })}
           </svg>
 
-          {/* Interactive Nodes */}
+          {/* Nodes */}
           {nodes.map((node) => {
              const isActive = activeId === node.id;
              const isTip = node.id === 'tip';
@@ -103,32 +123,25 @@ const GhostDAGVisual = () => {
              return (
                 <div 
                    key={node.id}
-                   className={`absolute w-10 h-10 -ml-5 -mt-5 flex items-center justify-center transition-all duration-300 z-10
-                      ${isActive ? 'scale-125 z-20' : 'scale-100'}
-                   `}
+                   className={`absolute w-12 h-12 -ml-6 -mt-6 cursor-pointer z-10 transition-all duration-300 ${isActive ? 'scale-110 z-20' : 'scale-100 hover:scale-105'}`}
                    style={{ left: node.x, top: node.y }}
-                   onMouseEnter={(e) => { e.stopPropagation(); setActiveId(node.id); }}
+                   onClick={() => setActiveId(node.id)}
                 >
-                   {/* Node Shape */}
-                   <div className={`relative w-full h-full rounded-lg border flex items-center justify-center backdrop-blur-sm transition-colors duration-300
-                      ${node.type === 'blue' || node.type === 'pending' 
-                         ? 'bg-zinc-900/80 border-primary/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]' 
-                         : 'bg-zinc-950 border-zinc-800'}
-                      ${isActive ? 'border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]' : ''}
+                   {/* Glow Effect */}
+                   <div className={`absolute inset-0 rounded-full blur-xl transition-opacity duration-300 ${isActive ? 'opacity-40' : 'opacity-0'} ${node.type === 'blue' || isTip ? 'bg-primary' : 'bg-zinc-500'}`}></div>
+                   
+                   {/* Node Body */}
+                   <div className={`relative w-full h-full rounded-xl border flex items-center justify-center backdrop-blur-md transition-colors duration-300
+                      ${node.type === 'blue' || isTip 
+                         ? 'bg-zinc-900/90 border-primary/40 shadow-[0_0_15px_rgba(244,63,94,0.15)]' 
+                         : 'bg-zinc-950/90 border-zinc-800'}
+                      ${isActive ? 'border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''}
                    `}>
-                      {/* Inner Dot */}
-                      <div className={`w-2 h-2 rounded-full 
-                         ${node.type === 'blue' ? 'bg-primary' : node.type === 'pending' ? 'bg-white animate-pulse' : 'bg-zinc-600'}
-                      `}></div>
-
-                      {/* Ripple for Tip */}
-                      {isTip && (
-                         <div className="absolute inset-0 rounded-lg border border-primary/50 animate-ping"></div>
-                      )}
+                      <div className={`w-2.5 h-2.5 rounded-full ${node.type === 'blue' || isTip ? 'bg-primary' : 'bg-zinc-600'}`}></div>
                    </div>
 
                    {/* Label */}
-                   <div className={`absolute -bottom-6 text-[9px] font-mono font-bold tracking-wider transition-colors
+                   <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-mono font-bold tracking-widest whitespace-nowrap transition-colors
                       ${isActive ? 'text-white' : 'text-zinc-600'}
                    `}>
                       {node.label}
@@ -136,92 +149,105 @@ const GhostDAGVisual = () => {
                 </div>
              );
           })}
-          
-          <div className="absolute top-4 left-4 flex flex-col gap-1">
-             <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Live Topology</span>
-             </div>
-             <span className="text-[9px] font-mono text-zinc-600">Tick: {tick} | Propagation: 12ms</span>
-          </div>
        </div>
 
-       {/* --- RIGHT: HUD Inspector Panel (30%) --- */}
-       <div className="w-80 bg-zinc-900/95 border-l border-zinc-800 backdrop-blur-xl flex flex-col relative z-20">
-          <div className="p-6 border-b border-zinc-800 bg-zinc-950/50">
-             <div className="flex items-center gap-3 mb-1">
-                <Activity className="w-4 h-4 text-primary" />
-                <h3 className="text-xs font-black text-white uppercase tracking-widest">Block Inspector</h3>
+       {/* --- RIGHT: Inspector HUD --- */}
+       <div className="w-full md:w-96 bg-zinc-950 border-t md:border-t-0 md:border-l border-zinc-900 flex flex-col z-20">
+          <div className="p-6 border-b border-zinc-900 bg-zinc-900/30">
+             <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                   <Activity className="w-4 h-4 text-primary" />
+                   <h3 className="text-xs font-black text-white uppercase tracking-widest">Inspector</h3>
+                </div>
+                <div className="flex items-center gap-1.5">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                   <span className="text-[9px] font-mono text-zinc-500">SYNCED</span>
+                </div>
              </div>
-             <p className="text-[10px] text-zinc-500 font-mono">Real-time metadata analysis</p>
+             <p className="text-[10px] text-zinc-500">Live block metadata stream</p>
           </div>
 
           <div className="p-6 space-y-8 flex-1 overflow-y-auto">
-             {/* Main ID */}
-             <div className="space-y-2">
-                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
-                   <Hash className="w-3 h-3" /> Block Hash
-                </span>
-                <div className="font-mono text-sm text-white break-all leading-tight bg-zinc-950 p-3 rounded border border-zinc-800">
-                   {activeNode.hash}
-                </div>
-             </div>
-
-             {/* Status Grid */}
-             <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                   <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">State</span>
-                   <div className={`flex items-center gap-2 text-xs font-bold px-2 py-1 rounded border w-fit ${
-                      activeNode.type === 'blue' || activeNode.type === 'pending'
-                         ? 'bg-primary/10 text-primary border-primary/20'
-                         : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                   }`}>
-                      {activeNode.type === 'pending' ? 'PENDING' : 'ACCEPTED'}
-                   </div>
-                </div>
-                <div className="space-y-1">
-                   <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Blue Score</span>
-                   <div className="text-xs font-mono font-bold text-white px-2 py-1">
-                      {activeNode.score}
-                   </div>
-                </div>
-             </div>
-
-             {/* Parents */}
+             {/* Block ID */}
              <div className="space-y-3">
-                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
-                   <Share2 className="w-3 h-3" /> Parent References
+                <span className="label-meta flex items-center gap-2">
+                   <Box className="w-3 h-3" /> Block Identifier
                 </span>
-                <div className="space-y-1">
+                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800 space-y-2">
+                   <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold text-zinc-400">HASH</span>
+                      <span className="text-[10px] font-mono text-white">{activeNode.hash}</span>
+                   </div>
+                   <div className="h-px bg-zinc-800 w-full"></div>
+                   <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold text-zinc-400">NONCE</span>
+                      <span className="text-[10px] font-mono text-zinc-500">49201948</span>
+                   </div>
+                </div>
+             </div>
+
+             {/* Topology Metrics */}
+             <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-zinc-900/30 rounded-lg border border-zinc-800 space-y-2">
+                   <span className="text-[9px] font-bold text-zinc-500 uppercase">Blue Score</span>
+                   <div className="text-lg font-mono font-bold text-white">{activeNode.score}</div>
+                </div>
+                <div className="p-4 bg-zinc-900/30 rounded-lg border border-zinc-800 space-y-2">
+                   <span className="text-[9px] font-bold text-zinc-500 uppercase">DAA Score</span>
+                   <div className="text-lg font-mono font-bold text-zinc-400">{(activeNode.score * 1.05).toFixed(0)}</div>
+                </div>
+             </div>
+
+             {/* Consensus Status */}
+             <div className="space-y-3">
+                <span className="label-meta flex items-center gap-2">
+                   <Shield className="w-3 h-3" /> Consensus State
+                </span>
+                <div className={`p-3 rounded-lg border flex items-center gap-3 ${
+                   activeNode.type === 'blue' || activeNode.type === 'pending' || activeNode.type === 'finalized'
+                      ? 'bg-primary/5 border-primary/20' 
+                      : 'bg-zinc-900 border-zinc-800'
+                }`}>
+                   {activeNode.type === 'pending' ? (
+                      <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                   ) : (
+                      <CheckCircle2 className={`w-4 h-4 ${activeNode.type === 'blue' || activeNode.type === 'finalized' ? 'text-primary' : 'text-zinc-600'}`} />
+                   )}
+                   <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                      activeNode.type === 'blue' || activeNode.type === 'finalized' ? 'text-white' : 'text-zinc-400'
+                   }`}>
+                      {activeNode.type === 'pending' ? 'PROPAGATING...' : activeNode.type.toUpperCase()}
+                   </span>
+                </div>
+             </div>
+
+             {/* Parents List */}
+             <div className="space-y-3">
+                <span className="label-meta flex items-center gap-2">
+                   <Share2 className="w-3 h-3" /> DAG Parents
+                </span>
+                <div className="space-y-2">
                    {activeNode.id === 'gen' ? (
-                      <span className="text-[10px] text-zinc-600 italic">Genesis Block (No Parents)</span>
+                      <div className="text-[10px] text-zinc-600 italic pl-2">Genesis Block (Root)</div>
                    ) : (
                       edges.filter(e => e.to === activeNode.id).map((e, i) => (
-                         <div key={i} className="flex items-center justify-between text-[10px] p-2 bg-zinc-950 rounded border border-zinc-800">
-                            <span className="font-mono text-zinc-400">Node_{e.from.toUpperCase()}</span>
-                            <span className={`font-bold ${e.type === 'parent' ? 'text-primary' : 'text-zinc-600'}`}>
-                               {e.type.toUpperCase()}
+                         <div key={i} className="flex items-center justify-between p-2.5 bg-zinc-900/40 rounded border border-zinc-800/50">
+                            <span className="text-[10px] font-mono text-zinc-400">BLOCK_{e.from.toUpperCase()}</span>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                               e.type === 'parent' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-zinc-800 text-zinc-500'
+                            }`}>
+                               {e.type === 'parent' ? 'SELECTED_PARENT' : 'MERGE_SET'}
                             </span>
                          </div>
                       ))
                    )}
                 </div>
              </div>
-
-             {/* Timestamp */}
-             <div className="pt-6 border-t border-zinc-800">
-                <div className="flex justify-between items-center">
-                   <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
-                      <Clock className="w-3 h-3" /> Timestamp
-                   </span>
-                   <span className="text-[10px] font-mono text-white">{activeNode.time}</span>
-                </div>
-             </div>
           </div>
           
-          <div className="p-4 bg-zinc-950 border-t border-zinc-800">
-             <button className="w-full py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
-                View Raw Data <ArrowUpRight className="w-3 h-3" />
+          <div className="p-4 bg-zinc-950 border-t border-zinc-900">
+             <button className="w-full py-3 bg-white hover:bg-zinc-200 text-black text-[10px] font-black uppercase tracking-widest rounded transition-colors flex items-center justify-center gap-2">
+                Open in Block Explorer <ArrowUpRight className="w-3 h-3" />
              </button>
           </div>
        </div>
@@ -295,7 +321,7 @@ const Architecture = () => {
             </p>
           </div>
 
-          {/* Core Layers Diagram */}
+          {/* Core Layers Diagram - ICONS UNIFIED TO WHITE */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-40 relative">
              {/* Connection Lines (Desktop Only) */}
              <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent -translate-y-1/2 z-0"></div>
@@ -339,7 +365,8 @@ const Architecture = () => {
                      
                      <div className="space-y-6 relative z-10">
                         <div className="w-14 h-14 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-                           <layer.icon className={`w-7 h-7 ${layer.color}`} />
+                           {/* Unified Icon Color */}
+                           <layer.icon className={`w-7 h-7 text-white`} />
                         </div>
                         <div>
                            <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest block mb-2">Layer 0{i + 1}</span>

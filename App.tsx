@@ -12,8 +12,6 @@ import ProfileSetup from './pages/ProfileSetup';
 import AdminPanel from './pages/AdminPanel';
 import Landing from './pages/Landing';
 import Architecture from './pages/Architecture';
-import Validators from './pages/Validators';
-import Explorer from './pages/Explorer';
 import Whitepaper from './pages/Whitepaper';
 import Docs from './pages/Docs';
 import About from './pages/About';
@@ -102,8 +100,6 @@ const AppRoutes = () => {
 
       {/* Public Routes */}
       <Route path="/architecture" element={<Architecture />} />
-      <Route path="/validators" element={<Validators />} />
-      <Route path="/explorer" element={<Explorer />} />
       <Route path="/whitepaper" element={<Whitepaper />} />
       <Route path="/docs" element={<Docs />} />
       <Route path="/about" element={<About />} />
