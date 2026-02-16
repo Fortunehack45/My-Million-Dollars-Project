@@ -1,17 +1,9 @@
 <!DOCTYPE html>
-<!-- 
-  ACCESS RESTRICTED: ARGUS PROTOCOL SECURE ENCLAVE
-  ENCRYPTION LEVEL: MILITARY-GRADE
-  UNAUTHORIZED DECRYPTION ATTEMPTS ARE LOGGED.
-  
-  PAYLOAD_HASH: 7f8a9b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u
-  SIGNATURE: 0xDEADBEEFCAFEBABE
--->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Argus | Secure Connection...</title>
+  <title>Argus Protocol | Institutional IaaS</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,76 +28,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    body { background-color: #000; margin: 0; overflow: hidden; font-family: 'JetBrains Mono', monospace; }
-    
-    /* Loader Overlay */
-    #secure-loader {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      color: #0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease-out;
-    }
-    
-    .loader-content { text-align: center; animation: pulse 2s infinite; }
-    .scan-line {
-      position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-      background: rgba(0, 255, 0, 0.3);
-      animation: scan 3s linear infinite;
-    }
-    
-    @keyframes pulse { 0%{opacity:0.5} 50%{opacity:1} 100%{opacity:0.5} }
-    @keyframes scan { 0%{top:0%} 100%{top:100%} }
+    body { background-color: #09090b; margin: 0; font-family: 'Inter', sans-serif; }
   </style>
   <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
-    "react-dom": "https://esm.sh/react-dom@^19.2.4",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "firebase/app": "https://esm.sh/firebase@^12.9.0/app",
-    "firebase/auth": "https://esm.sh/firebase@^12.9.0/auth",
-    "firebase/firestore": "https://esm.sh/firebase@^12.9.0/firestore",
-    "firebase/database": "https://esm.sh/firebase@^12.9.0/database",
-    "react-router": "https://esm.sh/react-router@^7.13.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "firebase/": "https://esm.sh/firebase@^12.9.0/"
+  {
+    "imports": {
+      "react": "https://esm.sh/react@^19.2.4",
+      "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
+      "react-dom": "https://esm.sh/react-dom@^19.2.4",
+      "react/": "https://esm.sh/react@^19.2.4/",
+      "firebase/app": "https://esm.sh/firebase@^12.9.0/app",
+      "firebase/auth": "https://esm.sh/firebase@^12.9.0/auth",
+      "firebase/firestore": "https://esm.sh/firebase@^12.9.0/firestore",
+      "firebase/database": "https://esm.sh/firebase@^12.9.0/database",
+      "react-router": "https://esm.sh/react-router@^7.13.0",
+      "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+      "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+      "firebase/": "https://esm.sh/firebase@^12.9.0/"
+    }
   }
-}
-</script>
+  </script>
 </head>
 <body>
-  <!-- Security Loader -->
-  <div id="secure-loader">
-    <div class="scan-line"></div>
-    <div class="loader-content">
-      <div style="font-weight:900; letter-spacing: 2px; margin-bottom: 10px;">[ ENCRYPTED STREAM DETECTED ]</div>
-      <div id="loader-status" style="font-size: 12px; color: #00aa00;">Initializing Handshake...</div>
-    </div>
-  </div>
-
   <div id="root"></div>
-
-  <!-- Secure Boot Flag & Entry -->
-  <script>
-    window.__ARGUS_SECURE_BOOT = true;
-    
-    // Simulate decryption logs while waiting for React
-    const logs = ["Verifying Hash...", "Allocating Memory...", "Deciphering Payload...", "Mounting Virtual DOM..."];
-    let i = 0;
-    setInterval(() => {
-      const el = document.getElementById('loader-status');
-      if(el && i < logs.length) el.innerText = logs[i++ % logs.length];
-    }, 400);
-  </script>
-  
   <script type="module" src="./index.tsx"></script>
 </body>
 </html>
