@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData } from '../services/firebase';
@@ -18,6 +19,14 @@ const ProfileSetup = () => {
   const [checkingName, setCheckingName] = useState(false);
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-fill referral code
+  useEffect(() => {
+    const savedRef = localStorage.getItem('referralCode');
+    if (savedRef) {
+      setRefCode(savedRef.toUpperCase());
+    }
+  }, []);
 
   useEffect(() => {
     if (username.length < 3) {
@@ -66,6 +75,8 @@ const ProfileSetup = () => {
 
       const profile = await createInitialProfile(firebaseUser, username, referrerUid);
       refreshUser(profile);
+      // Clear referral code after successful signup
+      localStorage.removeItem('referralCode');
     } catch (err: any) {
       if (err.message === "USERNAME_TAKEN") {
         setError("CONFLICT: Handle claimed by another operator.");

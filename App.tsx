@@ -1,5 +1,6 @@
-import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router';
+
+import React, { useEffect } from 'react';
+import { HashRouter, Routes, Route, Navigate, useSearchParams } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -46,15 +47,28 @@ const PublicRoute = ({ children }: { children?: React.ReactNode }) => {
 
 const AppRoutes = () => {
   const { firebaseUser, user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  // Capture referral code from URL and persist it
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      localStorage.setItem('referralCode', ref);
+    }
+  }, [searchParams]);
 
   return (
     <Routes>
       <Route path="/" element={
-        loading ? null : (firebaseUser && user ? (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        ) : <Landing />)
+        loading ? null : (
+          firebaseUser ? (
+            user ? (
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            ) : <Navigate to="/setup" />
+          ) : <Landing />
+        )
       } />
 
       <Route path="/login" element={
