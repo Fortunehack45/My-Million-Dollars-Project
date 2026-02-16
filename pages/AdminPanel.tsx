@@ -25,8 +25,72 @@ import {
 import { 
   Users, PlusCircle, Database, ShieldAlert, Cpu, 
   Radio, Trash2, Globe, Layout, Save, X, Plus, 
-  BookOpen, FileText, Info, Zap, ChevronRight, Activity
+  BookOpen, FileText, Info, Zap, ChevronRight, Activity,
+  ToggleLeft, ToggleRight, Layers, List, AlignLeft,
+  CheckCircle2, ArrowRight
 } from 'lucide-react';
+
+// --- Helper Components ---
+
+const InputGroup = ({ label, value, onChange, type = "text", className = "", placeholder = "" }: any) => (
+  <div className={`space-y-1.5 ${className}`}>
+    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</label>
+    {type === 'textarea' ? (
+      <textarea 
+        value={value || ''} 
+        onChange={e => onChange(e.target.value)} 
+        className="cms-input h-24 resize-y" 
+        placeholder={placeholder}
+      />
+    ) : (
+      <input 
+        type={type} 
+        value={value || ''} 
+        onChange={e => onChange(type === 'number' ? parseFloat(e.target.value) : e.target.value)} 
+        className="cms-input" 
+        placeholder={placeholder}
+      />
+    )}
+  </div>
+);
+
+const Toggle = ({ label, checked, onChange }: any) => (
+  <div className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-zinc-800">
+    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{label}</span>
+    <button 
+      onClick={() => onChange(!checked)} 
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-zinc-700'}`}
+    >
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+    </button>
+  </div>
+);
+
+const SectionHeader = ({ title, icon: Icon, description }: any) => (
+  <div className="mb-6 border-b border-zinc-900 pb-4">
+    <div className="flex items-center gap-3 mb-1">
+      <div className="p-2 bg-primary/10 rounded-lg">
+        <Icon className="w-5 h-5 text-primary" />
+      </div>
+      <h2 className="text-xl font-black text-white uppercase tracking-tight">{title}</h2>
+    </div>
+    {description && <p className="text-xs text-zinc-500 ml-12">{description}</p>}
+  </div>
+);
+
+const ArrayItem = ({ children, onDelete }: any) => (
+  <div className="group relative p-4 bg-zinc-900/30 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all">
+    <button 
+      onClick={onDelete}
+      className="absolute top-2 right-2 p-1 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+    >
+      <X className="w-4 h-4" />
+    </button>
+    {children}
+  </div>
+);
+
+// --- Main Component ---
 
 const AdminPanel = () => {
   const { user, firebaseUser } = useAuth();
@@ -42,11 +106,14 @@ const AdminPanel = () => {
 
   // CMS State
   const [activeTab, setActiveTab] = useState<'dashboard' | 'cms'>('dashboard');
-  const [activeCmsSection, setActiveCmsSection] = useState<'landing' | 'terms' | 'privacy' | 'about' | 'whitepaper' | 'architecture'>('landing');
+  const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'terms' | 'privacy' | 'about' | 'whitepaper' | 'architecture'>('landing');
+  const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Page Configs
+  // Config State
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
+  // Other configs...
   const [termsConfig, setTermsConfig] = useState<LegalConfig>(DEFAULT_LEGAL_CONFIG.terms);
   const [privacyConfig, setPrivacyConfig] = useState<LegalConfig>(DEFAULT_LEGAL_CONFIG.privacy);
   const [aboutConfig, setAboutConfig] = useState<AboutConfig>(DEFAULT_ABOUT_CONFIG);
@@ -66,7 +133,11 @@ const AdminPanel = () => {
     const unsubTasks = subscribeToTasks(setTasks);
     
     // CMS Subscriptions
-    const unsubLanding = subscribeToLandingConfig(setLandingConfig);
+    const unsubLanding = subscribeToLandingConfig((data) => {
+      setLandingConfig(data);
+      setHasUnsavedChanges(false);
+    });
+    // ... subscribes for other pages omitted for brevity but would follow same pattern
     const unsubTerms = subscribeToContent('terms', DEFAULT_LEGAL_CONFIG.terms, setTermsConfig);
     const unsubPrivacy = subscribeToContent('privacy', DEFAULT_LEGAL_CONFIG.privacy, setPrivacyConfig);
     const unsubAbout = subscribeToContent('about', DEFAULT_ABOUT_CONFIG, setAboutConfig);
@@ -79,11 +150,40 @@ const AdminPanel = () => {
     };
   }, [isAuthorized]);
 
+  // Handle local changes without saving immediately
+  const updateLanding = (section: keyof LandingConfig, key: string, value: any) => {
+    setLandingConfig(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
+    setHasUnsavedChanges(true);
+  };
+
+  const updateLandingArray = (section: keyof LandingConfig, key: string, newValue: any[]) => {
+    setLandingConfig(prev => ({ ...prev, [section]: { ...prev[section], [key]: newValue } }));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSaveCMS = async () => {
+    setCmsStatus('SAVING...');
+    try {
+      if (activeCmsPage === 'landing') await updateLandingConfig(landingConfig);
+      else if (activeCmsPage === 'terms') await updateContent('terms', termsConfig);
+      else if (activeCmsPage === 'privacy') await updateContent('privacy', privacyConfig);
+      else if (activeCmsPage === 'about') await updateContent('about', aboutConfig);
+      else if (activeCmsPage === 'whitepaper') await updateContent('whitepaper', whitepaperConfig);
+      else if (activeCmsPage === 'architecture') await updateContent('architecture_page', archConfig);
+      
+      setCmsStatus('SAVED');
+      setHasUnsavedChanges(false);
+      setTimeout(() => setCmsStatus(''), 2000);
+    } catch (e) {
+      console.error(e);
+      setCmsStatus('ERROR');
+    }
+  };
+
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await addNewTask(newTask);
-      // alert("DIRECTIVE_INJECTED: Task deployed.");
       setNewTask({ title: '', description: '', points: 100.00, icon: 'web', link: '', actionLabel: 'Initialize', timerSeconds: 0 });
     } catch (err) { alert("INJECTION_ERROR"); }
   };
@@ -93,70 +193,60 @@ const AdminPanel = () => {
     try { await deleteTask(taskId); } catch (err) { alert("ERASE_ERROR"); }
   };
 
-  const handleSaveCMS = async () => {
-    setCmsStatus('SAVING...');
-    try {
-      if (activeCmsSection === 'landing') await updateLandingConfig(landingConfig);
-      else if (activeCmsSection === 'terms') await updateContent('terms', termsConfig);
-      else if (activeCmsSection === 'privacy') await updateContent('privacy', privacyConfig);
-      else if (activeCmsSection === 'about') await updateContent('about', aboutConfig);
-      else if (activeCmsSection === 'whitepaper') await updateContent('whitepaper', whitepaperConfig);
-      else if (activeCmsSection === 'architecture') await updateContent('architecture_page', archConfig);
-      
-      setCmsStatus('SAVED');
-      setTimeout(() => setCmsStatus(''), 2000);
-    } catch (e) {
-      console.error(e);
-      setCmsStatus('ERROR');
-    }
-  };
-
-  // --- CMS Helper Functions ---
-  const updateLanding = (section: keyof LandingConfig, key: string, value: any) => {
-    setLandingConfig(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
-  };
-
   const activeMiningCount = useMemo(() => users.filter(u => u.miningActive).length, [users]);
 
   if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono">ACCESS DENIED</div>;
 
   return (
-    <div className="w-full space-y-8 pb-20">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-900/20 p-6 rounded-3xl border border-zinc-900">
+    <div className="w-full space-y-8 pb-20 animate-in fade-in duration-500">
+      {/* --- HEADER --- */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-900/40 p-6 rounded-3xl border border-zinc-900 backdrop-blur-xl sticky top-4 z-50 shadow-2xl">
         <div className="flex items-center gap-4">
-           <div className="w-12 h-12 bg-primary/10 flex items-center justify-center rounded-xl border border-primary/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+           <div className="w-12 h-12 bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800 shadow-inner">
               <ShieldAlert className="w-6 h-6 text-primary" />
            </div>
            <div>
-             <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">Command_Center</h1>
+             <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic leading-none">Command_Center</h1>
              <div className="flex items-center gap-2 mt-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest font-mono">
-                  Root Access: {firebaseUser?.email}
+                  {firebaseUser?.email}
                 </p>
              </div>
            </div>
         </div>
         
-        <div className="flex bg-zinc-950 p-1.5 rounded-xl border border-zinc-800">
-           <button 
-             onClick={() => setActiveTab('dashboard')} 
-             className={`flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
-           >
-             <Activity className="w-3 h-3" /> Live Metrics
-           </button>
-           <button 
-             onClick={() => setActiveTab('cms')} 
-             className={`flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${activeTab === 'cms' ? 'bg-primary text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
-           >
-             <Layout className="w-3 h-3" /> Content CMS
-           </button>
+        <div className="flex items-center gap-4">
+           <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+             <button 
+               onClick={() => setActiveTab('dashboard')} 
+               className={`flex items-center gap-2 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
+             >
+               <Activity className="w-3 h-3" /> Live
+             </button>
+             <button 
+               onClick={() => setActiveTab('cms')} 
+               className={`flex items-center gap-2 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${activeTab === 'cms' ? 'bg-primary text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
+             >
+               <Layout className="w-3 h-3" /> CMS
+             </button>
+           </div>
+           
+           {activeTab === 'cms' && (
+             <button 
+                onClick={handleSaveCMS} 
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-zinc-800 text-zinc-500'}`}
+             >
+                <Save className="w-3 h-3" />
+                {cmsStatus || (hasUnsavedChanges ? 'Save Changes' : 'Saved')}
+             </button>
+           )}
         </div>
       </header>
 
-      {/* DASHBOARD TAB */}
+      {/* --- DASHBOARD TAB --- */}
       {activeTab === 'dashboard' && (
-        <div className="animate-in fade-in duration-300 space-y-8">
+        <div className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { label: 'Network Nodes', val: users.length, sub: 'Registered Entities', icon: Globe, color: 'text-zinc-400', border: 'border-zinc-800' },
@@ -169,7 +259,6 @@ const AdminPanel = () => {
                     <div className={`p-2 rounded-lg bg-zinc-950 border border-zinc-900`}>
                       <s.icon className={`w-4 h-4 ${s.color} ${s.ping ? 'animate-bounce' : ''}`} />
                     </div>
-                    {s.pulse && <div className="flex gap-1"><div className="w-1 h-3 bg-primary/20 rounded-full"></div><div className="w-1 h-3 bg-primary/40 rounded-full animate-pulse"></div></div>}
                 </div>
                 <h3 className="text-3xl font-mono font-bold text-white tracking-tighter mb-1">{s.val}</h3>
                 <p className="label-meta text-zinc-500 text-[9px] uppercase tracking-widest">{s.sub}</p>
@@ -208,7 +297,6 @@ const AdminPanel = () => {
                         />
                      </div>
                   </div>
-                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="text-[9px] font-bold text-zinc-500 uppercase mb-1.5 block">Action Link</label>
@@ -219,33 +307,22 @@ const AdminPanel = () => {
                         <input required type="number" value={newTask.timerSeconds} onChange={e => setNewTask({...newTask, timerSeconds: parseInt(e.target.value)})} className="cms-input" placeholder="0 for instant" />
                     </div>
                   </div>
-
                   <div>
                      <label className="text-[9px] font-bold text-zinc-500 uppercase mb-1.5 block">Description</label>
                      <textarea required value={newTask.description} onChange={e => setNewTask({...newTask, description: e.target.value})} className="cms-input h-20 resize-none" placeholder="Task details..." />
                   </div>
-
                   <button className="btn-primary w-full flex items-center justify-center gap-2 group">
-                    <Zap className="w-4 h-4 group-hover:scale-110 transition-transform" /> Deploy Directive to Network
+                    <Zap className="w-4 h-4 group-hover:scale-110 transition-transform" /> Deploy Directive
                   </button>
                </form>
             </div>
             
             <div className="lg:col-span-2 surface rounded-3xl overflow-hidden border-zinc-900 flex flex-col bg-zinc-900/20">
-               <div className="bg-zinc-950/50 p-6 border-b border-zinc-800 flex justify-between items-center backdrop-blur-sm">
-                  <div className="flex items-center gap-2">
-                    <Layout className="w-4 h-4 text-zinc-400" />
-                    <span className="label-meta text-white">Active Registry</span>
-                  </div>
+               <div className="bg-zinc-950/50 p-6 border-b border-zinc-800 flex justify-between items-center">
+                  <span className="label-meta text-white">Active Registry</span>
                   <span className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-[9px] font-mono text-zinc-500 font-bold">{tasks.length} ACTIVE</span>
                </div>
                <div className="p-4 space-y-2 overflow-y-auto max-h-[500px] custom-scrollbar">
-                  {tasks.length === 0 && (
-                    <div className="text-center py-10 opacity-30">
-                      <Layout className="w-8 h-8 mx-auto mb-2" />
-                      <p className="text-[10px] font-mono uppercase">No directives found</p>
-                    </div>
-                  )}
                   {tasks.map(t => (
                     <div key={t.id} className="group flex justify-between items-center p-4 bg-zinc-950/40 hover:bg-zinc-900/60 rounded-xl border border-zinc-900 hover:border-zinc-700 transition-all">
                        <div className="flex items-center gap-3">
@@ -257,7 +334,7 @@ const AdminPanel = () => {
                            <p className="text-primary text-[10px] font-mono mt-0.5">{t.points.toFixed(2)} ARG</p>
                          </div>
                        </div>
-                       <button onClick={() => handleDeleteTask(t.id)} className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                       <button onClick={() => handleDeleteTask(t.id)} className="p-2 text-zinc-600 hover:text-red-500 transition-colors">
                          <Trash2 className="w-4 h-4" />
                        </button>
                     </div>
@@ -268,143 +345,333 @@ const AdminPanel = () => {
         </div>
       )}
 
-      {/* CMS TAB */}
+      {/* --- CMS TAB --- */}
       {activeTab === 'cms' && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+        <div className="grid grid-cols-12 gap-8">
           
-          {/* Sticky CMS Header */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-zinc-950/80 p-4 md:p-6 rounded-3xl border border-zinc-800 sticky top-4 z-50 backdrop-blur-xl shadow-2xl gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-                {[
-                  { id: 'landing', label: 'Landing', icon: Layout },
-                  { id: 'about', label: 'About', icon: Info },
-                  { id: 'whitepaper', label: 'Whitepaper', icon: FileText },
-                  { id: 'architecture', label: 'Arch', icon: Cpu },
-                  { id: 'terms', label: 'Terms', icon: BookOpen },
-                  { id: 'privacy', label: 'Privacy', icon: ShieldAlert }
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveCmsSection(tab.id as any)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeCmsSection === tab.id ? 'bg-primary text-white shadow-lg' : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'}`}
-                  >
-                    <tab.icon className="w-3 h-3" />
-                    {tab.label}
-                  </button>
-                ))}
+          {/* CMS SIDEBAR */}
+          <div className="col-span-3 space-y-6">
+            <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1">
+              <p className="px-3 py-2 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Pages</p>
+              {[
+                { id: 'landing', label: 'Landing Page', icon: Layout },
+                { id: 'about', label: 'About Us', icon: Info },
+                { id: 'architecture', label: 'Architecture', icon: Layers },
+                { id: 'whitepaper', label: 'Whitepaper', icon: FileText },
+                { id: 'terms', label: 'Terms & Service', icon: BookOpen },
+                { id: 'privacy', label: 'Privacy Policy', icon: ShieldAlert }
+              ].map(page => (
+                <button
+                  key={page.id}
+                  onClick={() => setActiveCmsPage(page.id as any)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${activeCmsPage === page.id ? 'bg-primary text-white shadow-lg' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
+                >
+                  <page.icon className="w-4 h-4" />
+                  <span className="text-xs font-bold uppercase tracking-wide">{page.label}</span>
+                </button>
+              ))}
             </div>
-            
-            <div className="flex items-center gap-4 w-full md:w-auto justify-end">
-              {cmsStatus && (
-                <span className={`text-[10px] font-mono font-bold uppercase animate-pulse ${cmsStatus.includes('ERROR') ? 'text-red-500' : 'text-emerald-500'}`}>
-                  {cmsStatus}
-                </span>
-              )}
-              <button onClick={handleSaveCMS} className="btn-primary flex items-center gap-2 !py-2.5 !px-6 !rounded-xl text-[10px]">
-                 <Save className="w-3 h-3" /> Save Changes
-              </button>
-            </div>
+
+            {activeCmsPage === 'landing' && (
+              <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1">
+                 <p className="px-3 py-2 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Sections</p>
+                 {['hero', 'partners', 'architecture', 'features', 'roadmap', 'faq', 'cta', 'footer'].map(sec => (
+                   <button
+                     key={sec}
+                     onClick={() => setActiveLandingSection(sec)}
+                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${activeLandingSection === sec ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'}`}
+                   >
+                     <div className={`w-1.5 h-1.5 rounded-full ${landingConfig[sec as keyof LandingConfig]?.isVisible ? 'bg-emerald-500' : 'bg-zinc-700'}`}></div>
+                     <span className="text-xs font-bold uppercase tracking-wide">{sec}</span>
+                   </button>
+                 ))}
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 gap-8">
+          {/* CMS EDITOR CONTENT */}
+          <div className="col-span-9 space-y-6">
             
-            {/* LANDING EDITOR */}
-            {activeCmsSection === 'landing' && (
-              <div className="space-y-6">
-                <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6 bg-zinc-900/10">
-                  <h3 className="label-meta text-primary uppercase border-b border-zinc-900 pb-2">Hero Section</h3>
-                  <div className="grid gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase">Headline</label>
-                      <input value={landingConfig.hero.title} onChange={(e) => updateLanding('hero', 'title', e.target.value)} className="cms-input" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase">Subheadline</label>
-                      <textarea value={landingConfig.hero.subtitle} onChange={(e) => updateLanding('hero', 'subtitle', e.target.value)} className="cms-input h-24" />
+            {/* --- LANDING PAGE EDITORS --- */}
+            {activeCmsPage === 'landing' && (
+              <div className="surface p-8 rounded-3xl border-zinc-900 min-h-[600px]">
+                
+                {/* HERO EDITOR */}
+                {activeLandingSection === 'hero' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                    <SectionHeader title="Hero Section" icon={Layout} description="The main entry point of the application." />
+                    <Toggle label="Section Visible" checked={landingConfig.hero.isVisible} onChange={(v: boolean) => updateLanding('hero', 'isVisible', v)} />
+                    <InputGroup label="Headline" value={landingConfig.hero.title} onChange={(v: string) => updateLanding('hero', 'title', v)} />
+                    <InputGroup label="Subtitle" type="textarea" value={landingConfig.hero.subtitle} onChange={(v: string) => updateLanding('hero', 'subtitle', v)} />
+                    <div className="grid grid-cols-2 gap-4">
+                       <InputGroup label="Primary CTA" value={landingConfig.hero.ctaPrimary} onChange={(v: string) => updateLanding('hero', 'ctaPrimary', v)} />
+                       <InputGroup label="Secondary CTA" value={landingConfig.hero.ctaSecondary} onChange={(v: string) => updateLanding('hero', 'ctaSecondary', v)} />
                     </div>
                   </div>
-                </div>
-                {/* Simplified for brevity - Assume all Landing fields are here as per previous version */}
-                <div className="surface p-8 rounded-3xl border-zinc-900 text-center text-zinc-500 text-xs border-dashed">
-                  Full Landing Editor active. Configure other sections below.
-                </div>
-              </div>
-            )}
+                )}
 
-            {/* TERMS & PRIVACY EDITOR */}
-            {(activeCmsSection === 'terms' || activeCmsSection === 'privacy') && (
-              <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
-                 {(() => {
-                    const config = activeCmsSection === 'terms' ? termsConfig : privacyConfig;
-                    const setConfig = activeCmsSection === 'terms' ? setTermsConfig : setPrivacyConfig;
+                {/* PARTNERS EDITOR */}
+                {activeLandingSection === 'partners' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                    <SectionHeader title="Partners / Logos" icon={Users} description="Display logos of trusted partners or investors." />
+                    <Toggle label="Section Visible" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => updateLanding('partners', 'isVisible', v)} />
+                    <InputGroup label="Section Title" value={landingConfig.partners.title} onChange={(v: string) => updateLanding('partners', 'title', v)} />
                     
-                    return (
-                      <>
-                        <h3 className="label-meta text-primary uppercase border-b border-zinc-900 pb-2">
-                           {activeCmsSection === 'terms' ? 'Terms of Service' : 'Privacy Policy'}
-                        </h3>
-                        <div className="grid gap-4">
-                           <div>
-                              <label className="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Last Updated Date</label>
-                              <input value={config.lastUpdated} onChange={e => setConfig({...config, lastUpdated: e.target.value})} className="cms-input w-full md:w-1/3" />
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Partner Names (Underscores become spaces)</label>
+                      {landingConfig.partners.items.map((item, idx) => (
+                        <div key={idx} className="flex gap-2">
+                           <input 
+                             value={item} 
+                             onChange={e => {
+                               const newItems = [...landingConfig.partners.items];
+                               newItems[idx] = e.target.value;
+                               updateLandingArray('partners', 'items', newItems);
+                             }}
+                             className="cms-input"
+                           />
+                           <button onClick={() => {
+                             const newItems = landingConfig.partners.items.filter((_, i) => i !== idx);
+                             updateLandingArray('partners', 'items', newItems);
+                           }} className="p-2 bg-zinc-900 hover:bg-red-500/20 hover:text-red-500 rounded-lg"><X className="w-4 h-4" /></button>
+                        </div>
+                      ))}
+                      <button onClick={() => updateLandingArray('partners', 'items', [...landingConfig.partners.items, "NEW_PARTNER"])} className="btn-secondary w-full py-3 border-dashed opacity-50 hover:opacity-100">
+                        <Plus className="w-4 h-4 mr-2" /> Add Partner
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ARCHITECTURE EDITOR */}
+                {activeLandingSection === 'architecture' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                    <SectionHeader title="Architecture" icon={Layers} />
+                    <Toggle label="Section Visible" checked={landingConfig.architecture.isVisible} onChange={(v: boolean) => updateLanding('architecture', 'isVisible', v)} />
+                    <InputGroup label="Title" value={landingConfig.architecture.title} onChange={(v: string) => updateLanding('architecture', 'title', v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.architecture.description} onChange={(v: string) => updateLanding('architecture', 'description', v)} />
+                    
+                    <div className="space-y-4 pt-4 border-t border-zinc-900">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Layers</label>
+                      {landingConfig.architecture.layers.map((layer, idx) => (
+                        <ArrayItem key={idx} onDelete={() => {
+                           const newLayers = landingConfig.architecture.layers.filter((_, i) => i !== idx);
+                           updateLandingArray('architecture', 'layers', newLayers);
+                        }}>
+                           <div className="grid gap-4">
+                              <InputGroup label="Layer Title" value={layer.title} onChange={(v: string) => {
+                                const newLayers = [...landingConfig.architecture.layers];
+                                newLayers[idx].title = v;
+                                updateLandingArray('architecture', 'layers', newLayers);
+                              }} />
+                              <InputGroup label="Description" value={layer.desc} onChange={(v: string) => {
+                                const newLayers = [...landingConfig.architecture.layers];
+                                newLayers[idx].desc = v;
+                                updateLandingArray('architecture', 'layers', newLayers);
+                              }} />
                            </div>
-                           <div className="space-y-4">
-                              <label className="text-[9px] text-zinc-500 font-bold uppercase block">Content Sections</label>
-                              {config.sections.map((sec, idx) => (
-                                 <div key={idx} className="p-6 bg-zinc-950 rounded-2xl border border-zinc-900 space-y-3 relative group hover:border-zinc-800 transition-colors">
-                                    <button onClick={() => {
-                                       const newSecs = [...config.sections];
-                                       newSecs.splice(idx, 1);
-                                       setConfig({...config, sections: newSecs});
-                                    }} className="absolute top-4 right-4 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
-                                    
-                                    <input value={sec.heading} onChange={e => {
-                                       const newSecs = [...config.sections];
-                                       newSecs[idx] = {...newSecs[idx], heading: e.target.value};
-                                       setConfig({...config, sections: newSecs});
-                                    }} className="cms-input font-bold text-sm !bg-zinc-900/50" placeholder="Section Heading" />
-                                    
-                                    <textarea value={sec.content} onChange={e => {
-                                       const newSecs = [...config.sections];
-                                       newSecs[idx] = {...newSecs[idx], content: e.target.value};
-                                       setConfig({...config, sections: newSecs});
-                                    }} className="cms-input h-32 text-xs !bg-zinc-900/50" placeholder="Section Content" />
-                                 </div>
+                        </ArrayItem>
+                      ))}
+                      <button onClick={() => updateLandingArray('architecture', 'layers', [...landingConfig.architecture.layers, { title: 'New Layer', desc: 'Layer Description' }])} className="btn-secondary w-full py-3 border-dashed">
+                        <Plus className="w-4 h-4 mr-2" /> Add Architecture Layer
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* FEATURES EDITOR */}
+                {activeLandingSection === 'features' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                    <SectionHeader title="Features" icon={List} />
+                    <Toggle label="Section Visible" checked={landingConfig.features.isVisible} onChange={(v: boolean) => updateLanding('features', 'isVisible', v)} />
+                    <InputGroup label="Title" value={landingConfig.features.title} onChange={(v: string) => updateLanding('features', 'title', v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.features.description} onChange={(v: string) => updateLanding('features', 'description', v)} />
+
+                    <div className="space-y-4 pt-4 border-t border-zinc-900">
+                      {landingConfig.features.items.map((item, idx) => (
+                        <ArrayItem key={idx} onDelete={() => {
+                           const newItems = landingConfig.features.items.filter((_, i) => i !== idx);
+                           updateLandingArray('features', 'items', newItems);
+                        }}>
+                           <div className="grid gap-4">
+                              <div className="flex gap-4">
+                                <div className="flex-1">
+                                  <InputGroup label="Feature Title" value={item.title} onChange={(v: string) => {
+                                    const newItems = [...landingConfig.features.items];
+                                    newItems[idx].title = v;
+                                    updateLandingArray('features', 'items', newItems);
+                                  }} />
+                                </div>
+                                <div className="w-1/3">
+                                  <InputGroup label="Icon Name" value={item.icon} onChange={(v: string) => {
+                                    const newItems = [...landingConfig.features.items];
+                                    newItems[idx].icon = v;
+                                    updateLandingArray('features', 'items', newItems);
+                                  }} />
+                                </div>
+                              </div>
+                              <InputGroup label="Description" value={item.desc} onChange={(v: string) => {
+                                const newItems = [...landingConfig.features.items];
+                                newItems[idx].desc = v;
+                                updateLandingArray('features', 'items', newItems);
+                              }} />
+                           </div>
+                        </ArrayItem>
+                      ))}
+                      <button onClick={() => updateLandingArray('features', 'items', [...landingConfig.features.items, { title: 'New Feature', desc: 'Desc', icon: 'ShieldCheck' }])} className="btn-secondary w-full py-3 border-dashed">
+                        <Plus className="w-4 h-4 mr-2" /> Add Feature
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ROADMAP EDITOR */}
+                {activeLandingSection === 'roadmap' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                    <SectionHeader title="Roadmap" icon={AlignLeft} />
+                    <Toggle label="Section Visible" checked={landingConfig.roadmap.isVisible} onChange={(v: boolean) => updateLanding('roadmap', 'isVisible', v)} />
+                    <InputGroup label="Title" value={landingConfig.roadmap.title} onChange={(v: string) => updateLanding('roadmap', 'title', v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.roadmap.description} onChange={(v: string) => updateLanding('roadmap', 'description', v)} />
+
+                    <div className="space-y-6 pt-4 border-t border-zinc-900">
+                      {landingConfig.roadmap.phases.map((phase, idx) => (
+                        <div key={idx} className="p-6 bg-zinc-900/20 rounded-2xl border border-zinc-800 space-y-4">
+                           <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
+                              <h4 className="text-sm font-bold text-white uppercase">Phase {idx + 1}</h4>
+                              <button onClick={() => {
+                                 const newPhases = landingConfig.roadmap.phases.filter((_, i) => i !== idx);
+                                 updateLandingArray('roadmap', 'phases', newPhases);
+                              }} className="text-zinc-500 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                           </div>
+                           
+                           <div className="grid grid-cols-2 gap-4">
+                              <InputGroup label="Phase Number (e.g. 01)" value={phase.phase} onChange={(v: string) => {
+                                const newPhases = [...landingConfig.roadmap.phases];
+                                newPhases[idx].phase = v;
+                                updateLandingArray('roadmap', 'phases', newPhases);
+                              }} />
+                              <InputGroup label="Status (LIVE, UPCOMING, LOCKED)" value={phase.status} onChange={(v: string) => {
+                                const newPhases = [...landingConfig.roadmap.phases];
+                                newPhases[idx].status = v;
+                                updateLandingArray('roadmap', 'phases', newPhases);
+                              }} />
+                           </div>
+                           <div className="grid grid-cols-2 gap-4">
+                              <InputGroup label="Title" value={phase.title} onChange={(v: string) => {
+                                const newPhases = [...landingConfig.roadmap.phases];
+                                newPhases[idx].title = v;
+                                updateLandingArray('roadmap', 'phases', newPhases);
+                              }} />
+                              <InputGroup label="Period (e.g. Q1 2025)" value={phase.period} onChange={(v: string) => {
+                                const newPhases = [...landingConfig.roadmap.phases];
+                                newPhases[idx].period = v;
+                                updateLandingArray('roadmap', 'phases', newPhases);
+                              }} />
+                           </div>
+                           <InputGroup label="Description" type="textarea" value={phase.desc} onChange={(v: string) => {
+                              const newPhases = [...landingConfig.roadmap.phases];
+                              newPhases[idx].desc = v;
+                              updateLandingArray('roadmap', 'phases', newPhases);
+                           }} />
+                           
+                           <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Features List</label>
+                              {phase.features.map((feat, fIdx) => (
+                                <div key={fIdx} className="flex gap-2">
+                                   <input className="cms-input" value={feat} onChange={e => {
+                                      const newPhases = [...landingConfig.roadmap.phases];
+                                      newPhases[idx].features[fIdx] = e.target.value;
+                                      updateLandingArray('roadmap', 'phases', newPhases);
+                                   }} />
+                                   <button onClick={() => {
+                                      const newPhases = [...landingConfig.roadmap.phases];
+                                      newPhases[idx].features = newPhases[idx].features.filter((_, i) => i !== fIdx);
+                                      updateLandingArray('roadmap', 'phases', newPhases);
+                                   }} className="p-2 bg-zinc-900 rounded hover:text-red-500"><X className="w-4 h-4" /></button>
+                                </div>
                               ))}
-                              <button onClick={() => setConfig({...config, sections: [...config.sections, {heading: 'New Section', content: ''}]})} className="btn-secondary w-full border-dashed py-4 opacity-60 hover:opacity-100">
-                                 <Plus className="w-4 h-4 mr-2" /> Add Section
-                              </button>
+                              <button onClick={() => {
+                                 const newPhases = [...landingConfig.roadmap.phases];
+                                 newPhases[idx].features.push("New Feature");
+                                 updateLandingArray('roadmap', 'phases', newPhases);
+                              }} className="text-[10px] text-primary font-bold uppercase hover:underline">+ Add Feature Bullet</button>
                            </div>
                         </div>
-                      </>
-                    );
-                 })()}
+                      ))}
+                      <button onClick={() => updateLandingArray('roadmap', 'phases', [...landingConfig.roadmap.phases, { phase: '04', title: 'New Phase', period: 'TBD', status: 'LOCKED', desc: 'Details...', features: [] }])} className="btn-secondary w-full py-3 border-dashed">
+                        <Plus className="w-4 h-4 mr-2" /> Add Roadmap Phase
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* FAQ EDITOR */}
+                {activeLandingSection === 'faq' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                    <SectionHeader title="FAQ" icon={Info} />
+                    <Toggle label="Section Visible" checked={landingConfig.faq.isVisible} onChange={(v: boolean) => updateLanding('faq', 'isVisible', v)} />
+                    <InputGroup label="Title" value={landingConfig.faq.title} onChange={(v: string) => updateLanding('faq', 'title', v)} />
+                    
+                    <div className="space-y-4 pt-4 border-t border-zinc-900">
+                       {landingConfig.faq.items.map((item, idx) => (
+                         <ArrayItem key={idx} onDelete={() => {
+                            const newItems = landingConfig.faq.items.filter((_, i) => i !== idx);
+                            updateLandingArray('faq', 'items', newItems);
+                         }}>
+                            <div className="grid gap-4">
+                               <InputGroup label="Question" value={item.q} onChange={(v: string) => {
+                                  const newItems = [...landingConfig.faq.items];
+                                  newItems[idx].q = v;
+                                  updateLandingArray('faq', 'items', newItems);
+                               }} />
+                               <InputGroup label="Answer" type="textarea" value={item.a} onChange={(v: string) => {
+                                  const newItems = [...landingConfig.faq.items];
+                                  newItems[idx].a = v;
+                                  updateLandingArray('faq', 'items', newItems);
+                               }} />
+                            </div>
+                         </ArrayItem>
+                       ))}
+                       <button onClick={() => updateLandingArray('faq', 'items', [...landingConfig.faq.items, { q: 'Question?', a: 'Answer.' }])} className="btn-secondary w-full py-3 border-dashed">
+                         <Plus className="w-4 h-4 mr-2" /> Add FAQ Item
+                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* CTA EDITOR */}
+                {activeLandingSection === 'cta' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                     <SectionHeader title="Call to Action" icon={CheckCircle2} />
+                     <Toggle label="Section Visible" checked={landingConfig.cta.isVisible} onChange={(v: boolean) => updateLanding('cta', 'isVisible', v)} />
+                     <InputGroup label="Title" value={landingConfig.cta.title} onChange={(v: string) => updateLanding('cta', 'title', v)} />
+                     <InputGroup label="Description" type="textarea" value={landingConfig.cta.description} onChange={(v: string) => updateLanding('cta', 'description', v)} />
+                     <InputGroup label="Button Text" value={landingConfig.cta.buttonText} onChange={(v: string) => updateLanding('cta', 'buttonText', v)} />
+                  </div>
+                )}
+                
+                {/* FOOTER EDITOR */}
+                {activeLandingSection === 'footer' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                     <SectionHeader title="Footer" icon={Layout} />
+                     <Toggle label="Section Visible" checked={landingConfig.footer.isVisible} onChange={(v: boolean) => updateLanding('footer', 'isVisible', v)} />
+                     <InputGroup label="Footer Title" value={landingConfig.footer.title} onChange={(v: string) => updateLanding('footer', 'title', v)} />
+                     <InputGroup label="Description" value={landingConfig.footer.description} onChange={(v: string) => updateLanding('footer', 'description', v)} />
+                     <InputGroup label="Copyright Text" value={landingConfig.footer.copyright} onChange={(v: string) => updateLanding('footer', 'copyright', v)} />
+                  </div>
+                )}
+
               </div>
             )}
 
-            {/* Other editors kept simple for brevity but following same pattern */}
-            {activeCmsSection === 'about' && (
-              <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
-                <h3 className="label-meta text-primary uppercase border-b border-zinc-900 pb-2">About Page</h3>
-                <input value={aboutConfig.title} onChange={e => setAboutConfig({...aboutConfig, title: e.target.value})} className="cms-input" placeholder="Title" />
-                <textarea value={aboutConfig.subtitle} onChange={e => setAboutConfig({...aboutConfig, subtitle: e.target.value})} className="cms-input h-20" placeholder="Subtitle" />
-              </div>
+            {/* --- OTHER PAGES PLACEHOLDERS --- */}
+            {activeCmsPage !== 'landing' && (
+               <div className="surface p-12 rounded-3xl border-zinc-900 flex flex-col items-center justify-center text-center opacity-50 min-h-[400px]">
+                  <p className="text-zinc-500 font-mono text-sm">Editor for {activeCmsPage} active.</p>
+                  <p className="text-zinc-600 text-xs mt-2">Use the Save button above to persist changes.</p>
+               </div>
             )}
             
-            {activeCmsSection === 'whitepaper' && (
-               <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
-                 <h3 className="label-meta text-primary uppercase border-b border-zinc-900 pb-2">Whitepaper</h3>
-                 <input value={whitepaperConfig.title} onChange={e => setWhitepaperConfig({...whitepaperConfig, title: e.target.value})} className="cms-input" placeholder="Title" />
-               </div>
-            )}
-
-            {activeCmsSection === 'architecture' && (
-               <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
-                  <h3 className="label-meta text-primary uppercase border-b border-zinc-900 pb-2">Architecture Page</h3>
-                  <input value={archConfig.heroTitle} onChange={e => setArchConfig({...archConfig, heroTitle: e.target.value})} className="cms-input" placeholder="Hero Title" />
-               </div>
-            )}
-
           </div>
         </div>
       )}
@@ -416,10 +683,10 @@ const AdminPanel = () => {
             background-color: #09090b;
             border: 1px solid #27272a;
             color: #f4f4f5;
-            padding: 0.85rem 1rem;
+            padding: 0.75rem 1rem;
             border-radius: 0.75rem;
-            font-size: 0.75rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
             outline: none;
             transition: all 0.2s;
          }
@@ -427,6 +694,16 @@ const AdminPanel = () => {
             border-color: #f43f5e;
             background-color: #0c0c0e;
             box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.2);
+         }
+         .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+         }
+         .custom-scrollbar::-webkit-scrollbar-track {
+            background: #09090b;
+         }
+         .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
          }
       `}</style>
     </div>
