@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
@@ -112,6 +112,31 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const [decrypted, setDecrypted] = useState(false);
+
+  useEffect(() => {
+    // 1. Remove the static HTML loader once React mounts
+    const loader = document.getElementById('secure-loader');
+    if (loader) {
+      // Small delay to smooth the transition
+      setTimeout(() => {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+          loader.remove();
+          setDecrypted(true);
+        }, 500);
+      }, 1500);
+    } else {
+      setDecrypted(true);
+    }
+  }, []);
+
+  if (!decrypted) {
+    // While fading out HTML loader, we can show nothing here or a duplicate loader
+    // to ensure continuity.
+    return null; 
+  }
+
   return (
     <AuthProvider>
       <HashRouter>
