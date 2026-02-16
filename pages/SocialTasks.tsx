@@ -65,7 +65,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
         <div className="text-left md:text-right">
           <p className="label-meta opacity-40 mb-1">Incentive</p>
           <p className={`font-mono font-bold text-sm ${isCompleted ? 'text-zinc-700' : 'text-primary'}`}>
-            +{task.points} NEX
+            +{task.points} ARG
           </p>
         </div>
         

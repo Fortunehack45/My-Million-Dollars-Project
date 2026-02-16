@@ -168,7 +168,7 @@ const Landing = () => {
     window.addEventListener('resize', resize);
 
     const katakana = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン";
-    const technical = "01-NEXUS-NODE-HASH-BLOCK-";
+    const technical = "01-ARGUS-PROTOCOL-HASH-BLOCK-";
     const alphabet = katakana + technical;
     
     const isMobile = window.innerWidth < 768;
@@ -269,7 +269,7 @@ const Landing = () => {
               <Hexagon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
             </div>
             <div className="flex flex-col -space-y-0.5 md:-space-y-1">
-              <span className="font-bold text-lg md:text-xl tracking-tight text-white">Nexus<span className="text-zinc-500">Node</span></span>
+              <span className="font-bold text-lg md:text-xl tracking-tight text-white">Argus<span className="text-zinc-500">Protocol</span></span>
               <span className="text-[8px] md:text-[9px] font-mono text-primary/80 tracking-widest uppercase">Testnet_v2.8</span>
             </div>
           </div>
@@ -344,7 +344,7 @@ const Landing = () => {
                      </div>
                      <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
                         <TerminalIcon className="w-3 h-3" />
-                        <span>root@nexus-node:~</span>
+                        <span>root@argus-core:~</span>
                      </div>
                   </div>
                   
@@ -369,7 +369,7 @@ const Landing = () => {
                         <div className="flex justify-between items-end">
                            <div>
                               <p className="text-[9px] text-zinc-600 uppercase font-bold tracking-widest mb-1">Current Yield</p>
-                              <p className="text-xl md:text-2xl text-white font-bold">1.25 <span className="text-sm text-zinc-500">NEX/hr</span></p>
+                              <p className="text-xl md:text-2xl text-white font-bold">1.25 <span className="text-sm text-zinc-500">ARG/hr</span></p>
                            </div>
                            <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded border border-primary/20">
                               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
@@ -485,7 +485,7 @@ const Landing = () => {
                           </div>
                        </div>
                        <div className="h-12 w-full bg-zinc-900/80 border border-zinc-800 rounded flex items-center justify-center">
-                          <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Nexus Consensus (GhostDAG)</span>
+                          <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Argus Consensus (GhostDAG)</span>
                        </div>
                     </div>
                  </div>

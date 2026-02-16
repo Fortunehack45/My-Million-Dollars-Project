@@ -47,7 +47,7 @@ const Login = () => {
                 <Hexagon className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-black text-white tracking-widest uppercase leading-none">Nexus_Terminal</h1>
+                <h1 className="text-xl font-black text-white tracking-widest uppercase leading-none">Argus_Terminal</h1>
                 <p className="label-meta mt-1 opacity-50">Infrastructure Authorization Service</p>
               </div>
             </div>
@@ -106,7 +106,7 @@ const Login = () => {
                <span className="text-zinc-700">PID: 8042</span>
             </div>
             <div className="space-y-1 text-zinc-600">
-              <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting NexusNode Kernel v2.4.0...</p>
+              <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting Argus Kernel v2.4.0...</p>
               <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Initializing encrypted tunnel layers...</p>
               <p><span className="text-primary mr-2">!!</span> {timestamp} Waiting for Operator Credentials</p>
               <div className="pt-2 flex items-center gap-3">

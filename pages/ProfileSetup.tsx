@@ -126,7 +126,7 @@ const ProfileSetup = () => {
                 <input 
                   value={refCode}
                   onChange={(e) => setRefCode(e.target.value.toUpperCase())}
-                  placeholder="NEX-XXXXX"
+                  placeholder="ARG-XXXXX"
                   className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-primary/50 text-white font-mono text-sm py-4 pl-12 pr-4 rounded-xl transition-all outline-none uppercase"
                 />
               </div>

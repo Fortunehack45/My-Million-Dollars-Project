@@ -113,14 +113,14 @@ const Dashboard = () => {
     <div className="w-full space-y-8">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Infrastructure</h1>
-          <p className="text-zinc-500 text-sm font-medium">Monitoring active node contribution. Mining speed: <span className="text-primary font-mono">{currentHourlyRate.toFixed(2)} NEX/hr</span></p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Argus Infrastructure</h1>
+          <p className="text-zinc-500 text-sm font-medium">Monitoring active node contribution. Mining speed: <span className="text-primary font-mono">{currentHourlyRate.toFixed(2)} ARG/hr</span></p>
         </div>
         <div className="text-right flex flex-col items-end gap-2">
           <p className="label-meta text-[8px] text-zinc-600">Protocol_Scarcity_Index</p>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-xs font-mono font-bold text-primary">{(leftToMine / 1000000).toFixed(2)}M NEX LEFT</p>
+              <p className="text-xs font-mono font-bold text-primary">{(leftToMine / 1000000).toFixed(2)}M ARG LEFT</p>
               <div className="w-48 h-1.5 bg-zinc-900 mt-1 rounded-full overflow-hidden border border-zinc-800">
                 <div className="h-full bg-primary shadow-[0_0_10px_#f43f5e]" style={{ width: `${miningPercent}%` }}></div>
               </div>
@@ -150,10 +150,10 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: 'Asset Balance', value: Math.floor(user.points * 100) / 100, unit: 'NEX', icon: Database },
+          { label: 'Asset Balance', value: Math.floor(user.points * 100) / 100, unit: 'ARG', icon: Database },
           { label: 'Session Time', value: formatTime(miningTimer), unit: 'REMAINING', icon: Clock },
           { label: 'Active Nodes', value: netStats.activeNodes.toLocaleString(), unit: 'LIVE', icon: Activity },
-          { label: 'Cumulative Mined', value: Math.floor(netStats.totalMined).toLocaleString(), unit: 'NEX', icon: Box }
+          { label: 'Cumulative Mined', value: Math.floor(netStats.totalMined).toLocaleString(), unit: 'ARG', icon: Box }
         ].map((stat, i) => (
           <div key={i} className="surface p-8 rounded-2xl relative overflow-hidden group">
             <div className="flex items-center justify-between mb-6">
@@ -185,7 +185,7 @@ const Dashboard = () => {
                 <h2 className="text-7xl font-mono font-bold text-white tracking-tighter tabular-nums">
                   {pendingPoints.toFixed(4)}
                 </h2>
-                <p className="text-[10px] text-zinc-600 font-mono">ESTIMATED YIELD AT {currentHourlyRate.toFixed(2)} NEX/HR</p>
+                <p className="text-[10px] text-zinc-600 font-mono">ESTIMATED YIELD AT {currentHourlyRate.toFixed(2)} ARG/HR</p>
               </div>
               
               <div className="w-full space-y-4">
@@ -229,7 +229,7 @@ const Dashboard = () => {
             <div className="space-y-6 font-mono text-[10px]">
               {[
                 { msg: 'Auth Key Validated', time: 'SUCCESS', status: 'OK' },
-                { msg: `Current Hash: ${currentHourlyRate.toFixed(2)} NEX/HR`, time: 'YIELD', status: 'OK' },
+                { msg: `Current Hash: ${currentHourlyRate.toFixed(2)} ARG/HR`, time: 'YIELD', status: 'OK' },
                 { msg: `${referrals}/20 Peering Status`, time: 'NODES', status: 'OK' },
                 { msg: `24H Cycle Initialized`, time: 'CORE', status: 'INFO' },
               ].map((log, i) => (

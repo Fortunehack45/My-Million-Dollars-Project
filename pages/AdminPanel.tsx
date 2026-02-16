@@ -186,7 +186,7 @@ const AdminPanel = () => {
               { label: 'Network Nodes', val: users.length, sub: 'Registered Entities', icon: Globe, color: 'text-zinc-400' },
               { label: 'Active Miners', val: activeMiningCount, sub: 'Core Computing', icon: Cpu, color: 'text-primary', pulse: true },
               { label: 'Live Presence', val: onlineUids.length, sub: 'WebSocket Heartbeats', icon: Radio, color: 'text-emerald-500', ping: true },
-              { label: 'Total Circulation', val: Math.floor(netStats.totalMined).toLocaleString(), sub: 'NEX Credits', icon: Database, color: 'text-zinc-600' }
+              { label: 'Total Circulation', val: Math.floor(netStats.totalMined).toLocaleString(), sub: 'ARG Credits', icon: Database, color: 'text-zinc-600' }
             ].map((s, i) => (
               <div key={i} className={`surface p-8 rounded-2xl relative overflow-hidden transition-all hover:border-zinc-700`}>
                 <div className="flex items-center justify-between mb-6">
@@ -227,7 +227,7 @@ const AdminPanel = () => {
                     <div key={t.id} className="flex justify-between items-center p-3 bg-zinc-900/30 rounded border border-zinc-900">
                        <div>
                          <p className="text-white text-xs font-bold">{t.title}</p>
-                         <p className="text-zinc-600 text-[10px]">{t.points} NEX</p>
+                         <p className="text-zinc-600 text-[10px]">{t.points} ARG</p>
                        </div>
                        <button onClick={() => handleDeleteTask(t.id)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                     </div>

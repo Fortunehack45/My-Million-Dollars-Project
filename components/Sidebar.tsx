@@ -92,7 +92,7 @@ const Sidebar = () => {
           <div className="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center">
              <Hexagon className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-black text-sm tracking-tighter uppercase italic text-white">NexusNode</span>
+          <span className="font-black text-sm tracking-tighter uppercase italic text-white">Argus Protocol</span>
         </div>
         
         <div className="flex items-center gap-4">
@@ -131,9 +131,9 @@ const Sidebar = () => {
           <div className="mb-12 px-4">
             <div className="flex items-center space-x-2">
               <Hexagon className="w-6 h-6 text-primary" />
-              <span className="font-black text-xl tracking-tighter text-white uppercase italic">NexusNode</span>
+              <span className="font-black text-xl tracking-tighter text-white uppercase italic">Argus Protocol</span>
             </div>
-            <p className="label-meta mt-1 opacity-40">Infrastructure v2.6</p>
+            <p className="label-meta mt-1 opacity-40">ArgusOS v1.0</p>
           </div>
 
           <nav className="flex-1 space-y-1">

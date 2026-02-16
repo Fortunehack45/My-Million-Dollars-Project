@@ -53,8 +53,8 @@ const Referrals = () => {
                <div className="space-y-1">
                  <p className="text-[11px] text-zinc-400 font-bold uppercase">Reward Protocol</p>
                  <p className="text-[10px] text-zinc-500 leading-relaxed font-medium italic">
-                    Earn <span className="text-white">+{REFERRAL_BONUS_POINTS} NEX</span> instantly per peer. 
-                    Unlock <span className="text-primary">+{REFERRAL_BOOST} NEX/hr</span> permanent mining speed boost per active node. 
+                    Earn <span className="text-white">+{REFERRAL_BONUS_POINTS} ARG</span> instantly per peer. 
+                    Unlock <span className="text-primary">+{REFERRAL_BOOST} ARG/hr</span> permanent mining speed boost per active node. 
                     <span className="text-zinc-600 block mt-1">Status: {activeRefs}/{MAX_REFERRALS} Peers Synced (Cap: 20)</span>
                  </p>
                </div>
@@ -85,7 +85,7 @@ const Referrals = () => {
                 <div className="h-4 bg-zinc-950 border border-zinc-800 p-0.5 rounded-full overflow-hidden">
                    <div className="h-full bg-primary shadow-[0_0_10px_#f43f5e] rounded-full transition-all duration-1000" style={{ width: `${(activeRefs/20)*100}%` }}></div>
                 </div>
-                <p className="text-[9px] text-zinc-600 font-medium italic">Total Speed Boost: +{(activeRefs * REFERRAL_BOOST).toFixed(2)} NEX/hr</p>
+                <p className="text-[9px] text-zinc-600 font-medium italic">Total Speed Boost: +{(activeRefs * REFERRAL_BOOST).toFixed(2)} ARG/hr</p>
              </div>
           </div>
         </div>

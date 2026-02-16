@@ -78,7 +78,7 @@ const NFTSection = () => {
                 <div>
                    <p className="label-meta text-primary">Credential</p>
                    <h3 className="text-2xl font-black text-white tracking-tight italic uppercase">
-                     {user.ownedNFT ? `Nexus_Op_#${user.uid.slice(0, 4)}` : 'Node_Identity_Locked'}
+                     {user.ownedNFT ? `Argus_Op_#${user.uid.slice(0, 4)}` : 'Node_Identity_Locked'}
                    </h3>
                 </div>
                 <div className="flex gap-2">
@@ -121,7 +121,7 @@ const NFTSection = () => {
                  <div className="p-6 bg-zinc-900/50 border border-zinc-900 rounded-2xl space-y-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
                     <h4 className="text-[10px] font-black text-zinc-300 uppercase">Governance Token</h4>
-                    <p className="text-[11px] text-zinc-500 leading-tight">Whitelisted access to the Nexus DAO treasury voting.</p>
+                    <p className="text-[11px] text-zinc-500 leading-tight">Whitelisted access to the Argus DAO treasury voting.</p>
                  </div>
               </div>
             </div>
@@ -138,12 +138,12 @@ const NFTSection = () => {
                     <div className="space-y-1">
                       <p className="label-meta">Required Allocation</p>
                       <p className={`text-xl font-mono font-bold ${user.points < MINT_COST ? 'text-zinc-700' : 'text-white'}`}>
-                        {MINT_COST} NEX
+                        {MINT_COST} ARG
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="label-meta">Available Balance</p>
-                      <p className="text-xl font-mono font-bold text-zinc-400">{Math.floor(user.points)} NEX</p>
+                      <p className="text-xl font-mono font-bold text-zinc-400">{Math.floor(user.points)} ARG</p>
                     </div>
                   </div>
 
@@ -185,7 +185,7 @@ const NFTSection = () => {
         </div>
         <div className="flex items-center gap-3 justify-center">
           <Lock className="w-4 h-4" />
-          <p className="text-[9px] font-mono font-bold uppercase">Network::Nexus_Staging_V2</p>
+          <p className="text-[9px] font-mono font-bold uppercase">Network::Argus_Staging_V2</p>
         </div>
         <div className="flex items-center gap-3 justify-end">
           <Zap className="w-4 h-4" />

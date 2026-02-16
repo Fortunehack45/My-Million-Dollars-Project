@@ -1,8 +1,8 @@
 {
-  "name": "NexusNode | Infrastructure Terminal",
-  "description": "Enterprise-grade node validator dashboard. Participate in the staging epoch, mine network credits, and secure Genesis assets.",
+  "name": "Argus Protocol | Institutional IaaS",
+  "description": "The high-speed rail for the multi-chain economy. Deploy zero-touch validator nodes, power global uptime, and secure Genesis assets.",
   "requestFramePermissions": [],
-  "short_name": "NexusNode",
+  "short_name": "Argus",
   "theme_color": "#09090B",
   "background_color": "#09090B",
   "display": "standalone"

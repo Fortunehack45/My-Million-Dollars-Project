@@ -32,7 +32,7 @@ const Leaderboard = () => {
               <tr className="border-b border-zinc-800 bg-zinc-900/30">
                 <th className="px-8 py-4 text-left text-zinc-600 font-black">Rank</th>
                 <th className="px-8 py-4 text-left text-zinc-600 font-black">Entity ID</th>
-                <th className="px-8 py-4 text-right text-zinc-600 font-black">Credits (NEX)</th>
+                <th className="px-8 py-4 text-right text-zinc-600 font-black">Credits (ARG)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-900/50">

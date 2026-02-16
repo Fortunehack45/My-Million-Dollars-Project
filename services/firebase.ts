@@ -51,8 +51,8 @@ export const rtdb = getDatabase(app);
 
 export const TOTAL_SUPPLY = 1000000000;
 export const ADMIN_EMAIL = "fortunedomination@gmail.com";
-export const BASE_MINING_RATE = 0.06; // NEX per hour
-export const REFERRAL_BOOST = 0.1; // NEX per hour per user
+export const BASE_MINING_RATE = 0.06; // ARG per hour
+export const REFERRAL_BOOST = 0.1; // ARG per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
 
@@ -60,40 +60,40 @@ export const REFERRAL_BONUS_POINTS = 0.5;
 export const DEFAULT_LANDING_CONFIG: LandingConfig = {
   hero: {
     isVisible: true,
-    title: "Decentralized Compute Layer.",
-    subtitle: "Deploy high-performance validator nodes. Verify network integrity, mine NEX Credits, and secure your allocation of the Genesis supply.",
-    ctaPrimary: "Start Validator Node",
+    title: "Institutional Infrastructure as a Service.",
+    subtitle: "We are the high-speed rail for the multi-chain economy. Provide the most resilient, automated, and high-throughput backbone for DeFi and RWA tokenization.",
+    ctaPrimary: "Deploy Validator Node",
     ctaSecondary: "Read Whitepaper"
   },
   partners: {
     isVisible: true,
-    title: "Infrastructure Supported By",
+    title: "Powering the Fortune 500 of Web3",
     items: ['SEQUOIA_COMPUTE', 'ANDREESSEN_CLOUD', 'BINANCE_LABS', 'COINBASE_VENTURES', 'POLYCHAIN_CAPITAL']
   },
   architecture: {
     isVisible: true,
-    title: "Modular Architecture",
-    description: "Separating consensus from execution allows NexusNode to achieve linear scalability. Our proprietary GhostDAG protocol ensures instant finality.",
+    title: "The Global Truth Layer",
+    description: "Where every packet of data meets its decentralized destination. Argus acts as the primary layer of trust for the internet.",
     layers: [
-       { title: 'Consensus Layer', desc: 'Proof-of-Uptime verification engine.' },
-       { title: 'Data Availability', desc: 'Sharded storage across 40k+ nodes.' },
-       { title: 'Execution Layer', desc: 'WASM-based high performance VM.' }
+       { title: 'Resilient Backbone', desc: 'Zero-touch infrastructure eliminating technical barriers.' },
+       { title: 'RWA Integration', desc: 'High-throughput pipes for Real-World Asset tokenization.' },
+       { title: 'Automated Logic', desc: 'AI-driven predictive scaling across 50+ chains.' }
     ]
   },
   features: {
     isVisible: true,
-    title: "Core Capabilities",
-    description: "Engineered for resilience, speed, and massive scale.",
+    title: "Zero-Touch Decentralization",
+    description: "Making Web3 deployment as boring (and reliable) as a light switch.",
     items: [
-       { title: "Global Mesh", desc: "Low-latency topology distributed across 40+ regions.", icon: 'Globe' },
-       { title: "Proof of Uptime", desc: "Cryptographic verification of node availability and performance.", icon: 'ShieldCheck' },
-       { title: "Elastic Compute", desc: "Dynamic resource allocation scaling with network demand.", icon: 'Cpu' }
+       { title: "Institutional Grade", desc: "Hardware designed for the Fortune 500 running core logic.", icon: 'ShieldCheck' },
+       { title: "Predictive Scaling", desc: "AI-driven allocation ensuring 99.999% uptime.", icon: 'Cpu' },
+       { title: "One-Click Deploy", desc: "Seamless deployment across 50+ blockchain networks.", icon: 'Globe' }
     ]
   },
   roadmap: {
     isVisible: true,
-    title: "Strategic Execution",
-    description: "A phased approach to decentralizing the global compute layer.",
+    title: "The Argus Trajectory",
+    description: "Building the universal standard for decentralized computing.",
     phases: [
         { 
             phase: "01", 
@@ -125,23 +125,23 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     isVisible: true,
     title: "Protocol FAQ",
     items: [
-       { q: "What are the hardware requirements for a node?", a: "NexusNode is designed to be lightweight. A standard VPS with 2 vCPUs, 4GB RAM, and 50GB SSD is sufficient for the testnet phase." },
-       { q: "How are mining rewards calculated?", a: "Rewards are based on uptime proofs and referral topology. The base rate is 0.06 NEX/hr, with multipliers for verified referral connections." },
-       { q: "Is the testnet incentivized?", a: "Yes. Points earned during the Genesis Epoch will be converted to mainnet tokens at TGE based on a vesting schedule defined in the whitepaper." },
+       { q: "What is Argus Protocol?", a: "Argus is the high-speed rail for the multi-chain economy, providing zero-touch infrastructure for DeFi and RWA tokenization." },
+       { q: "How are rewards calculated?", a: "Rewards are based on uptime proofs and referral topology. The base rate is 0.06 ARG/hr, with multipliers for verified referral connections." },
+       { q: "Is the testnet incentivized?", a: "Yes. Points earned during the Genesis Epoch will be converted to mainnet ARG tokens at TGE based on a vesting schedule." },
        { q: "Can I run multiple nodes?", a: "During Phase 1, we limit one validator ID per KYC/Identity to ensure fair distribution and network decentralization." }
     ]
   },
   cta: {
     isVisible: true,
     title: "Secure the Genesis Block",
-    description: "Join 24,000+ validators securing the next generation of decentralized compute. Early participation ensures maximum allocation.",
+    description: "Join the network powering the next generation of decentralized finance. Early participation ensures maximum allocation.",
     buttonText: "Initialize Node"
   },
   footer: {
     isVisible: true,
-    title: "NexusNode",
-    description: "Building the verification layer for the decentralized web.",
-    copyright: "© 2026 NEXUS LABS.",
+    title: "Argus Protocol",
+    description: "Powering the uptime of the global digital economy.",
+    copyright: "© 2026 ARGUS LABS.",
     links: {}
   }
 };
@@ -236,7 +236,7 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     points: 5.0,
     miningActive: false,
     miningStartTime: null,
-    referralCode: 'NEX-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+    referralCode: 'ARG-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
     referredBy: referrerUid,
     referralCount: 0,
     completedTasks: [],
