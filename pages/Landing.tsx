@@ -35,9 +35,13 @@ const Landing = () => {
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
+  // Ref to track beam position for the canvas drawing loop without stale closures
+  const beamRef = useRef({ x: 500, y: 500 });
+  
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string}>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
+  
   const [tickerItems, setTickerItems] = useState(() => Array.from({length: 10}).map((_, i) => ({
       id: i,
       hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}...${Math.random().toString(16).slice(2, 6).toUpperCase()}`
@@ -87,16 +91,17 @@ const Landing = () => {
     let animationFrameId: number;
     const animateBeam = () => {
       setBeamPos(prev => {
-        const ease = 0.05; // Spring ease
+        const ease = 0.08; // Adjusted for a punchy but smooth feel
         const dx = mousePos.x - prev.x;
         const dy = mousePos.y - prev.y;
-        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
-            return prev;
-        }
-        return {
+        if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return prev;
+        
+        const next = {
           x: prev.x + dx * ease,
           y: prev.y + dy * ease
         };
+        beamRef.current = next; // Update ref for canvas
+        return next;
       });
       animationFrameId = requestAnimationFrame(animateBeam);
     };
@@ -104,7 +109,7 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos]);
 
-  // MATRIX RAIN EFFECT - Rose Themed with Vertical Fading
+  // SPOTLIGHT MATRIX EFFECT
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -121,47 +126,63 @@ const Landing = () => {
     const chars = "01";
     const fontSize = 16;
     let columns = Math.floor(canvas.width / fontSize);
+    // Initialize drops at random vertical positions
     let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
     const draw = () => {
-      // Trail fade background
-      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
+      // Deep black background with very low trail for clarity
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.font = fontSize + "px monospace";
-      const fadeSize = canvas.height * 0.25; // 25% fade area
+      ctx.font = `bold ${fontSize}px JetBrains Mono`;
+      const fadeSize = canvas.height * 0.2; 
+      const lightRadius = 350; // Radius of the spotlight reveal
+
+      const currentBeam = beamRef.current;
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // Opacity based on height (Fade In/Out)
-        let opacity = 1;
+        // 1. Calculate base vertical fade
+        let verticalOpacity = 1;
         if (y < fadeSize) {
-          opacity = y / fadeSize;
+          verticalOpacity = y / fadeSize;
         } else if (y > canvas.height - fadeSize) {
-          opacity = (canvas.height - y) / fadeSize;
+          verticalOpacity = (canvas.height - y) / fadeSize;
         }
-        opacity = Math.max(opacity, 0);
+        verticalOpacity = Math.max(verticalOpacity, 0);
 
-        // Character Color (Rose Theme)
-        // Glow effect for some characters
-        const isGlowing = Math.random() > 0.98;
-        if (isGlowing) {
-          ctx.fillStyle = `rgba(253, 164, 175, ${opacity})`; // rose-300
-        } else {
-          ctx.fillStyle = `rgba(244, 63, 94, ${opacity})`; // primary rose-500
+        // 2. Calculate distance-based illumination (Spotlight)
+        const distance = Math.hypot(x - currentBeam.x, y - currentBeam.y);
+        let lightIntensity = 0;
+        
+        if (distance < lightRadius) {
+          // Sharp but smooth falloff
+          lightIntensity = Math.pow(1 - (distance / lightRadius), 1.5);
         }
 
-        ctx.fillText(char, x, y);
+        // 3. Final visual composite
+        // Base ambient visibility (nearly zero but detectable for "deep" feel)
+        const ambient = 0.02;
+        const finalOpacity = (ambient + (lightIntensity * 0.9)) * verticalOpacity;
 
-        // Reset drops randomly with specific threshold
-        if (y > canvas.height && Math.random() > 0.975) {
+        if (finalOpacity > 0.01) {
+          // Dynamic color based on intensity
+          if (lightIntensity > 0.7) {
+            ctx.fillStyle = `rgba(253, 164, 175, ${finalOpacity})`; // High-light (Pinkish)
+          } else {
+            ctx.fillStyle = `rgba(244, 63, 94, ${finalOpacity})`; // Standard (Rose)
+          }
+          ctx.fillText(char, x, y);
+        }
+
+        // Move drop
+        if (y > canvas.height && Math.random() > 0.98) {
           drops[i] = 0;
         }
-
-        drops[i]++;
+        drops[i] += 0.85; // Speed factor
       }
       requestRef.current = requestAnimationFrame(draw);
     };
@@ -206,7 +227,7 @@ const Landing = () => {
   if (!content) {
     return (
       <PublicLayout>
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="min-h-screen bg-black flex items-center justify-center">
            <div className="flex flex-col items-center gap-4">
              <Loader2 className="w-8 h-8 text-primary animate-spin" />
              <p className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest animate-pulse">Establishing Connection...</p>
@@ -219,32 +240,43 @@ const Landing = () => {
   return (
     <PublicLayout>
     <div 
-      className="bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden transition-all duration-700"
+      className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden transition-all duration-700"
       onMouseMove={handleMouseMove}
     >
-      {/* PROFESSIONAL BACKGROUND SYSTEM */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Matrix Rain Canvas */}
-        <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.25]" />
+      {/* PROFESSIONAL SPOTLIGHT BACKGROUND SYSTEM */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
+        {/* Matrix Rain Canvas (Spotlight Logic inside Draw) */}
+        <canvas ref={canvasRef} className="absolute inset-0" />
         
-        {/* Static Grid Layer */}
-        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        {/* Subtle Grid - Only visible near cursor */}
+        <div 
+           className="absolute inset-0 opacity-[0.1]" 
+           style={{ 
+             backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.15) 1px, transparent 1px)', 
+             backgroundSize: '40px 40px',
+             maskImage: `radial-gradient(circle 400px at ${beamPos.x}px ${beamPos.y}px, black 0%, transparent 100%)`,
+             WebkitMaskImage: `radial-gradient(circle 400px at ${beamPos.x}px ${beamPos.y}px, black 0%, transparent 100%)`
+           }}
+        ></div>
         
-        {/* Touch Light Cursor Effect */}
+        {/* Touch Light Reveal layers */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           <div className="absolute inset-0 bg-zinc-950/40 mix-blend-multiply"></div>
-           {/* Primary Beam */}
+           {/* Primary Atmospheric Glow */}
            <div 
-             className="absolute w-[400px] md:w-[700px] h-[400px] md:h-[700px] bg-primary/15 blur-[100px] rounded-full will-change-transform mix-blend-screen"
+             className="absolute w-[600px] md:w-[1000px] h-[600px] md:h-[1000px] bg-primary/10 blur-[150px] rounded-full will-change-transform mix-blend-plus-lighter"
              style={{ 
-               transform: `translate3d(${beamPos.x - 350}px, ${beamPos.y - 350}px, 0)`,
-               transition: 'opacity 0.5s ease'
+               transform: `translate3d(${beamPos.x - 500}px, ${beamPos.y - 500}px, 0)`,
              }}
            />
-           {/* Secondary Focused Beam */}
+           {/* Core Focus Light */}
            <div 
-             className="absolute w-[150px] md:w-[250px] h-[150px] md:h-[250px] bg-white/5 blur-[50px] rounded-full will-change-transform mix-blend-screen"
-             style={{ transform: `translate3d(${beamPos.x - 125}px, ${beamPos.y - 125}px, 0)` }}
+             className="absolute w-[200px] md:w-[350px] h-[200px] md:h-[350px] bg-primary/20 blur-[80px] rounded-full will-change-transform mix-blend-screen"
+             style={{ transform: `translate3d(${beamPos.x - 175}px, ${beamPos.y - 175}px, 0)` }}
+           />
+           {/* Center Needle Point */}
+           <div 
+             className="absolute w-[40px] h-[40px] bg-white/10 blur-[20px] rounded-full will-change-transform"
+             style={{ transform: `translate3d(${beamPos.x - 20}px, ${beamPos.y - 20}px, 0)` }}
            />
         </div>
       </div>
@@ -275,7 +307,7 @@ const Landing = () => {
                 <button onClick={login} className="w-full sm:w-auto px-8 py-4 bg-primary text-white text-[11px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_25px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-lg">
                    {content.hero.ctaPrimary} <ArrowRight className="w-4 h-4" />
                 </button>
-                <Link to="/whitepaper" className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 text-[11px] font-black text-white uppercase tracking-widest hover:border-zinc-700 transition-all flex items-center justify-center gap-3 rounded-lg">
+                <Link to="/whitepaper" className="w-full sm:w-auto px-8 py-4 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 text-[11px] font-black text-white uppercase tracking-widest hover:border-zinc-700 transition-all flex items-center justify-center gap-3 rounded-lg">
                    {content.hero.ctaSecondary} <Code2 className="w-4 h-4 text-zinc-600" />
                 </Link>
               </div>
@@ -298,8 +330,8 @@ const Landing = () => {
 
             <div className="lg:col-span-5 relative w-full">
                <div className="absolute -inset-1 bg-gradient-to-b from-primary/20 to-transparent blur-2xl opacity-50"></div>
-               <div className="relative bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
-                  <div className="bg-zinc-900 px-4 py-3 flex items-center justify-between border-b border-zinc-800">
+               <div className="relative bg-zinc-950/80 backdrop-blur-md border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+                  <div className="bg-zinc-900/50 px-4 py-3 flex items-center justify-between border-b border-zinc-800">
                      <div className="flex gap-2">
                         <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
                         <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
@@ -348,9 +380,9 @@ const Landing = () => {
       )}
 
       {/* Scrolling Ticker */}
-      <div className="bg-zinc-900/30 border-y border-zinc-900 py-3 overflow-hidden relative group">
-           <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none"></div>
-           <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none"></div>
+      <div className="bg-zinc-900/10 backdrop-blur-sm border-y border-zinc-900/50 py-3 overflow-hidden relative group">
+           <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
+           <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
 
            <div className="flex items-center animate-marquee whitespace-nowrap will-change-transform w-max">
               {tickerItems.map((item, i) => (
@@ -371,7 +403,7 @@ const Landing = () => {
         </div>
 
       {content.partners.isVisible && (
-        <section className="py-16 md:py-20 border-b border-zinc-900">
+        <section className="py-16 md:py-20 border-b border-zinc-900/50 relative z-10">
            <div className="max-w-7xl mx-auto px-6 text-center space-y-12">
               <p className="label-meta text-zinc-600">{content.partners.title}</p>
               <div className="flex flex-wrap justify-center items-center gap-8 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
@@ -385,7 +417,7 @@ const Landing = () => {
 
       {/* Content Sections */}
       {content.architecture.isVisible && (
-        <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
+        <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto relative z-10">
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
               <div className="space-y-8 md:space-y-12">
                  <div 
@@ -408,7 +440,7 @@ const Landing = () => {
                          className={`flex gap-6 group transition-all duration-1000 ease-out will-change-transform ${visibleSections.has(`arch-layer-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                          style={{ transitionDelay: `${i * 150}ms` }}
                        >
-                          <div className="w-12 h-12 border border-zinc-800 bg-zinc-950 flex items-center justify-center rounded-lg shrink-0 group-hover:border-primary/50 transition-colors">
+                          <div className="w-12 h-12 border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm flex items-center justify-center rounded-lg shrink-0 group-hover:border-primary/50 transition-colors">
                              <Layers className="w-5 h-5 text-zinc-500 group-hover:text-primary transition-colors" />
                           </div>
                           <div>
@@ -425,7 +457,7 @@ const Landing = () => {
                 className={`relative transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('arch-visual') ? 'opacity-100 translate-x-0 blur-0' : 'opacity-0 translate-x-12 blur-sm'}`}
               >
                  <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full"></div>
-                 <div className="relative border border-zinc-800 bg-zinc-950 rounded-2xl p-6 md:p-8 space-y-4">
+                 <div className="relative border border-zinc-800 bg-zinc-950/80 backdrop-blur-md rounded-2xl p-6 md:p-8 space-y-4">
                     <div className="flex justify-between items-center pb-4 border-b border-zinc-900">
                        <span className="label-meta text-primary">Stack_View</span>
                        <div className="flex gap-2">
@@ -458,7 +490,7 @@ const Landing = () => {
       )}
 
       {content.features.isVisible && (
-        <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto w-full border-t border-zinc-900">
+        <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto w-full border-t border-zinc-900 relative z-10">
            <div 
              data-id="feat-header"
              className={`mb-16 md:mb-20 max-w-2xl transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('feat-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
@@ -474,7 +506,7 @@ const Landing = () => {
                  <div 
                     key={i}
                     data-id={`feat-card-${i}`}
-                    className={`group p-8 md:p-10 border border-zinc-900 bg-zinc-950 hover:border-primary/30 transition-all duration-1000 rounded-none relative overflow-hidden ease-out will-change-transform ${visibleSections.has(`feat-card-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                    className={`group p-8 md:p-10 border border-zinc-900 bg-zinc-950/40 backdrop-blur-sm hover:border-primary/30 transition-all duration-1000 rounded-none relative overflow-hidden ease-out will-change-transform ${visibleSections.has(`feat-card-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                     style={{ transitionDelay: `${i * 200}ms` }}
                  >
                     <div className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
@@ -489,12 +521,12 @@ const Landing = () => {
       )}
 
       {content.roadmap.isVisible && (
-        <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden border-t border-zinc-900">
+        <section className="py-24 md:py-32 bg-black/40 backdrop-blur-sm relative overflow-hidden border-t border-zinc-900 relative z-10">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center max-w-3xl mx-auto mb-20 md:mb-32">
-                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full mb-6">
+                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full mb-6">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Live Protocol Map</span>
                      </div>
@@ -512,7 +544,7 @@ const Landing = () => {
                                 data-index={index}
                                 className={`roadmap-item flex flex-col md:flex-row items-center gap-8 md:gap-0 relative transition-all duration-1000 ease-out will-change-transform ${visibleItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}
                             >
-                                <div className={`absolute left-4 md:left-1/2 w-4 h-4 bg-zinc-950 border-2 ${item.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_rgba(244,63,94,0.5)]' : 'border-zinc-700'} rounded-full transform -translate-x-1/2 z-20`}></div>
+                                <div className={`absolute left-4 md:left-1/2 w-4 h-4 bg-black border-2 ${item.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_rgba(244,63,94,0.5)]' : 'border-zinc-700'} rounded-full transform -translate-x-1/2 z-20`}></div>
 
                                 <div className={`w-full md:w-1/2 pl-12 md:pl-0 ${index % 2 === 0 ? 'md:pr-24 md:text-right' : 'md:pl-24 md:order-last text-left'}`}>
                                     <div className="space-y-6 group">
@@ -557,7 +589,7 @@ const Landing = () => {
       )}
 
       {content.faq.isVisible && (
-        <section className="py-20 md:py-32 px-6 max-w-4xl mx-auto w-full border-t border-zinc-900">
+        <section className="py-20 md:py-32 px-6 max-w-4xl mx-auto w-full border-t border-zinc-900/50 relative z-10">
            <h2 
              data-id="faq-header"
              className={`text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
@@ -569,7 +601,7 @@ const Landing = () => {
                  <div 
                    key={i} 
                    data-id={`faq-item-${i}`}
-                   className={`border border-zinc-900 bg-zinc-950 overflow-hidden transition-all duration-1000 ease-out will-change-transform ${visibleSections.has(`faq-item-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                   className={`border border-zinc-900 bg-zinc-900/20 backdrop-blur-sm overflow-hidden transition-all duration-1000 ease-out will-change-transform ${visibleSections.has(`faq-item-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                    style={{ transitionDelay: `${i * 100}ms` }}
                  >
                     <button 
@@ -591,13 +623,12 @@ const Landing = () => {
       )}
 
       {content.cta.isVisible && (
-        <section className="py-24 md:py-48 border-t border-zinc-900 relative overflow-hidden group/cta">
+        <section className="py-24 md:py-48 border-t border-zinc-900 relative overflow-hidden group/cta relative z-10">
            {/* Background professional visual layers */}
-           <div className="absolute inset-0 bg-primary/[0.02]"></div>
+           <div className="absolute inset-0 bg-primary/[0.01]"></div>
            
            {/* Dynamic multi-layered pulse reactive to state */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-primary/10 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse-slow"></div>
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] md:w-[400px] h-[200px] md:h-[400px] bg-primary/20 blur-[60px] md:blur-[100px] rounded-full pointer-events-none animate-pulse opacity-50"></div>
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-primary/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse-slow"></div>
            
            {/* Tech scanning line visual */}
            <div className="absolute inset-0 pointer-events-none opacity-20">
@@ -608,7 +639,7 @@ const Landing = () => {
               <div className="space-y-6">
                 <div 
                   data-id="cta-badge"
-                  className={`inline-flex items-center gap-3 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full transition-all duration-1000 ${visibleSections.has('cta-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                  className={`inline-flex items-center gap-3 px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full transition-all duration-1000 ${visibleSections.has('cta-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                 >
                    <Zap className="w-3 h-3 text-primary animate-float" />
                    <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Network_Access_Handshake</span>
