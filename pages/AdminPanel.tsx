@@ -7,10 +7,13 @@ import {
   subscribeToOnlineUsers, 
   subscribeToTasks,
   deleteTask,
+  subscribeToLandingConfig,
+  updateLandingConfig,
+  DEFAULT_LANDING_CONFIG,
   TOTAL_SUPPLY,
   ADMIN_EMAIL
 } from '../services/firebase';
-import { User, Task, NetworkStats } from '../types';
+import { User, Task, NetworkStats, LandingConfig } from '../types';
 import { 
   Users, 
   PlusCircle, 
@@ -29,25 +32,29 @@ import {
   Zap,
   ArrowRight,
   ShieldCheck,
-  Signal
+  Signal,
+  Edit3,
+  Save,
+  Layout,
+  FileCode
 } from 'lucide-react';
 
 const AdminPanel = () => {
   const { user, firebaseUser } = useAuth();
+  
+  // Dashboard State
   const [users, setUsers] = useState<User[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [onlineUids, setOnlineUids] = useState<string[]>([]);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
-  
   const [newTask, setNewTask] = useState<Omit<Task, 'id'>>({
-    title: '',
-    description: '',
-    points: 100,
-    icon: 'web',
-    link: '',
-    actionLabel: 'Initialize',
-    timerSeconds: 0
+    title: '', description: '', points: 100, icon: 'web', link: '', actionLabel: 'Initialize', timerSeconds: 0
   });
+
+  // CMS State
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'cms'>('dashboard');
+  const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
+  const [cmsStatus, setCmsStatus] = useState<string>('');
 
   const isAuthorized = 
     firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() || 
@@ -56,64 +63,73 @@ const AdminPanel = () => {
   useEffect(() => {
     if (!isAuthorized) return;
     
-    const unsubscribeUsers = subscribeToUsers(setUsers);
-    const unsubscribeStats = subscribeToNetworkStats(setNetStats);
-    const unsubscribeOnline = subscribeToOnlineUsers(setOnlineUids);
-    const unsubscribeTasks = subscribeToTasks(setTasks);
+    // Subscribe to everything
+    const unsubUsers = subscribeToUsers(setUsers);
+    const unsubStats = subscribeToNetworkStats(setNetStats);
+    const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
+    const unsubTasks = subscribeToTasks(setTasks);
+    const unsubCMS = subscribeToLandingConfig(setLandingConfig);
     
     return () => {
-      unsubscribeUsers();
-      unsubscribeStats();
-      unsubscribeOnline();
-      unsubscribeTasks();
+      unsubUsers(); unsubStats(); unsubOnline(); unsubTasks(); unsubCMS();
     };
   }, [isAuthorized]);
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthorized) return;
     try {
       await addNewTask(newTask);
-      alert("DIRECTIVE_INJECTED: Task deployed to all terminals.");
+      alert("DIRECTIVE_INJECTED: Task deployed.");
       setNewTask({ title: '', description: '', points: 100, icon: 'web', link: '', actionLabel: 'Initialize', timerSeconds: 0 });
-    } catch (err) { alert("INJECTION_ERROR: Operation blocked by kernel."); }
+    } catch (err) { alert("INJECTION_ERROR"); }
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm("TERMINATE_DIRECTIVE: Are you sure you want to erase this task from the protocol?")) return;
-    try {
-      await deleteTask(taskId);
-    } catch (err) { alert("ERASE_ERROR: Failed to delete directive."); }
+    if (!confirm("TERMINATE_DIRECTIVE?")) return;
+    try { await deleteTask(taskId); } catch (err) { alert("ERASE_ERROR"); }
   };
 
-  // Memoized Live Metrics
-  const onlineUsersList = useMemo(() => {
-    return users.filter(u => onlineUids.includes(u.uid));
-  }, [users, onlineUids]);
+  const handleSaveCMS = async () => {
+    setCmsStatus('SAVING...');
+    try {
+      await updateLandingConfig(landingConfig);
+      setCmsStatus('SAVED_SUCCESSFULLY');
+      setTimeout(() => setCmsStatus(''), 2000);
+    } catch (e) {
+      console.error(e);
+      setCmsStatus('ERROR_SAVING');
+    }
+  };
 
-  const activeMiningCount = useMemo(() => {
-    return users.filter(u => u.miningActive).length;
-  }, [users]);
+  // Helper to update specific section key
+  const updateSection = (section: keyof LandingConfig, key: string, value: any) => {
+    setLandingConfig(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [key]: value
+      }
+    }));
+  };
 
-  if (!isAuthorized) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-12 bg-zinc-950">
-        <div className="surface p-12 rounded-3xl text-center space-y-6 max-w-md border-primary/40 bg-primary/5">
-           <ShieldAlert className="w-16 h-16 text-primary mx-auto animate-pulse" />
-           <div className="space-y-2">
-             <h2 className="text-2xl font-black text-white uppercase italic">Access_Authority_Denied</h2>
-             <p className="text-zinc-500 text-xs font-mono">CLIENT_ID: {firebaseUser?.uid.slice(0, 10)}...<br/>EMAIL_MISMATCH: {firebaseUser?.email}</p>
-           </div>
-           <p className="text-zinc-400 text-sm font-medium leading-relaxed">
-             This infrastructure portal is restricted to the <span className="text-white font-black">ROOT_ADMIN</span> account only. 
-           </p>
-        </div>
-      </div>
-    );
-  }
+  // Helper for deeply nested JSON edits (Roadmap, Features)
+  const updateComplexSection = (section: keyof LandingConfig, valueString: string) => {
+    try {
+      const parsed = JSON.parse(valueString);
+      setLandingConfig(prev => ({ ...prev, [section]: parsed }));
+      setCmsStatus(''); // Clear error
+    } catch (e) {
+      setCmsStatus('INVALID_JSON_SYNTAX');
+    }
+  };
+
+  const onlineUsersList = useMemo(() => users.filter(u => onlineUids.includes(u.uid)), [users, onlineUids]);
+  const activeMiningCount = useMemo(() => users.filter(u => u.miningActive).length, [users]);
+
+  if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono">ACCESS DENIED</div>;
 
   return (
-    <div className="w-full space-y-12">
+    <div className="w-full space-y-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
            <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-[0_0_20px_rgba(244,63,94,0.2)]">
@@ -121,210 +137,231 @@ const AdminPanel = () => {
            </div>
            <div>
              <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Command_Center</h1>
-             <div className="flex items-center gap-2 mt-1">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest font-mono">Kernel_Access::Active_Session [{firebaseUser?.email}]</p>
-             </div>
+             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest font-mono mt-1">
+               Admin: {firebaseUser?.email}
+             </p>
            </div>
         </div>
-        <div className="flex gap-4">
-           <div className="surface px-4 py-2 rounded-lg flex items-center gap-3 border-zinc-800">
-              <Signal className="w-3 h-3 text-emerald-500" />
-              <span className="text-[10px] font-mono text-zinc-400">LATENCY: {Math.floor(Math.random() * 20 + 5)}ms</span>
-           </div>
+        
+        {/* Tab Switcher */}
+        <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
+           <button 
+             onClick={() => setActiveTab('dashboard')}
+             className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+           >
+             Live Metrics
+           </button>
+           <button 
+             onClick={() => setActiveTab('cms')}
+             className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all ${activeTab === 'cms' ? 'bg-primary text-white shadow-[0_0_10px_rgba(244,63,94,0.3)]' : 'text-zinc-500 hover:text-zinc-300'}`}
+           >
+             Content CMS
+           </button>
         </div>
       </header>
 
-      {/* Real-time Infrastructure Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { label: 'Network Nodes', val: users.length, sub: 'Registered Entities', icon: Globe, color: 'text-zinc-400' },
-          { label: 'Active Miners', val: activeMiningCount, sub: 'Core Computing', icon: Cpu, color: 'text-primary', pulse: true },
-          { label: 'Live Presence', val: onlineUids.length, sub: 'WebSocket Heartbeats', icon: Radio, color: 'text-emerald-500', ping: true },
-          { label: 'Total Circulation', val: Math.floor(netStats.totalMined).toLocaleString(), sub: 'NEX Credits', icon: Database, color: 'text-zinc-600' }
-        ].map((s, i) => (
-          <div key={i} className={`surface p-8 rounded-2xl relative overflow-hidden transition-all hover:border-zinc-700`}>
-             <div className="flex items-center justify-between mb-6">
-                <s.icon className={`w-4 h-4 ${s.color} ${s.ping ? 'animate-bounce' : ''}`} />
-                {s.pulse && <div className="flex gap-1"><div className="w-1 h-3 bg-primary/20 rounded-full"></div><div className="w-1 h-3 bg-primary/40 rounded-full animate-pulse"></div></div>}
-             </div>
-             <p className="label-meta text-zinc-500 text-[8px] mb-1">{s.label}</p>
-             <h3 className="text-3xl font-mono font-bold text-white tracking-tighter">{s.val}</h3>
-             <p className="text-[9px] text-zinc-600 font-bold uppercase mt-2 tracking-widest">{s.sub}</p>
+      {/* DASHBOARD TAB */}
+      {activeTab === 'dashboard' && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { label: 'Network Nodes', val: users.length, sub: 'Registered Entities', icon: Globe, color: 'text-zinc-400' },
+              { label: 'Active Miners', val: activeMiningCount, sub: 'Core Computing', icon: Cpu, color: 'text-primary', pulse: true },
+              { label: 'Live Presence', val: onlineUids.length, sub: 'WebSocket Heartbeats', icon: Radio, color: 'text-emerald-500', ping: true },
+              { label: 'Total Circulation', val: Math.floor(netStats.totalMined).toLocaleString(), sub: 'NEX Credits', icon: Database, color: 'text-zinc-600' }
+            ].map((s, i) => (
+              <div key={i} className={`surface p-8 rounded-2xl relative overflow-hidden transition-all hover:border-zinc-700`}>
+                <div className="flex items-center justify-between mb-6">
+                    <s.icon className={`w-4 h-4 ${s.color} ${s.ping ? 'animate-bounce' : ''}`} />
+                    {s.pulse && <div className="flex gap-1"><div className="w-1 h-3 bg-primary/20 rounded-full"></div><div className="w-1 h-3 bg-primary/40 rounded-full animate-pulse"></div></div>}
+                </div>
+                <p className="label-meta text-zinc-500 text-[8px] mb-1">{s.label}</p>
+                <h3 className="text-3xl font-mono font-bold text-white tracking-tighter">{s.val}</h3>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div className="lg:col-span-3 surface p-10 rounded-3xl space-y-10 border-zinc-900">
+               <div className="flex items-center gap-3 mb-6">
+                  <PlusCircle className="w-4 h-4 text-primary" />
+                  <h3 className="label-meta text-white">Inject_Directive</h3>
+               </div>
+               <form onSubmit={handleCreateTask} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                     <input required value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} className="bg-zinc-950 border border-zinc-900 p-3 rounded-lg text-xs" placeholder="Task Title" />
+                     <input required type="number" value={newTask.points} onChange={e => setNewTask({...newTask, points: parseInt(e.target.value)})} className="bg-zinc-950 border border-zinc-900 p-3 rounded-lg text-xs" placeholder="Points" />
+                  </div>
+                  <input required value={newTask.link} onChange={e => setNewTask({...newTask, link: e.target.value})} className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-lg text-xs" placeholder="Verification Link" />
+                  <input required type="number" value={newTask.timerSeconds} onChange={e => setNewTask({...newTask, timerSeconds: parseInt(e.target.value)})} className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-lg text-xs" placeholder="Timer (Seconds)" />
+                  <textarea required value={newTask.description} onChange={e => setNewTask({...newTask, description: e.target.value})} className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-lg text-xs h-24" placeholder="Description" />
+                  <button className="btn-primary w-full">Deploy Directive</button>
+               </form>
+            </div>
+            
+            <div className="lg:col-span-2 surface rounded-3xl overflow-hidden border-zinc-900 flex flex-col">
+               <div className="bg-zinc-900/40 p-6 border-b border-zinc-800 flex justify-between items-center">
+                  <span className="label-meta text-white">Active_Registry</span>
+                  <span className="text-[8px] font-mono text-zinc-600">{tasks.length} SYNCED</span>
+               </div>
+               <div className="p-4 space-y-3 overflow-y-auto max-h-[400px]">
+                  {tasks.map(t => (
+                    <div key={t.id} className="flex justify-between items-center p-3 bg-zinc-900/30 rounded border border-zinc-900">
+                       <div>
+                         <p className="text-white text-xs font-bold">{t.title}</p>
+                         <p className="text-zinc-600 text-[10px]">{t.points} NEX</p>
+                       </div>
+                       <button onClick={() => handleDeleteTask(t.id)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  ))}
+               </div>
+            </div>
+          </div>
+        </>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Task Injection Console */}
-        <div className="lg:col-span-3 surface p-10 rounded-3xl space-y-10 border-zinc-900">
-           <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center border border-zinc-800">
-                   <PlusCircle className="w-4 h-4 text-primary" />
-                </div>
-                <h3 className="label-meta text-white">Inject_Directive_Buffer</h3>
+      {/* CMS TAB */}
+      {activeTab === 'cms' && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center justify-between bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 sticky top-4 z-50 backdrop-blur-xl">
+            <div className="flex items-center gap-3">
+              <Layout className="w-5 h-5 text-zinc-400" />
+              <div>
+                <h2 className="text-lg font-bold text-white">Landing Page CMS</h2>
+                <p className="text-[10px] text-zinc-500 font-mono">Manage public facing content</p>
               </div>
-              <span className="text-[9px] font-mono text-zinc-600">SCHEDULER: READY</span>
-           </div>
-           
-           <form onSubmit={handleCreateTask} className="space-y-8">
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-3">
-                    <label className="label-meta text-[9px] text-zinc-600">Directive Title</label>
-                    <input required value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} className="w-full bg-zinc-950 border border-zinc-900 focus:border-primary p-4 font-mono text-xs rounded-xl outline-none transition-all" placeholder="PROTOCOL_NAME" />
-                 </div>
-                 <div className="space-y-3">
-                    <label className="label-meta text-[9px] text-zinc-600">Credit Bounty (NEX)</label>
-                    <input required type="number" value={newTask.points} onChange={e => setNewTask({...newTask, points: parseInt(e.target.value)})} className="w-full bg-zinc-950 border border-zinc-900 focus:border-primary p-4 font-mono text-xs rounded-xl outline-none transition-all" />
-                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-3">
-                    <label className="label-meta text-[9px] text-zinc-600">Verification Endpoint</label>
-                    <div className="relative">
-                       <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-800" />
-                       <input required value={newTask.link} onChange={e => setNewTask({...newTask, link: e.target.value})} className="w-full bg-zinc-950 border border-zinc-900 focus:border-primary p-4 pl-12 font-mono text-xs rounded-xl outline-none transition-all" placeholder="https://..." />
-                    </div>
-                 </div>
-                 <div className="space-y-3">
-                    <label className="label-meta text-[9px] text-zinc-600">Sync Timer (SEC)</label>
-                    <div className="relative">
-                       <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-800" />
-                       <input type="number" value={newTask.timerSeconds} onChange={e => setNewTask({...newTask, timerSeconds: parseInt(e.target.value) || 0})} className="w-full bg-zinc-950 border border-zinc-900 focus:border-primary p-4 pl-12 font-mono text-xs rounded-xl outline-none transition-all" placeholder="0 = instant_auth" />
-                    </div>
-                 </div>
-              </div>
-              <div className="space-y-3">
-                 <label className="label-meta text-[9px] text-zinc-600">Mission Parameters</label>
-                 <textarea required value={newTask.description} onChange={e => setNewTask({...newTask, description: e.target.value})} className="w-full bg-zinc-950 border border-zinc-900 focus:border-primary p-4 font-mono text-xs rounded-xl outline-none h-32 resize-none transition-all" placeholder="Define validation steps..." />
-              </div>
-              <button className="btn-primary w-full group relative overflow-hidden py-5">
-                 <span className="relative z-10 flex items-center justify-center gap-3">
-                    Broadcast Global Directive <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                 </span>
-                 <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className={`text-[10px] font-mono font-bold ${cmsStatus.includes('ERROR') || cmsStatus.includes('INVALID') ? 'text-red-500' : 'text-emerald-500'}`}>
+                 {cmsStatus}
+              </span>
+              <button onClick={handleSaveCMS} className="btn-primary flex items-center gap-2">
+                 <Save className="w-4 h-4" /> Save Changes
               </button>
-           </form>
-        </div>
-
-        {/* Live Directive Monitor */}
-        <div className="lg:col-span-2 surface rounded-3xl flex flex-col overflow-hidden border-zinc-900">
-           <div className="bg-zinc-900/40 p-6 border-b border-zinc-800 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                 <List className="w-4 h-4 text-primary" />
-                 <h3 className="label-meta text-white">Active_Registry</h3>
-              </div>
-              <span className="text-[8px] font-mono text-zinc-600 font-black">{tasks.length} SYNCED</span>
-           </div>
-           <div className="flex-1 p-6 space-y-4 font-mono text-[10px] overflow-y-auto max-h-[600px] scrollbar-hide">
-              {tasks.length === 0 && (
-                 <div className="flex flex-col items-center justify-center h-full py-20 text-zinc-800 opacity-50">
-                    <Terminal className="w-12 h-12 mb-4" />
-                    <p className="label-meta text-[8px]">Buffer_Empty</p>
-                 </div>
-              )}
-              {tasks.map((t) => (
-                <div key={t.id} className="group flex justify-between items-center border-l-2 border-primary/40 pl-4 py-4 bg-zinc-900/20 hover:bg-primary/[0.03] transition-all rounded-r-xl border border-zinc-900">
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-3">
-                      <span className="text-white font-bold tracking-tight">{t.title}</span>
-                      <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-[8px] font-black rounded border border-primary/20">+{t.points} NEX</span>
-                    </div>
-                    <div className="flex gap-4 items-center opacity-60">
-                       <span className="flex items-center gap-1"><Clock className="w-2.5 h-2.5" /> {t.timerSeconds || 0}S</span>
-                       <span className="truncate max-w-[120px]">{t.link.replace('https://', '')}</span>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => handleDeleteTask(t.id)}
-                    className="p-3 text-zinc-800 hover:text-primary hover:bg-primary/10 transition-all rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-           </div>
-        </div>
-      </div>
-
-      {/* Advanced Node Telemetry Feed */}
-      <div className="surface rounded-3xl flex flex-col overflow-hidden border-zinc-900 bg-zinc-950">
-         <div className="bg-zinc-900/30 p-8 border-b border-zinc-800 flex justify-between items-center">
-            <div className="flex items-center gap-4">
-               <div className="p-2 bg-emerald-500/10 rounded-lg">
-                  <Activity className="w-5 h-5 text-emerald-500" />
-               </div>
-               <div>
-                  <h3 className="label-meta text-white">Live_Node_Telemetry</h3>
-                  <p className="text-[9px] text-zinc-600 font-bold uppercase mt-0.5">Real-time peering & authentication feed</p>
-               </div>
             </div>
-            <div className="flex items-center gap-4">
-               <div className="text-right hidden md:block">
-                  <p className="label-meta text-[8px] text-zinc-500">System Capacity</p>
-                  <p className="text-[10px] font-mono font-bold text-white">LOW_LATENCY_WEB_SOCKETS</p>
-               </div>
-               <div className="h-10 w-[1px] bg-zinc-900 hidden md:block"></div>
-               <span className="text-[10px] font-mono text-emerald-500 font-black bg-emerald-500/10 px-4 py-2 rounded-lg border border-emerald-500/20 animate-pulse">
-                  {onlineUids.length} NODES_ONLINE
-               </span>
-            </div>
-         </div>
+          </div>
 
-         <div className="flex-1 p-8 space-y-3 font-mono text-[10px] overflow-y-auto max-h-[500px]">
-            {onlineUsersList.length === 0 ? (
-               <div className="py-20 text-center opacity-30 flex flex-col items-center">
-                  <Zap className="w-12 h-12 text-zinc-700 mb-6" />
-                  <p className="label-meta text-[10px]">No live peers detected on global mesh</p>
-               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {onlineUsersList.map((u, i) => (
-                  <div key={i} className="flex justify-between items-center border border-zinc-900 p-5 bg-zinc-900/20 rounded-2xl hover:border-emerald-500/30 transition-all group">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${u.miningActive ? 'bg-primary shadow-[0_0_8px_#f43f5e] animate-pulse' : 'bg-zinc-800'}`}></div>
-                        <span className="text-white font-bold text-xs">{u.displayName}</span>
-                        <span className="text-[8px] text-zinc-700 font-black">ID::{u.uid.slice(0, 6)}</span>
-                      </div>
-                      <div className="flex gap-4">
-                         <span className="text-emerald-500/60 font-black tracking-widest">[ AUTH::OK ]</span>
-                         <div className="flex items-center gap-2">
-                            <Cpu className={`w-2.5 h-2.5 ${u.miningActive ? 'text-primary' : 'text-zinc-700'}`} />
-                            <span className={`${u.miningActive ? "text-primary font-bold" : "text-zinc-700"}`}>
-                              {u.miningActive ? "MINING_SEQUENCE" : "IDLE_MODE"}
-                            </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Simple Text Sections */}
+            {['hero', 'cta', 'footer', 'partners'].map((sectionKey) => {
+               const section = landingConfig[sectionKey as keyof LandingConfig];
+               if (!section) return null;
+               
+               return (
+                 <div key={sectionKey} className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+                    <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                       <h3 className="label-meta text-primary uppercase">{sectionKey} Section</h3>
+                       <div className="flex items-center gap-2">
+                          <label className="text-[9px] text-zinc-500 font-bold">VISIBLE</label>
+                          <input 
+                            type="checkbox" 
+                            checked={section.isVisible} 
+                            onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'isVisible', e.target.checked)}
+                            className="w-4 h-4 accent-primary bg-zinc-900" 
+                          />
+                       </div>
+                    </div>
+                    
+                    {/* Render fields dynamically based on key type */}
+                    {Object.keys(section).map(field => {
+                       if (field === 'isVisible' || typeof section[field] === 'object') return null;
+                       return (
+                         <div key={field} className="space-y-2">
+                            <label className="text-[9px] text-zinc-600 font-bold uppercase">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
+                            {field.includes('description') || field.includes('subtitle') ? (
+                              <textarea 
+                                value={section[field]} 
+                                onChange={(e) => updateSection(sectionKey as keyof LandingConfig, field, e.target.value)}
+                                className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono h-24 focus:border-primary/50 outline-none"
+                              />
+                            ) : (
+                              <input 
+                                value={section[field]} 
+                                onChange={(e) => updateSection(sectionKey as keyof LandingConfig, field, e.target.value)}
+                                className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono focus:border-primary/50 outline-none"
+                              />
+                            )}
                          </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                       <p className="text-white font-bold text-sm tracking-tighter">{u.points.toFixed(2)} <span className="text-zinc-600 text-[9px] font-black">NEX</span></p>
-                       <p className="text-[8px] text-zinc-700 mt-1 uppercase font-bold">{u.email?.split('@')[0]}@nexus</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-         </div>
+                       )
+                    })}
+                    
+                    {/* Specific handling for Partners Array (Simple List) */}
+                    {sectionKey === 'partners' && (
+                       <div className="space-y-2">
+                          <label className="text-[9px] text-zinc-600 font-bold uppercase">PARTNER LIST (JSON ARRAY)</label>
+                          <textarea 
+                             defaultValue={JSON.stringify(section.items, null, 2)}
+                             onChange={(e) => updateComplexSection('partners', JSON.stringify({ ...section, items: JSON.parse(e.target.value || "[]") }))} 
+                             className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-[10px] font-mono h-32 text-zinc-400 focus:text-white"
+                          />
+                       </div>
+                    )}
+                 </div>
+               )
+            })}
 
-         <div className="p-8 bg-zinc-900/20 border-t border-zinc-900 mt-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4 text-zinc-600">
-               <Server className="w-3 h-3" />
-               <p className="text-[9px] font-bold uppercase tracking-[0.2em] font-mono">Protocol Kernel v2.8.4-RELEASE | Registry Size: {users.length}</p>
-            </div>
-            <div className="flex gap-8">
-               <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                  <span className="text-[8px] font-black text-zinc-600 uppercase">Miner_Active</span>
-               </div>
-               <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                  <span className="text-[8px] font-black text-zinc-600 uppercase">Node_Connected</span>
-               </div>
-            </div>
-         </div>
-      </div>
+            {/* Complex JSON Sections (Roadmap, FAQ, Features) */}
+            {['roadmap', 'architecture', 'features', 'faq'].map((sectionKey) => {
+               const section = landingConfig[sectionKey as keyof LandingConfig];
+               return (
+                 <div key={sectionKey} className="surface p-8 rounded-3xl border-zinc-900 space-y-6 md:col-span-2">
+                    <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                       <div className="flex items-center gap-3">
+                          <FileCode className="w-4 h-4 text-zinc-600" />
+                          <h3 className="label-meta text-primary uppercase">{sectionKey} Configuration (JSON)</h3>
+                       </div>
+                       <div className="flex items-center gap-2">
+                          <label className="text-[9px] text-zinc-500 font-bold">VISIBLE</label>
+                          <input 
+                            type="checkbox" 
+                            checked={section.isVisible} 
+                            onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'isVisible', e.target.checked)}
+                            className="w-4 h-4 accent-primary bg-zinc-900" 
+                          />
+                       </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                       <div className="space-y-4">
+                          <div className="space-y-2">
+                             <label className="text-[9px] text-zinc-600 font-bold uppercase">TITLE</label>
+                             <input 
+                                value={section.title} 
+                                onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'title', e.target.value)}
+                                className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono"
+                             />
+                          </div>
+                          {section.description && (
+                            <div className="space-y-2">
+                               <label className="text-[9px] text-zinc-600 font-bold uppercase">DESCRIPTION</label>
+                               <textarea 
+                                  value={section.description} 
+                                  onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'description', e.target.value)}
+                                  className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono h-20"
+                               />
+                            </div>
+                          )}
+                       </div>
+                       
+                       <div className="space-y-2">
+                          <label className="text-[9px] text-zinc-600 font-bold uppercase">FULL CONFIGURATION OBJECT (Advanced)</label>
+                          <textarea 
+                             value={JSON.stringify(section, null, 2)}
+                             onChange={(e) => updateComplexSection(sectionKey as keyof LandingConfig, e.target.value)}
+                             className="w-full bg-zinc-950 border border-zinc-900 p-4 rounded-xl text-[10px] font-mono h-64 text-zinc-400 focus:text-white focus:border-primary transition-colors resize-y"
+                             spellCheck={false}
+                          />
+                          <p className="text-[9px] text-zinc-600 italic">
+                             Edit the JSON structure directly to modify nested items like layers, phases, or questions. Ensure syntax is valid.
+                          </p>
+                       </div>
+                    </div>
+                 </div>
+               )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

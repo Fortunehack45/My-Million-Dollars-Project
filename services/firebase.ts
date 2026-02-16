@@ -32,7 +32,7 @@ import {
   onDisconnect, 
   serverTimestamp 
 } from 'firebase/database';
-import { User, Task, LeaderboardEntry, NetworkStats } from '../types';
+import { User, Task, LeaderboardEntry, NetworkStats, LandingConfig } from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
@@ -56,6 +56,96 @@ export const REFERRAL_BOOST = 0.1; // NEX per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
 
+// --- DEFAULT CMS CONTENT ---
+export const DEFAULT_LANDING_CONFIG: LandingConfig = {
+  hero: {
+    isVisible: true,
+    title: "Decentralized Compute Layer.",
+    subtitle: "Deploy high-performance validator nodes. Verify network integrity, mine NEX Credits, and secure your allocation of the Genesis supply.",
+    ctaPrimary: "Start Validator Node",
+    ctaSecondary: "Read Whitepaper"
+  },
+  partners: {
+    isVisible: true,
+    title: "Infrastructure Supported By",
+    items: ['SEQUOIA_COMPUTE', 'ANDREESSEN_CLOUD', 'BINANCE_LABS', 'COINBASE_VENTURES', 'POLYCHAIN_CAPITAL']
+  },
+  architecture: {
+    isVisible: true,
+    title: "Modular Architecture",
+    description: "Separating consensus from execution allows NexusNode to achieve linear scalability. Our proprietary GhostDAG protocol ensures instant finality.",
+    layers: [
+       { title: 'Consensus Layer', desc: 'Proof-of-Uptime verification engine.' },
+       { title: 'Data Availability', desc: 'Sharded storage across 40k+ nodes.' },
+       { title: 'Execution Layer', desc: 'WASM-based high performance VM.' }
+    ]
+  },
+  features: {
+    isVisible: true,
+    title: "Core Capabilities",
+    description: "Engineered for resilience, speed, and massive scale.",
+    items: [
+       { title: "Global Mesh", desc: "Low-latency topology distributed across 40+ regions.", icon: 'Globe' },
+       { title: "Proof of Uptime", desc: "Cryptographic verification of node availability and performance.", icon: 'ShieldCheck' },
+       { title: "Elastic Compute", desc: "Dynamic resource allocation scaling with network demand.", icon: 'Cpu' }
+    ]
+  },
+  roadmap: {
+    isVisible: true,
+    title: "Strategic Execution",
+    description: "A phased approach to decentralizing the global compute layer.",
+    phases: [
+        { 
+            phase: "01", 
+            title: "Genesis Epoch", 
+            period: "Q1 2025", 
+            status: "LIVE", 
+            desc: "Initial network bootstrapping and validator onboarding.",
+            features: ["Validator Registry Contract", "Proof-of-Uptime Consensus Alpha", "Incentivized Testnet Launch"] 
+        },
+        { 
+            phase: "02", 
+            title: "Expansion Layer", 
+            period: "Q3 2025", 
+            status: "UPCOMING", 
+            desc: "Scaling node topology and introducing smart contract execution.",
+            features: ["EVM Compatibility Layer", "Cross-Region Sharding", "Public Stress Testing"] 
+        },
+        { 
+            phase: "03", 
+            title: "Mainnet Singularity", 
+            period: "Q1 2026", 
+            status: "LOCKED", 
+            desc: "Full decentralization and governance handover.",
+            features: ["Token Generation Event (TGE)", "DAO Governance Module", "Global Compute Marketplace"] 
+        }
+    ]
+  },
+  faq: {
+    isVisible: true,
+    title: "Protocol FAQ",
+    items: [
+       { q: "What are the hardware requirements for a node?", a: "NexusNode is designed to be lightweight. A standard VPS with 2 vCPUs, 4GB RAM, and 50GB SSD is sufficient for the testnet phase." },
+       { q: "How are mining rewards calculated?", a: "Rewards are based on uptime proofs and referral topology. The base rate is 0.06 NEX/hr, with multipliers for verified referral connections." },
+       { q: "Is the testnet incentivized?", a: "Yes. Points earned during the Genesis Epoch will be converted to mainnet tokens at TGE based on a vesting schedule defined in the whitepaper." },
+       { q: "Can I run multiple nodes?", a: "During Phase 1, we limit one validator ID per KYC/Identity to ensure fair distribution and network decentralization." }
+    ]
+  },
+  cta: {
+    isVisible: true,
+    title: "Secure the Genesis Block",
+    description: "Join 24,000+ validators securing the next generation of decentralized compute. Early participation ensures maximum allocation.",
+    buttonText: "Initialize Node"
+  },
+  footer: {
+    isVisible: true,
+    title: "NexusNode",
+    description: "Building the verification layer for the decentralized web.",
+    copyright: "© 2026 NEXUS LABS.",
+    links: {}
+  }
+};
+
 /**
  * Professional Presence Logic
  * Uses RTDB for high-frequency heartbeats and session state.
@@ -75,6 +165,8 @@ export const setupPresence = (uid: string) => {
       // Once the disconnect hook is ready, set the status to online
       set(userStatusDatabaseRef, isOnlineForDatabase);
     });
+  }, (error) => {
+    console.warn("Presence Setup Error:", error);
   });
 };
 
@@ -99,6 +191,9 @@ export const subscribeToOnlineUsers = (callback: (onlineUids: string[]) => void)
       .filter((key) => statuses[key].state === 'online')
       .map((key) => statuses[key].uid);
     callback(onlineUids);
+  }, (error) => {
+    console.warn("Online Users Subscription Error:", error);
+    callback([]);
   });
 };
 
@@ -243,6 +338,9 @@ export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
   return onSnapshot(q, (snapshot) => {
     const tasks = snapshot.docs.map(doc => doc.data() as Task);
     callback(tasks);
+  }, (error) => {
+    console.warn("Tasks Subscription Error:", error);
+    callback([]);
   });
 };
 
@@ -256,12 +354,17 @@ export const subscribeToUsers = (callback: (users: User[]) => void) => {
   return onSnapshot(q, (snapshot) => {
     const users = snapshot.docs.map(doc => doc.data() as User);
     callback(users);
+  }, (error) => {
+    console.warn("Users Subscription Error:", error);
+    callback([]);
   });
 };
 
 export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void) => {
   return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
     if (snapshot.exists()) callback(snapshot.data() as NetworkStats);
+  }, (error) => {
+    console.warn("Stats Subscription Error:", error);
   });
 };
 
@@ -319,4 +422,36 @@ export const logout = async () => {
     }
   }
   await firebaseSignOut(auth);
+};
+
+// --- CMS SERVICES ---
+
+export const subscribeToLandingConfig = (callback: (config: LandingConfig) => void) => {
+  return onSnapshot(doc(db, 'site_content', 'landing'), (snapshot) => {
+    if (snapshot.exists()) {
+      // Merge with default config to ensure all fields exist if DB is partial
+      const data = snapshot.data();
+      const mergedConfig = {
+        ...DEFAULT_LANDING_CONFIG,
+        ...data,
+      };
+      // Manually ensure sections exist if deleted from DB
+      Object.keys(DEFAULT_LANDING_CONFIG).forEach(key => {
+        if (!mergedConfig[key as keyof LandingConfig]) {
+           // @ts-ignore
+           mergedConfig[key] = DEFAULT_LANDING_CONFIG[key];
+        }
+      });
+      callback(mergedConfig as LandingConfig);
+    } else {
+      callback(DEFAULT_LANDING_CONFIG);
+    }
+  }, (error) => {
+    console.warn("CMS Config Subscription Error (using default):", error);
+    callback(DEFAULT_LANDING_CONFIG);
+  });
+};
+
+export const updateLandingConfig = async (config: LandingConfig) => {
+  await setDoc(doc(db, 'site_content', 'landing'), config, { merge: true });
 };

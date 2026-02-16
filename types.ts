@@ -39,3 +39,23 @@ export interface LeaderboardEntry {
   points: number;
   rank: number;
 }
+
+// CMS Types
+export interface LandingSection {
+  isVisible: boolean;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+export interface LandingConfig {
+  hero: LandingSection & { ctaPrimary: string; ctaSecondary: string };
+  partners: LandingSection & { items: string[] };
+  architecture: LandingSection & { layers: Array<{title: string, desc: string}> };
+  features: LandingSection & { items: Array<{title: string, desc: string, icon: string}> };
+  roadmap: LandingSection & { phases: Array<{phase: string, title: string, period: string, status: string, desc: string, features: string[]}> };
+  faq: LandingSection & { items: Array<{q: string, a: string}> };
+  cta: LandingSection & { buttonText: string };
+  footer: LandingSection & { copyright: string, links: any };
+}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
+import { LandingConfig } from '../types';
 import { 
   Hexagon, 
   ArrowRight, 
@@ -19,11 +21,18 @@ import {
 const Landing = () => {
   const { login } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [telemetry, setTelemetry] = useState({ latency: 12, nodes: 24802, blocks: 104290 });
-  
+  const [content, setContent] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
+
+  // Subscribe to CMS updates
+  useEffect(() => {
+    const unsubscribe = subscribeToLandingConfig((newConfig) => {
+      setContent(newConfig);
+    });
+    return () => unsubscribe();
+  }, []);
+
   // Interactive Background States
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  // Initialize with a default center position for SSR/initial render to avoid jumps
   const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
   
   const [isMatrixActive, setIsMatrixActive] = useState(false);
@@ -31,17 +40,15 @@ const Landing = () => {
   const [konamiProgress, setKonamiProgress] = useState(0);
 
   // Animation States
-  const [visibleItems, setVisibleItems] = useState<number[]>([]); // For Roadmap specific logic
+  const [visibleItems, setVisibleItems] = useState<number[]>([]); // For Roadmap
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set()); // For General Sections
 
-  // Terminal Logs State
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string}>>([]);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
   const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 
-  // Ticker Items State (Dynamic)
   const [tickerItems, setTickerItems] = useState(() => Array.from({length: 10}).map((_, i) => ({
       id: i,
       hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}...${Math.random().toString(16).slice(2, 6).toUpperCase()}`
@@ -52,17 +59,15 @@ const Landing = () => {
     const interval = setInterval(() => {
       setTickerItems(prev => prev.map(item => ({
         ...item,
-        // Generate wallet-like address format: 0xABCD...1234
         hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}...${Math.random().toString(16).slice(2, 6).toUpperCase()}`
       })));
-    }, 500); // 500ms = 2 times per second
+    }, 500); 
 
     return () => clearInterval(interval);
   }, []);
 
   // 1. Infinite Terminal Logic
   useEffect(() => {
-    // Initial Hydration
     setLogs([
        { id: 1, prefix: "SYS", msg: "initializing_handshake_protocol", status: "OK" },
        { id: 2, prefix: "NET", msg: "establishing_secure_tunnel", status: "OK" },
@@ -79,52 +84,32 @@ const Landing = () => {
         const noun = nouns[Math.floor(Math.random() * nouns.length)];
         const hash = "0x" + Math.random().toString(16).substr(2, 6).toUpperCase();
         
-        // Randomize urgency
         const isCritical = Math.random() > 0.7;
         const prefix = isCritical ? "NET" : "SYS";
         const status = isCritical ? `${Math.floor(Math.random() * 40 + 10)}ms` : "OK";
         
         const newLog = { id, prefix, msg: `${verb}::${noun} [${hash}]`, status };
         
-        // Keep last 8 lines to fit perfectly in container
         const newLogs = [...prev, newLog];
         if (newLogs.length > 8) return newLogs.slice(newLogs.length - 8);
         return newLogs;
       });
-    }, 500); // Fast, active update rate
+    }, 500);
 
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Telemetry Simulation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTelemetry(prev => ({
-        latency: Math.floor(Math.random() * 8 + 12),
-        nodes: prev.nodes + (Math.random() > 0.7 ? 1 : 0),
-        blocks: prev.blocks + 1
-      }));
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // 3. Precision Cursor Tracking with Smooth Interpolation for Mobile/Desktop
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   }, []);
 
-  // Smooth Beam Interpolation Effect
   useEffect(() => {
     let animationFrameId: number;
-    
     const animateBeam = () => {
       setBeamPos(prev => {
-        // Smooth lerp (Linear Interpolation)
-        const ease = 0.05; // Lower = smoother/slower
+        const ease = 0.05;
         const dx = mousePos.x - prev.x;
         const dy = mousePos.y - prev.y;
-        
-        // If mouse hasn't moved (or on mobile), drift slowly
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
             const time = Date.now() * 0.001;
             return {
@@ -132,7 +117,6 @@ const Landing = () => {
                 y: prev.y + Math.cos(time) * 0.5
             };
         }
-
         return {
           x: prev.x + dx * ease,
           y: prev.y + dy * ease
@@ -140,13 +124,10 @@ const Landing = () => {
       });
       animationFrameId = requestAnimationFrame(animateBeam);
     };
-    
     animateBeam();
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos]);
 
-
-  // 4. System Override Logic
   const triggerRootOverride = () => {
     setIsEmergency(true);
     setTimeout(() => {
@@ -173,7 +154,6 @@ const Landing = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // 5. Matrix Engine (Red/Black Spec)
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -191,7 +171,6 @@ const Landing = () => {
     const technical = "01-NEXUS-NODE-HASH-BLOCK-";
     const alphabet = katakana + technical;
     
-    // Responsive font size for matrix rain
     const isMobile = window.innerWidth < 768;
     const fontSize = isMobile ? 10 : 13;
     
@@ -199,7 +178,7 @@ const Landing = () => {
     const drops: number[] = Array(columns).fill(1).map(() => Math.random() * canvas.height / fontSize);
 
     const draw = () => {
-      ctx.fillStyle = "rgba(3, 3, 3, 0.15)"; // Dark fade
+      ctx.fillStyle = "rgba(3, 3, 3, 0.15)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `${fontSize}px JetBrains Mono`;
 
@@ -209,9 +188,8 @@ const Landing = () => {
         if (isEmergency) {
           ctx.fillStyle = "#ffffff"; 
         } else {
-          // Red Spectrum
           const isHighlight = Math.random() > 0.98;
-          ctx.fillStyle = isHighlight ? "#fda4af" : "#F43F5E"; // Highlight Rose vs Primary Red
+          ctx.fillStyle = isHighlight ? "#fda4af" : "#F43F5E";
         }
 
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -232,18 +210,15 @@ const Landing = () => {
     };
   }, [isMatrixActive, isEmergency]);
 
-  // 6. Roadmap & Section Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Logic for Roadmap items
             if (entry.target.classList.contains('roadmap-item')) {
                 const index = parseInt(entry.target.getAttribute('data-index') || '0');
                 setVisibleItems((prev) => (prev.includes(index) ? prev : [...prev, index]));
             }
-            // Logic for General Sections (Architecture, Features, FAQ, CTA)
             const sectionId = entry.target.getAttribute('data-id');
             if (sectionId) {
                 setVisibleSections((prev) => {
@@ -262,7 +237,7 @@ const Landing = () => {
     items.forEach((item) => observer.observe(item));
 
     return () => observer.disconnect();
-  }, []);
+  }, [content]); // Re-observe when content changes
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -273,25 +248,11 @@ const Landing = () => {
       className={`min-h-screen bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white transition-all duration-700 ${isEmergency ? 'grayscale contrast-125' : ''}`}
       onMouseMove={handleMouseMove}
     >
-      {/* --- INFRASTRUCTURE BACKGROUND SYSTEM --- */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Pass 1: Digital Rain (Red) */}
-        <canvas 
-          ref={canvasRef} 
-          className="absolute inset-0 opacity-[0.15]"
-        />
-
-        {/* Pass 2: Technical Grid */}
-        <div className="absolute inset-0 opacity-[0.06]" 
-             style={{ backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
-        </div>
-
-        {/* Pass 3: Volumetric Beam (Red Blend) - Hardware Accelerated */}
+        <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.15]" />
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(rgba(244, 63, 94, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(244, 63, 94, 0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Darkening Mask to focus beam */}
            <div className="absolute inset-0 bg-zinc-950/80 mix-blend-multiply"></div>
-           
-           {/* The Pure Beam - Soft Red */}
            <div 
              className="absolute w-[300px] md:w-[500px] h-[800px] md:h-[1400px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-[60px] md:blur-[80px] will-change-transform"
              style={{ 
@@ -301,7 +262,6 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="sticky top-0 z-[100] bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900 transition-all">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
           <div className="flex items-center gap-3 md:gap-4">
@@ -328,11 +288,11 @@ const Landing = () => {
       </nav>
 
       {/* Main Hero */}
+      {content.hero.isVisible && (
       <div className="relative z-10">
         <section className="pt-20 pb-20 md:pt-24 md:pb-32 px-4 md:px-6 max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
-            {/* Text Content */}
             <div className="lg:col-span-7 space-y-8 md:space-y-10">
               <div className="space-y-4 md:space-y-6">
                 <div className="inline-flex items-center gap-3 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
@@ -341,25 +301,23 @@ const Landing = () => {
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-[0.95] md:leading-[0.9]">
-                  Decentralized <br/>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-rose-400">Compute</span> Layer.
+                  {content.hero.title}
                 </h1>
                 
                 <p className="text-zinc-400 text-base md:text-lg font-medium max-w-xl leading-relaxed">
-                  Deploy high-performance validator nodes. Verify network integrity, mine <span className="text-white font-bold">NEX Credits</span>, and secure your allocation of the Genesis supply.
+                  {content.hero.subtitle}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 pt-2">
                 <button onClick={login} className="w-full sm:w-auto px-8 py-4 bg-primary text-white text-[11px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_25px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-lg">
-                   Start Validator Node <ArrowRight className="w-4 h-4" />
+                   {content.hero.ctaPrimary} <ArrowRight className="w-4 h-4" />
                 </button>
                 <button className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 text-[11px] font-black text-white uppercase tracking-widest hover:border-zinc-700 transition-all flex items-center justify-center gap-3 rounded-lg">
-                   Read Whitepaper <Code2 className="w-4 h-4 text-zinc-600" />
+                   {content.hero.ctaSecondary} <Code2 className="w-4 h-4 text-zinc-600" />
                 </button>
               </div>
 
-              {/* Mini Stats */}
               <div className="grid grid-cols-3 gap-2 md:gap-6 border-t border-zinc-900/50 pt-8">
                 <div>
                    <p className="text-xl md:text-[2rem] font-mono font-bold text-white leading-none">40<span className="text-primary text-sm md:text-lg">+</span></p>
@@ -376,11 +334,9 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Terminal Visual */}
             <div className="lg:col-span-5 relative w-full">
                <div className="absolute -inset-1 bg-gradient-to-b from-primary/20 to-transparent blur-2xl opacity-50"></div>
                <div className="relative bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
-                  {/* Terminal Header */}
                   <div className="bg-zinc-900 px-4 py-3 flex items-center justify-between border-b border-zinc-800">
                      <div className="flex gap-2">
                         <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
@@ -392,7 +348,6 @@ const Landing = () => {
                      </div>
                   </div>
                   
-                  {/* Terminal Body - Live Infinite Feed */}
                   <div className="p-4 md:p-6 font-mono text-[10px] md:text-xs h-[280px] md:h-[320px] flex flex-col relative">
                      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:100%_2px]"></div>
 
@@ -404,7 +359,6 @@ const Landing = () => {
                               <span className={`text-[10px] font-bold ${log.status === 'OK' ? 'text-zinc-500' : 'text-white'}`}>{log.status}</span>
                            </div>
                         ))}
-                        {/* Active Cursor Line */}
                         <div className="flex items-center gap-3 opacity-80">
                            <span className="text-[10px] font-bold text-primary">[CMD]</span>
                            <div className="h-3 md:h-4 w-1.5 md:w-2 bg-primary animate-pulse"></div>
@@ -428,15 +382,15 @@ const Landing = () => {
             </div>
           </div>
         </section>
+      </div>
+      )}
 
-        {/* Scrolling Ticker (Infinite Loop) */}
-        <div className="bg-zinc-900/30 border-y border-zinc-900 py-3 overflow-hidden relative group">
-           {/* Fade Masks */}
+      {/* Scrolling Ticker (Infinite Loop) */}
+      <div className="bg-zinc-900/30 border-y border-zinc-900 py-3 overflow-hidden relative group">
            <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none"></div>
            <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none"></div>
 
            <div className="flex items-center animate-marquee whitespace-nowrap will-change-transform w-max">
-              {/* Render Set 1 */}
               {tickerItems.map((item, i) => (
                  <div key={`s1-${i}`} className="flex items-center gap-4 px-8 md:px-12">
                     <Activity className="w-3 h-3 text-zinc-700" />
@@ -444,7 +398,6 @@ const Landing = () => {
                     <span className="text-[10px] font-mono font-bold text-primary">CONFIRMED</span>
                  </div>
               ))}
-              {/* Render Set 2 (Duplicate for Seamless Loop) */}
               {tickerItems.map((item, i) => (
                  <div key={`s2-${i}`} className="flex items-center gap-4 px-8 md:px-12">
                     <Activity className="w-3 h-3 text-zinc-700" />
@@ -455,42 +408,37 @@ const Landing = () => {
            </div>
         </div>
 
-        {/* Ecosystem Logos */}
+      {content.partners.isVisible && (
         <section className="py-16 md:py-20 border-b border-zinc-900">
            <div className="max-w-7xl mx-auto px-6 text-center space-y-12">
-              <p className="label-meta text-zinc-600">Infrastructure Supported By</p>
+              <p className="label-meta text-zinc-600">{content.partners.title}</p>
               <div className="flex flex-wrap justify-center items-center gap-8 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-                 {/* Placeholders for "Institutions" */}
-                 {['SEQUOIA_COMPUTE', 'ANDREESSEN_CLOUD', 'BINANCE_LABS', 'COINBASE_VENTURES', 'POLYCHAIN_CAPITAL'].map((name, i) => (
+                 {content.partners.items.map((name: string, i: number) => (
                     <h3 key={i} className="text-sm md:text-lg font-black tracking-tighter text-white uppercase">{name.replace('_', ' ')}</h3>
                  ))}
               </div>
            </div>
         </section>
+      )}
 
-        {/* Technical Architecture - Animated */}
+      {content.architecture.isVisible && (
         <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">
-              {/* Left Column: Text & List (Staggered Animation) */}
               <div className="space-y-8 md:space-y-12">
                  <div 
                    data-id="arch-header"
                    className={`space-y-6 transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('arch-header') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}
                  >
                     <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-[0.9]">
-                       Modular <br/> <span className="text-zinc-600">Architecture</span>
+                       {content.architecture.title}
                     </h2>
                     <p className="text-zinc-500 text-base md:text-lg leading-relaxed max-w-md">
-                       Separating consensus from execution allows NexusNode to achieve linear scalability. Our proprietary <span className="text-white font-bold">GhostDAG</span> protocol ensures instant finality.
+                       {content.architecture.description}
                     </p>
                  </div>
                  
                  <div className="space-y-6">
-                    {[
-                       { title: 'Consensus Layer', desc: 'Proof-of-Uptime verification engine.' },
-                       { title: 'Data Availability', desc: 'Sharded storage across 40k+ nodes.' },
-                       { title: 'Execution Layer', desc: 'WASM-based high performance VM.' }
-                    ].map((layer, i) => (
+                    {content.architecture.layers.map((layer: any, i: number) => (
                        <div 
                          key={i} 
                          data-id={`arch-layer-${i}`}
@@ -509,7 +457,6 @@ const Landing = () => {
                  </div>
               </div>
 
-              {/* Diagram Visual (Slide & Fade Animation) */}
               <div 
                 data-id="arch-visual"
                 className={`relative transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('arch-visual') ? 'opacity-100 translate-x-0 blur-0' : 'opacity-0 translate-x-12 blur-sm'}`}
@@ -523,7 +470,6 @@ const Landing = () => {
                           <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
                        </div>
                     </div>
-                    {/* Abstract Blocks */}
                     <div className="space-y-2">
                        <div className="h-16 w-full bg-zinc-900/50 border border-zinc-800 rounded flex items-center justify-center">
                           <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Application Layer (dApps)</span>
@@ -546,24 +492,22 @@ const Landing = () => {
               </div>
            </div>
         </section>
+      )}
 
-        {/* Features Grid - Refined & Animated */}
+      {content.features.isVisible && (
         <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto w-full border-t border-zinc-900">
-           {/* Section Header */}
            <div 
              data-id="feat-header"
              className={`mb-16 md:mb-20 max-w-2xl transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('feat-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
            >
-              <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-4">Core Capabilities</h2>
-              <p className="text-zinc-500 text-lg">Engineered for resilience, speed, and massive scale.</p>
+              <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-4">{content.features.title}</h2>
+              <p className="text-zinc-500 text-lg">{content.features.description}</p>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                 { icon: Globe, title: "Global Mesh", desc: "Low-latency topology distributed across 40+ regions." },
-                 { icon: ShieldCheck, title: "Proof of Uptime", desc: "Cryptographic verification of node availability and performance." },
-                 { icon: Cpu, title: "Elastic Compute", desc: "Dynamic resource allocation scaling with network demand." }
-              ].map((f, i) => (
+              {content.features.items.map((f: any, i: number) => {
+                 const Icon = f.icon === 'Globe' ? Globe : f.icon === 'ShieldCheck' ? ShieldCheck : Cpu;
+                 return (
                  <div 
                     key={i}
                     data-id={`feat-card-${i}`}
@@ -571,18 +515,18 @@ const Landing = () => {
                     style={{ transitionDelay: `${i * 200}ms` }}
                  >
                     <div className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                       <f.icon className="w-5 h-5 text-zinc-400 group-hover:text-primary transition-colors" />
+                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-primary transition-colors" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-4 tracking-tight">{f.title}</h3>
                     <p className="text-sm text-zinc-500 leading-relaxed">{f.desc}</p>
                  </div>
-              ))}
+              )})}
            </div>
         </section>
+      )}
 
-        {/* Roadmap - Enhanced Professional UI */}
+      {content.roadmap.isVisible && (
         <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden border-t border-zinc-900">
-            {/* Ambient Background for Roadmap */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 blur-[100px] rounded-full pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -591,50 +535,22 @@ const Landing = () => {
                         <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Live Protocol Map</span>
                      </div>
-                     <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-6">Strategic Execution</h2>
-                     <p className="text-zinc-500 text-lg">A phased approach to decentralizing the global compute layer.</p>
+                     <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-6">{content.roadmap.title}</h2>
+                     <p className="text-zinc-500 text-lg">{content.roadmap.description}</p>
                 </div>
 
                 <div className="relative">
-                    {/* Vertical Line */}
                     <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-zinc-800 to-zinc-900 transform md:-translate-x-1/2"></div>
 
                     <div className="space-y-16 md:space-y-32">
-                        {[
-                            { 
-                                phase: "01", 
-                                title: "Genesis Epoch", 
-                                period: "Q1 2025", 
-                                status: "LIVE", 
-                                desc: "Initial network bootstrapping and validator onboarding.",
-                                features: ["Validator Registry Contract", "Proof-of-Uptime Consensus Alpha", "Incentivized Testnet Launch"] 
-                            },
-                            { 
-                                phase: "02", 
-                                title: "Expansion Layer", 
-                                period: "Q3 2025", 
-                                status: "UPCOMING", 
-                                desc: "Scaling node topology and introducing smart contract execution.",
-                                features: ["EVM Compatibility Layer", "Cross-Region Sharding", "Public Stress Testing"] 
-                            },
-                            { 
-                                phase: "03", 
-                                title: "Mainnet Singularity", 
-                                period: "Q1 2026", 
-                                status: "LOCKED", 
-                                desc: "Full decentralization and governance handover.",
-                                features: ["Token Generation Event (TGE)", "DAO Governance Module", "Global Compute Marketplace"] 
-                            }
-                        ].map((item, index) => (
+                        {content.roadmap.phases.map((item: any, index: number) => (
                             <div 
                                 key={index}
                                 data-index={index}
                                 className={`roadmap-item flex flex-col md:flex-row items-center gap-8 md:gap-0 relative transition-all duration-1000 ease-out will-change-transform ${visibleItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}
                             >
-                                {/* Mobile: Line Connector Fix */}
                                 <div className={`absolute left-4 md:left-1/2 w-4 h-4 bg-zinc-950 border-2 ${item.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_rgba(244,63,94,0.5)]' : 'border-zinc-700'} rounded-full transform -translate-x-1/2 z-20`}></div>
 
-                                {/* Content Side */}
                                 <div className={`w-full md:w-1/2 pl-12 md:pl-0 ${index % 2 === 0 ? 'md:pr-24 md:text-right' : 'md:pl-24 md:order-last text-left'}`}>
                                     <div className="space-y-6 group">
                                         <div className={`flex flex-col ${index % 2 === 0 ? 'md:items-end' : 'md:items-start'}`}>
@@ -656,9 +572,8 @@ const Landing = () => {
                                         </div>
                                         <p className="text-zinc-400 text-sm leading-relaxed max-w-sm ml-auto mr-auto md:mx-0">{item.desc}</p>
                                         
-                                        {/* Feature List */}
                                         <div className={`pt-4 flex flex-col gap-2 ${index % 2 === 0 ? 'md:items-end' : 'md:items-start'}`}>
-                                            {item.features.map((feat, fIdx) => (
+                                            {item.features.map((feat: string, fIdx: number) => (
                                                 <div key={fIdx} className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg w-fit hover:border-zinc-700 transition-colors">
                                                     {index % 2 === 0 ? null : <CheckCircle2 className={`w-4 h-4 ${item.status === 'LIVE' ? 'text-primary' : 'text-zinc-700'}`} />}
                                                     <span className="text-xs text-zinc-300 font-medium">{feat}</span>
@@ -669,7 +584,6 @@ const Landing = () => {
                                     </div>
                                 </div>
 
-                                {/* Spacer Side */}
                                 <div className="hidden md:block md:w-1/2"></div>
                             </div>
                         ))}
@@ -677,22 +591,18 @@ const Landing = () => {
                 </div>
             </div>
         </section>
+      )}
 
-        {/* FAQ - Accordion Style with Animations */}
+      {content.faq.isVisible && (
         <section className="py-20 md:py-32 px-6 max-w-4xl mx-auto w-full border-t border-zinc-900">
            <h2 
              data-id="faq-header"
              className={`text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
            >
-             Protocol FAQ
+             {content.faq.title}
            </h2>
            <div className="space-y-4">
-              {[
-                 { q: "What are the hardware requirements for a node?", a: "NexusNode is designed to be lightweight. A standard VPS with 2 vCPUs, 4GB RAM, and 50GB SSD is sufficient for the testnet phase." },
-                 { q: "How are mining rewards calculated?", a: "Rewards are based on uptime proofs and referral topology. The base rate is 0.06 NEX/hr, with multipliers for verified referral connections." },
-                 { q: "Is the testnet incentivized?", a: "Yes. Points earned during the Genesis Epoch will be converted to mainnet tokens at TGE based on a vesting schedule defined in the whitepaper." },
-                 { q: "Can I run multiple nodes?", a: "During Phase 1, we limit one validator ID per KYC/Identity to ensure fair distribution and network decentralization." }
-              ].map((item, i) => (
+              {content.faq.items.map((item: any, i: number) => (
                  <div 
                    key={i} 
                    data-id={`faq-item-${i}`}
@@ -715,11 +625,11 @@ const Landing = () => {
               ))}
            </div>
         </section>
+      )}
 
-        {/* CTA Section */}
+      {content.cta.isVisible && (
         <section className="py-20 md:py-32 border-t border-zinc-900 relative overflow-hidden">
            <div className="absolute inset-0 bg-primary/5"></div>
-           {/* Mobile-friendly ambient light */}
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none animate-pulse"></div>
 
            <div className="max-w-4xl mx-auto px-6 text-center relative z-10 space-y-8">
@@ -727,7 +637,7 @@ const Landing = () => {
                 data-id="cta-title"
                 className={`text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.9] transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
               >
-                 Secure the <br/> <span className="text-transparent bg-clip-text bg-gradient-to-b from-primary to-black/50">Genesis Block</span>
+                 {content.cta.title}
               </h2>
               
               <p 
@@ -735,7 +645,7 @@ const Landing = () => {
                 className={`text-zinc-500 text-base md:text-lg max-w-xl mx-auto transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                 style={{ transitionDelay: '200ms' }}
               >
-                 Join 24,000+ validators securing the next generation of decentralized compute. Early participation ensures maximum allocation.
+                 {content.cta.description}
               </p>
               
               <div 
@@ -744,22 +654,23 @@ const Landing = () => {
                 style={{ transitionDelay: '400ms' }}
               >
                  <button onClick={login} className="h-14 px-10 bg-primary text-white text-[13px] font-bold uppercase tracking-[0.1em] hover:bg-white hover:text-black transition-all duration-300 shadow-[0_10px_40px_rgba(244,63,94,0.2)] hover:shadow-[0_0_60px_rgba(244,63,94,0.6)] flex items-center gap-3 rounded group relative overflow-hidden">
-                    <span className="relative z-10 flex items-center gap-3">Initialize Node <TerminalIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" /></span>
+                    <span className="relative z-10 flex items-center gap-3">{content.cta.buttonText} <TerminalIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" /></span>
                     <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                  </button>
               </div>
            </div>
         </section>
+      )}
 
-        {/* Footer */}
+      {content.footer.isVisible && (
         <footer className="border-t border-zinc-900 bg-zinc-950 pt-20 md:pt-24 pb-12 px-6">
            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
               <div className="space-y-4">
                  <div className="flex items-center gap-2">
                     <Hexagon className="w-6 h-6 text-primary" />
-                    <span className="text-xl font-bold text-white tracking-tight">NexusNode</span>
+                    <span className="text-xl font-bold text-white tracking-tight">{content.footer.title}</span>
                  </div>
-                 <p className="text-xs text-zinc-600 max-w-xs">Building the verification layer for the decentralized web.</p>
+                 <p className="text-xs text-zinc-600 max-w-xs">{content.footer.description}</p>
               </div>
               <div className="flex gap-16">
                  <div className="flex flex-col gap-4">
@@ -775,29 +686,14 @@ const Landing = () => {
               </div>
            </div>
            <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-              <span className="text-[10px] text-zinc-700 font-mono">© 2026 NEXUS LABS.</span>
+              <span className="text-[10px] text-zinc-700 font-mono">{content.footer.copyright}</span>
               <div className="flex items-center gap-2">
                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                  <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Systems Operational</span>
               </div>
            </div>
         </footer>
-      </div>
-
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-50%, 0, 0); }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        ::-webkit-scrollbar {
-          width: 0px;
-          background: transparent;
-        }
-        .Database { /* Dummy class to ensure icon import usage if needed in future */ }
-      `}</style>
+      )}
     </div>
   );
 };
