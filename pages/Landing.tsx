@@ -313,7 +313,7 @@ const Landing = () => {
                         {logs.map((log) => (
                            <div key={log.id} className="flex items-center gap-3">
                               <span className={`text-[10px] font-bold ${log.prefix === 'NET' ? 'text-primary' : 'text-zinc-600'}`}>[{log.prefix}]</span>
-                              <span className="text-zinc-400 truncate flex-1">> {log.msg}</span>
+                              <span className="text-zinc-400 truncate flex-1">&gt; {log.msg}</span>
                               <span className={`text-[10px] font-bold ${log.status === 'OK' ? 'text-zinc-500' : 'text-white'}`}>{log.status}</span>
                            </div>
                         ))}
