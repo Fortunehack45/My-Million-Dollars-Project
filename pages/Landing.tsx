@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToLandingConfig } from '../services/firebase';
 import { LandingConfig } from '../types';
@@ -31,20 +31,18 @@ const Landing = () => {
     });
     return () => unsubscribe();
   }, []);
-
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
-  const beamRef = useRef({ x: 500, y: 500 });
   
-  const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
+  const [logs, setLogs] = useState<Array<{id: number, time: string, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
 
   useEffect(() => {
+    const getLogTime = () => new Date().toISOString().split('T')[1].slice(0, 8);
+
     setLogs([
-       { id: 1, prefix: "SYS", msg: "KERNEL_INIT_SUCCESS", status: "OK", level: 'info' },
-       { id: 2, prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL", status: "PENDING", level: 'warn' },
-       { id: 3, prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE", status: "SECURE", level: 'info' },
+       { id: 1, time: getLogTime(), prefix: "SYS", msg: "KERNEL_INIT_SUCCESS", status: "OK", level: 'info' },
+       { id: 2, time: getLogTime(), prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL", status: "PENDING", level: 'warn' },
+       { id: 3, time: getLogTime(), prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE", status: "SECURE", level: 'info' },
     ]);
     const verbs = ["ALLOCATING", "HASHING", "SYNCING", "VERIFYING", "CONNECTING", "BROADCASTING", "COMPRESSING", "INDEXING"];
     const nouns = ["BLOCK_HEADER", "MEMPOOL_BUFFER", "PEER_NODE", "DAG_TOPOLOGY", "SHARDED_STATE", "ZK_PROOF", "EXECUTION_LAYER"];
@@ -52,47 +50,29 @@ const Landing = () => {
     const interval = setInterval(() => {
       setLogs(prev => {
         const id = Date.now();
+        const time = getLogTime();
         const verb = verbs[Math.floor(Math.random() * verbs.length)];
         const noun = nouns[Math.floor(Math.random() * nouns.length)];
         const hash = "0x" + Math.random().toString(16).substr(2, 6).toUpperCase();
         const isCrit = Math.random() > 0.85;
         const newLog = { 
           id, 
+          time,
           prefix: isCrit ? "CRIT" : "PROC", 
           msg: `${verb}_${noun} [${hash}]`, 
           status: isCrit ? "RETRIEVING" : "SUCCESS",
           level: isCrit ? 'crit' : 'info'
         };
         const newLogs = [...prev, newLog];
-        return newLogs.slice(-10);
+        // Keep logs list manageable, fill from top
+        if (newLogs.length > 14) return newLogs.slice(newLogs.length - 14);
+        return newLogs;
       });
-    }, 700);
+    }, 600);
     return () => clearInterval(interval);
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    setMousePos({ x: e.clientX, y: e.clientY });
-  }, []);
-
-  useEffect(() => {
-    let animationFrameId: number;
-    const animateBeam = () => {
-      setBeamPos(prev => {
-        const ease = 0.08; 
-        const dx = mousePos.x - prev.x;
-        const dy = mousePos.y - prev.y;
-        if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return prev;
-        const next = { x: prev.x + dx * ease, y: prev.y + dy * ease };
-        beamRef.current = next; 
-        return next;
-      });
-      animationFrameId = requestAnimationFrame(animateBeam);
-    };
-    animateBeam();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [mousePos]);
-
-  // PROFESSIONAL GLOBAL MATRIX RAIN (ARCHITECTURE STYLE)
+  // ARCHITECTURE STYLE MATRIX RAIN (PRIMARY COLOR)
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -112,8 +92,8 @@ const Landing = () => {
     let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
     const draw = () => {
-      // Background trail for deep black aesthetic
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      // Dark background with slight trail
+      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.font = `bold ${fontSize}px 'JetBrains Mono'`;
@@ -124,7 +104,7 @@ const Landing = () => {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // Vertical Edge Fading (Architecture Style)
+        // Vertical Edge Fading
         let verticalOpacity = 1;
         if (y < fadeSize) {
           verticalOpacity = y / fadeSize;
@@ -133,9 +113,8 @@ const Landing = () => {
         }
         verticalOpacity = Math.max(verticalOpacity, 0);
 
-        // Matrix rain is pure WHITE with subtle primary rose tinting in architecture style
-        // Here we keep it White as previously requested but with the global Architecture behavior
-        ctx.fillStyle = `rgba(255, 255, 255, ${verticalOpacity * 0.4})`;
+        // Primary Color (Architecture Style) - #F43F5E (RGB: 244, 63, 94)
+        ctx.fillStyle = `rgba(244, 63, 94, ${verticalOpacity * 0.7})`;
         ctx.fillText(char, x, y);
 
         if (y > canvas.height && Math.random() > 0.98) {
@@ -163,45 +142,14 @@ const Landing = () => {
 
   return (
     <PublicLayout>
-    <div 
-      className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden"
-      onMouseMove={handleMouseMove}
-    >
+    <div className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden">
+      
       {/* GLOBAL MATRIX BACKGROUND SYSTEM */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
         <canvas ref={canvasRef} className="absolute inset-0" />
-        
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Atmospheric Grain Overlay */}
-           <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
-           </div>
-
-           {/* Cursor-Following Dissolved Glowing Accents (Not revealers anymore) */}
-           <div 
-             className="absolute w-[800px] h-[800px] bg-primary/5 blur-[200px] rounded-full will-change-transform opacity-30"
-             style={{ transform: `translate3d(${beamPos.x - 400}px, ${beamPos.y - 400}px, 0)` }}
-           />
-           
-           <div 
-             className="absolute w-[400px] h-[400px] bg-primary/10 blur-[100px] rounded-full will-change-transform mix-blend-plus-lighter"
-             style={{ 
-               transform: `translate3d(${beamPos.x - 200}px, ${beamPos.y - 200}px, 0)`,
-               maskImage: 'radial-gradient(circle at center, black 0%, transparent 80%)',
-               WebkitMaskImage: 'radial-gradient(circle at center, black 0%, transparent 80%)'
-             }}
-           />
-
-           {/* Professional Vertical Beam Accent */}
-           <div 
-             className="absolute w-[1px] h-[200vh] bg-gradient-to-b from-primary/30 via-primary/5 to-transparent blur-[3px] opacity-10 origin-top animate-pulse-slow"
-             style={{ 
-               left: `${beamPos.x}px`,
-               top: `${beamPos.y - 300}px`,
-               transform: `rotate(${Math.sin(Date.now() / 2500) * 1.2}deg)`
-             }}
-           />
-        </div>
+        {/* Subtle Atmospheric Gradient instead of beam */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.05),transparent_80%)]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.8),transparent_20%,transparent_80%,rgba(0,0,0,0.8))]"></div>
       </div>
 
       {/* Hero Section */}
@@ -247,29 +195,29 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Institutional Terminal UI */}
-          <div className="lg:col-span-5 relative">
-             <div className="relative bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800 rounded-2xl overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
+          {/* Institutional Terminal UI - IMPROVED */}
+          <div className="lg:col-span-5 relative mt-12 lg:mt-0">
+             <div className="relative bg-zinc-950/90 backdrop-blur-xl border border-zinc-800/80 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] ring-1 ring-white/5">
                 {/* OS Header */}
-                <div className="bg-zinc-900 px-5 py-4 flex items-center justify-between border-b border-zinc-800">
-                   <div className="flex gap-2.5">
-                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
-                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
-                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
+                <div className="bg-zinc-900/80 px-4 py-3 flex items-center justify-between border-b border-zinc-800">
+                   <div className="flex gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/50"></div>
                    </div>
                    <div className="flex items-center gap-2 text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-widest">
                       <TerminalIcon className="w-3 h-3" />
-                      <span>Argus_OS_Terminal_v4.2</span>
+                      <span>argus_daemon --v2.4</span>
                    </div>
-                   <div className="flex gap-4">
-                      <Minus className="w-3 h-3 text-zinc-700" />
-                      <Maximize2 className="w-3 h-3 text-zinc-700" />
-                      <X className="w-3 h-3 text-zinc-700" />
+                   <div className="flex gap-3 opacity-50">
+                      <Minus className="w-3 h-3 text-zinc-500" />
+                      <Maximize2 className="w-3 h-3 text-zinc-500" />
+                      <X className="w-3 h-3 text-zinc-500" />
                    </div>
                 </div>
 
                 {/* Status Bar */}
-                <div className="flex items-center gap-6 px-6 py-2 bg-zinc-900/30 border-b border-zinc-900 text-[8px] font-mono font-bold uppercase tracking-widest">
+                <div className="flex items-center gap-6 px-4 py-2 bg-black/20 border-b border-zinc-900 text-[8px] font-mono font-bold uppercase tracking-widest">
                    <div className="flex items-center gap-2">
                       <span className="text-zinc-600">CPU:</span>
                       <span className="text-primary">{Math.floor(Math.random() * 20 + 5)}%</span>
@@ -279,33 +227,32 @@ const Landing = () => {
                       <span className="text-emerald-500">2.4GB</span>
                    </div>
                    <div className="ml-auto flex items-center gap-2 text-zinc-700">
-                      <span>ROOT_ACCESS: GRANTED</span>
+                      <span>ROOT: TRUE</span>
                    </div>
                 </div>
                 
                 {/* Log Feed */}
-                <div className="p-8 font-mono text-[10px] h-[360px] flex flex-col justify-end gap-2.5 overflow-hidden">
+                <div className="p-6 font-mono text-[10px] h-[340px] flex flex-col justify-start gap-2.5 overflow-hidden relative">
+                   {/* Scanline Overlay */}
+                   <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100%_3px] pointer-events-none z-10"></div>
+                   
                    {logs.map((log) => (
-                      <div key={log.id} className="flex items-start gap-4 animate-in slide-in-from-bottom-1 duration-300">
-                         <span className={`font-black shrink-0 ${
+                      <div key={log.id} className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
+                         <span className="text-zinc-600 shrink-0 select-none opacity-50">[{log.time}]</span>
+                         <span className={`font-bold shrink-0 w-10 ${
                             log.level === 'crit' ? 'text-primary' : 
-                            log.level === 'warn' ? 'text-amber-500' : 'text-zinc-700'
+                            log.level === 'warn' ? 'text-amber-500' : 'text-emerald-500'
                          }`}>
-                            [{log.prefix}]
+                            {log.prefix}
                          </span>
-                         <span className="text-zinc-500 flex-1">&gt; {log.msg}</span>
-                         <span className={`shrink-0 font-bold ${
-                            log.status === 'OK' || log.status === 'SUCCESS' ? 'text-emerald-500' : 
-                            log.status === 'PENDING' ? 'text-zinc-600' : 'text-primary'
-                         }`}>
-                            {log.status}
-                         </span>
+                         <span className="text-zinc-400 flex-1 truncate">{log.msg}</span>
                       </div>
                    ))}
-                   <div className="flex items-center gap-3 pt-2 border-t border-zinc-900/50">
-                      <span className="text-primary font-black">[CMD]</span>
-                      <span className="text-zinc-300">sh run initialization_sequence</span>
-                      <div className="h-4 w-1.5 bg-primary animate-pulse ml-1"></div>
+                   {/* Active Cursor Line at bottom */}
+                   <div className="mt-auto pt-3 border-t border-zinc-800/50 flex items-center gap-2">
+                      <span className="text-primary font-bold">{'>'}</span>
+                      <span className="text-zinc-500">awaiting_operator_signal</span>
+                      <div className="w-1.5 h-3 bg-primary animate-pulse"></div>
                    </div>
                 </div>
              </div>
