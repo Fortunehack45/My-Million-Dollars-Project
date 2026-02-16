@@ -10,6 +10,7 @@ import NFTSection from './pages/NFTSection';
 import Login from './pages/Login';
 import ProfileSetup from './pages/ProfileSetup';
 import AdminPanel from './pages/AdminPanel';
+import Landing from './pages/Landing';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
@@ -39,10 +40,18 @@ const PublicRoute = ({ children }: { children?: React.ReactNode }) => {
 };
 
 const AppRoutes = () => {
-  const { firebaseUser, user } = useAuth();
+  const { firebaseUser, user, loading } = useAuth();
 
   return (
     <Routes>
+      <Route path="/" element={
+        loading ? null : (firebaseUser && user ? (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ) : <Landing />)
+      } />
+
       <Route path="/login" element={
         <PublicRoute>
           <Login />
@@ -51,12 +60,6 @@ const AppRoutes = () => {
 
       <Route path="/setup" element={
         firebaseUser && !user ? <ProfileSetup /> : <Navigate to="/" />
-      } />
-      
-      <Route path="/" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
       } />
       
       <Route path="/tasks" element={
