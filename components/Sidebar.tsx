@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router';
 import { 
@@ -17,7 +18,8 @@ import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL } from '../services/firebase';
 
 // Extracted components to avoid inline component definition issues with TypeScript
-const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean }) => {
+// Added optional key to type definition to satisfy TypeScript strict property checking in loops
+const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean, key?: React.Key }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
@@ -38,7 +40,8 @@ const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: stri
   );
 };
 
-const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any }) => {
+// Added optional key to type definition to satisfy TypeScript strict property checking in loops
+const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any, key?: React.Key }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 

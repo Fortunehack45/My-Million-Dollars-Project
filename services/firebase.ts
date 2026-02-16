@@ -56,16 +56,37 @@ export const REFERRAL_BOOST = 0.1; // NEX per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
 
+/**
+ * Professional Presence Logic
+ * Uses RTDB for high-frequency heartbeats and session state.
+ */
 export const setupPresence = (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
   const isOfflineForDatabase = { state: 'offline', last_changed: serverTimestamp(), uid };
   const isOnlineForDatabase = { state: 'online', last_changed: serverTimestamp(), uid };
+  
   const connectedRef = ref(rtdb, '.info/connected');
+  
   onValue(connectedRef, (snapshot) => {
     if (snapshot.val() === false) return;
+
+    // Set to offline when client disconnects (tab close / network loss)
     onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase).then(() => {
+      // Once the disconnect hook is ready, set the status to online
       set(userStatusDatabaseRef, isOnlineForDatabase);
     });
+  });
+};
+
+/**
+ * Manually set a user to offline (used during explicit logout)
+ */
+export const manualOffline = async (uid: string) => {
+  const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
+  await set(userStatusDatabaseRef, { 
+    state: 'offline', 
+    last_changed: serverTimestamp(), 
+    uid 
   });
 };
 
@@ -73,9 +94,10 @@ export const subscribeToOnlineUsers = (callback: (onlineUids: string[]) => void)
   const statusRef = ref(rtdb, 'status');
   return onValue(statusRef, (snapshot) => {
     const statuses = snapshot.val() || {};
-    const onlineUids = Object.values(statuses)
-      .filter((s: any) => s.state === 'online')
-      .map((s: any) => s.uid);
+    // Extract only UIDs that are actively online
+    const onlineUids = Object.keys(statuses)
+      .filter((key) => statuses[key].state === 'online')
+      .map((key) => statuses[key].uid);
     callback(onlineUids);
   });
 };
@@ -128,8 +150,6 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     createdAt: Date.now()
   };
 
-  // 1. Critical Transaction: Identity Creation
-  // We only write to the user's own document and the username reservation.
   await runTransaction(db, async (transaction) => {
     const nameSnap = await transaction.get(nameRef);
     const existingUserSnap = await transaction.get(userRef);
@@ -146,7 +166,6 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
   });
 
-  // 2. Best-Effort Global Stats Update
   try {
     const statsRef = doc(db, 'global_stats', 'network');
     await setDoc(statsRef, { 
@@ -155,30 +174,20 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
       activeNodes: increment(0)
     }, { merge: true });
   } catch (e) {
-    console.warn("Global stats update skipped (permission/network issue).");
+    console.warn("Global stats update skipped.");
   }
-
-  // Note: We DO NOT update the referrer here. 
-  // The referrer will "pull" their new referral count when they next login via `syncReferralStats`.
   
   return newUser;
 };
 
-// New Function: Self-healing referral sync
-// Call this on dashboard load to ensure user gets points for anyone who used their code
 export const syncReferralStats = async (uid: string, currentReferralCount: number, currentPoints: number) => {
   try {
-    // Query actual number of users who claim this user as their referrer
     const q = query(collection(db, "users"), where("referredBy", "==", uid));
     const snapshot = await getDocs(q);
     const realCount = snapshot.size;
 
-    // Only update if we found more referrals than currently recorded
     if (realCount > currentReferralCount) {
       const userRef = doc(db, 'users', uid);
-      
-      // Calculate how many NEW referrals we need to reward
-      // We cap the *rewardable* count at MAX_REFERRALS, but we track the *total* count accurately
       const previousRewardable = Math.min(currentReferralCount, MAX_REFERRALS);
       const newRewardable = Math.min(realCount, MAX_REFERRALS);
       const rewardableDiff = Math.max(0, newRewardable - previousRewardable);
@@ -190,14 +199,10 @@ export const syncReferralStats = async (uid: string, currentReferralCount: numbe
         points: increment(pointsToAdd)
       });
 
-      // Update global stats if we added points
       if (pointsToAdd > 0) {
         const statsRef = doc(db, 'global_stats', 'network');
         try { await updateDoc(statsRef, { totalMined: increment(pointsToAdd) }); } catch(e) {}
       }
-
-      console.log(`Synced referrals: Found ${realCount}, was ${currentReferralCount}. Added ${pointsToAdd} points.`);
-      
       return { referralCount: realCount, points: currentPoints + pointsToAdd };
     }
   } catch (error) {
@@ -300,5 +305,14 @@ export const mintNFT = async (uid: string, cost: number): Promise<boolean> => {
 };
 
 export const logout = async () => {
+  const currentUser = auth.currentUser;
+  if (currentUser) {
+    // Attempt to manually flag as offline before signing out
+    try {
+      await manualOffline(currentUser.uid);
+    } catch (e) {
+      console.warn("Failed to set manual offline status.");
+    }
+  }
   await firebaseSignOut(auth);
 };
