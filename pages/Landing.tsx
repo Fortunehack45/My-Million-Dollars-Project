@@ -3,24 +3,20 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Hexagon, 
   ArrowRight, 
-  Cpu, 
-  Globe, 
-  ShieldCheck, 
   Activity, 
-  Zap, 
-  Server,
   ChevronRight,
-  Database,
   Terminal as TerminalIcon,
   Code2,
   Layers,
-  Network
+  Zap,
+  Globe,
+  Cpu
 } from 'lucide-react';
 
 const Landing = () => {
   const { login } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
-  const [telemetry, setTelemetry] = useState({ latency: 14, nodes: 24802, blocks: 104290 });
+  const [telemetry, setTelemetry] = useState({ latency: 12, nodes: 24802, blocks: 104290 });
   
   // Interactive Background States
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -37,20 +33,20 @@ const Landing = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setTelemetry(prev => ({
-        latency: Math.floor(Math.random() * 5 + 12),
-        nodes: prev.nodes + (Math.random() > 0.8 ? 1 : 0),
+        latency: Math.floor(Math.random() * 4 + 11),
+        nodes: prev.nodes + (Math.random() > 0.85 ? 1 : 0),
         blocks: prev.blocks + 1
       }));
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Diagnostic Scanner Tracker
+  // 2. High-Precision Cursor Tracking
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
 
-  // 3. Konami & Override Logic
+  // 3. System Override Logic
   const triggerRootOverride = () => {
     setIsEmergency(true);
     setStatusText("KERNEL_OVERRIDE_INIT");
@@ -79,7 +75,7 @@ const Landing = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // 4. Advanced Fluid Matrix Logic
+  // 4. Monochrome Matrix Engine (Silver/White Spectrum)
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -101,34 +97,33 @@ const Landing = () => {
     const drops: number[] = Array(columns).fill(1).map(() => Math.random() * canvas.height / fontSize);
 
     const draw = () => {
-      ctx.fillStyle = "rgba(3, 3, 3, 0.12)";
+      ctx.fillStyle = "rgba(3, 3, 3, 0.15)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `${fontSize}px JetBrains Mono`;
 
       for (let i = 0; i < drops.length; i++) {
         const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        const isNearHeader = drops[i] * fontSize < 250;
         
         if (isEmergency) {
-          ctx.fillStyle = "#F43F5E";
-        } else if (isMatrixActive) {
-          ctx.fillStyle = isNearHeader ? "#34d399" : "#10b981";
+          ctx.fillStyle = "#F43F5E"; // Critical Red
         } else {
-          ctx.fillStyle = isNearHeader ? "#065f46" : "#064e3b";
+          // Pure silver/zinc spectrum for a premium look
+          ctx.fillStyle = isMatrixActive ? "#ffffff" : "#27272a";
         }
 
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-        if (Math.random() > 0.95) {
+        // Rare "Lead" spark for high-end depth
+        if (Math.random() > 0.97) {
           ctx.fillStyle = "#fff";
           ctx.fillText(text, i * fontSize, drops[i] * fontSize);
         }
         
-        const resetThreshold = isMatrixActive ? 0.98 : 0.995;
+        const resetThreshold = isMatrixActive ? 0.985 : 0.998;
         if (drops[i] * fontSize > canvas.height && Math.random() > resetThreshold) {
           drops[i] = 0;
         }
-        drops[i] += isMatrixActive ? 1.2 : 0.6;
+        drops[i] += isMatrixActive ? 1.4 : 0.5;
       }
       requestRef.current = requestAnimationFrame(draw);
     };
@@ -143,154 +138,130 @@ const Landing = () => {
 
   return (
     <div 
-      className={`min-h-screen bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white transition-all duration-700 ${isEmergency ? 'grayscale contrast-150 animate-pulse' : ''}`}
+      className={`min-h-screen bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white transition-all duration-700 ${isEmergency ? 'grayscale contrast-125' : ''}`}
       onMouseMove={handleMouseMove}
     >
-      {/* --- INFRASTRUCTURE BACKGROUND SYSTEM --- */}
+      {/* --- PREMIUM INFRASTRUCTURE BACKGROUND --- */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Pass 1: Global Digital Rain Matrix */}
+        {/* Pass 1: Monochrome Digital Rain */}
         <canvas 
           ref={canvasRef} 
-          className={`absolute inset-0 transition-opacity duration-[3000ms] ${isMatrixActive ? 'opacity-40' : 'opacity-[0.12]'}`}
+          className={`absolute inset-0 transition-opacity duration-[3000ms] ${isMatrixActive ? 'opacity-30' : 'opacity-[0.08]'}`}
         />
 
-        {/* Pass 2: Header Aura Mask (Intensifies Matrix around Header) */}
-        <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-emerald-500/15 via-emerald-500/5 to-transparent opacity-30 blur-3xl pointer-events-none z-10"></div>
+        {/* Pass 2: High-End Header Luminance */}
+        <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-white/[0.04] via-transparent to-transparent opacity-50 blur-[150px] pointer-events-none z-10"></div>
 
-        {/* Pass 3: Floating Encrypted Metadata */}
-        <div className="absolute inset-0 opacity-[0.18]">
-           <span className="absolute top-[18%] left-[10%] -rotate-12 font-mono text-[9px] text-zinc-600 tracking-widest uppercase flex items-center gap-2 animate-float">
-             <Activity className="w-2 h-2" /> INFRA_PROTOCOL_SYN_08
+        {/* Pass 3: Geometric Grid Hierarchy */}
+        <div className="absolute inset-0 opacity-[0.03]" 
+             style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '100px 100px' }}>
+        </div>
+
+        {/* Pass 4: Institutional Floating Metadata */}
+        <div className="absolute inset-0 opacity-[0.15]">
+           <span className="absolute top-[15%] left-[10%] -rotate-12 font-mono text-[8px] text-zinc-700 tracking-[0.5em] uppercase flex items-center gap-3 animate-float-premium">
+             <Activity className="w-2.5 h-2.5" /> SECURE_MESH_INITIALIZED
            </span>
-           <span className="absolute top-[38%] right-[25%] rotate-3 font-mono text-[9px] text-zinc-600 border border-zinc-900/40 p-2 rounded backdrop-blur-[2px] animate-float" style={{ animationDelay: '1s' }}>
-             OVERRIDE_SEQUENCE: ↑ ↑ ↓ ↓ ← →
+           <span className="absolute top-[45%] right-[22%] rotate-3 font-mono text-[8px] text-zinc-800 border border-zinc-900 p-4 rounded backdrop-blur-[2px] animate-float-premium" style={{ animationDelay: '1.2s' }}>
+             ENCRYPT_HANDSHAKE: AUTH_OK
            </span>
-           <span className="absolute bottom-[35%] left-[22%] rotate-1 font-mono text-[9px] text-zinc-600 animate-float" style={{ animationDelay: '2.5s' }}>
-             ROOT_GENESIS_GATEWAY_V2
+           <span className="absolute bottom-[35%] left-[18%] font-mono text-[8px] text-zinc-800 animate-float-premium" style={{ animationDelay: '2s' }}>
+             ALLOCATION_VAULT_GENESIS
            </span>
         </div>
 
-        {/* Pass 4: Structural Grid */}
-        <div className="absolute inset-0 opacity-[0.04]" 
-             style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '60px 60px' }}>
-        </div>
-
-        {/* Pass 5: Fluid Amoeba-Ray Diagnostic Scanner (Torch Light Effect) */}
+        {/* Pass 5: Professional White Optic Scanner (High-Fidelity Ray) */}
         <div className={`absolute inset-0 transition-opacity duration-1000 ${isMatrixActive ? 'opacity-0' : 'opacity-100'}`}>
-          {/* Black high-contrast mask */}
-          <div className="absolute inset-0 bg-zinc-950/92 mix-blend-multiply"></div>
+          {/* Static High-Contrast Mask */}
+          <div className="absolute inset-0 bg-zinc-950/96 mix-blend-multiply"></div>
           
-          {/* Gooey Ray Container */}
-          <div className="absolute inset-0 filter-goo">
-             {/* Main Core Beam - Uneven Shapeless Light */}
+          {/* THE OPTIC RAY SYSTEM */}
+          <div className="absolute inset-0 pointer-events-none">
+             {/* Main Precision Filament (The Sharp White Ray) */}
              <div 
-               className="absolute w-[350px] h-[500px] bg-emerald-500/10 transition-transform duration-300 ease-out animate-wobble-ray"
+               className="absolute w-[1.5px] h-[1200px] bg-gradient-to-b from-transparent via-white/60 to-transparent blur-[0.5px] transition-transform duration-[450ms] ease-out"
                style={{ 
-                 transform: `translate(${mousePos.x - 175}px, ${mousePos.y - 250}px) rotate(15deg)`,
-                 clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' 
+                 transform: `translate(${mousePos.x}px, ${mousePos.y - 600}px) rotate(32deg)`,
                }}
              />
 
-             {/* Secondary Amoeba Fluid Light */}
+             {/* Soft Volumetric Beam (Professional Torch Wash) */}
              <div 
-               className="absolute w-[450px] h-[450px] bg-emerald-500/20 rounded-full blur-[60px] transition-transform duration-500 ease-out animate-wobble"
-               style={{ transform: `translate(${mousePos.x - 225}px, ${mousePos.y - 225}px)` }}
-             />
-
-             {/* Dynamic Light Filament (The "Ray") */}
-             <div 
-               className="absolute w-[120px] h-[700px] bg-emerald-500/30 blur-[40px] transition-transform duration-[400ms] ease-out animate-ray-flicker"
+               className="absolute w-[180px] h-[900px] bg-gradient-to-b from-transparent via-white/[0.04] to-transparent blur-[60px] transition-transform duration-[600ms] ease-out opacity-80"
                style={{ 
-                 transform: `translate(${mousePos.x - 60}px, ${mousePos.y - 350}px) rotate(-20deg) skewX(10deg)` 
+                 transform: `translate(${mousePos.x - 90}px, ${mousePos.y - 450}px) rotate(32deg)` 
                }}
              />
 
-             {/* Additional Gooey Droplets for "Shapeless" feel */}
+             {/* The Focal Point (The "Pupil" Flare) */}
              <div 
-               className="absolute w-[150px] h-[150px] bg-emerald-500/40 rounded-full blur-[30px] transition-transform duration-[700ms] ease-out animate-wobble-alt"
-               style={{ transform: `translate(${mousePos.x + 80}px, ${mousePos.y - 50}px)` }}
+               className="absolute w-[120px] h-[120px] bg-white/[0.12] rounded-full blur-[35px] transition-transform duration-300 ease-out"
+               style={{ transform: `translate(${mousePos.x - 60}px, ${mousePos.y - 60}px)` }}
+             />
+
+             {/* Sharp High-Intensity Glint */}
+             <div 
+               className="absolute w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_20px_2px_white] transition-transform duration-100 ease-out"
+               style={{ transform: `translate(${mousePos.x - 0.75}px, ${mousePos.y - 0.75}px)` }}
              />
           </div>
-          
-          {/* Ambient Glow Aura */}
-          <div 
-            className="absolute w-[600px] h-[600px] bg-emerald-500/[0.03] rounded-full blur-[150px] transition-transform duration-[600ms] ease-out pointer-events-none"
-            style={{ transform: `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)` }}
-          />
         </div>
       </div>
 
-      {/* SVG Filters for Gooey Fluid Dynamics */}
-      <svg className="absolute w-0 h-0 invisible">
-        <defs>
-          <filter id="goo">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="25" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -15" result="goo" />
-            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Navigation */}
-      <nav className="sticky top-0 z-[100] bg-zinc-950/70 backdrop-blur-xl border-b border-zinc-900/50">
+      {/* Navigation (Billion-Dollar Cleanliness) */}
+      <nav className="sticky top-0 z-[100] bg-zinc-950/80 backdrop-blur-3xl border-b border-white/[0.03]">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-9 h-9 border border-primary/50 bg-primary/10 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)]">
-              <Hexagon className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-6">
+            <div className="w-10 h-10 border border-white/10 bg-white/5 flex items-center justify-center rounded-xl transition-all hover:border-white/40 group">
+              <Hexagon className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
             </div>
             <div className="flex flex-col -space-y-1">
-              <span className="font-black text-lg tracking-tighter uppercase italic text-white">NexusNode</span>
-              <span className="label-meta text-[7px] text-zinc-600">INFRA_PROTOCOL v2.8</span>
+              <span className="font-black text-2xl tracking-tighter uppercase italic text-white leading-none">NexusNode</span>
+              <span className="label-meta text-[7px] text-zinc-600 tracking-[0.4em] font-black">SYSTEM_PROTOCOL_v2.8</span>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-10">
-            {['Protocol', 'Validators', 'Network', 'Docs'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-primary transition-colors">
+          <div className="hidden md:flex items-center gap-14">
+            {['Protocol', 'Validators', 'Intelligence', 'Terminal'].map((item) => (
+              <a key={item} href="#" className="text-[10px] font-black uppercase tracking-[0.35em] text-zinc-500 hover:text-white transition-colors">
                 {item}
               </a>
             ))}
           </div>
-          <button onClick={login} className="btn-primary !py-3 !px-8 flex items-center gap-3 relative overflow-hidden group">
-            <span className="relative z-10 flex items-center gap-2">Initialize Terminal <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" /></span>
-            <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          <button onClick={login} className="bg-white text-black text-[11px] font-black uppercase tracking-[0.25em] py-4 px-12 rounded-xl hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95 flex items-center gap-4">
+            Authorize <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </nav>
 
-      {/* Elevated Content Container */}
+      {/* Main Content Hero */}
       <div className="relative z-10">
-        <section className="pt-24 pb-40 px-6 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
-            <div className="lg:col-span-7 space-y-10">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-full">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                  </span>
-                  <span className="label-meta text-[8px] text-zinc-400">EPOCH_01_PROVISIONING :: ACTIVE_CONTRIBUTION</span>
+        <section className="pt-32 pb-56 px-6 max-w-7xl mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
+            <div className="lg:col-span-7 space-y-16">
+              <div className="space-y-8">
+                <div className="inline-flex items-center gap-4 px-6 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-xl">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_#10b981]"></div>
+                  <span className="label-meta text-[10px] text-zinc-400 font-bold tracking-[0.2em]">EPOCH_01_GENESIS_OPEN</span>
                 </div>
-                <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-[0.85]">
-                  Validate the <br/>
-                  <span className="text-primary">Global Compute</span> <br/>
-                  Mesh.
+                <h1 className="text-7xl md:text-[8.5rem] font-black text-white tracking-tighter uppercase italic leading-[0.78]">
+                  Orchestrate <br/>
+                  <span className="text-primary">Compute</span> <br/>
+                  Liquidity.
                 </h1>
-                <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-xl leading-relaxed">
-                  Deploy infrastructure nodes on an elastic compute layer designed for high-availability decentralized applications. Mine credits and secure the Genesis supply.
+                <p className="text-zinc-500 text-lg md:text-2xl font-medium max-w-xl leading-relaxed opacity-90">
+                  Join the elite infrastructure layer. Deploy validator nodes to the global mesh, verify network state, and claim your allocation of the Genesis supply.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
-                <button onClick={login} className="btn-primary !px-12 !py-6 w-full sm:w-auto text-sm group relative overflow-hidden rounded-xl">
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    Deploy Genesis Node <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
+              <div className="flex flex-col sm:flex-row items-center gap-10 pt-6">
+                <button onClick={login} className="bg-primary text-white text-[13px] font-black uppercase tracking-[0.25em] py-7 px-16 rounded-2xl hover:scale-[1.03] active:scale-[0.97] transition-all shadow-[0_30px_60px_rgba(244,63,94,0.3)]">
+                   Connect Node Terminal
                 </button>
-                <div className="flex flex-col">
-                  <p className="label-meta text-zinc-600 mb-2">Network Peer Density</p>
-                  <div className="flex gap-1">
-                    {Array.from({length: 12}).map((_, i) => (
-                      <div key={i} className={`w-1.5 h-6 rounded-sm ${i < 10 ? 'bg-emerald-500/40 shadow-[0_0_8px_rgba(16,185,129,0.2)]' : 'bg-zinc-800'}`}></div>
+                <div className="flex flex-col gap-4">
+                  <p className="label-meta text-zinc-600 text-[10px] tracking-widest font-black uppercase">Mesh_Saturation</p>
+                  <div className="flex gap-1.5">
+                    {Array.from({length: 15}).map((_, i) => (
+                      <div key={i} className={`w-2.5 h-8 rounded-sm ${i < 12 ? 'bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.08)]' : 'bg-zinc-900'}`}></div>
                     ))}
                   </div>
                 </div>
@@ -298,40 +269,40 @@ const Landing = () => {
             </div>
 
             <div className="lg:col-span-5 relative">
-              <div className={`surface p-1 rounded-2xl shadow-2xl relative z-10 transition-all duration-500 ${isEmergency ? 'border-primary shadow-[0_0_60px_rgba(244,63,94,0.4)]' : 'border-zinc-800'}`}>
-                <div className="bg-zinc-950 rounded-xl overflow-hidden border border-zinc-900">
-                  <div className="bg-zinc-900/50 px-5 py-3 border-b border-zinc-800 flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
+              <div className={`bg-zinc-900/30 backdrop-blur-3xl border p-1.5 rounded-[2rem] shadow-[0_50px_100px_rgba(0,0,0,0.6)] transition-all duration-1000 ${isEmergency ? 'border-primary shadow-[0_0_100px_rgba(244,63,94,0.3)]' : 'border-white/10'}`}>
+                <div className="bg-zinc-950 rounded-[1.7rem] overflow-hidden border border-white/5">
+                  <div className="bg-zinc-900/60 px-8 py-5 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex gap-2.5">
+                      <div className="w-3.5 h-3.5 rounded-full bg-zinc-800"></div>
+                      <div className="w-3.5 h-3.5 rounded-full bg-zinc-800"></div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <TerminalIcon className={`w-3 h-3 ${isEmergency ? 'text-primary animate-pulse' : 'text-zinc-600'}`} />
-                      <span className="label-meta text-[7px] text-zinc-400">CONSOLE_INSTANCE::084</span>
+                    <div className="flex items-center gap-4">
+                      <TerminalIcon className={`w-4 h-4 ${isEmergency ? 'text-primary animate-pulse' : 'text-zinc-600'}`} />
+                      <span className="label-meta text-[9px] text-zinc-500 font-bold uppercase tracking-widest">GATEWAY::OS_X08</span>
                     </div>
                   </div>
-                  <div className="p-8 space-y-8 font-mono">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-[9px]">
-                        <span className="text-zinc-600 tracking-widest uppercase font-black">Kernel_Status</span>
-                        <span className={`${isEmergency ? 'text-primary' : 'text-emerald-500'} font-bold`}>{statusText}</span>
+                  <div className="p-12 space-y-12 font-mono">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-zinc-600 tracking-widest uppercase font-black">Integrity_Monitor</span>
+                        <span className={`${isEmergency ? 'text-primary' : 'text-white'} font-bold`}>{statusText}</span>
                       </div>
-                      <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
-                        <div className={`h-full transition-all duration-[2000ms] ${isEmergency ? 'bg-primary w-full shadow-[0_0_15px_#f43f5e]' : 'bg-emerald-500 w-[94%] shadow-[0_0_15px_#10b981]'}`}></div>
+                      <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                        <div className={`h-full transition-all duration-[2500ms] ${isEmergency ? 'bg-primary w-full shadow-[0_0_30px_#f43f5e]' : 'bg-white w-[94%] shadow-[0_0_30px_white]'}`}></div>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div className="flex gap-4">
-                        <div className={`w-1 rounded-full ${isEmergency ? 'bg-primary animate-pulse' : 'bg-primary/40'}`}></div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] text-zinc-500 uppercase font-black">{isEmergency ? 'PROTOCOL_OVERRIDE' : 'Current Yield Rate'}</p>
-                          <p className="text-2xl text-white font-bold tracking-tighter italic">{isEmergency ? 'AUTH_KERNEL' : '24.08'} <span className="text-[10px] text-zinc-700">NEX / HR</span></p>
+                    <div className="space-y-8">
+                      <div className="flex gap-6">
+                        <div className={`w-1.5 rounded-full ${isEmergency ? 'bg-primary animate-pulse' : 'bg-primary/20'}`}></div>
+                        <div className="space-y-2">
+                          <p className="text-[11px] text-zinc-500 uppercase font-black tracking-[0.2em]">{isEmergency ? 'PROTOCOL_OVERRIDE_ENABLED' : 'Mining Multiplier'}</p>
+                          <p className="text-4xl text-white font-bold tracking-tighter italic leading-none">{isEmergency ? 'ELITE_AUTH' : '1.25x'} <span className="text-[11px] text-zinc-800 tracking-widest ml-2 uppercase">S-Priority</span></p>
                         </div>
                       </div>
                     </div>
-                    <div className="pt-4 border-t border-zinc-900">
-                      <p className="text-[8px] text-zinc-700 leading-relaxed italic font-medium">
-                        {isEmergency ? `// Authority confirmed. Bypassing Genesis restrictions... <br/> await kernel.inject_root();` : `// Initialize handshake sequence... <br/> await protocol.peer_auth({ level: "S-RANK" });`}
+                    <div className="pt-8 border-t border-white/5">
+                      <p className="text-[10px] text-zinc-700 leading-relaxed font-medium italic opacity-50 uppercase tracking-tight">
+                        {isEmergency ? `// Authority confirmed. Handshake bypass active... <br/> await genesis.unlock_allocation();` : `// Waiting for terminal peer synchronization... <br/> await protocol.peer_auth({ level: "L1" });`}
                       </p>
                     </div>
                   </div>
@@ -341,106 +312,82 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Global Ticker */}
-        <div className="border-y border-zinc-900/50 bg-zinc-950/40 backdrop-blur-md relative py-4 overflow-hidden">
-          <div className="flex items-center gap-24 animate-marquee whitespace-nowrap">
+        {/* Unified Infrastructure Grid */}
+        <section className="py-32 bg-white/[0.01] border-y border-white/5">
+           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16">
+              {[
+                 { icon: Cpu, title: "Distributed Consensus", desc: "Enterprise-grade high-availability mesh design." },
+                 { icon: Globe, title: "Global Topology", desc: "Low-latency peering across 40+ strategic node zones." },
+                 { icon: Zap, title: "Compute Liquidity", desc: "Elastic scaling protocol for decentralized workload distribution." }
+              ].map((feature, i) => (
+                <div key={i} className="space-y-6 group">
+                   <div className="w-14 h-14 bg-zinc-950 border border-white/5 rounded-2xl flex items-center justify-center transition-all group-hover:border-primary/50 group-hover:bg-primary/5">
+                      <feature.icon className="w-6 h-6 text-zinc-500 group-hover:text-primary transition-colors" />
+                   </div>
+                   <div className="space-y-2">
+                      <h3 className="text-xl font-black text-white uppercase italic tracking-tight">{feature.title}</h3>
+                      <p className="text-zinc-600 text-sm leading-relaxed font-medium">{feature.desc}</p>
+                   </div>
+                </div>
+              ))}
+           </div>
+        </section>
+
+        {/* Global Stats Ticker */}
+        <div className="py-10 overflow-hidden relative border-b border-white/5">
+          <div className="flex items-center gap-40 animate-marquee whitespace-nowrap opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
             {Array.from({length: 6}).map((_, i) => (
               <React.Fragment key={i}>
-                <div className="flex items-center gap-6">
-                  <span className="label-meta text-[9px] text-zinc-800">INFRA_METRICS</span>
-                  <span className="text-[10px] font-mono font-bold text-zinc-500 italic">TPS: {Math.floor(Math.random() * 50 + 420)}</span>
-                  <span className="text-[10px] font-mono font-bold text-emerald-500/80 uppercase">Epoch: #{telemetry.blocks}</span>
-                  <span className="text-[10px] font-mono font-bold text-primary/80">Active_Nodes: {telemetry.nodes}</span>
-                  <span className="text-[10px] font-mono font-bold text-zinc-700">Ping: {telemetry.latency}MS</span>
+                <div className="flex items-center gap-10">
+                  <span className="label-meta text-[11px] text-zinc-600 font-black tracking-[0.4em]">NETWORK_PULSE</span>
+                  <span className="text-[12px] font-mono font-bold text-zinc-400">SYNC_BLOCK: #{telemetry.blocks}</span>
+                  <span className="text-[12px] font-mono font-bold text-white">NODES: {telemetry.nodes.toLocaleString()}</span>
+                  <span className="text-[12px] font-mono font-bold text-primary">LATENCY: {telemetry.latency}MS</span>
                 </div>
-                <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+                <div className="w-2 h-2 bg-zinc-900 rounded-full"></div>
               </React.Fragment>
             ))}
           </div>
         </div>
 
-        {/* Technical Showcase */}
-        <section id="protocol" className="py-40 px-6 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-            <div className="lg:col-span-4 space-y-12">
-              <div className="space-y-4">
-                <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Protocol <br/> Architecture</h2>
-                <p className="text-zinc-500 text-sm leading-relaxed font-medium">Verifiable proof-of-uptime mesh designed for high-availability enterprise compute demand.</p>
+        {/* Footer (Billion-Dollar Elegance) */}
+        <footer className="pt-48 pb-20 px-6 max-w-7xl mx-auto w-full">
+           <div className="grid grid-cols-1 md:grid-cols-12 gap-24">
+              <div className="md:col-span-6 space-y-12">
+                 <div className="flex items-center gap-6">
+                    <Hexagon className="w-12 h-12 text-white" />
+                    <span className="font-black text-4xl tracking-tighter uppercase italic text-white leading-none">NexusNode</span>
+                 </div>
+                 <p className="text-zinc-600 text-lg leading-relaxed max-w-sm font-medium">
+                    The institutional layer for verifiable compute infrastructure. Participate in the foundation of the global decentralized mesh.
+                 </p>
               </div>
-              <div className="space-y-4">
-                {['Elastic Compute Scaling', 'Global Peer Topology'].map((item, i) => (
-                  <button 
-                    key={item}
-                    onClick={() => setActiveTab(i)}
-                    className={`w-full text-left p-8 rounded-2xl border transition-all flex items-center justify-between group ${activeTab === i ? 'bg-primary/5 border-primary/30 text-white' : 'bg-zinc-900/10 border-zinc-900 text-zinc-600 hover:border-zinc-800'}`}
-                  >
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{item}</span>
-                    <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === i ? 'translate-x-1 text-primary' : 'group-hover:translate-x-1'}`} />
-                  </button>
-                ))}
+              <div className="md:col-span-6 grid grid-cols-2 gap-16">
+                 <div className="space-y-10">
+                    <p className="label-meta text-[12px] text-white font-black tracking-widest uppercase">Protocol</p>
+                    <ul className="space-y-6">
+                       {['Governance', 'Staking v2', 'API Docs', 'Audits'].map(link => (
+                         <li key={link}><a href="#" className="text-[11px] font-bold text-zinc-600 hover:text-white transition-colors uppercase tracking-[0.3em]">{link}</a></li>
+                       ))}
+                    </ul>
+                 </div>
+                 <div className="space-y-10">
+                    <p className="label-meta text-[12px] text-white font-black tracking-widest uppercase">Ecosystem</p>
+                    <ul className="space-y-6">
+                       {['Marketplace', 'Node Maps', 'Telemetry', 'Careers'].map(link => (
+                         <li key={link}><a href="#" className="text-[11px] font-bold text-zinc-600 hover:text-white transition-colors uppercase tracking-[0.3em]">{link}</a></li>
+                       ))}
+                    </ul>
+                 </div>
               </div>
-            </div>
-            <div className="lg:col-span-8">
-              <div className="surface p-12 rounded-3xl h-full border-zinc-900 bg-zinc-950 flex flex-col justify-center shadow-inner">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div className="space-y-8">
-                    <div className="w-16 h-16 bg-zinc-900/50 rounded-2xl flex items-center justify-center border border-zinc-800">
-                      <Layers className="w-7 h-7 text-primary" />
-                    </div>
-                    <div className="space-y-4">
-                      <h3 className="text-2xl font-black text-white tracking-tight uppercase italic">Distributed Consensus</h3>
-                      <p className="text-zinc-500 text-sm leading-relaxed">Hierarchical validation tiers ensure zero-latency data contribution tracking across the entire global mesh network.</p>
-                    </div>
-                  </div>
-                  <div className="relative overflow-hidden bg-zinc-900/30 rounded-2xl border border-zinc-900 p-8 flex flex-col justify-center font-mono group hover:border-primary/20 transition-all">
-                     <p className="label-meta text-[8px] text-primary mb-6 flex items-center gap-2">
-                       <Code2 className="w-3 h-3" /> Kernel_Handshake_Logic
-                     </p>
-                     <pre className="text-[10px] text-zinc-600 leading-relaxed font-medium">
-                        <code>{`define validator_node_0x1 {
-  topology: "MESH_GLOBAL",
-  priority: "GENESIS_A",
-  contribution: "ACTIVE",
-  multiplier: 1.25x
-}`}</code>
-                     </pre>
-                  </div>
-                </div>
+           </div>
+           <div className="mt-40 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10">
+              <p className="label-meta text-[9px] text-zinc-800 tracking-[0.5em] font-black">© 2025 NEXUSNODE INFRASTRUCTURE. ALL RIGHTS RESERVED. v2.8.4_STABLE</p>
+              <div className="flex items-center gap-6 px-8 py-4 bg-zinc-900 border border-white/5 rounded-full shadow-2xl">
+                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                 <span className="label-meta text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em]">Institutional Kernel Operational</span>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-zinc-900/50 bg-zinc-950 py-24 px-6 relative">
-          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-20">
-             <div className="md:col-span-5 space-y-10">
-                <div className="flex items-center gap-4">
-                  <Hexagon className="w-10 h-10 text-primary" />
-                  <span className="font-black text-3xl tracking-tighter uppercase italic text-white">NexusNode</span>
-                </div>
-                <p className="text-zinc-600 text-sm leading-relaxed max-w-xs font-medium">
-                  The primary staging layer for decentralized infrastructure validation and compute distribution.
-                </p>
-             </div>
-             <div className="md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-12">
-                <div className="space-y-8">
-                   <p className="label-meta text-[11px] text-white">Handshake</p>
-                   <ul className="space-y-4">
-                      {['Consensus Map', 'Validator Docs', 'API Terminal'].map(link => (
-                        <li key={link}><a href="#" className="text-[11px] font-bold text-zinc-700 hover:text-primary transition-colors uppercase tracking-widest">{link}</a></li>
-                      ))}
-                   </ul>
-                </div>
-             </div>
-          </div>
-          <div className="max-w-7xl mx-auto mt-24 pt-10 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center gap-8">
-             <p className="label-meta text-[8px] text-zinc-800 tracking-[0.3em]">© 2025 NEXUSNODE INFRASTRUCTURE. BUILD_VERSION: 2.8.4_STABLE</p>
-             <div className="flex items-center gap-5 px-6 py-3 bg-zinc-900/40 border border-zinc-800 rounded-full">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div>
-                <span className="label-meta text-[8px] text-zinc-600 uppercase font-black tracking-widest">Protocol Kernel Operational</span>
-             </div>
-          </div>
+           </div>
         </footer>
       </div>
 
@@ -449,35 +396,15 @@ const Landing = () => {
           0% { transform: translateX(0); }
           100% { transform: translateX(-33.33%); }
         }
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(-12deg); }
-          50% { transform: translateY(-15px) rotate(-10deg); }
+        @keyframes float-premium {
+          0%, 100% { transform: translateY(0) rotate(-12deg); opacity: 0.8; }
+          50% { transform: translateY(-20px) rotate(-10deg); opacity: 1; }
         }
-        @keyframes wobble {
-          0%, 100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: scale(1); }
-          33% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; transform: scale(1.1) rotate(5deg); }
-          66% { border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%; transform: scale(0.9) rotate(-5deg); }
-        }
-        @keyframes wobble-ray {
-          0%, 100% { transform: scaleY(1) skewX(0deg); opacity: 0.8; }
-          50% { transform: scaleY(1.2) skewX(5deg); opacity: 1; }
-        }
-        @keyframes ray-flicker {
-          0%, 100% { opacity: 0.2; filter: blur(40px); }
-          50% { opacity: 0.5; filter: blur(60px); }
-        }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animate-wobble { animation: wobble 8s ease-in-out infinite; }
-        .animate-wobble-alt { animation: wobble 12s ease-in-out infinite reverse; }
-        .animate-wobble-ray { animation: wobble-ray 4s ease-in-out infinite; }
-        .animate-ray-flicker { animation: ray-flicker 2s ease-in-out infinite; }
+        .animate-float-premium { animation: float-premium 8s ease-in-out infinite; }
         .animate-marquee {
           display: flex;
-          animation: marquee 40s linear infinite;
+          animation: marquee 50s linear infinite;
           width: fit-content;
-        }
-        .filter-goo {
-          filter: url('#goo');
         }
         ::-webkit-scrollbar {
           width: 0px;
