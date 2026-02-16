@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
+import PublicLayout from '../components/PublicLayout'; // Use the new layout
 import { 
-  Hexagon, 
   ArrowRight, 
   Activity, 
   Terminal as TerminalIcon,
@@ -17,13 +17,13 @@ import {
   Database,
   ChevronRight
 } from 'lucide-react';
+import { Link } from 'react-router';
 
 const Landing = () => {
   const { login } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [content, setContent] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
 
-  // Subscribe to CMS updates
   useEffect(() => {
     const unsubscribe = subscribeToLandingConfig((newConfig) => {
       setContent(newConfig);
@@ -31,30 +31,18 @@ const Landing = () => {
     return () => unsubscribe();
   }, []);
 
-  // Interactive Background States
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
-  
-  const [isMatrixActive, setIsMatrixActive] = useState(false);
-  const [isEmergency, setIsEmergency] = useState(false);
-  const [konamiProgress, setKonamiProgress] = useState(0);
-
-  // Animation States
-  const [visibleItems, setVisibleItems] = useState<number[]>([]); // For Roadmap
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set()); // For General Sections
-
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string}>>([]);
-  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
-  const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
-
   const [tickerItems, setTickerItems] = useState(() => Array.from({length: 10}).map((_, i) => ({
       id: i,
       hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}...${Math.random().toString(16).slice(2, 6).toUpperCase()}`
   })));
 
-  // Live Hash Update Effect (2Hz)
+  // Animation & Effect logic from original Landing.tsx preserved below...
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setTickerItems(prev => prev.map(item => ({
@@ -62,40 +50,32 @@ const Landing = () => {
         hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}...${Math.random().toString(16).slice(2, 6).toUpperCase()}`
       })));
     }, 500); 
-
     return () => clearInterval(interval);
   }, []);
 
-  // 1. Infinite Terminal Logic
   useEffect(() => {
     setLogs([
        { id: 1, prefix: "SYS", msg: "initializing_handshake_protocol", status: "OK" },
        { id: 2, prefix: "NET", msg: "establishing_secure_tunnel", status: "OK" },
        { id: 3, prefix: "SEC", msg: "verifying_integrity_hash", status: "OK" },
     ]);
-
     const verbs = ["allocating", "hashing", "syncing", "verifying", "connecting", "broadcasting", "compressing", "indexing"];
     const nouns = ["block_header", "mempool_buffer", "peer_node", "dag_topology", "sharded_state", "zk_proof", "execution_layer"];
-    
     const interval = setInterval(() => {
       setLogs(prev => {
         const id = Date.now();
         const verb = verbs[Math.floor(Math.random() * verbs.length)];
         const noun = nouns[Math.floor(Math.random() * nouns.length)];
         const hash = "0x" + Math.random().toString(16).substr(2, 6).toUpperCase();
-        
         const isCritical = Math.random() > 0.7;
         const prefix = isCritical ? "NET" : "SYS";
         const status = isCritical ? `${Math.floor(Math.random() * 40 + 10)}ms` : "OK";
-        
         const newLog = { id, prefix, msg: `${verb}::${noun} [${hash}]`, status };
-        
         const newLogs = [...prev, newLog];
         if (newLogs.length > 8) return newLogs.slice(newLogs.length - 8);
         return newLogs;
       });
     }, 500);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -128,72 +108,31 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos]);
 
-  const triggerRootOverride = () => {
-    setIsEmergency(true);
-    setTimeout(() => {
-      setIsEmergency(false);
-      setIsMatrixActive(true);
-    }, 2000);
-  };
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === konamiCode[konamiProgress] || e.key.toLowerCase() === konamiCode[konamiProgress]) {
-      const next = konamiProgress + 1;
-      setKonamiProgress(next);
-      if (next === konamiCode.length) {
-        triggerRootOverride();
-        setKonamiProgress(0);
-      }
-    } else {
-      setKonamiProgress(0);
-    }
-  }, [konamiProgress]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
-
+  // Matrix Rain
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     resize();
     window.addEventListener('resize', resize);
-
-    const katakana = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン";
-    const technical = "01-ARGUS-PROTOCOL-HASH-BLOCK-";
-    const alphabet = katakana + technical;
-    
-    const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 10 : 13;
-    
+    const alphabet = "01-ARGUS-PROTOCOL-HASH-BLOCK-";
+    const fontSize = 13;
     const columns = Math.floor(canvas.width / fontSize);
     const drops: number[] = Array(columns).fill(1).map(() => Math.random() * canvas.height / fontSize);
-
     const draw = () => {
       ctx.fillStyle = "rgba(3, 3, 3, 0.15)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `${fontSize}px JetBrains Mono`;
-
       for (let i = 0; i < drops.length; i++) {
         const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        
-        if (isEmergency) {
-          ctx.fillStyle = "#ffffff"; 
-        } else {
-          const isHighlight = Math.random() > 0.98;
-          ctx.fillStyle = isHighlight ? "#fda4af" : "#F43F5E";
-        }
-
+        const isHighlight = Math.random() > 0.98;
+        ctx.fillStyle = isHighlight ? "#fda4af" : "#F43F5E";
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.99) {
           drops[i] = 0;
         }
@@ -201,18 +140,18 @@ const Landing = () => {
       }
       requestRef.current = requestAnimationFrame(draw);
     };
-
     requestRef.current = requestAnimationFrame(draw);
-
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       window.removeEventListener('resize', resize);
     };
-  }, [isMatrixActive, isEmergency]);
+  }, []);
 
+  // Intersection Observers
+  const [visibleItems, setVisibleItems] = useState<number[]>([]);
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             if (entry.target.classList.contains('roadmap-item')) {
@@ -229,23 +168,20 @@ const Landing = () => {
             }
           }
         });
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -100px 0px' }
-    );
-
+      }, { threshold: 0.15, rootMargin: '0px 0px -100px 0px' });
     const items = document.querySelectorAll('.roadmap-item, [data-id]');
     items.forEach((item) => observer.observe(item));
-
     return () => observer.disconnect();
-  }, [content]); // Re-observe when content changes
+  }, [content]);
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
+  const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
 
   return (
+    // Replaced navbar/footer with PublicLayout, but injected content inside
+    // NOTE: PublicLayout has its own Nav/Footer, so we just render the sections here
+    <PublicLayout>
     <div 
-      className={`min-h-screen bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white transition-all duration-700 ${isEmergency ? 'grayscale contrast-125' : ''}`}
+      className="bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden transition-all duration-700"
       onMouseMove={handleMouseMove}
     >
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -255,37 +191,10 @@ const Landing = () => {
            <div className="absolute inset-0 bg-zinc-950/80 mix-blend-multiply"></div>
            <div 
              className="absolute w-[300px] md:w-[500px] h-[800px] md:h-[1400px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-[60px] md:blur-[80px] will-change-transform"
-             style={{ 
-               transform: `translate3d(${beamPos.x - 250}px, ${beamPos.y - 400}px, 0) rotate(20deg)`,
-             }}
+             style={{ transform: `translate3d(${beamPos.x - 250}px, ${beamPos.y - 400}px, 0) rotate(20deg)` }}
            />
         </div>
       </div>
-
-      <nav className="sticky top-0 z-[100] bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900 transition-all">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)]">
-              <Hexagon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-            </div>
-            <div className="flex flex-col -space-y-0.5 md:-space-y-1">
-              <span className="font-bold text-lg md:text-xl tracking-tight text-white">Argus<span className="text-zinc-500">Protocol</span></span>
-              <span className="text-[8px] md:text-[9px] font-mono text-primary/80 tracking-widest uppercase">Testnet_v2.8</span>
-            </div>
-          </div>
-          <div className="hidden md:flex items-center gap-10">
-            {['Architecture', 'Validators', 'Explorer', 'Docs'].map((item) => (
-              <a key={item} href="#" className="text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-primary transition-colors">
-                {item}
-              </a>
-            ))}
-          </div>
-          <button onClick={login} className="flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 bg-white text-black text-[10px] md:text-[11px] font-black uppercase tracking-widest rounded hover:bg-primary hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
-             <span className="hidden md:inline">Initialize</span> Console
-             <ChevronRight className="w-3 h-3 md:hidden" />
-          </button>
-        </div>
-      </nav>
 
       {/* Main Hero */}
       {content.hero.isVisible && (
@@ -313,9 +222,9 @@ const Landing = () => {
                 <button onClick={login} className="w-full sm:w-auto px-8 py-4 bg-primary text-white text-[11px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_25px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-lg">
                    {content.hero.ctaPrimary} <ArrowRight className="w-4 h-4" />
                 </button>
-                <button className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 text-[11px] font-black text-white uppercase tracking-widest hover:border-zinc-700 transition-all flex items-center justify-center gap-3 rounded-lg">
+                <Link to="/whitepaper" className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 text-[11px] font-black text-white uppercase tracking-widest hover:border-zinc-700 transition-all flex items-center justify-center gap-3 rounded-lg">
                    {content.hero.ctaSecondary} <Code2 className="w-4 h-4 text-zinc-600" />
-                </button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-3 gap-2 md:gap-6 border-t border-zinc-900/50 pt-8">
@@ -661,40 +570,8 @@ const Landing = () => {
            </div>
         </section>
       )}
-
-      {content.footer.isVisible && (
-        <footer className="border-t border-zinc-900 bg-zinc-950 pt-20 md:pt-24 pb-12 px-6">
-           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
-              <div className="space-y-4">
-                 <div className="flex items-center gap-2">
-                    <Hexagon className="w-6 h-6 text-primary" />
-                    <span className="text-xl font-bold text-white tracking-tight">{content.footer.title}</span>
-                 </div>
-                 <p className="text-xs text-zinc-600 max-w-xs">{content.footer.description}</p>
-              </div>
-              <div className="flex gap-16">
-                 <div className="flex flex-col gap-4">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">Network</span>
-                    <a href="#" className="text-xs text-zinc-500 hover:text-primary transition-colors">Explorer</a>
-                    <a href="#" className="text-xs text-zinc-500 hover:text-primary transition-colors">Staking</a>
-                 </div>
-                 <div className="flex flex-col gap-4">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">Resources</span>
-                    <a href="#" className="text-xs text-zinc-500 hover:text-primary transition-colors">Documentation</a>
-                    <a href="#" className="text-xs text-zinc-500 hover:text-primary transition-colors">API</a>
-                 </div>
-              </div>
-           </div>
-           <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-zinc-900/50 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-              <span className="text-[10px] text-zinc-700 font-mono">{content.footer.copyright}</span>
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Systems Operational</span>
-              </div>
-           </div>
-        </footer>
-      )}
     </div>
+    </PublicLayout>
   );
 };
 

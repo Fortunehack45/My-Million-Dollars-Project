@@ -11,6 +11,13 @@ import Login from './pages/Login';
 import ProfileSetup from './pages/ProfileSetup';
 import AdminPanel from './pages/AdminPanel';
 import Landing from './pages/Landing';
+import Architecture from './pages/Architecture';
+import Validators from './pages/Validators';
+import Explorer from './pages/Explorer';
+import Whitepaper from './pages/Whitepaper';
+import Docs from './pages/Docs';
+import About from './pages/About';
+import { Terms, Privacy } from './pages/Legal';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
@@ -62,6 +69,7 @@ const AppRoutes = () => {
         firebaseUser && !user ? <ProfileSetup /> : <Navigate to="/" />
       } />
       
+      {/* App Routes */}
       <Route path="/tasks" element={
         <ProtectedRoute>
           <SocialTasks />
@@ -91,6 +99,16 @@ const AppRoutes = () => {
           <AdminPanel />
         </ProtectedRoute>
       } />
+
+      {/* Public Routes */}
+      <Route path="/architecture" element={<Architecture />} />
+      <Route path="/validators" element={<Validators />} />
+      <Route path="/explorer" element={<Explorer />} />
+      <Route path="/whitepaper" element={<Whitepaper />} />
+      <Route path="/docs" element={<Docs />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
