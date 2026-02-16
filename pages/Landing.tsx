@@ -264,16 +264,16 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section id="hero" className="relative z-10 pt-32 pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 xl:gap-24 items-center w-full">
           
-          <div className="lg:col-span-7 space-y-12 animate-fade-in-up">
+          <div className="lg:col-span-6 space-y-12 animate-fade-in-up relative z-20">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full backdrop-blur-md animate-fade-in opacity-0" style={{ animationDelay: '0.2s' }}>
                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
                  <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-7xl xl:text-9xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
+              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-6xl xl:text-8xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
                 {content.hero.title}
               </h1>
               
@@ -294,8 +294,8 @@ const Landing = () => {
           </div>
 
           {/* REDESIGNED TERMINAL UI */}
-          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block" style={{ animationDelay: '0.5s' }}>
-             <div className="relative bg-black/90 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8),0_0_50px_rgba(244,63,94,0.05)] font-mono text-[10px] ring-1 ring-white/5">
+          <div className="lg:col-span-6 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10" style={{ animationDelay: '0.5s' }}>
+             <div className="relative max-w-xl ml-auto bg-black/90 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8),0_0_50px_rgba(244,63,94,0.05)] font-mono text-[10px] ring-1 ring-white/5">
                 
                 {/* WINDOW DECORATION */}
                 <div className="bg-zinc-900/90 px-5 py-3 flex items-center justify-between border-b border-white/5 backdrop-blur-xl">
