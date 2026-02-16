@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
+import { subscribeToLandingConfig } from '../services/firebase';
 import { LandingConfig } from '../types';
-import PublicLayout from '../components/PublicLayout'; // Use the new layout
+import PublicLayout from '../components/PublicLayout';
 import { 
   ArrowRight, 
   Activity, 
@@ -15,14 +15,14 @@ import {
   CheckCircle2,
   Plus,
   Database,
-  ChevronRight
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router';
 
 const Landing = () => {
   const { login } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [content, setContent] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
+  const [content, setContent] = useState<LandingConfig | null>(null);
 
   useEffect(() => {
     const unsubscribe = subscribeToLandingConfig((newConfig) => {
@@ -41,8 +41,6 @@ const Landing = () => {
       hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}...${Math.random().toString(16).slice(2, 6).toUpperCase()}`
   })));
 
-  // Animation & Effect logic from original Landing.tsx preserved below...
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setTickerItems(prev => prev.map(item => ({
@@ -108,7 +106,6 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos]);
 
-  // Matrix Rain
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -147,10 +144,11 @@ const Landing = () => {
     };
   }, []);
 
-  // Intersection Observers
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  
   useEffect(() => {
+    if (!content) return;
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -176,9 +174,20 @@ const Landing = () => {
 
   const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
 
+  if (!content) {
+    return (
+      <PublicLayout>
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+           <div className="flex flex-col items-center gap-4">
+             <Loader2 className="w-8 h-8 text-primary animate-spin" />
+             <p className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest animate-pulse">Establishing Connection...</p>
+           </div>
+        </div>
+      </PublicLayout>
+    );
+  }
+
   return (
-    // Replaced navbar/footer with PublicLayout, but injected content inside
-    // NOTE: PublicLayout has its own Nav/Footer, so we just render the sections here
     <PublicLayout>
     <div 
       className="bg-zinc-950 text-zinc-100 flex flex-col relative overflow-x-hidden transition-all duration-700"
@@ -294,7 +303,7 @@ const Landing = () => {
       </div>
       )}
 
-      {/* Scrolling Ticker (Infinite Loop) */}
+      {/* Scrolling Ticker */}
       <div className="bg-zinc-900/30 border-y border-zinc-900 py-3 overflow-hidden relative group">
            <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none"></div>
            <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none"></div>
@@ -330,6 +339,7 @@ const Landing = () => {
         </section>
       )}
 
+      {/* Content Sections */}
       {content.architecture.isVisible && (
         <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center">

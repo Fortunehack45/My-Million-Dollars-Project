@@ -75,7 +75,7 @@ export const REFERRAL_BONUS_POINTS = 0.5;
 export const DEFAULT_LANDING_CONFIG: LandingConfig = {
   hero: {
     isVisible: true,
-    title: "Institutional Infrastructure as a Service.",
+    title: "Decentralized Compute Layer",
     subtitle: "We are the high-speed rail for the multi-chain economy. Provide the most resilient, automated, and high-throughput backbone for DeFi and RWA tokenization.",
     ctaPrimary: "Deploy Validator Node",
     ctaSecondary: "Read Whitepaper"
