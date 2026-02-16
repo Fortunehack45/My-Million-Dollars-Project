@@ -59,7 +59,7 @@ const Landing = () => {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
     const sections = document.querySelectorAll('section');
@@ -84,9 +84,6 @@ const Landing = () => {
   useEffect(() => {
     const updateInitialPos = () => {
        const isDesktop = window.innerWidth >= 1024;
-       // Approximate location of the terminal CPU stats area (Red Arrow target)
-       // On desktop: Right side (75% width), slightly above center (40% height)
-       // On mobile: Center (50% width), lower (60% height)
        const x = isDesktop ? window.innerWidth * 0.72 : window.innerWidth * 0.5;
        const y = isDesktop ? window.innerHeight * 0.42 : window.innerHeight * 0.6;
        
@@ -128,7 +125,7 @@ const Landing = () => {
           level: isCrit ? 'crit' : 'info'
         };
         const newLogs = [...prev, newLog];
-        return newLogs.slice(-12); // Show slightly more logs
+        return newLogs.slice(-12);
       });
     }, 600);
     return () => clearInterval(interval);
@@ -145,15 +142,13 @@ const Landing = () => {
     let animationFrameId: number;
     const animateBeam = () => {
       setBeamPos(prev => {
-        // Target is mousePos if interaction occurred, otherwise initialTerminalPos
         const target = hasInteracted ? mousePos : initialTerminalPos;
-        
         const ease = 0.08; 
         const dx = target.x - prev.x;
         const dy = target.y - prev.y;
         if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return prev;
         const next = { x: prev.x + dx * ease, y: prev.y + dy * ease };
-        beamRef.current = next; // Update ref for canvas
+        beamRef.current = next;
         return next;
       });
       animationFrameId = requestAnimationFrame(animateBeam);
@@ -241,7 +236,7 @@ const Landing = () => {
   return (
     <PublicLayout>
     <div 
-      className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden"
+      className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white"
       onMouseMove={handleMouseMove}
     >
       
@@ -300,10 +295,9 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Institutional Terminal UI - Redesigned & Professional */}
+          {/* Institutional Terminal UI */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden md:block" style={{ animationDelay: '0.5s' }}>
              <div className="relative bg-zinc-950/90 backdrop-blur-xl border border-zinc-800 rounded-lg overflow-hidden shadow-2xl font-mono text-[10px] leading-relaxed">
-                {/* OS Header */}
                 <div className="bg-zinc-900/80 px-4 py-2 flex items-center justify-between border-b border-zinc-800">
                    <div className="flex gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500/80 hover:bg-red-500 transition-colors"></div>
@@ -314,10 +308,9 @@ const Landing = () => {
                       <TerminalIcon className="w-3 h-3" />
                       ARGUS_OS_TERMINAL_v4.2
                    </div>
-                   <div className="w-10"></div> {/* Spacer for center alignment */}
+                   <div className="w-10"></div>
                 </div>
 
-                {/* Status Bar - CPU Red Arrow Target */}
                 <div className="flex items-center gap-8 px-4 py-2 bg-black/40 border-b border-zinc-900 text-[9px] font-bold tracking-wider">
                    <div className="flex items-center gap-2">
                       <span className="text-zinc-600">CPU:</span>
@@ -332,9 +325,7 @@ const Landing = () => {
                    </div>
                 </div>
                 
-                {/* Log Feed - Grid Layout for Professional Alignment */}
                 <div className="p-5 h-[360px] flex flex-col justify-end relative overflow-hidden bg-black/20">
-                   {/* Scanline Overlay */}
                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20"></div>
 
                    <div className="space-y-1 relative z-0">
@@ -359,7 +350,6 @@ const Landing = () => {
                      ))}
                    </div>
                    
-                   {/* Command Line */}
                    <div className="grid grid-cols-[45px_1fr] gap-3 items-center mt-3 pt-3 border-t border-zinc-800/50">
                       <span className="text-primary font-bold">[CMD]</span>
                       <div className="flex items-center text-zinc-200">
@@ -373,12 +363,12 @@ const Landing = () => {
       </section>
 
       {/* Partners Section */}
-      <section id="partners" className="relative z-10 py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md">
+      <section id="partners" className={`relative z-10 py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
          <div className="max-w-7xl mx-auto px-6 text-center">
             <p className="text-[10px] font-black text-zinc-600 mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
             <div className="flex flex-wrap justify-center gap-8 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                {content.partners.items.map((name, i) => (
-                  <h3 key={i} className="text-sm md:text-lg font-black text-white uppercase tracking-tighter">{name.replace('_', ' ')}</h3>
+                  <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-sm md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
                ))}
             </div>
          </div>
@@ -386,8 +376,8 @@ const Landing = () => {
 
       {/* Features Grid */}
       {content.features?.isVisible && (
-        <section id="features" className={`py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-           <div className="text-center mb-20 max-w-3xl mx-auto">
+        <section id="features" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           <div className={`text-center mb-20 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
               <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6">{content.features.title}</h2>
               <p className="text-zinc-500 text-lg leading-relaxed">{content.features.description}</p>
            </div>
@@ -396,7 +386,7 @@ const Landing = () => {
               {content.features.items.map((item, i) => {
                  const Icon = IconMap[item.icon] || Globe;
                  return (
-                 <div key={i} className="p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-primary/50 transition-all duration-500 group hover:-translate-y-2">
+                 <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-primary/50 transition-all duration-700 group hover:-translate-y-2 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                     <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors">
                        <Icon className="w-6 h-6 text-zinc-500 group-hover:text-primary transition-colors" />
                     </div>
@@ -410,9 +400,9 @@ const Landing = () => {
 
       {/* Architecture Section */}
       {content.architecture.isVisible && (
-        <section id="architecture" className={`py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <section id="architecture" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-              <div className="space-y-12">
+              <div className={`space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
                  <div className="space-y-6">
                     <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
                        {content.architecture.title}
@@ -424,7 +414,7 @@ const Landing = () => {
                  
                  <div className="space-y-10">
                     {content.architecture.layers.map((layer, i) => (
-                       <div key={i} className="flex gap-8 group">
+                       <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
                           <div className="w-16 h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 transition-colors">
                              <Layers className="w-7 h-7 text-zinc-600 group-hover:text-primary transition-colors" />
                           </div>
@@ -437,7 +427,7 @@ const Landing = () => {
                  </div>
               </div>
               
-              <div className="relative animate-float hidden lg:block">
+              <div className={`relative animate-float hidden lg:block transition-all duration-1000 delay-300 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
                  <div className="absolute inset-0 bg-primary/10 blur-[150px] rounded-full"></div>
                  <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
                     <div className="h-24 bg-primary/5 border border-primary/20 rounded-2xl flex items-center justify-center">
@@ -464,19 +454,19 @@ const Landing = () => {
 
       {/* Roadmap Section */}
       {content.roadmap?.isVisible && (
-        <section id="roadmap" className={`py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30 transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-            <div className="mb-20 text-center">
+        <section id="roadmap" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
+            <div className={`mb-20 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{content.roadmap.title}</h2>
                <p className="text-zinc-500">{content.roadmap.description}</p>
             </div>
 
             <div className="relative">
                {/* Vertical Line */}
-               <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-zinc-800 md:-translate-x-1/2 ml-4 md:ml-0"></div>
+               <div className={`absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-zinc-800 md:-translate-x-1/2 ml-4 md:ml-0 transition-all duration-1000 delay-300 ${visibleSections.has('roadmap') ? 'opacity-100 h-full' : 'opacity-0 h-0'}`}></div>
 
                <div className="space-y-12 md:space-y-24">
                   {content.roadmap.phases.map((phase, i) => (
-                     <div key={i} className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'}`}>
+                     <div key={i} style={{ transitionDelay: `${i * 200}ms` }} className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                         {/* Dot */}
                         <div className={`absolute left-0 md:left-1/2 w-9 h-9 bg-zinc-950 border-4 ${phase.status === 'LIVE' ? 'border-primary' : 'border-zinc-800'} rounded-full ml-[0.5px] md:-translate-x-1/2 flex items-center justify-center z-10`}>
                            {phase.status === 'LIVE' && <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse"></div>}
@@ -514,10 +504,10 @@ const Landing = () => {
       {/* FAQ Section */}
       {content.faq.isVisible && (
         <section id="faq" className="py-24 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
-           <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center">{content.faq.title}</h2>
+           <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
            <div className="space-y-4">
               {content.faq.items.map((item, i) => (
-                 <div key={i} className="border border-zinc-900 bg-black/40 backdrop-blur-md rounded-xl overflow-hidden hover:border-zinc-700 transition-colors">
+                 <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`border border-zinc-900 bg-black/40 backdrop-blur-md rounded-xl overflow-hidden hover:border-zinc-700 transition-all duration-700 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                     <button 
                        onClick={() => toggleFaq(i)}
                        className="w-full flex items-center justify-between p-6 text-left hover:bg-zinc-900/20 transition-colors"
@@ -538,7 +528,7 @@ const Landing = () => {
 
       {/* CTA Section */}
       {content.cta.isVisible && (
-        <section id="cta" className="py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl">
+        <section id="cta" className={`py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
            <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-16">
               <div className="space-y-8">
                 <div className="inline-flex items-center gap-3 px-5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full">
