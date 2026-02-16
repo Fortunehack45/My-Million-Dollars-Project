@@ -7,7 +7,7 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
-  initializeFirestore,
+  getFirestore,
   doc, 
   setDoc, 
   getDoc, 
@@ -56,12 +56,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-
-// Initialize Firestore with long polling to ensure connection stability
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true
-});
-
+export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
 
 export const TOTAL_SUPPLY = 1000000000;
@@ -219,10 +214,6 @@ export const DEFAULT_ARCHITECTURE_CONFIG: ArchitecturePageConfig = {
   ]
 };
 
-/**
- * Professional Presence Logic
- * Uses RTDB for high-frequency heartbeats and session state.
- */
 export const setupPresence = (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
   const isOfflineForDatabase = { state: 'offline', last_changed: serverTimestamp(), uid };
@@ -232,10 +223,7 @@ export const setupPresence = (uid: string) => {
   
   onValue(connectedRef, (snapshot) => {
     if (snapshot.val() === false) return;
-
-    // Set to offline when client disconnects (tab close / network loss)
     onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase).then(() => {
-      // Once the disconnect hook is ready, set the status to online
       set(userStatusDatabaseRef, isOnlineForDatabase);
     });
   }, (error) => {
@@ -243,9 +231,6 @@ export const setupPresence = (uid: string) => {
   });
 };
 
-/**
- * Manually set a user to offline (used during explicit logout)
- */
 export const manualOffline = async (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
   await set(userStatusDatabaseRef, { 
@@ -259,7 +244,6 @@ export const subscribeToOnlineUsers = (callback: (onlineUids: string[]) => void)
   const statusRef = ref(rtdb, 'status');
   return onValue(statusRef, (snapshot) => {
     const statuses = snapshot.val() || {};
-    // Extract only UIDs that are actively online
     const onlineUids = Object.keys(statuses)
       .filter((key) => statuses[key].state === 'online')
       .map((key) => statuses[key].uid);
@@ -321,17 +305,11 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
   await runTransaction(db, async (transaction) => {
     const nameSnap = await transaction.get(nameRef);
     const existingUserSnap = await transaction.get(userRef);
-
-    if (nameSnap.exists()) {
-      throw new Error("USERNAME_TAKEN");
+    if (nameSnap.exists()) throw new Error("USERNAME_TAKEN");
+    if (!existingUserSnap.exists()) {
+      transaction.set(userRef, newUser);
+      transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
     }
-
-    if (existingUserSnap.exists()) {
-      return; 
-    }
-
-    transaction.set(userRef, newUser);
-    transaction.set(nameRef, { uid: fbUser.uid, claimedAt: Date.now() });
   });
 
   try {
@@ -353,20 +331,16 @@ export const syncReferralStats = async (uid: string, currentReferralCount: numbe
     const q = query(collection(db, "users"), where("referredBy", "==", uid));
     const snapshot = await getDocs(q);
     const realCount = snapshot.size;
-
     if (realCount > currentReferralCount) {
       const userRef = doc(db, 'users', uid);
       const previousRewardable = Math.min(currentReferralCount, MAX_REFERRALS);
       const newRewardable = Math.min(realCount, MAX_REFERRALS);
       const rewardableDiff = Math.max(0, newRewardable - previousRewardable);
-      
       const pointsToAdd = rewardableDiff * REFERRAL_BONUS_POINTS;
-
       await updateDoc(userRef, {
         referralCount: realCount,
         points: increment(pointsToAdd)
       });
-
       if (pointsToAdd > 0) {
         const statsRef = doc(db, 'global_stats', 'network');
         try { await updateDoc(statsRef, { totalMined: increment(pointsToAdd) }); } catch(e) {}
@@ -400,12 +374,6 @@ export const completeTask = async (uid: string, taskId: string, points: number) 
   try { await updateDoc(statsRef, { totalMined: increment(points) }); } catch(e) {}
 };
 
-export const fetchTasks = async (): Promise<Task[]> => {
-  const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
-  const snap = await getDocs(q);
-  return snap.docs.map(doc => doc.data() as Task);
-};
-
 export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
   const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
@@ -415,11 +383,6 @@ export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
     console.warn("Tasks Subscription Error:", error);
     callback([]);
   });
-};
-
-export const getAllUsers = async (): Promise<User[]> => {
-  const snap = await getDocs(collection(db, 'users'));
-  return snap.docs.map(doc => doc.data() as User);
 };
 
 export const subscribeToUsers = (callback: (users: User[]) => void) => {
@@ -483,16 +446,12 @@ export const mintNFT = async (uid: string, cost: number): Promise<boolean> => {
 export const logout = async () => {
   const currentUser = auth.currentUser;
   if (currentUser) {
-    // Attempt to manually flag as offline before signing out
     try {
-      // Race the manual offline update against a 1s timeout to ensure we don't hang
       await Promise.race([
         manualOffline(currentUser.uid),
-        new Promise(resolve => setTimeout(resolve, 1000))
+        new Promise(resolve => setTimeout(resolve, 800))
       ]);
-    } catch (e) {
-      console.warn("Failed to set manual offline status.");
-    }
+    } catch (e) {}
   }
   await firebaseSignOut(auth);
 };
@@ -503,13 +462,12 @@ export const subscribeToLandingConfig = (callback: (config: LandingConfig) => vo
   return onSnapshot(doc(db, 'site_content', 'landing'), (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.data();
-      const mergedConfig = { ...DEFAULT_LANDING_CONFIG, ...data };
-      callback(mergedConfig as LandingConfig);
+      callback({ ...DEFAULT_LANDING_CONFIG, ...data } as LandingConfig);
     } else {
       callback(DEFAULT_LANDING_CONFIG);
     }
   }, (error) => {
-    console.warn("CMS Config Subscription Error (using default):", error);
+    console.warn("CMS Landing Error:", error);
     callback(DEFAULT_LANDING_CONFIG);
   });
 };
@@ -518,22 +476,16 @@ export const updateLandingConfig = async (config: LandingConfig) => {
   await setDoc(doc(db, 'site_content', 'landing'), config, { merge: true });
 };
 
-// Generic subscribe for other pages
-export const subscribeToContent = <T>(
-  docId: string, 
-  defaultData: T, 
-  callback: (data: T) => void
-) => {
+export const subscribeToContent = <T>(docId: string, defaultData: T, callback: (data: T) => void) => {
   return onSnapshot(doc(db, 'site_content', docId), (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.data();
-      const merged = { ...defaultData, ...data };
-      callback(merged as T);
+      callback({ ...defaultData, ...data } as T);
     } else {
       callback(defaultData);
     }
   }, (error) => {
-    console.warn(`CMS Subscription Error [${docId}]:`, error);
+    console.warn(`CMS Error [${docId}]:`, error);
     callback(defaultData);
   });
 };
