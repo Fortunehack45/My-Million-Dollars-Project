@@ -71,19 +71,44 @@ const Landing = () => {
   }, [content]);
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
-  const beamRef = useRef({ x: 500, y: 500 });
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [initialTerminalPos, setInitialTerminalPos] = useState({ x: 0, y: 0 });
+  const [beamPos, setBeamPos] = useState({ x: 0, y: 0 });
+  const beamRef = useRef({ x: 0, y: 0 });
   
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
 
+  // Set initial beam position to the terminal location
+  useEffect(() => {
+    const updateInitialPos = () => {
+       const isDesktop = window.innerWidth >= 1024;
+       // Approximate location of the terminal CPU stats area (Red Arrow target)
+       // On desktop: Right side (75% width), slightly above center (40% height)
+       // On mobile: Center (50% width), lower (60% height)
+       const x = isDesktop ? window.innerWidth * 0.72 : window.innerWidth * 0.5;
+       const y = isDesktop ? window.innerHeight * 0.42 : window.innerHeight * 0.6;
+       
+       setInitialTerminalPos({ x, y });
+       // Only set beam pos if user hasn't interacted yet to avoid jumping
+       if (!hasInteracted) {
+         setBeamPos({ x, y });
+         beamRef.current = { x, y };
+       }
+    };
+    
+    updateInitialPos();
+    window.addEventListener('resize', updateInitialPos);
+    return () => window.removeEventListener('resize', updateInitialPos);
+  }, [hasInteracted]);
+
   // Terminal Logs Simulation
   useEffect(() => {
     setLogs([
-       { id: 1, prefix: "SYS", msg: "KERNEL_INIT_SUCCESS", status: "OK", level: 'info' },
-       { id: 2, prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL", status: "PENDING", level: 'warn' },
-       { id: 3, prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE", status: "SECURE", level: 'info' },
+       { id: 1, prefix: "SYS", msg: "KERNEL_INIT_SUCCESS [0x1A2B3C]", status: "OK", level: 'info' },
+       { id: 2, prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL [0x4D5E6F]", status: "PENDING", level: 'warn' },
+       { id: 3, prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE [0x7G8H9I]", status: "SECURE", level: 'info' },
     ]);
     const verbs = ["ALLOCATING", "HASHING", "SYNCING", "VERIFYING", "CONNECTING", "BROADCASTING", "COMPRESSING", "INDEXING"];
     const nouns = ["BLOCK_HEADER", "MEMPOOL_BUFFER", "PEER_NODE", "DAG_TOPOLOGY", "SHARDED_STATE", "ZK_PROOF", "EXECUTION_LAYER"];
@@ -103,25 +128,29 @@ const Landing = () => {
           level: isCrit ? 'crit' : 'info'
         };
         const newLogs = [...prev, newLog];
-        return newLogs.slice(-10);
+        return newLogs.slice(-12); // Show slightly more logs
       });
-    }, 700);
+    }, 600);
     return () => clearInterval(interval);
   }, []);
 
   // Handle Mouse Move for Flashlight Effect
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
-  }, []);
+    if (!hasInteracted) setHasInteracted(true);
+  }, [hasInteracted]);
 
   // Smooth Beam Interpolation
   useEffect(() => {
     let animationFrameId: number;
     const animateBeam = () => {
       setBeamPos(prev => {
+        // Target is mousePos if interaction occurred, otherwise initialTerminalPos
+        const target = hasInteracted ? mousePos : initialTerminalPos;
+        
         const ease = 0.08; 
-        const dx = mousePos.x - prev.x;
-        const dy = mousePos.y - prev.y;
+        const dx = target.x - prev.x;
+        const dy = target.y - prev.y;
         if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return prev;
         const next = { x: prev.x + dx * ease, y: prev.y + dy * ease };
         beamRef.current = next; // Update ref for canvas
@@ -131,7 +160,7 @@ const Landing = () => {
     };
     animateBeam();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [mousePos]);
+  }, [mousePos, initialTerminalPos, hasInteracted]);
 
   // MATRIX RAIN CANVAS
   useEffect(() => {
@@ -271,65 +300,71 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Institutional Terminal UI */}
+          {/* Institutional Terminal UI - Redesigned & Professional */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden md:block" style={{ animationDelay: '0.5s' }}>
-             <div className="relative bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800 rounded-2xl overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
+             <div className="relative bg-zinc-950/90 backdrop-blur-xl border border-zinc-800 rounded-lg overflow-hidden shadow-2xl font-mono text-[10px] leading-relaxed">
                 {/* OS Header */}
-                <div className="bg-zinc-900 px-5 py-4 flex items-center justify-between border-b border-zinc-800">
-                   <div className="flex gap-2.5">
-                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
-                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
-                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
+                <div className="bg-zinc-900/80 px-4 py-2 flex items-center justify-between border-b border-zinc-800">
+                   <div className="flex gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500/80 hover:bg-red-500 transition-colors"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors"></div>
                    </div>
-                   <div className="flex items-center gap-2 text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-widest">
+                   <div className="flex items-center gap-2 text-zinc-500 font-bold tracking-widest opacity-80">
                       <TerminalIcon className="w-3 h-3" />
-                      <span>Argus_OS_Terminal_v4.2</span>
+                      ARGUS_OS_TERMINAL_v4.2
                    </div>
-                   <div className="flex gap-4">
-                      <Minus className="w-3 h-3 text-zinc-700" />
-                      <Maximize2 className="w-3 h-3 text-zinc-700" />
-                      <X className="w-3 h-3 text-zinc-700" />
-                   </div>
+                   <div className="w-10"></div> {/* Spacer for center alignment */}
                 </div>
 
-                {/* Status Bar */}
-                <div className="flex items-center gap-6 px-6 py-2 bg-zinc-900/30 border-b border-zinc-900 text-[8px] font-mono font-bold uppercase tracking-widest">
+                {/* Status Bar - CPU Red Arrow Target */}
+                <div className="flex items-center gap-8 px-4 py-2 bg-black/40 border-b border-zinc-900 text-[9px] font-bold tracking-wider">
                    <div className="flex items-center gap-2">
                       <span className="text-zinc-600">CPU:</span>
-                      <span className="text-primary">{Math.floor(Math.random() * 20 + 5)}%</span>
+                      <span className="text-red-500 animate-pulse">12%</span>
                    </div>
                    <div className="flex items-center gap-2">
                       <span className="text-zinc-600">MEM:</span>
                       <span className="text-emerald-500">2.4GB</span>
                    </div>
-                   <div className="ml-auto flex items-center gap-2 text-zinc-700">
+                   <div className="ml-auto flex items-center gap-2 text-zinc-600">
                       <span>ROOT_ACCESS: GRANTED</span>
                    </div>
                 </div>
                 
-                {/* Log Feed */}
-                <div className="p-8 font-mono text-[10px] h-[360px] flex flex-col justify-end gap-2.5 overflow-hidden">
-                   {logs.map((log) => (
-                      <div key={log.id} className="flex items-start gap-4 animate-in slide-in-from-bottom-1 duration-300">
-                         <span className={`font-black shrink-0 ${
-                            log.level === 'crit' ? 'text-primary' : 
-                            log.level === 'warn' ? 'text-amber-500' : 'text-zinc-700'
-                         }`}>
-                            [{log.prefix}]
-                         </span>
-                         <span className="text-zinc-500 flex-1">&gt; {log.msg}</span>
-                         <span className={`shrink-0 font-bold ${
-                            log.status === 'OK' || log.status === 'SUCCESS' ? 'text-emerald-500' : 
-                            log.status === 'PENDING' ? 'text-zinc-600' : 'text-primary'
-                         }`}>
-                            {log.status}
-                         </span>
+                {/* Log Feed - Grid Layout for Professional Alignment */}
+                <div className="p-5 h-[360px] flex flex-col justify-end relative overflow-hidden bg-black/20">
+                   {/* Scanline Overlay */}
+                   <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20"></div>
+
+                   <div className="space-y-1 relative z-0">
+                     {logs.map((log) => (
+                        <div key={log.id} className="grid grid-cols-[45px_1fr_60px] gap-3 items-baseline animate-slide-in-bottom">
+                           <span className={`font-bold ${
+                              log.level === 'crit' ? 'text-red-500' : 
+                              log.level === 'warn' ? 'text-amber-500' : 'text-zinc-600'
+                           }`}>
+                              [{log.prefix}]
+                           </span>
+                           <span className="text-zinc-400 truncate">
+                              &gt; {log.msg}
+                           </span>
+                           <span className={`text-right font-bold ${
+                              log.status === 'SUCCESS' || log.status === 'OK' || log.status === 'SECURE' ? 'text-emerald-500' : 
+                              log.level === 'crit' ? 'text-red-500' : 'text-amber-500'
+                           }`}>
+                              {log.status}
+                           </span>
+                        </div>
+                     ))}
+                   </div>
+                   
+                   {/* Command Line */}
+                   <div className="grid grid-cols-[45px_1fr] gap-3 items-center mt-3 pt-3 border-t border-zinc-800/50">
+                      <span className="text-primary font-bold">[CMD]</span>
+                      <div className="flex items-center text-zinc-200">
+                         sh run initialization_sequence<div className="h-4 w-2 bg-primary ml-1 animate-pulse"></div>
                       </div>
-                   ))}
-                   <div className="flex items-center gap-3 pt-2 border-t border-zinc-900/50">
-                      <span className="text-primary font-black">[CMD]</span>
-                      <span className="text-zinc-300">sh run initialization_sequence</span>
-                      <div className="h-4 w-1.5 bg-primary animate-pulse ml-1"></div>
                    </div>
                 </div>
              </div>
