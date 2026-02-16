@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToLandingConfig } from '../services/firebase';
 import { LandingConfig } from '../types';
@@ -16,8 +16,7 @@ import {
   Maximize2,
   Minus,
   X,
-  Plus,
-  Play
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -32,18 +31,21 @@ const Landing = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
+  const beamRef = useRef({ x: 500, y: 500 });
   
-  const [logs, setLogs] = useState<Array<{id: number, time: string, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
+  const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
 
+  // Terminal Logs Simulation
   useEffect(() => {
-    const getLogTime = () => new Date().toISOString().split('T')[1].slice(0, 8);
-
     setLogs([
-       { id: 1, time: getLogTime(), prefix: "SYS", msg: "KERNEL_INIT_SUCCESS", status: "OK", level: 'info' },
-       { id: 2, time: getLogTime(), prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL", status: "PENDING", level: 'warn' },
-       { id: 3, time: getLogTime(), prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE", status: "SECURE", level: 'info' },
+       { id: 1, prefix: "SYS", msg: "KERNEL_INIT_SUCCESS", status: "OK", level: 'info' },
+       { id: 2, prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL", status: "PENDING", level: 'warn' },
+       { id: 3, prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE", status: "SECURE", level: 'info' },
     ]);
     const verbs = ["ALLOCATING", "HASHING", "SYNCING", "VERIFYING", "CONNECTING", "BROADCASTING", "COMPRESSING", "INDEXING"];
     const nouns = ["BLOCK_HEADER", "MEMPOOL_BUFFER", "PEER_NODE", "DAG_TOPOLOGY", "SHARDED_STATE", "ZK_PROOF", "EXECUTION_LAYER"];
@@ -51,38 +53,50 @@ const Landing = () => {
     const interval = setInterval(() => {
       setLogs(prev => {
         const id = Date.now();
-        const time = getLogTime();
         const verb = verbs[Math.floor(Math.random() * verbs.length)];
         const noun = nouns[Math.floor(Math.random() * nouns.length)];
         const hash = "0x" + Math.random().toString(16).substr(2, 6).toUpperCase();
-        const isCrit = Math.random() > 0.90;
-        
-        const newLog: {
-          id: number;
-          time: string;
-          prefix: string;
-          msg: string;
-          status: string;
-          level: 'info' | 'warn' | 'crit';
-        } = { 
+        const isCrit = Math.random() > 0.85;
+        const newLog: { id: number; prefix: string; msg: string; status: string; level: 'info' | 'warn' | 'crit' } = { 
           id, 
-          time,
           prefix: isCrit ? "CRIT" : "PROC", 
           msg: `${verb}_${noun} [${hash}]`, 
           status: isCrit ? "RETRIEVING" : "SUCCESS",
           level: isCrit ? 'crit' : 'info'
         };
-        
         const newLogs = [...prev, newLog];
-        // Keep logs list manageable, fill from top
-        if (newLogs.length > 18) return newLogs.slice(newLogs.length - 18);
-        return newLogs;
+        // Keep logs list manageable, fill from bottom up visual style means we just keep the last N
+        return newLogs.slice(-10);
       });
-    }, 400); // Faster logging for "live" feel
+    }, 700);
     return () => clearInterval(interval);
   }, []);
 
-  // ARCHITECTURE STYLE MATRIX RAIN (PRIMARY COLOR)
+  // Handle Mouse Move for Flashlight Effect
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  // Smooth Beam Interpolation
+  useEffect(() => {
+    let animationFrameId: number;
+    const animateBeam = () => {
+      setBeamPos(prev => {
+        const ease = 0.08; 
+        const dx = mousePos.x - prev.x;
+        const dy = mousePos.y - prev.y;
+        if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return prev;
+        const next = { x: prev.x + dx * ease, y: prev.y + dy * ease };
+        beamRef.current = next; // Update ref for canvas
+        return next;
+      });
+      animationFrameId = requestAnimationFrame(animateBeam);
+    };
+    animateBeam();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [mousePos]);
+
+  // MATRIX RAIN CANVAS
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -96,41 +110,57 @@ const Landing = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    const chars = "01";
-    const fontSize = 16;
+    const chars = "ABCDEF0123456789";
+    const fontSize = 14;
     let columns = Math.floor(canvas.width / fontSize);
-    let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
+    let drops: number[] = [];
+    
+    // Initialize drops
+    for(let i=0; i<columns; i++) {
+        drops[i] = Math.random() * (canvas.height / fontSize);
+    }
 
     const draw = () => {
-      // Dark background with slight trail for smooth fade
-      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
+      // Clear with very transparent black to create trail effect
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.font = `bold ${fontSize}px 'JetBrains Mono'`;
-      const fadeSize = canvas.height * 0.25;
+      
+      const beamX = beamRef.current.x;
+      const beamY = beamRef.current.y + window.scrollY; // Adjust for scroll if canvas is fixed
+      const radius = 350; // Radius of flashlight
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // Vertical Edge Fading
-        let verticalOpacity = 1;
-        if (y < fadeSize) {
-          verticalOpacity = y / fadeSize;
-        } else if (y > canvas.height - fadeSize) {
-          verticalOpacity = (canvas.height - y) / fadeSize;
+        // Calculate distance to beam center
+        const dx = x - beamX;
+        const dy = y - (beamY - window.scrollY); // y is relative to viewport in fixed canvas
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        let alpha = 0;
+        if (dist < radius) {
+            // Opacity decreases as distance increases
+            alpha = 1 - (dist / radius);
+            // Ease it a bit
+            alpha = alpha * alpha * alpha; 
         }
-        verticalOpacity = Math.max(verticalOpacity, 0);
 
-        // Primary Color (Architecture Style) - #F43F5E (RGB: 244, 63, 94)
-        ctx.fillStyle = `rgba(244, 63, 94, ${verticalOpacity * 0.5})`;
-        ctx.fillText(char, x, y);
+        // Only draw if visible
+        if (alpha > 0.01) {
+            // White/Primary mix
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.fillText(char, x, y);
+        }
 
-        if (y > canvas.height && Math.random() > 0.98) {
+        // Randomly reset drop to top
+        if (y > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
         }
-        drops[i] += 0.85;
+        drops[i] += 0.85; // Fall speed
       }
       requestRef.current = requestAnimationFrame(draw);
     };
@@ -152,19 +182,27 @@ const Landing = () => {
 
   return (
     <PublicLayout>
-    <div className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white">
+    <div 
+      className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden"
+      onMouseMove={handleMouseMove}
+    >
       
       {/* GLOBAL MATRIX BACKGROUND SYSTEM */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
         <canvas ref={canvasRef} className="absolute inset-0" />
-        {/* Subtle Atmospheric Gradient */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.08),transparent_80%)]"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.9),transparent_20%,transparent_80%,rgba(0,0,0,0.9))]"></div>
+        
+        {/* Spotlight / Flashlight Glow Accents */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+           <div 
+             className="absolute w-[600px] h-[600px] bg-primary/10 blur-[150px] rounded-full will-change-transform"
+             style={{ transform: `translate3d(${beamPos.x - 300}px, ${beamPos.y - 300}px, 0)` }}
+           />
+        </div>
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-32 pb-40 px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center w-full">
+      <section className="relative z-10 pt-24 pb-32 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           
           <div className="lg:col-span-7 space-y-12 animate-fade-in-up">
             <div className="space-y-6">
@@ -177,28 +215,28 @@ const Landing = () => {
                 {content.hero.title}
               </h1>
               
-              <p className="text-zinc-400 text-lg md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
+              <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
                 {content.hero.subtitle}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-              <button onClick={login} className="w-full sm:w-auto px-12 py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.4)] hover:shadow-[0_0_60px_rgba(244,63,94,0.6)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+              <button onClick={login} className="w-full sm:w-auto px-12 py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
-              <Link to="/whitepaper" className="w-full sm:w-auto px-12 py-6 bg-zinc-900/60 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:bg-zinc-800 hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
+              <Link to="/whitepaper" className="w-full sm:w-auto px-12 py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
                 {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-3 gap-12 pt-12 border-t border-zinc-800/50 animate-fade-in opacity-0" style={{ animationDelay: '0.8s' }}>
+            <div className="grid grid-cols-3 gap-12 pt-12 border-t border-zinc-900/50 animate-fade-in opacity-0" style={{ animationDelay: '0.8s' }}>
               {[
                 { val: '40+', label: 'Regions' },
                 { val: '12ms', label: 'Latency' },
                 { val: '24k', label: 'Nodes' }
               ].map((stat, i) => (
-                <div key={i} className="group">
+                <div key={i} className="group cursor-default">
                   <p className="text-3xl md:text-5xl font-mono font-bold text-white tracking-tighter group-hover:text-primary transition-colors">{stat.val}</p>
                   <p className="text-[9px] font-black text-zinc-600 uppercase mt-2 tracking-widest">{stat.label}</p>
                 </div>
@@ -206,64 +244,65 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Institutional Terminal UI - IMPROVED & ANIMATED */}
+          {/* Institutional Terminal UI */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0" style={{ animationDelay: '0.5s' }}>
-             <div className="relative bg-zinc-950/95 backdrop-blur-2xl border border-zinc-800/80 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.7)] ring-1 ring-white/5 group hover:shadow-[0_50px_100px_-20px_rgba(244,63,94,0.1)] transition-shadow duration-500">
+             <div className="relative bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800 rounded-2xl overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
                 {/* OS Header */}
-                <div className="bg-zinc-900/90 px-5 py-4 flex items-center justify-between border-b border-zinc-800">
+                <div className="bg-zinc-900 px-5 py-4 flex items-center justify-between border-b border-zinc-800">
                    <div className="flex gap-2.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                      <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
-                      <div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500/50"></div>
+                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
+                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
+                      <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
                    </div>
-                   <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500 font-bold uppercase tracking-widest">
+                   <div className="flex items-center gap-2 text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-widest">
                       <TerminalIcon className="w-3 h-3" />
-                      <span>argus_daemon --v2.4</span>
+                      <span>Argus_OS_Terminal_v4.2</span>
                    </div>
-                   <div className="flex gap-3 opacity-50">
-                      <Minus className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
-                      <Maximize2 className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
-                      <X className="w-3 h-3 text-zinc-500 hover:text-white cursor-pointer" />
+                   <div className="flex gap-4">
+                      <Minus className="w-3 h-3 text-zinc-700" />
+                      <Maximize2 className="w-3 h-3 text-zinc-700" />
+                      <X className="w-3 h-3 text-zinc-700" />
                    </div>
                 </div>
 
                 {/* Status Bar */}
-                <div className="flex items-center gap-6 px-5 py-2.5 bg-black/40 border-b border-zinc-900 text-[9px] font-mono font-bold uppercase tracking-widest">
+                <div className="flex items-center gap-6 px-6 py-2 bg-zinc-900/30 border-b border-zinc-900 text-[8px] font-mono font-bold uppercase tracking-widest">
                    <div className="flex items-center gap-2">
                       <span className="text-zinc-600">CPU:</span>
-                      <span className="text-primary animate-pulse">{Math.floor(Math.random() * 20 + 5)}%</span>
+                      <span className="text-primary">{Math.floor(Math.random() * 20 + 5)}%</span>
                    </div>
                    <div className="flex items-center gap-2">
                       <span className="text-zinc-600">MEM:</span>
                       <span className="text-emerald-500">2.4GB</span>
                    </div>
                    <div className="ml-auto flex items-center gap-2 text-zinc-700">
-                      <span>ROOT: TRUE</span>
+                      <span>ROOT_ACCESS: GRANTED</span>
                    </div>
                 </div>
                 
                 {/* Log Feed */}
-                <div className="p-6 font-mono text-[11px] h-[380px] flex flex-col justify-start gap-3 overflow-hidden relative">
-                   {/* Scanline Overlay */}
-                   <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_3px] pointer-events-none z-10 animate-scanline opacity-30"></div>
-                   
+                <div className="p-8 font-mono text-[10px] h-[360px] flex flex-col justify-end gap-2.5 overflow-hidden">
                    {logs.map((log) => (
-                      <div key={log.id} className="flex items-start gap-3 animate-slide-in-bottom">
-                         <span className="text-zinc-700 shrink-0 select-none font-medium text-[9px] pt-0.5 opacity-60">[{log.time}]</span>
-                         <span className={`font-black shrink-0 w-12 ${
+                      <div key={log.id} className="flex items-start gap-4 animate-in slide-in-from-bottom-1 duration-300">
+                         <span className={`font-black shrink-0 ${
                             log.level === 'crit' ? 'text-primary' : 
-                            log.level === 'warn' ? 'text-amber-500' : 'text-emerald-500'
+                            log.level === 'warn' ? 'text-amber-500' : 'text-zinc-700'
                          }`}>
-                            {log.prefix}
+                            [{log.prefix}]
                          </span>
-                         <span className="text-zinc-400 flex-1 truncate font-medium">{log.msg}</span>
+                         <span className="text-zinc-500 flex-1">&gt; {log.msg}</span>
+                         <span className={`shrink-0 font-bold ${
+                            log.status === 'OK' || log.status === 'SUCCESS' ? 'text-emerald-500' : 
+                            log.status === 'PENDING' ? 'text-zinc-600' : 'text-primary'
+                         }`}>
+                            {log.status}
+                         </span>
                       </div>
                    ))}
-                   {/* Active Cursor Line at bottom */}
-                   <div className="mt-auto pt-4 border-t border-zinc-800/50 flex items-center gap-2">
-                      <span className="text-primary font-black text-lg leading-none">{'>'}</span>
-                      <span className="text-zinc-500 font-bold tracking-wider">awaiting_operator_signal</span>
-                      <div className="w-2 h-4 bg-primary animate-pulse"></div>
+                   <div className="flex items-center gap-3 pt-2 border-t border-zinc-900/50">
+                      <span className="text-primary font-black">[CMD]</span>
+                      <span className="text-zinc-300">sh run initialization_sequence</span>
+                      <div className="h-4 w-1.5 bg-primary animate-pulse ml-1"></div>
                    </div>
                 </div>
              </div>
@@ -274,12 +313,10 @@ const Landing = () => {
       {/* Partners Section with Hover Reveal */}
       <section className="relative z-10 py-32 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md">
          <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-[10px] font-black text-zinc-600 mb-16 uppercase tracking-[0.3em] animate-fade-in">{content.partners.title}</p>
-            <div className="flex flex-wrap justify-center gap-16 md:gap-32">
+            <p className="text-[10px] font-black text-zinc-600 mb-12 uppercase tracking-[0.3em] animate-fade-in">{content.partners.title}</p>
+            <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                {content.partners.items.map((name, i) => (
-                  <h3 key={i} className="text-xl md:text-2xl font-black text-zinc-800 hover:text-white uppercase tracking-tighter transition-all duration-500 cursor-default scale-100 hover:scale-110">
-                    {name.replace('_', ' ')}
-                  </h3>
+                  <h3 key={i} className="text-lg font-black text-white uppercase tracking-tighter">{name.replace('_', ' ')}</h3>
                ))}
             </div>
          </div>
@@ -299,14 +336,14 @@ const Landing = () => {
                     </p>
                  </div>
                  
-                 <div className="space-y-8">
+                 <div className="space-y-10">
                     {content.architecture.layers.map((layer, i) => (
-                       <div key={i} className="flex gap-8 group p-6 rounded-2xl hover:bg-zinc-900/30 transition-all border border-transparent hover:border-zinc-800/50">
-                          <div className="w-16 h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 group-hover:bg-primary/10 transition-all shadow-lg">
+                       <div key={i} className="flex gap-8 group">
+                          <div className="w-16 h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 transition-colors">
                              <Layers className="w-7 h-7 text-zinc-600 group-hover:text-primary transition-colors" />
                           </div>
                           <div>
-                             <h4 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">{layer.title}</h4>
+                             <h4 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{layer.title}</h4>
                              <p className="text-zinc-500 text-sm leading-relaxed">{layer.desc}</p>
                           </div>
                        </div>
@@ -316,22 +353,21 @@ const Landing = () => {
               
               <div className="relative animate-float">
                  <div className="absolute inset-0 bg-primary/10 blur-[150px] rounded-full"></div>
-                 <div className="relative border border-zinc-800 bg-zinc-950/80 backdrop-blur-xl rounded-[3rem] p-12 space-y-8 shadow-2xl">
-                    <div className="h-28 bg-primary/5 border border-primary/20 rounded-3xl flex items-center justify-center relative overflow-hidden">
-                       <div className="absolute inset-0 bg-primary/10 animate-pulse"></div>
-                       <span className="relative z-10 text-[11px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Compute_Sharding_Layer</span>
+                 <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
+                    <div className="h-24 bg-primary/5 border border-primary/20 rounded-2xl flex items-center justify-center">
+                       <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Compute_Sharding_Layer</span>
                     </div>
                     <div className="grid grid-cols-2 gap-6">
-                       <div className="h-48 bg-zinc-900/40 border border-zinc-800 rounded-3xl flex flex-col items-center justify-center gap-6 group hover:border-zinc-600 transition-colors">
-                          <Cpu className="w-8 h-8 text-zinc-600 group-hover:text-white transition-colors" />
+                       <div className="h-40 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col items-center justify-center gap-4 group hover:border-zinc-600 transition-colors">
+                          <Cpu className="w-6 h-6 text-zinc-600 group-hover:text-white transition-colors" />
                           <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Execution_Engine</span>
                        </div>
-                       <div className="h-48 bg-zinc-900/40 border border-zinc-800 rounded-3xl flex flex-col items-center justify-center gap-6 group hover:border-zinc-600 transition-colors">
-                          <Database className="w-8 h-8 text-zinc-600 group-hover:text-white transition-colors" />
+                       <div className="h-40 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col items-center justify-center gap-4 group hover:border-zinc-600 transition-colors">
+                          <Database className="w-6 h-6 text-zinc-600 group-hover:text-white transition-colors" />
                           <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Persistence_Core</span>
                        </div>
                     </div>
-                    <div className="h-24 bg-zinc-900/60 border border-zinc-800 rounded-3xl flex items-center justify-center">
+                    <div className="h-20 bg-zinc-900/60 border border-zinc-800 rounded-2xl flex items-center justify-center">
                        <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Consensus_Protocol_vRC1</span>
                     </div>
                  </div>
@@ -346,16 +382,16 @@ const Landing = () => {
            <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center">{content.faq.title}</h2>
            <div className="space-y-4">
               {content.faq.items.map((item, i) => (
-                 <div key={i} className="border border-zinc-900 bg-black/40 backdrop-blur-md rounded-2xl overflow-hidden hover:border-zinc-700 transition-colors">
+                 <div key={i} className="border border-zinc-900 bg-black/40 backdrop-blur-md rounded-xl overflow-hidden hover:border-zinc-700 transition-colors">
                     <button 
                        onClick={() => toggleFaq(i)}
-                       className="w-full flex items-center justify-between p-8 text-left hover:bg-zinc-900/20 transition-colors"
+                       className="w-full flex items-center justify-between p-6 text-left hover:bg-zinc-900/20 transition-colors"
                     >
-                       <span className="font-bold text-white text-sm uppercase tracking-wide pr-8">{item.q}</span>
-                       <Plus className={`w-5 h-5 text-zinc-500 transition-transform duration-300 ${openFaq === i ? 'rotate-45 text-primary' : ''}`} />
+                       <span className="font-bold text-white text-sm uppercase tracking-wide">{item.q}</span>
+                       <Plus className={`w-4 h-4 text-zinc-500 transition-transform ${openFaq === i ? 'rotate-45' : ''}`} />
                     </button>
-                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
-                       <div className="p-8 pt-0 text-zinc-500 text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
+                    <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                       <div className="p-6 pt-0 text-zinc-500 text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
                           {item.a}
                        </div>
                     </div>
@@ -385,10 +421,9 @@ const Landing = () => {
               </div>
               
               <div className="flex flex-col items-center gap-8 pt-6">
-                 <button onClick={login} className="h-28 px-24 bg-primary text-white text-[13px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_120px_rgba(244,63,94,0.8)] hover:-translate-y-2 active:translate-y-0 flex items-center gap-6 group relative overflow-hidden">
-                    <span className="relative z-10">{content.cta.buttonText}</span>
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500 relative z-10" />
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                 <button onClick={login} className="h-24 px-20 bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                    {content.cta.buttonText} 
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
                  </button>
               </div>
            </div>
