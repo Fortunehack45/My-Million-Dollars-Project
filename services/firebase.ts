@@ -7,7 +7,7 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
-  getFirestore, 
+  initializeFirestore,
   doc, 
   setDoc, 
   getDoc, 
@@ -46,7 +46,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Initialize Firestore with long polling to ensure connection stability
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true
+});
+
 export const rtdb = getDatabase(app);
 
 export const TOTAL_SUPPLY = 1000000000;
