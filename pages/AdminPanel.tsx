@@ -36,7 +36,11 @@ import {
   Edit3,
   Save,
   Layout,
-  FileCode
+  FileCode,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Plus
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -101,35 +105,50 @@ const AdminPanel = () => {
     }
   };
 
-  // Helper to update specific section key
+  // --- CMS Helper Functions ---
   const updateSection = (section: keyof LandingConfig, key: string, value: any) => {
     setLandingConfig(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: value
-      }
+      [section]: { ...prev[section], [key]: value }
     }));
   };
 
-  // Helper for deeply nested JSON edits (Roadmap, Features)
-  const updateComplexSection = (section: keyof LandingConfig, valueString: string) => {
-    try {
-      const parsed = JSON.parse(valueString);
-      setLandingConfig(prev => ({ ...prev, [section]: parsed }));
-      setCmsStatus(''); // Clear error
-    } catch (e) {
-      setCmsStatus('INVALID_JSON_SYNTAX');
-    }
+  // Helper to safely update arrays within sections
+  const updateArrayItem = (section: keyof LandingConfig, arrayName: string, index: number, field: string | null, value: any) => {
+    setLandingConfig(prev => {
+      const sectionData = { ...prev[section] };
+      const newArray = [...sectionData[arrayName]];
+      if (field) {
+        newArray[index] = { ...newArray[index], [field]: value };
+      } else {
+        newArray[index] = value; // Direct value update for simple arrays
+      }
+      return { ...prev, [section]: { ...sectionData, [arrayName]: newArray } };
+    });
   };
 
-  const onlineUsersList = useMemo(() => users.filter(u => onlineUids.includes(u.uid)), [users, onlineUids]);
+  const addArrayItem = (section: keyof LandingConfig, arrayName: string, initialItem: any) => {
+    setLandingConfig(prev => {
+      const sectionData = { ...prev[section] };
+      return { ...prev, [section]: { ...sectionData, [arrayName]: [...sectionData[arrayName], initialItem] } };
+    });
+  };
+
+  const removeArrayItem = (section: keyof LandingConfig, arrayName: string, index: number) => {
+    setLandingConfig(prev => {
+      const sectionData = { ...prev[section] };
+      const newArray = [...sectionData[arrayName]];
+      newArray.splice(index, 1);
+      return { ...prev, [section]: { ...sectionData, [arrayName]: newArray } };
+    });
+  };
+
   const activeMiningCount = useMemo(() => users.filter(u => u.miningActive).length, [users]);
 
   if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono">ACCESS DENIED</div>;
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
            <div className="w-12 h-12 bg-primary flex items-center justify-center rounded-xl shadow-[0_0_20px_rgba(244,63,94,0.2)]">
@@ -143,7 +162,6 @@ const AdminPanel = () => {
            </div>
         </div>
         
-        {/* Tab Switcher */}
         <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
            <button 
              onClick={() => setActiveTab('dashboard')}
@@ -162,7 +180,7 @@ const AdminPanel = () => {
 
       {/* DASHBOARD TAB */}
       {activeTab === 'dashboard' && (
-        <>
+        <div className="animate-in fade-in duration-300 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { label: 'Network Nodes', val: users.length, sub: 'Registered Entities', icon: Globe, color: 'text-zinc-400' },
@@ -217,151 +235,268 @@ const AdminPanel = () => {
                </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* CMS TAB */}
       {activeTab === 'cms' && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center justify-between bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800 sticky top-4 z-50 backdrop-blur-xl">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+          
+          {/* Sticky CMS Header */}
+          <div className="flex items-center justify-between bg-zinc-900/80 p-6 rounded-2xl border border-zinc-800 sticky top-4 z-50 backdrop-blur-xl shadow-2xl">
             <div className="flex items-center gap-3">
               <Layout className="w-5 h-5 text-zinc-400" />
               <div>
                 <h2 className="text-lg font-bold text-white">Landing Page CMS</h2>
-                <p className="text-[10px] text-zinc-500 font-mono">Manage public facing content</p>
+                <p className="text-[10px] text-zinc-500 font-mono">Real-time content modification</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className={`text-[10px] font-mono font-bold ${cmsStatus.includes('ERROR') || cmsStatus.includes('INVALID') ? 'text-red-500' : 'text-emerald-500'}`}>
+              <span className={`text-[10px] font-mono font-bold uppercase ${cmsStatus.includes('ERROR') ? 'text-red-500' : 'text-emerald-500'}`}>
                  {cmsStatus}
               </span>
-              <button onClick={handleSaveCMS} className="btn-primary flex items-center gap-2">
+              <button onClick={handleSaveCMS} className="btn-primary flex items-center gap-2 !py-2 !px-4">
                  <Save className="w-4 h-4" /> Save Changes
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Simple Text Sections */}
-            {['hero', 'cta', 'footer', 'partners'].map((sectionKey) => {
-               const section = landingConfig[sectionKey as keyof LandingConfig];
-               if (!section) return null;
-               
-               return (
-                 <div key={sectionKey} className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
-                    <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
-                       <h3 className="label-meta text-primary uppercase">{sectionKey} Section</h3>
-                       <div className="flex items-center gap-2">
-                          <label className="text-[9px] text-zinc-500 font-bold">VISIBLE</label>
-                          <input 
-                            type="checkbox" 
-                            checked={section.isVisible} 
-                            onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'isVisible', e.target.checked)}
-                            className="w-4 h-4 accent-primary bg-zinc-900" 
-                          />
-                       </div>
-                    </div>
-                    
-                    {/* Render fields dynamically based on key type */}
-                    {Object.keys(section).map(field => {
-                       if (field === 'isVisible' || typeof section[field] === 'object') return null;
-                       return (
-                         <div key={field} className="space-y-2">
-                            <label className="text-[9px] text-zinc-600 font-bold uppercase">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
-                            {field.includes('description') || field.includes('subtitle') ? (
-                              <textarea 
-                                value={section[field]} 
-                                onChange={(e) => updateSection(sectionKey as keyof LandingConfig, field, e.target.value)}
-                                className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono h-24 focus:border-primary/50 outline-none"
-                              />
-                            ) : (
-                              <input 
-                                value={section[field]} 
-                                onChange={(e) => updateSection(sectionKey as keyof LandingConfig, field, e.target.value)}
-                                className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono focus:border-primary/50 outline-none"
-                              />
-                            )}
-                         </div>
-                       )
-                    })}
-                    
-                    {/* Specific handling for Partners Array (Simple List) */}
-                    {sectionKey === 'partners' && (
-                       <div className="space-y-2">
-                          <label className="text-[9px] text-zinc-600 font-bold uppercase">PARTNER LIST (JSON ARRAY)</label>
-                          <textarea 
-                             defaultValue={JSON.stringify(section.items, null, 2)}
-                             onChange={(e) => updateComplexSection('partners', JSON.stringify({ ...section, items: JSON.parse(e.target.value || "[]") }))} 
-                             className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-[10px] font-mono h-32 text-zinc-400 focus:text-white"
-                          />
-                       </div>
-                    )}
-                 </div>
-               )
-            })}
+          <div className="grid grid-cols-1 gap-8">
+            
+            {/* HERO SECTION EDITOR */}
+            <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+               <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <h3 className="label-meta text-primary uppercase">Hero Section</h3>
+                  <div className="flex items-center gap-2">
+                     <label className="text-[9px] text-zinc-500 font-bold">VISIBLE</label>
+                     <input type="checkbox" checked={landingConfig.hero.isVisible} onChange={(e) => updateSection('hero', 'isVisible', e.target.checked)} className="accent-primary" />
+                  </div>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2 space-y-2">
+                     <label className="text-[9px] text-zinc-600 font-bold uppercase">Main Title</label>
+                     <input value={landingConfig.hero.title} onChange={(e) => updateSection('hero', 'title', e.target.value)} className="cms-input" />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                     <label className="text-[9px] text-zinc-600 font-bold uppercase">Subtitle</label>
+                     <textarea value={landingConfig.hero.subtitle} onChange={(e) => updateSection('hero', 'subtitle', e.target.value)} className="cms-input h-24" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] text-zinc-600 font-bold uppercase">CTA Primary</label>
+                     <input value={landingConfig.hero.ctaPrimary} onChange={(e) => updateSection('hero', 'ctaPrimary', e.target.value)} className="cms-input" />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] text-zinc-600 font-bold uppercase">CTA Secondary</label>
+                     <input value={landingConfig.hero.ctaSecondary} onChange={(e) => updateSection('hero', 'ctaSecondary', e.target.value)} className="cms-input" />
+                  </div>
+               </div>
+            </div>
 
-            {/* Complex JSON Sections (Roadmap, FAQ, Features) */}
-            {['roadmap', 'architecture', 'features', 'faq'].map((sectionKey) => {
-               const section = landingConfig[sectionKey as keyof LandingConfig];
-               return (
-                 <div key={sectionKey} className="surface p-8 rounded-3xl border-zinc-900 space-y-6 md:col-span-2">
-                    <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
-                       <div className="flex items-center gap-3">
-                          <FileCode className="w-4 h-4 text-zinc-600" />
-                          <h3 className="label-meta text-primary uppercase">{sectionKey} Configuration (JSON)</h3>
-                       </div>
-                       <div className="flex items-center gap-2">
-                          <label className="text-[9px] text-zinc-500 font-bold">VISIBLE</label>
-                          <input 
-                            type="checkbox" 
-                            checked={section.isVisible} 
-                            onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'isVisible', e.target.checked)}
-                            className="w-4 h-4 accent-primary bg-zinc-900" 
-                          />
-                       </div>
+            {/* PARTNERS EDITOR */}
+            <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+               <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <h3 className="label-meta text-primary uppercase">Partners / Investors</h3>
+                  <input type="checkbox" checked={landingConfig.partners.isVisible} onChange={(e) => updateSection('partners', 'isVisible', e.target.checked)} className="accent-primary" />
+               </div>
+               <div className="space-y-2">
+                  <label className="text-[9px] text-zinc-600 font-bold uppercase">Section Title</label>
+                  <input value={landingConfig.partners.title} onChange={(e) => updateSection('partners', 'title', e.target.value)} className="cms-input" />
+               </div>
+               <div className="space-y-3">
+                  <label className="text-[9px] text-zinc-600 font-bold uppercase">Partner Names (One per line)</label>
+                  {landingConfig.partners.items.map((item, idx) => (
+                    <div key={idx} className="flex gap-2">
+                       <input value={item} onChange={(e) => updateArrayItem('partners', 'items', idx, null, e.target.value)} className="cms-input" />
+                       <button onClick={() => removeArrayItem('partners', 'items', idx)} className="p-2 bg-zinc-900 rounded hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                       <div className="space-y-4">
-                          <div className="space-y-2">
-                             <label className="text-[9px] text-zinc-600 font-bold uppercase">TITLE</label>
-                             <input 
-                                value={section.title} 
-                                onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'title', e.target.value)}
-                                className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono"
-                             />
-                          </div>
-                          {section.description && (
-                            <div className="space-y-2">
-                               <label className="text-[9px] text-zinc-600 font-bold uppercase">DESCRIPTION</label>
-                               <textarea 
-                                  value={section.description} 
-                                  onChange={(e) => updateSection(sectionKey as keyof LandingConfig, 'description', e.target.value)}
-                                  className="w-full bg-zinc-950 border border-zinc-900 p-3 rounded-xl text-xs font-mono h-20"
-                               />
-                            </div>
-                          )}
-                       </div>
-                       
-                       <div className="space-y-2">
-                          <label className="text-[9px] text-zinc-600 font-bold uppercase">FULL CONFIGURATION OBJECT (Advanced)</label>
-                          <textarea 
-                             value={JSON.stringify(section, null, 2)}
-                             onChange={(e) => updateComplexSection(sectionKey as keyof LandingConfig, e.target.value)}
-                             className="w-full bg-zinc-950 border border-zinc-900 p-4 rounded-xl text-[10px] font-mono h-64 text-zinc-400 focus:text-white focus:border-primary transition-colors resize-y"
-                             spellCheck={false}
-                          />
-                          <p className="text-[9px] text-zinc-600 italic">
-                             Edit the JSON structure directly to modify nested items like layers, phases, or questions. Ensure syntax is valid.
-                          </p>
-                       </div>
-                    </div>
-                 </div>
-               )
-            })}
+                  ))}
+                  <button onClick={() => addArrayItem('partners', 'items', 'NEW_PARTNER')} className="text-xs flex items-center gap-2 text-primary hover:text-white transition-colors font-bold mt-2">
+                     <PlusCircle className="w-4 h-4" /> Add Partner
+                  </button>
+               </div>
+            </div>
+
+            {/* FEATURES EDITOR */}
+            <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+               <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <h3 className="label-meta text-primary uppercase">Core Features</h3>
+                  <input type="checkbox" checked={landingConfig.features.isVisible} onChange={(e) => updateSection('features', 'isVisible', e.target.checked)} className="accent-primary" />
+               </div>
+               <div className="space-y-4">
+                  <input value={landingConfig.features.title} onChange={(e) => updateSection('features', 'title', e.target.value)} className="cms-input" placeholder="Title" />
+                  <textarea value={landingConfig.features.description} onChange={(e) => updateSection('features', 'description', e.target.value)} className="cms-input h-16" placeholder="Description" />
+               </div>
+               <div className="space-y-4">
+                  <label className="text-[9px] text-zinc-600 font-bold uppercase block">Feature Cards</label>
+                  {landingConfig.features.items.map((item, idx) => (
+                     <div key={idx} className="p-4 bg-zinc-900/30 rounded-xl border border-zinc-900 space-y-3 relative group">
+                        <button onClick={() => removeArrayItem('features', 'items', idx)} className="absolute top-4 right-4 text-zinc-600 hover:text-red-500"><X className="w-4 h-4" /></button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <input value={item.title} onChange={(e) => updateArrayItem('features', 'items', idx, 'title', e.target.value)} className="cms-input" placeholder="Feature Title" />
+                           <select value={item.icon} onChange={(e) => updateArrayItem('features', 'items', idx, 'icon', e.target.value)} className="cms-input">
+                              <option value="Globe">Globe Icon</option>
+                              <option value="ShieldCheck">Shield Icon</option>
+                              <option value="Cpu">CPU Icon</option>
+                           </select>
+                           <div className="md:col-span-2">
+                              <textarea value={item.desc} onChange={(e) => updateArrayItem('features', 'items', idx, 'desc', e.target.value)} className="cms-input h-16" placeholder="Feature Description" />
+                           </div>
+                        </div>
+                     </div>
+                  ))}
+                  <button onClick={() => addArrayItem('features', 'items', { title: 'New Feature', desc: 'Description', icon: 'Cpu' })} className="btn-secondary w-full border-dashed">
+                     + Add Feature Card
+                  </button>
+               </div>
+            </div>
+
+            {/* ROADMAP EDITOR */}
+            <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+               <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <h3 className="label-meta text-primary uppercase">Roadmap Phases</h3>
+                  <input type="checkbox" checked={landingConfig.roadmap.isVisible} onChange={(e) => updateSection('roadmap', 'isVisible', e.target.checked)} className="accent-primary" />
+               </div>
+               <div className="space-y-4">
+                  <input value={landingConfig.roadmap.title} onChange={(e) => updateSection('roadmap', 'title', e.target.value)} className="cms-input" />
+                  <textarea value={landingConfig.roadmap.description} onChange={(e) => updateSection('roadmap', 'description', e.target.value)} className="cms-input h-16" />
+               </div>
+               <div className="space-y-4">
+                  {landingConfig.roadmap.phases.map((phase, idx) => (
+                     <div key={idx} className="p-6 bg-zinc-900/30 rounded-xl border border-zinc-900 space-y-4 relative">
+                        <div className="flex justify-between items-start">
+                           <span className="label-meta text-zinc-500">PHASE {idx + 1}</span>
+                           <button onClick={() => removeArrayItem('roadmap', 'phases', idx)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                           <input value={phase.phase} onChange={(e) => updateArrayItem('roadmap', 'phases', idx, 'phase', e.target.value)} className="cms-input" placeholder="01" />
+                           <input value={phase.period} onChange={(e) => updateArrayItem('roadmap', 'phases', idx, 'period', e.target.value)} className="cms-input" placeholder="Q1 2025" />
+                           <select value={phase.status} onChange={(e) => updateArrayItem('roadmap', 'phases', idx, 'status', e.target.value)} className="cms-input">
+                              <option value="LIVE">LIVE</option>
+                              <option value="UPCOMING">UPCOMING</option>
+                              <option value="LOCKED">LOCKED</option>
+                           </select>
+                           <div className="md:col-span-1"></div>
+                           <div className="col-span-2 md:col-span-4">
+                              <input value={phase.title} onChange={(e) => updateArrayItem('roadmap', 'phases', idx, 'title', e.target.value)} className="cms-input" placeholder="Phase Title" />
+                           </div>
+                           <div className="col-span-2 md:col-span-4">
+                              <textarea value={phase.desc} onChange={(e) => updateArrayItem('roadmap', 'phases', idx, 'desc', e.target.value)} className="cms-input h-16" placeholder="Phase Description" />
+                           </div>
+                        </div>
+                        <div className="space-y-2">
+                           <label className="text-[9px] text-zinc-600 font-bold uppercase">Features List (Comma Separated for UI simplicity in this view)</label>
+                           {/* Simplified editing for string array */}
+                           <textarea 
+                              value={phase.features.join('\n')} 
+                              onChange={(e) => updateArrayItem('roadmap', 'phases', idx, 'features', e.target.value.split('\n'))}
+                              className="cms-input h-24 font-mono text-xs"
+                              placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+                           />
+                        </div>
+                     </div>
+                  ))}
+                  <button onClick={() => addArrayItem('roadmap', 'phases', { phase: '0X', title: 'New Phase', period: 'TBD', status: 'LOCKED', desc: 'Description', features: [] })} className="btn-secondary w-full border-dashed">
+                     + Add Roadmap Phase
+                  </button>
+               </div>
+            </div>
+
+            {/* ARCHITECTURE EDITOR */}
+            <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+               <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <h3 className="label-meta text-primary uppercase">Architecture</h3>
+                  <input type="checkbox" checked={landingConfig.architecture.isVisible} onChange={(e) => updateSection('architecture', 'isVisible', e.target.checked)} className="accent-primary" />
+               </div>
+               <input value={landingConfig.architecture.title} onChange={(e) => updateSection('architecture', 'title', e.target.value)} className="cms-input" />
+               <textarea value={landingConfig.architecture.description} onChange={(e) => updateSection('architecture', 'description', e.target.value)} className="cms-input h-20" />
+               
+               <div className="space-y-3">
+                  <label className="text-[9px] text-zinc-600 font-bold uppercase">Layers</label>
+                  {landingConfig.architecture.layers.map((layer, idx) => (
+                     <div key={idx} className="flex gap-4 items-start">
+                        <div className="flex-1 space-y-2">
+                           <input value={layer.title} onChange={(e) => updateArrayItem('architecture', 'layers', idx, 'title', e.target.value)} className="cms-input" placeholder="Layer Title" />
+                           <input value={layer.desc} onChange={(e) => updateArrayItem('architecture', 'layers', idx, 'desc', e.target.value)} className="cms-input" placeholder="Layer Description" />
+                        </div>
+                        <button onClick={() => removeArrayItem('architecture', 'layers', idx)} className="p-2 mt-1 text-zinc-600 hover:text-red-500"><X className="w-4 h-4" /></button>
+                     </div>
+                  ))}
+                  <button onClick={() => addArrayItem('architecture', 'layers', { title: 'New Layer', desc: 'Description' })} className="text-xs text-primary font-bold flex items-center gap-2 mt-2">
+                     <Plus className="w-4 h-4" /> Add Layer
+                  </button>
+               </div>
+            </div>
+
+             {/* FAQ EDITOR */}
+             <div className="surface p-8 rounded-3xl border-zinc-900 space-y-6">
+               <div className="flex justify-between items-center border-b border-zinc-900 pb-4">
+                  <h3 className="label-meta text-primary uppercase">FAQ Section</h3>
+                  <input type="checkbox" checked={landingConfig.faq.isVisible} onChange={(e) => updateSection('faq', 'isVisible', e.target.checked)} className="accent-primary" />
+               </div>
+               <input value={landingConfig.faq.title} onChange={(e) => updateSection('faq', 'title', e.target.value)} className="cms-input" />
+               
+               <div className="space-y-4">
+                  {landingConfig.faq.items.map((item, idx) => (
+                     <div key={idx} className="p-4 bg-zinc-900/30 rounded-xl border border-zinc-900 space-y-3 relative">
+                        <button onClick={() => removeArrayItem('faq', 'items', idx)} className="absolute top-4 right-4 text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                        <div className="pr-10">
+                           <input value={item.q} onChange={(e) => updateArrayItem('faq', 'items', idx, 'q', e.target.value)} className="cms-input mb-2 font-bold" placeholder="Question" />
+                           <textarea value={item.a} onChange={(e) => updateArrayItem('faq', 'items', idx, 'a', e.target.value)} className="cms-input h-20 text-zinc-400" placeholder="Answer" />
+                        </div>
+                     </div>
+                  ))}
+                  <button onClick={() => addArrayItem('faq', 'items', { q: 'New Question?', a: 'Answer.' })} className="btn-secondary w-full border-dashed">
+                     + Add FAQ Item
+                  </button>
+               </div>
+            </div>
+
+             {/* CTA & FOOTER */}
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <div className="surface p-8 rounded-3xl border-zinc-900 space-y-4">
+                  <div className="flex justify-between border-b border-zinc-900 pb-4 mb-2">
+                     <h3 className="label-meta text-primary">CTA Section</h3>
+                     <input type="checkbox" checked={landingConfig.cta.isVisible} onChange={(e) => updateSection('cta', 'isVisible', e.target.checked)} className="accent-primary" />
+                  </div>
+                  <input value={landingConfig.cta.title} onChange={(e) => updateSection('cta', 'title', e.target.value)} className="cms-input" placeholder="Title" />
+                  <textarea value={landingConfig.cta.description} onChange={(e) => updateSection('cta', 'description', e.target.value)} className="cms-input h-24" placeholder="Description" />
+                  <input value={landingConfig.cta.buttonText} onChange={(e) => updateSection('cta', 'buttonText', e.target.value)} className="cms-input" placeholder="Button Text" />
+               </div>
+
+               <div className="surface p-8 rounded-3xl border-zinc-900 space-y-4">
+                  <div className="flex justify-between border-b border-zinc-900 pb-4 mb-2">
+                     <h3 className="label-meta text-primary">Footer</h3>
+                     <input type="checkbox" checked={landingConfig.footer.isVisible} onChange={(e) => updateSection('footer', 'isVisible', e.target.checked)} className="accent-primary" />
+                  </div>
+                  <input value={landingConfig.footer.title} onChange={(e) => updateSection('footer', 'title', e.target.value)} className="cms-input" placeholder="Brand Name" />
+                  <textarea value={landingConfig.footer.description} onChange={(e) => updateSection('footer', 'description', e.target.value)} className="cms-input h-24" placeholder="Footer Blurb" />
+                  <input value={landingConfig.footer.copyright} onChange={(e) => updateSection('footer', 'copyright', e.target.value)} className="cms-input" placeholder="Copyright Text" />
+               </div>
+             </div>
+
           </div>
         </div>
       )}
+
+      {/* Styles for CMS Inputs */}
+      <style>{`
+         .cms-input {
+            width: 100%;
+            background-color: #09090b;
+            border: 1px solid #27272a;
+            color: #f4f4f5;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+            transition: all 0.2s;
+         }
+         .cms-input:focus {
+            border-color: #f43f5e;
+            background-color: #0c0c0e;
+         }
+      `}</style>
     </div>
   );
 };
