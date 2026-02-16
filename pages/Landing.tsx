@@ -108,7 +108,7 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos]);
 
-  // PROFESSIONAL DISSOLVED SPOTLIGHT MATRIX EFFECT
+  // PROFESSIONAL DISSOLVED SPOTLIGHT MATRIX EFFECT (WHITE CHARACTERS)
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -128,13 +128,12 @@ const Landing = () => {
     let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
     const draw = () => {
-      // Trail effect: very dark to maintain absolute black background
-      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      // Deep black clearing with low trail for maximum contrast
+      ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.font = `bold ${fontSize}px JetBrains Mono`;
-      const fadeSize = canvas.height * 0.25; 
-      const lightRadius = 450; // Wide spotlight reveal
+      const lightRadius = 450; 
 
       const currentBeam = beamRef.current;
 
@@ -143,47 +142,27 @@ const Landing = () => {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // 1. Calculate vertical fade (Edges of screen)
-        let verticalOpacity = 1;
-        if (y < fadeSize) {
-          verticalOpacity = y / fadeSize;
-        } else if (y > canvas.height - fadeSize) {
-          verticalOpacity = (canvas.height - y) / fadeSize;
-        }
-        verticalOpacity = Math.max(verticalOpacity, 0);
-
-        // 2. Dissolved Spotlight Falloff
         const dx = x - currentBeam.x;
         const dy = y - currentBeam.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         let revealAlpha = 0;
         if (distance < lightRadius) {
-          // Use a smooth step-like curve with high power for "dissolved" edges
+          // Sharp exponential falloff for a "dissolved" reveal feel
           const normalizedDist = distance / lightRadius;
-          revealAlpha = Math.pow(1 - normalizedDist, 3); // High power = faster dropoff/sharper reveal center
+          revealAlpha = Math.pow(1 - normalizedDist, 3.8); 
         }
 
-        // Final composite alpha - Zero visibility outside the beam
-        const finalOpacity = revealAlpha * verticalOpacity;
-
-        if (finalOpacity > 0.005) {
-          // Color logic based on "heat" of the spotlight center
-          if (revealAlpha > 0.85) {
-            ctx.fillStyle = `rgba(255, 230, 235, ${finalOpacity})`; // White-rose core
-          } else if (revealAlpha > 0.5) {
-            ctx.fillStyle = `rgba(244, 63, 94, ${finalOpacity})`; // Brand rose
-          } else {
-            ctx.fillStyle = `rgba(136, 19, 55, ${finalOpacity})`; // Deep crimson edge
-          }
+        if (revealAlpha > 0.01) {
+          // Matrix rain is pure WHITE when illuminated by the spotlight
+          ctx.fillStyle = `rgba(255, 255, 255, ${revealAlpha})`;
           ctx.fillText(char, x, y);
         }
 
-        // Drop movement
-        if (y > canvas.height && Math.random() > 0.98) {
+        if (y > canvas.height && Math.random() > 0.985) {
           drops[i] = 0;
         }
-        drops[i] += 0.75;
+        drops[i] += 0.9;
       }
       requestRef.current = requestAnimationFrame(draw);
     };
@@ -218,6 +197,8 @@ const Landing = () => {
     return () => observer.disconnect();
   }, [content]);
 
+  const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
+
   if (!content) return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -232,45 +213,45 @@ const Landing = () => {
     >
       {/* THE DISSOLVED SPOTLIGHT SYSTEM */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
-        {/* Matrix Rain Reveal Canvas */}
+        {/* Matrix Rain Reveal Canvas (White Characters) */}
         <canvas ref={canvasRef} className="absolute inset-0" />
         
         {/* Dissolved Atmospheric Light Layers */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           {/* Hazy grain texture overlay for the beam */}
-           <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+           {/* Atmospheric Grain Overlay for the "Dissolved" feel */}
+           <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay pointer-events-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
            </div>
 
-           {/* Large outer dissolved haze */}
+           {/* Large outer atmospheric glow (Dissolved edges) */}
            <div 
-             className="absolute w-[900px] h-[900px] bg-primary/5 blur-[220px] rounded-full will-change-transform mix-blend-screen opacity-60"
-             style={{ transform: `translate3d(${beamPos.x - 450}px, ${beamPos.y - 450}px, 0)` }}
+             className="absolute w-[1200px] h-[1200px] bg-primary/5 blur-[300px] rounded-full will-change-transform mix-blend-screen opacity-40"
+             style={{ transform: `translate3d(${beamPos.x - 600}px, ${beamPos.y - 600}px, 0)` }}
            />
            
-           {/* Primary spotlight core (Dissolved edge) */}
+           {/* Primary Dissolved Spotlight Core */}
            <div 
-             className="absolute w-[400px] h-[400px] bg-gradient-to-r from-primary/20 via-primary/10 to-transparent blur-[100px] rounded-full will-change-transform mix-blend-plus-lighter"
+             className="absolute w-[600px] h-[600px] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent blur-[140px] rounded-full will-change-transform mix-blend-plus-lighter"
              style={{ 
-               transform: `translate3d(${beamPos.x - 200}px, ${beamPos.y - 200}px, 0)`,
+               transform: `translate3d(${beamPos.x - 300}px, ${beamPos.y - 300}px, 0)`,
                maskImage: 'radial-gradient(circle at center, black 0%, transparent 80%)',
                WebkitMaskImage: 'radial-gradient(circle at center, black 0%, transparent 80%)'
              }}
            />
 
-           {/* Focused center light point */}
+           {/* Focused White Center Point */}
            <div 
-             className="absolute w-[80px] h-[80px] bg-white/20 blur-[30px] rounded-full will-change-transform"
-             style={{ transform: `translate3d(${beamPos.x - 40}px, ${beamPos.y - 40}px, 0)` }}
+             className="absolute w-[120px] h-[120px] bg-white/10 blur-[50px] rounded-full will-change-transform"
+             style={{ transform: `translate3d(${beamPos.x - 60}px, ${beamPos.y - 60}px, 0)` }}
            />
 
-           {/* Subtle Light Ray dissolving effect */}
+           {/* Dissolved Light Ray (The Beam) */}
            <div 
-             className="absolute w-[2px] h-[200vh] bg-gradient-to-b from-primary/40 via-primary/5 to-transparent blur-[2px] opacity-20 origin-top animate-pulse-slow"
+             className="absolute w-[1.5px] h-[180vh] bg-gradient-to-b from-primary/30 via-primary/5 to-transparent blur-[4px] opacity-10 origin-top animate-pulse-slow"
              style={{ 
                left: `${beamPos.x}px`,
-               top: `${beamPos.y - 100}px`,
-               transform: `rotate(${Math.sin(Date.now() / 1000) * 2}deg)`
+               top: `${beamPos.y - 300}px`,
+               transform: `rotate(${Math.sin(Date.now() / 2500) * 1.2}deg)`
              }}
            />
         </div>
@@ -354,8 +335,8 @@ const Landing = () => {
       </div>
       )}
 
-      {/* Partners Section */}
-      <section className="relative z-10 py-32 border-t border-zinc-900/50 bg-black/10 backdrop-blur-[2px]">
+      {/* Content sections below with slight backdrop to catch the spotlight rain reveal */}
+      <section className="relative z-10 py-32 border-t border-zinc-900/50 bg-black/5 backdrop-blur-[1px]">
          <div className="max-w-7xl mx-auto px-6 text-center">
             <p className="label-meta text-zinc-600 mb-12">{content.partners.title}</p>
             <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
@@ -366,7 +347,6 @@ const Landing = () => {
          </div>
       </section>
 
-      {/* Architecture Section */}
       {content.architecture.isVisible && (
         <section className="py-32 px-6 max-w-7xl mx-auto relative z-10">
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
