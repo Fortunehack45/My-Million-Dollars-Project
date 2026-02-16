@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToLandingConfig } from '../services/firebase';
@@ -15,7 +16,8 @@ import {
   CheckCircle2,
   Plus,
   Database,
-  Loader2
+  Loader2,
+  Zap
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -547,36 +549,76 @@ const Landing = () => {
       )}
 
       {content.cta.isVisible && (
-        <section className="py-20 md:py-32 border-t border-zinc-900 relative overflow-hidden">
-           <div className="absolute inset-0 bg-primary/5"></div>
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none animate-pulse"></div>
+        <section className="py-24 md:py-48 border-t border-zinc-900 relative overflow-hidden group/cta">
+           {/* Background professional visual layers */}
+           <div className="absolute inset-0 bg-primary/[0.02]"></div>
+           
+           {/* Dynamic multi-layered pulse reactive to state */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-primary/10 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse-slow"></div>
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] md:w-[400px] h-[200px] md:h-[400px] bg-primary/20 blur-[60px] md:blur-[100px] rounded-full pointer-events-none animate-pulse opacity-50"></div>
+           
+           {/* Tech scanning line visual */}
+           <div className="absolute inset-0 pointer-events-none opacity-20">
+              <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent animate-scanline blur-[1px]"></div>
+           </div>
 
-           <div className="max-w-4xl mx-auto px-6 text-center relative z-10 space-y-8">
-              <h2 
-                data-id="cta-title"
-                className={`text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.9] transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-              >
-                 {content.cta.title}
-              </h2>
-              
-              <p 
-                data-id="cta-desc"
-                className={`text-zinc-500 text-base md:text-lg max-w-xl mx-auto transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                style={{ transitionDelay: '200ms' }}
-              >
-                 {content.cta.description}
-              </p>
+           <div className="max-w-5xl mx-auto px-6 text-center relative z-10 space-y-12">
+              <div className="space-y-6">
+                <div 
+                  data-id="cta-badge"
+                  className={`inline-flex items-center gap-3 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full transition-all duration-1000 ${visibleSections.has('cta-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                >
+                   <Zap className="w-3 h-3 text-primary animate-float" />
+                   <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Network_Access_Handshake</span>
+                </div>
+
+                <h2 
+                  data-id="cta-title"
+                  className={`text-4xl sm:text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.9] transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-title') ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'}`}
+                >
+                   {content.cta.title}
+                </h2>
+                
+                <p 
+                  data-id="cta-desc"
+                  className={`text-zinc-500 text-base md:text-xl max-w-2xl mx-auto leading-relaxed transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  style={{ transitionDelay: '200ms' }}
+                >
+                   {content.cta.description}
+                </p>
+              </div>
               
               <div 
                 data-id="cta-btn"
-                className={`flex justify-center gap-6 pt-8 transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-btn') ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
+                className={`flex flex-col items-center gap-6 pt-4 transition-all duration-1000 ease-out will-change-transform ${visibleSections.has('cta-btn') ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
                 style={{ transitionDelay: '400ms' }}
               >
-                 <button onClick={login} className="h-14 px-10 bg-primary text-white text-[13px] font-bold uppercase tracking-[0.1em] hover:bg-white hover:text-black transition-all duration-300 shadow-[0_10px_40px_rgba(244,63,94,0.2)] hover:shadow-[0_0_60px_rgba(244,63,94,0.6)] flex items-center gap-3 rounded group relative overflow-hidden">
-                    <span className="relative z-10 flex items-center gap-3">{content.cta.buttonText} <TerminalIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" /></span>
-                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                 <button 
+                  onClick={login} 
+                  className="h-16 px-12 bg-primary text-white text-sm font-black uppercase tracking-[0.2em] rounded-lg transition-all duration-500 shadow-[0_20px_60px_rgba(244,63,94,0.4)] hover:shadow-[0_0_80px_rgba(244,63,94,0.7)] hover:-translate-y-1 active:translate-y-0.5 flex items-center gap-4 group relative overflow-hidden"
+                 >
+                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10 flex items-center gap-4">
+                      {content.cta.buttonText} 
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
                  </button>
+                 
+                 <div className="flex items-center gap-4 text-[9px] font-mono text-zinc-600 uppercase tracking-widest">
+                    <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3" /> Encrypted Tunnel</span>
+                    <span className="text-zinc-800">•</span>
+                    <span className="flex items-center gap-1.5"><Activity className="w-3 h-3" /> Low Latency</span>
+                 </div>
               </div>
+           </div>
+
+           {/* Decorative corner elements */}
+           <div className="absolute bottom-10 left-10 hidden lg:block opacity-20">
+              <div className="w-32 h-32 border-l border-b border-primary/40"></div>
+           </div>
+           <div className="absolute top-10 right-10 hidden lg:block opacity-20">
+              <div className="w-32 h-32 border-r border-t border-primary/40"></div>
            </div>
         </section>
       )}
