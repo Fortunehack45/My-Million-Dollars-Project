@@ -1,3 +1,4 @@
+
 export interface User {
   uid: string;
   displayName: string | null;
@@ -52,6 +53,7 @@ export interface LandingSection {
 
 export interface LandingConfig {
   hero: LandingSection & { ctaPrimary: string; ctaSecondary: string };
+  socials: { twitter: string; discord: string; github: string };
   partners: LandingSection & { items: string[] };
   architecture: LandingSection & { layers: Array<{title: string, desc: string}> };
   features: LandingSection & { items: Array<{title: string, desc: string, icon: string}> };

@@ -580,11 +580,15 @@ const Landing = () => {
                        className="w-full flex items-center justify-between p-6 text-left hover:bg-zinc-900/20 transition-colors"
                     >
                        <span className="font-bold text-white text-sm uppercase tracking-wide pr-4">{item.q}</span>
-                       <Plus className={`w-4 h-4 text-zinc-500 transition-transform ${openFaq === i ? 'rotate-45' : ''} shrink-0`} />
+                       <Plus className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${openFaq === i ? 'rotate-45' : ''} shrink-0`} />
                     </button>
-                    <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                       <div className="p-6 pt-0 text-zinc-500 text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
-                          {item.a}
+                    <div 
+                       className={`grid transition-all duration-500 ease-in-out ${openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                    >
+                       <div className="overflow-hidden">
+                           <div className="p-6 pt-0 text-zinc-500 text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
+                              {item.a}
+                           </div>
                        </div>
                     </div>
                  </div>

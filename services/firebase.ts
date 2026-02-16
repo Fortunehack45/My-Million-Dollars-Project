@@ -1,3 +1,4 @@
+
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -75,6 +76,11 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     subtitle: "We are the high-speed rail for the multi-chain economy. Provide the most resilient, automated, and high-throughput backbone for DeFi and RWA tokenization.",
     ctaPrimary: "Deploy Validator Node",
     ctaSecondary: "Read Whitepaper"
+  },
+  socials: {
+    twitter: "https://twitter.com/ArgusProtocol",
+    discord: "https://discord.gg/argus",
+    github: "https://github.com/argus-labs"
   },
   partners: {
     isVisible: true,

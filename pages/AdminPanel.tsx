@@ -27,7 +27,8 @@ import {
   Users, PlusCircle, Database, ShieldAlert, Cpu, 
   Radio, Trash2, Globe, Layout, Save, X, Plus, 
   BookOpen, FileText, Info, Zap, Activity,
-  Layers, List, AlignLeft, CheckCircle2, Shield, MapPin, MousePointer, HelpCircle
+  Layers, List, AlignLeft, CheckCircle2, Shield, MapPin, MousePointer, HelpCircle,
+  Share2
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -141,6 +142,17 @@ const AdminPanel = () => {
   const handleLandingUpdate = (section: keyof LandingConfig, key: string, value: any) => {
     setLandingConfig(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
     setHasUnsavedChanges(true);
+  };
+  
+  const handleSocialUpdate = (key: string, value: string) => {
+      setLandingConfig(prev => ({ 
+          ...prev, 
+          socials: { 
+              ...(prev.socials || DEFAULT_LANDING_CONFIG.socials), 
+              [key]: value 
+          } 
+      }));
+      setHasUnsavedChanges(true);
   };
 
   const handleAboutUpdate = (key: keyof AboutConfig, value: any) => {
@@ -267,7 +279,7 @@ const AdminPanel = () => {
               <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1">
                  {['hero', 'partners', 'architecture', 'features', 'roadmap', 'faq', 'cta', 'footer'].map(sec => (
                    <button key={sec} onClick={() => setActiveLandingSection(sec)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeLandingSection === sec ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:bg-zinc-900'}`}>
-                     <div className={`w-1.5 h-1.5 rounded-full ${landingConfig[sec as keyof LandingConfig]?.isVisible ? 'bg-emerald-500' : 'bg-zinc-700'}`}></div>
+                     <div className={`w-1.5 h-1.5 rounded-full ${(landingConfig[sec as keyof LandingConfig] as any)?.isVisible ? 'bg-emerald-500' : 'bg-zinc-700'}`}></div>
                      <span className="text-[10px] font-bold uppercase tracking-widest">{sec}</span>
                    </button>
                  ))}
@@ -402,6 +414,15 @@ const AdminPanel = () => {
                       <InputGroup label="Copyright Text" value={landingConfig.footer?.copyright ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'copyright', v)} />
                       <InputGroup label="Footer Title" value={landingConfig.footer?.title ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'title', v)} className="mt-4" />
                       <InputGroup label="Footer Description" type="textarea" value={landingConfig.footer?.description ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'description', v)} className="mt-2" />
+                      
+                      <div className="mt-8 pt-8 border-t border-zinc-900">
+                          <SectionHeader title="Social Links" icon={Share2} />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <InputGroup label="Twitter / X URL" value={landingConfig.socials?.twitter ?? ''} onChange={(v: string) => handleSocialUpdate('twitter', v)} />
+                              <InputGroup label="Discord URL" value={landingConfig.socials?.discord ?? ''} onChange={(v: string) => handleSocialUpdate('discord', v)} />
+                              <InputGroup label="GitHub URL" value={landingConfig.socials?.github ?? ''} onChange={(v: string) => handleSocialUpdate('github', v)} />
+                          </div>
+                      </div>
                    </>
                 )}
               </div>
