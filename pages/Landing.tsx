@@ -13,14 +13,16 @@ import {
   Database,
   Loader2,
   Zap,
-  Maximize2,
-  Minus,
-  X,
-  Plus,
   ShieldCheck,
   Globe,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  Activity,
+  HardDrive,
+  Lock,
+  Wifi,
+  BarChart3,
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -77,7 +79,7 @@ const Landing = () => {
   const beamRef = useRef({ x: 0, y: 0 });
   
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
-  const [memoryState, setMemoryState] = useState<number[]>(new Array(64).fill(0));
+  const [memoryState, setMemoryState] = useState<number[]>(new Array(48).fill(0));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(null);
 
@@ -85,12 +87,10 @@ const Landing = () => {
   useEffect(() => {
     const updateInitialPos = () => {
        const isDesktop = window.innerWidth >= 1024;
-       // Approximate location of the CPU Stats (red arrow target)
-       const x = isDesktop ? window.innerWidth * 0.72 : window.innerWidth * 0.5;
-       const y = isDesktop ? window.innerHeight * 0.42 : window.innerHeight * 0.6;
+       const x = isDesktop ? window.innerWidth * 0.75 : window.innerWidth * 0.5;
+       const y = isDesktop ? window.innerHeight * 0.45 : window.innerHeight * 0.6;
        
        setInitialTerminalPos({ x, y });
-       // Only set beam pos if user hasn't interacted yet to avoid jumping
        if (!hasInteracted) {
          setBeamPos({ x, y });
          beamRef.current = { x, y };
@@ -106,54 +106,50 @@ const Landing = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setMemoryState(prev => prev.map((val) => {
-         // Randomly change state: 0 (idle), 1 (active-green), 2 (locked-red), 3 (flash-white)
-         if (Math.random() > 0.98) return 3; // flash
-         if (Math.random() > 0.95) return Math.floor(Math.random() * 3); // change state
-         if (val === 3) return 1; // decay flash to active
+         if (Math.random() > 0.98) return 3; 
+         if (Math.random() > 0.95) return Math.floor(Math.random() * 3); 
+         if (val === 3) return 1; 
          return val;
       }));
-    }, 100);
+    }, 150);
     return () => clearInterval(interval);
   }, []);
 
   // Terminal Logs Simulation
   useEffect(() => {
     setLogs([
-       { id: 1, prefix: "SYS", msg: "KERNEL_INIT_SUCCESS [0x1A2B3C]", status: "OK", level: 'info' },
-       { id: 2, prefix: "NET", msg: "ESTABLISHING_TLS_TUNNEL [0x4D5E6F]", status: "PENDING", level: 'warn' },
-       { id: 3, prefix: "SEC", msg: "SHIELD_PROTOCOL_ACTIVE [0x7G8H9I]", status: "SECURE", level: 'info' },
+       { id: 1, prefix: "SYS", msg: "KERNEL_BOOT [0x1A2B3C]", status: "OK", level: 'info' },
+       { id: 2, prefix: "NET", msg: "TUNNEL_ESTABLISHED", status: "SYNCED", level: 'info' },
+       { id: 3, prefix: "SEC", msg: "SHIELD_ENABLED", status: "ACTIVE", level: 'info' },
     ]);
-    const verbs = ["ALLOCATING", "HASHING", "SYNCING", "VERIFYING", "CONNECTING", "BROADCASTING", "COMPRESSING", "INDEXING"];
-    const nouns = ["BLOCK_HEADER", "MEMPOOL_BUFFER", "PEER_NODE", "DAG_TOPOLOGY", "SHARDED_STATE", "ZK_PROOF", "EXECUTION_LAYER"];
+    const verbs = ["ALLOCATING", "HASHING", "SYNCING", "VERIFYING", "ENCRYPTING", "BROADCASTING", "SIGNING", "INDEXING"];
+    const nouns = ["BLOCK_H", "MEMPOOL", "PEER_ID", "DAG_STATE", "ZK_PROOF", "SHARD_L", "VAL_SIG"];
     
     const interval = setInterval(() => {
       setLogs(prev => {
         const id = Date.now();
         const verb = verbs[Math.floor(Math.random() * verbs.length)];
         const noun = nouns[Math.floor(Math.random() * nouns.length)];
-        const hash = "0x" + Math.random().toString(16).substr(2, 6).toUpperCase();
-        const isCrit = Math.random() > 0.85;
+        const hash = "0x" + Math.random().toString(16).substr(2, 4).toUpperCase();
+        const isCrit = Math.random() > 0.92;
         const newLog: { id: number; prefix: string; msg: string; status: string; level: 'info' | 'warn' | 'crit' } = { 
           id, 
-          prefix: isCrit ? "CRIT" : "PROC", 
+          prefix: isCrit ? "ERR!" : "PROC", 
           msg: `${verb}_${noun} [${hash}]`, 
-          status: isCrit ? "RETRIEVING" : "SUCCESS",
+          status: isCrit ? "RETRY" : "OK",
           level: isCrit ? 'crit' : 'info'
         };
-        const newLogs = [...prev, newLog];
-        return newLogs.slice(-8); // Reduced log count to make space for top dashboard
+        return [...prev.slice(-9), newLog]; 
       });
-    }, 600);
+    }, 800);
     return () => clearInterval(interval);
   }, []);
 
-  // Handle Mouse Move for Flashlight Effect
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
     if (!hasInteracted) setHasInteracted(true);
   }, [hasInteracted]);
 
-  // Smooth Beam Interpolation
   useEffect(() => {
     let animationFrameId: number;
     const animateBeam = () => {
@@ -192,7 +188,6 @@ const Landing = () => {
     let columns = Math.floor(canvas.width / fontSize);
     let drops: number[] = [];
     
-    // Initialize drops
     for(let i=0; i<columns; i++) {
         drops[i] = Math.random() * (canvas.height / fontSize);
     }
@@ -256,7 +251,7 @@ const Landing = () => {
       onMouseMove={handleMouseMove}
     >
       
-      {/* GLOBAL MATRIX BACKGROUND SYSTEM */}
+      {/* MATRIX BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
         <canvas ref={canvasRef} className="absolute inset-0" />
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -268,7 +263,7 @@ const Landing = () => {
       </div>
 
       {/* Hero Section */}
-      <section id="hero" className="relative z-10 pt-32 pb-32 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
+      <section id="hero" className="relative z-10 pt-32 pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center w-full">
           
           <div className="lg:col-span-7 space-y-12 animate-fade-in-up">
@@ -278,7 +273,7 @@ const Landing = () => {
                  <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
+              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-7xl xl:text-9xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
                 {content.hero.title}
               </h1>
               
@@ -288,139 +283,155 @@ const Landing = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-              <button onClick={login} className="w-full sm:w-auto px-8 md:px-12 py-5 md:py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+              <button onClick={login} className="w-full sm:w-auto px-10 py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
-              <Link to="/whitepaper" className="w-full sm:w-auto px-8 md:px-12 py-5 md:py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
+              <Link to="/whitepaper" className="w-full sm:w-auto px-10 py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
                 {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
               </Link>
             </div>
-
-            <div className="grid grid-cols-3 gap-6 pt-12 border-t border-zinc-900/50 animate-fade-in opacity-0" style={{ animationDelay: '0.8s' }}>
-              {[
-                { val: '40+', label: 'Regions' },
-                { val: '12ms', label: 'Latency' },
-                { val: '24k', label: 'Nodes' }
-              ].map((stat, i) => (
-                <div key={i} className="group cursor-default">
-                  <p className="text-2xl md:text-5xl font-mono font-bold text-white tracking-tighter group-hover:text-primary transition-colors">{stat.val}</p>
-                  <p className="text-[9px] font-black text-zinc-600 uppercase mt-2 tracking-widest">{stat.label}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
-          {/* Institutional Terminal UI */}
+          {/* REDESIGNED TERMINAL UI */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block" style={{ animationDelay: '0.5s' }}>
-             <div className="relative bg-zinc-950/90 backdrop-blur-xl border border-zinc-800 rounded-lg overflow-hidden shadow-2xl font-mono text-[10px] leading-relaxed">
-                <div className="bg-zinc-900/80 px-4 py-2 flex items-center justify-between border-b border-zinc-800">
-                   <div className="flex gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-500/80 hover:bg-red-500 transition-colors"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors"></div>
+             <div className="relative bg-black/90 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8),0_0_50px_rgba(244,63,94,0.05)] font-mono text-[10px] ring-1 ring-white/5">
+                
+                {/* WINDOW DECORATION */}
+                <div className="bg-zinc-900/90 px-5 py-3 flex items-center justify-between border-b border-white/5 backdrop-blur-xl">
+                   <div className="flex gap-2.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/40"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/30 border border-yellow-500/40"></div>
+                      <div className="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-500/40"></div>
                    </div>
-                   <div className="flex items-center gap-2 text-zinc-500 font-bold tracking-widest opacity-80">
-                      <TerminalIcon className="w-3 h-3" />
-                      ARGUS_OS_TERMINAL_v4.2
+                   <div className="flex items-center gap-2 text-zinc-400 font-bold tracking-[0.3em] text-[8px] uppercase">
+                      <ShieldCheck className="w-3 h-3 text-primary" />
+                      ARGUS_OS_X1
                    </div>
-                   <div className="w-10"></div>
+                   <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded">
+                         <div className="w-1 h-1 bg-emerald-500 animate-pulse rounded-full"></div>
+                         <span className="text-[7px] text-emerald-500 font-black">ROOT_ACCESS</span>
+                      </div>
+                   </div>
                 </div>
 
-                <div className="flex items-center gap-8 px-4 py-2 bg-black/40 border-b border-zinc-900 text-[9px] font-bold tracking-wider">
+                {/* TELEMETRY BAR */}
+                <div className="flex items-center gap-8 px-6 py-3 bg-white/[0.02] border-b border-white/5 text-[8px] font-bold tracking-widest text-zinc-500 uppercase">
                    <div className="flex items-center gap-2">
-                      <span className="text-zinc-600">CPU:</span>
-                      <span className="text-red-500 animate-pulse">12%</span>
+                      <Cpu className="w-3 h-3 text-primary" />
+                      <span className="text-white/80">CPU_L: <span className="text-primary">12.4%</span></span>
                    </div>
                    <div className="flex items-center gap-2">
-                      <span className="text-zinc-600">MEM:</span>
-                      <span className="text-emerald-500">2.4GB</span>
+                      <Database className="w-3 h-3 text-zinc-600" />
+                      <span>MEM_U: <span className="text-white/60">2.4GB</span></span>
                    </div>
-                   <div className="ml-auto flex items-center gap-2 text-zinc-600">
-                      <span>ROOT_ACCESS: GRANTED</span>
+                   <div className="flex items-center gap-2">
+                      <Wifi className="w-3 h-3 text-zinc-600" />
+                      <span>PING: <span className="text-emerald-500">14MS</span></span>
                    </div>
                 </div>
                 
-                <div className="p-5 h-[450px] flex flex-col justify-between relative overflow-hidden bg-black/20">
-                   <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20"></div>
+                <div className="flex h-[480px] relative">
+                   {/* SCANLINE EFFECT */}
+                   <div className="absolute inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_3px,3px_100%] opacity-20"></div>
+                   <div className="absolute inset-0 bg-primary/5 pointer-events-none mix-blend-overlay"></div>
 
-                   {/* UPPER SYSTEM DASHBOARD */}
-                   <div className="grid grid-cols-2 gap-4 h-32 mb-4 relative z-0">
-                      {/* Memory Map Visualizer */}
-                      <div className="border border-zinc-800/50 bg-zinc-900/10 rounded p-3 flex flex-col">
-                          <div className="flex justify-between items-center text-[8px] text-zinc-500 mb-2 uppercase tracking-wider border-b border-zinc-800/50 pb-1">
-                              <span>HEAP_ALLOCATION_TABLE</span>
-                              <span className="text-primary animate-pulse">LIVE</span>
-                          </div>
-                          <div className="flex-1 grid grid-cols-8 gap-1 content-start">
-                               {memoryState.map((status, i) => (
-                                   <div 
-                                      key={i} 
-                                      className={`h-1.5 w-full rounded-[1px] transition-colors duration-300 ${
-                                          status === 3 ? 'bg-white shadow-[0_0_5px_white]' : 
-                                          status === 2 ? 'bg-primary/80' : 
-                                          status === 1 ? 'bg-emerald-500/60' : 
-                                          'bg-zinc-800/30'
-                                      }`} 
-                                   />
-                               ))}
-                          </div>
-                      </div>
-
-                      {/* Daemon Process Monitor */}
-                      <div className="border border-zinc-800/50 bg-zinc-900/10 rounded p-3 flex flex-col">
-                           <div className="flex justify-between items-center text-[8px] text-zinc-500 mb-2 uppercase tracking-wider border-b border-zinc-800/50 pb-1">
-                              <span>ACTIVE_DAEMONS</span>
-                              <span>PID</span>
-                          </div>
-                          <div className="space-y-1.5 overflow-hidden text-[9px] font-mono">
-                              <div className="flex justify-between items-center">
-                                  <span className="text-zinc-300">argus_core</span>
-                                  <span className="text-emerald-500">8022</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                  <span className="text-zinc-300">net_listener</span>
-                                  <span className="text-emerald-500">8023</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                  <span className="text-zinc-300">mempool_sync</span>
-                                  <span className="text-amber-500 animate-pulse">8041</span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                  <span className="text-zinc-400">zk_prover</span>
-                                  <span className="text-zinc-600">SLEEP</span>
-                              </div>
-                          </div>
-                      </div>
-                   </div>
-
-                   {/* LOWER LOGS */}
-                   <div className="flex-1 flex flex-col justify-end space-y-1 relative z-0 min-h-0">
-                     {logs.map((log) => (
-                        <div key={log.id} className="grid grid-cols-[45px_1fr_60px] gap-3 items-baseline animate-slide-in-bottom">
-                           <span className={`font-bold ${
-                              log.level === 'crit' ? 'text-red-500' : 
-                              log.level === 'warn' ? 'text-amber-500' : 'text-zinc-600'
-                           }`}>
-                              [{log.prefix}]
-                           </span>
-                           <span className="text-zinc-400 truncate">
-                              &gt; {log.msg}
-                           </span>
-                           <span className={`text-right font-bold ${
-                              log.status === 'SUCCESS' || log.status === 'OK' || log.status === 'SECURE' ? 'text-emerald-500' : 
-                              log.level === 'crit' ? 'text-red-500' : 'text-amber-500'
-                           }`}>
-                              {log.status}
-                           </span>
+                   {/* TERMINAL SIDEBAR */}
+                   <div className="w-20 border-r border-white/5 flex flex-col items-center py-6 gap-8 bg-white/[0.01]">
+                      {[
+                        { icon: Activity, label: 'PROC' },
+                        { icon: BarChart3, label: 'STAT' },
+                        { icon: Lock, label: 'SEC' },
+                        { icon: HardDrive, label: 'DISK' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex flex-col items-center gap-1.5 group cursor-pointer">
+                           <item.icon className={`w-4 h-4 transition-colors ${i === 0 ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
+                           <span className={`text-[6px] font-black tracking-widest transition-colors ${i === 0 ? 'text-white' : 'text-zinc-700 group-hover:text-zinc-500'}`}>{item.label}</span>
                         </div>
-                     ))}
+                      ))}
+                      <div className="mt-auto mb-2 flex flex-col gap-1">
+                         <div className="w-1 h-4 bg-primary/20 rounded-full"></div>
+                         <div className="w-1 h-8 bg-primary rounded-full"></div>
+                         <div className="w-1 h-2 bg-primary/40 rounded-full"></div>
+                      </div>
                    </div>
-                   
-                   <div className="grid grid-cols-[45px_1fr] gap-3 items-center mt-3 pt-3 border-t border-zinc-800/50 z-0">
-                      <span className="text-primary font-bold">[CMD]</span>
-                      <div className="flex items-center text-zinc-200">
-                         sh run initialization_sequence<div className="h-4 w-2 bg-primary ml-1 animate-pulse"></div>
+
+                   {/* MAIN TERMINAL AREA */}
+                   <div className="flex-1 flex flex-col p-6 min-w-0">
+                      <div className="flex-1 flex flex-col gap-5 min-h-0">
+                         {/* TOP DASHBOARD CARDS */}
+                         <div className="grid grid-cols-2 gap-4 h-32 shrink-0">
+                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col">
+                               <div className="flex justify-between items-center text-[7px] text-zinc-500 mb-3 tracking-widest border-b border-white/5 pb-2">
+                                  <span>VM_MEMORY_HEAP</span>
+                                  <span className="text-primary animate-pulse">MONITORING</span>
+                               </div>
+                               <div className="flex-1 grid grid-cols-8 gap-1">
+                                  {memoryState.map((status, i) => (
+                                     <div 
+                                        key={i} 
+                                        className={`h-1.5 rounded-[1px] transition-all duration-500 ${
+                                          status === 3 ? 'bg-white shadow-[0_0_10px_white] scale-110' : 
+                                          status === 2 ? 'bg-primary/60' : 
+                                          status === 1 ? 'bg-emerald-500/40' : 
+                                          'bg-white/[0.05]'
+                                        }`} 
+                                     />
+                                  ))}
+                               </div>
+                            </div>
+                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col">
+                               <div className="flex justify-between items-center text-[7px] text-zinc-500 mb-3 tracking-widest border-b border-white/5 pb-2">
+                                  <span>ACTIVE_NODES</span>
+                                  <span>REGION</span>
+                               </div>
+                               <div className="space-y-1.5 overflow-hidden font-mono">
+                                  <div className="flex justify-between items-center text-[8px]">
+                                     <span className="text-zinc-500">us-east-alpha</span>
+                                     <span className="text-emerald-500 font-black">STABLE</span>
+                                  </div>
+                                  <div className="flex justify-between items-center text-[8px]">
+                                     <span className="text-zinc-500">eu-central-v2</span>
+                                     <span className="text-emerald-500 font-black">STABLE</span>
+                                  </div>
+                                  <div className="flex justify-between items-center text-[8px]">
+                                     <span className="text-zinc-500">ap-sh-compute</span>
+                                     <span className="text-primary animate-pulse font-black">OVERLOAD</span>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+
+                         {/* CONSOLE OUTPUT */}
+                         <div className="flex-1 flex flex-col justify-end space-y-1.5 min-h-0 overflow-hidden">
+                            {logs.map((log) => (
+                               <div key={log.id} className="grid grid-cols-[40px_1fr_45px] gap-4 items-baseline text-[9px]">
+                                  <span className={`font-black tracking-tighter ${
+                                     log.level === 'crit' ? 'text-red-500' : 
+                                     log.level === 'warn' ? 'text-amber-500' : 'text-zinc-600'
+                                  }`}>
+                                     [{log.prefix}]
+                                  </span>
+                                  <span className="text-zinc-400 truncate tracking-tight">
+                                     &gt; {log.msg}
+                                  </span>
+                                  <span className={`text-right font-black ${
+                                     log.status === 'SYNCED' || log.status === 'OK' || log.status === 'ACTIVE' ? 'text-emerald-500' : 'text-primary'
+                                  }`}>
+                                     {log.status}
+                                  </span>
+                               </div>
+                            ))}
+                         </div>
+
+                         {/* COMMAND INPUT SIM */}
+                         <div className="pt-4 border-t border-white/5 flex items-center gap-3">
+                            <span className="text-primary font-black tracking-tighter">[SYS@ARGUS]</span>
+                            <div className="flex items-center text-zinc-300 font-bold tracking-tight">
+                               sh run handshake_sequence --verify<div className="h-4 w-1.5 bg-primary ml-1.5 animate-pulse"></div>
+                            </div>
+                         </div>
                       </div>
                    </div>
                 </div>
@@ -528,18 +539,15 @@ const Landing = () => {
             </div>
 
             <div className="relative">
-               {/* Vertical Line */}
                <div className={`absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-zinc-800 md:-translate-x-1/2 ml-4 md:ml-0 transition-all duration-1000 delay-300 ${visibleSections.has('roadmap') ? 'opacity-100 h-full' : 'opacity-0 h-0'}`}></div>
 
                <div className="space-y-12 md:space-y-24">
                   {content.roadmap.phases.map((phase, i) => (
                      <div key={i} style={{ transitionDelay: `${i * 200}ms` }} className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                        {/* Dot */}
                         <div className={`absolute left-0 md:left-1/2 w-9 h-9 bg-zinc-950 border-4 ${phase.status === 'LIVE' ? 'border-primary' : 'border-zinc-800'} rounded-full ml-[0.5px] md:-translate-x-1/2 flex items-center justify-center z-10`}>
                            {phase.status === 'LIVE' && <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse"></div>}
                         </div>
 
-                        {/* Content */}
                         <div className={`pl-16 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-16 md:text-right' : 'md:pl-16 md:text-left'}`}>
                            <div className="space-y-4">
                               <div className={`flex flex-col ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'}`}>
