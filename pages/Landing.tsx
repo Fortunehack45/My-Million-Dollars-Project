@@ -16,14 +16,31 @@ import {
   Maximize2,
   Minus,
   X,
-  Plus
+  Plus,
+  ShieldCheck,
+  Globe,
+  MapPin,
+  CheckCircle2
 } from 'lucide-react';
 import { Link } from 'react-router';
+
+// Icon mapping for dynamic content
+const IconMap: Record<string, any> = {
+  'ShieldCheck': ShieldCheck,
+  'Cpu': Cpu,
+  'Globe': Globe,
+  'Zap': Zap,
+  'Database': Database,
+  'Layers': Layers,
+  'MapPin': MapPin,
+  'CheckCircle2': CheckCircle2
+};
 
 const Landing = () => {
   const { login } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [content, setContent] = useState<LandingConfig | null>(null);
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const unsubscribe = subscribeToLandingConfig((newConfig) => {
@@ -31,6 +48,27 @@ const Landing = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleSections((prev) => new Set(prev).add(entry.target.id));
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    const sections = document.querySelectorAll('section');
+    sections.forEach((section) => {
+      if (section.id) observer.observe(section);
+    });
+
+    return () => observer.disconnect();
+  }, [content]);
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [beamPos, setBeamPos] = useState({ x: 500, y: 500 });
@@ -65,7 +103,6 @@ const Landing = () => {
           level: isCrit ? 'crit' : 'info'
         };
         const newLogs = [...prev, newLog];
-        // Keep logs list manageable, fill from bottom up visual style means we just keep the last N
         return newLogs.slice(-10);
       });
     }, 700);
@@ -121,46 +158,38 @@ const Landing = () => {
     }
 
     const draw = () => {
-      // Clear with very transparent black to create trail effect
       ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       ctx.font = `bold ${fontSize}px 'JetBrains Mono'`;
       
       const beamX = beamRef.current.x;
-      const beamY = beamRef.current.y + window.scrollY; // Adjust for scroll if canvas is fixed
-      const radius = 350; // Radius of flashlight
+      const beamY = beamRef.current.y + window.scrollY; 
+      const radius = 350; 
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        // Calculate distance to beam center
         const dx = x - beamX;
-        const dy = y - (beamY - window.scrollY); // y is relative to viewport in fixed canvas
+        const dy = y - (beamY - window.scrollY); 
         const dist = Math.sqrt(dx*dx + dy*dy);
         
         let alpha = 0;
         if (dist < radius) {
-            // Opacity decreases as distance increases
             alpha = 1 - (dist / radius);
-            // Ease it a bit
             alpha = alpha * alpha * alpha; 
         }
 
-        // Only draw if visible
         if (alpha > 0.01) {
-            // White/Primary mix
             ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
             ctx.fillText(char, x, y);
         }
 
-        // Randomly reset drop to top
         if (y > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
         }
-        drops[i] += 0.85; // Fall speed
+        drops[i] += 0.85; 
       }
       requestRef.current = requestAnimationFrame(draw);
     };
@@ -190,8 +219,6 @@ const Landing = () => {
       {/* GLOBAL MATRIX BACKGROUND SYSTEM */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
         <canvas ref={canvasRef} className="absolute inset-0" />
-        
-        {/* Spotlight / Flashlight Glow Accents */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
            <div 
              className="absolute w-[600px] h-[600px] bg-primary/10 blur-[150px] rounded-full will-change-transform"
@@ -201,8 +228,8 @@ const Landing = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-24 pb-32 px-6 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+      <section id="hero" className="relative z-10 pt-32 pb-32 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center w-full">
           
           <div className="lg:col-span-7 space-y-12 animate-fade-in-up">
             <div className="space-y-6">
@@ -211,33 +238,33 @@ const Landing = () => {
                  <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
+              <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
                 {content.hero.title}
               </h1>
               
-              <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
+              <p className="text-zinc-500 text-base md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
                 {content.hero.subtitle}
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-6 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-              <button onClick={login} className="w-full sm:w-auto px-12 py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
+              <button onClick={login} className="w-full sm:w-auto px-8 md:px-12 py-5 md:py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
-              <Link to="/whitepaper" className="w-full sm:w-auto px-12 py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
+              <Link to="/whitepaper" className="w-full sm:w-auto px-8 md:px-12 py-5 md:py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
                 {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-3 gap-12 pt-12 border-t border-zinc-900/50 animate-fade-in opacity-0" style={{ animationDelay: '0.8s' }}>
+            <div className="grid grid-cols-3 gap-6 pt-12 border-t border-zinc-900/50 animate-fade-in opacity-0" style={{ animationDelay: '0.8s' }}>
               {[
                 { val: '40+', label: 'Regions' },
                 { val: '12ms', label: 'Latency' },
                 { val: '24k', label: 'Nodes' }
               ].map((stat, i) => (
                 <div key={i} className="group cursor-default">
-                  <p className="text-3xl md:text-5xl font-mono font-bold text-white tracking-tighter group-hover:text-primary transition-colors">{stat.val}</p>
+                  <p className="text-2xl md:text-5xl font-mono font-bold text-white tracking-tighter group-hover:text-primary transition-colors">{stat.val}</p>
                   <p className="text-[9px] font-black text-zinc-600 uppercase mt-2 tracking-widest">{stat.label}</p>
                 </div>
               ))}
@@ -245,7 +272,7 @@ const Landing = () => {
           </div>
 
           {/* Institutional Terminal UI */}
-          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0" style={{ animationDelay: '0.5s' }}>
+          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden md:block" style={{ animationDelay: '0.5s' }}>
              <div className="relative bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800 rounded-2xl overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
                 {/* OS Header */}
                 <div className="bg-zinc-900 px-5 py-4 flex items-center justify-between border-b border-zinc-800">
@@ -310,25 +337,49 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Partners Section with Hover Reveal */}
-      <section className="relative z-10 py-32 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md">
+      {/* Partners Section */}
+      <section id="partners" className="relative z-10 py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md">
          <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-[10px] font-black text-zinc-600 mb-12 uppercase tracking-[0.3em] animate-fade-in">{content.partners.title}</p>
-            <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+            <p className="text-[10px] font-black text-zinc-600 mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                {content.partners.items.map((name, i) => (
-                  <h3 key={i} className="text-lg font-black text-white uppercase tracking-tighter">{name.replace('_', ' ')}</h3>
+                  <h3 key={i} className="text-sm md:text-lg font-black text-white uppercase tracking-tighter">{name.replace('_', ' ')}</h3>
                ))}
             </div>
          </div>
       </section>
 
+      {/* Features Grid */}
+      {content.features?.isVisible && (
+        <section id="features" className={`py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+           <div className="text-center mb-20 max-w-3xl mx-auto">
+              <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6">{content.features.title}</h2>
+              <p className="text-zinc-500 text-lg leading-relaxed">{content.features.description}</p>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {content.features.items.map((item, i) => {
+                 const Icon = IconMap[item.icon] || Globe;
+                 return (
+                 <div key={i} className="p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-primary/50 transition-all duration-500 group hover:-translate-y-2">
+                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors">
+                       <Icon className="w-6 h-6 text-zinc-500 group-hover:text-primary transition-colors" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3 uppercase tracking-tight">{item.title}</h3>
+                    <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">{item.desc}</p>
+                 </div>
+              )})}
+           </div>
+        </section>
+      )}
+
       {/* Architecture Section */}
       {content.architecture.isVisible && (
-        <section className="py-32 px-6 max-w-7xl mx-auto relative z-10">
+        <section id="architecture" className={`py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
               <div className="space-y-12">
                  <div className="space-y-6">
-                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
+                    <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
                        {content.architecture.title}
                     </h2>
                     <p className="text-zinc-500 text-lg md:text-xl leading-relaxed max-w-lg">
@@ -351,7 +402,7 @@ const Landing = () => {
                  </div>
               </div>
               
-              <div className="relative animate-float">
+              <div className="relative animate-float hidden lg:block">
                  <div className="absolute inset-0 bg-primary/10 blur-[150px] rounded-full"></div>
                  <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
                     <div className="h-24 bg-primary/5 border border-primary/20 rounded-2xl flex items-center justify-center">
@@ -376,9 +427,58 @@ const Landing = () => {
         </section>
       )}
 
+      {/* Roadmap Section */}
+      {content.roadmap?.isVisible && (
+        <section id="roadmap" className={`py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30 transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className="mb-20 text-center">
+               <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{content.roadmap.title}</h2>
+               <p className="text-zinc-500">{content.roadmap.description}</p>
+            </div>
+
+            <div className="relative">
+               {/* Vertical Line */}
+               <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-zinc-800 md:-translate-x-1/2 ml-4 md:ml-0"></div>
+
+               <div className="space-y-12 md:space-y-24">
+                  {content.roadmap.phases.map((phase, i) => (
+                     <div key={i} className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'}`}>
+                        {/* Dot */}
+                        <div className={`absolute left-0 md:left-1/2 w-9 h-9 bg-zinc-950 border-4 ${phase.status === 'LIVE' ? 'border-primary' : 'border-zinc-800'} rounded-full ml-[0.5px] md:-translate-x-1/2 flex items-center justify-center z-10`}>
+                           {phase.status === 'LIVE' && <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse"></div>}
+                        </div>
+
+                        {/* Content */}
+                        <div className={`pl-16 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-16 md:text-right' : 'md:pl-16 md:text-left'}`}>
+                           <div className="space-y-4">
+                              <div className={`flex flex-col ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'}`}>
+                                 <span className={`text-[10px] font-black px-2 py-1 rounded mb-2 ${phase.status === 'LIVE' ? 'bg-primary text-white' : 'bg-zinc-900 text-zinc-500'}`}>
+                                    {phase.status}
+                                 </span>
+                                 <h3 className="text-2xl font-black text-white uppercase tracking-tight">{phase.title}</h3>
+                                 <span className="text-xs font-mono font-bold text-zinc-500">{phase.period}</span>
+                              </div>
+                              <p className="text-sm text-zinc-400 leading-relaxed">{phase.desc}</p>
+                              <ul className={`space-y-1 ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'} flex flex-col`}>
+                                 {phase.features.map((feat, idx) => (
+                                    <li key={idx} className="text-xs text-zinc-500 flex items-center gap-2">
+                                       {i % 2 !== 0 && <CheckCircle2 className="w-3 h-3 text-zinc-700" />}
+                                       {feat}
+                                       {i % 2 === 0 && <CheckCircle2 className="w-3 h-3 text-zinc-700" />}
+                                    </li>
+                                 ))}
+                              </ul>
+                           </div>
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            </div>
+        </section>
+      )}
+
       {/* FAQ Section */}
       {content.faq.isVisible && (
-        <section className="py-24 md:py-32 px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
+        <section id="faq" className="py-24 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
            <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center">{content.faq.title}</h2>
            <div className="space-y-4">
               {content.faq.items.map((item, i) => (
@@ -387,8 +487,8 @@ const Landing = () => {
                        onClick={() => toggleFaq(i)}
                        className="w-full flex items-center justify-between p-6 text-left hover:bg-zinc-900/20 transition-colors"
                     >
-                       <span className="font-bold text-white text-sm uppercase tracking-wide">{item.q}</span>
-                       <Plus className={`w-4 h-4 text-zinc-500 transition-transform ${openFaq === i ? 'rotate-45' : ''}`} />
+                       <span className="font-bold text-white text-sm uppercase tracking-wide pr-4">{item.q}</span>
+                       <Plus className={`w-4 h-4 text-zinc-500 transition-transform ${openFaq === i ? 'rotate-45' : ''} shrink-0`} />
                     </button>
                     <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
                        <div className="p-6 pt-0 text-zinc-500 text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
@@ -403,15 +503,15 @@ const Landing = () => {
 
       {/* CTA Section */}
       {content.cta.isVisible && (
-        <section className="py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl">
-           <div className="max-w-5xl mx-auto px-6 text-center space-y-16">
+        <section id="cta" className="py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl">
+           <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-16">
               <div className="space-y-8">
                 <div className="inline-flex items-center gap-3 px-5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full">
                    <Zap className="w-4 h-4 text-primary animate-pulse" />
                    <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest font-mono">Status: Awaiting_Handshake</span>
                 </div>
 
-                <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter leading-[0.85]">
+                <h2 className="text-4xl md:text-8xl lg:text-9xl font-black text-white uppercase tracking-tighter leading-[0.85]">
                    {content.cta.title}
                 </h2>
                 
@@ -421,7 +521,7 @@ const Landing = () => {
               </div>
               
               <div className="flex flex-col items-center gap-8 pt-6">
-                 <button onClick={login} className="h-24 px-20 bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                 <button onClick={login} className="h-20 md:h-24 px-12 md:px-20 bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
                     {content.cta.buttonText} 
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
                  </button>

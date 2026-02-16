@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -26,7 +27,7 @@ import {
   Users, PlusCircle, Database, ShieldAlert, Cpu, 
   Radio, Trash2, Globe, Layout, Save, X, Plus, 
   BookOpen, FileText, Info, Zap, Activity,
-  Layers, List, AlignLeft, CheckCircle2, Shield
+  Layers, List, AlignLeft, CheckCircle2, Shield, MapPin, MousePointer, HelpCircle
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -289,25 +290,119 @@ const AdminPanel = () => {
                     </div>
                   </>
                 )}
+                {activeLandingSection === 'partners' && (
+                  <>
+                    <SectionHeader title="Partner Logos" icon={Users} />
+                    <Toggle label="Section Visible" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => handleLandingUpdate('partners', 'isVisible', v)} />
+                    <InputGroup label="Section Title" value={landingConfig.partners.title} onChange={(v: string) => handleLandingUpdate('partners', 'title', v)} />
+                    <div className="space-y-2 mt-4">
+                       <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Partner Names (One per line)</label>
+                       <textarea 
+                         value={landingConfig.partners.items.join('\n')} 
+                         onChange={(e) => handleLandingUpdate('partners', 'items', e.target.value.split('\n'))}
+                         className="cms-input h-48 font-mono"
+                         placeholder="SEQUOIA_COMPUTE..."
+                       />
+                       <p className="text-[10px] text-zinc-600">Note: Use UPPERCASE_UNDERSCORE format for best visual result.</p>
+                    </div>
+                  </>
+                )}
+                {activeLandingSection === 'architecture' && (
+                  <>
+                     <SectionHeader title="Architecture Highlights" icon={Layers} />
+                     <Toggle label="Section Visible" checked={landingConfig.architecture.isVisible} onChange={(v: boolean) => handleLandingUpdate('architecture', 'isVisible', v)} />
+                     <InputGroup label="Headline" value={landingConfig.architecture.title} onChange={(v: string) => handleLandingUpdate('architecture', 'title', v)} />
+                     <InputGroup label="Description" type="textarea" value={landingConfig.architecture.description} onChange={(v: string) => handleLandingUpdate('architecture', 'description', v)} />
+                     <p className="text-[10px] font-black text-zinc-500 uppercase border-b border-zinc-900 pb-2 mt-6">Technical Layers</p>
+                     {landingConfig.architecture.layers.map((l, i) => (
+                        <ArrayItem key={i} onDelete={() => handleLandingUpdate('architecture', 'layers', landingConfig.architecture.layers.filter((_, idx) => idx !== i))}>
+                           <InputGroup label="Title" value={l.title} onChange={(v: string) => {const n=[...landingConfig.architecture.layers]; n[i].title=v; handleLandingUpdate('architecture', 'layers', n)}} />
+                           <InputGroup label="Description" value={l.desc} onChange={(v: string) => {const n=[...landingConfig.architecture.layers]; n[i].desc=v; handleLandingUpdate('architecture', 'layers', n)}} className="mt-2" />
+                        </ArrayItem>
+                     ))}
+                     <button onClick={() => handleLandingUpdate('architecture', 'layers', [...landingConfig.architecture.layers, {title:'New Layer', desc:''}])} className="btn-secondary w-full py-4 border-dashed">+ Add Layer</button>
+                  </>
+                )}
+                {activeLandingSection === 'features' && (
+                  <>
+                     <SectionHeader title="Features Grid" icon={Cpu} />
+                     <Toggle label="Section Visible" checked={landingConfig.features?.isVisible ?? true} onChange={(v: boolean) => handleLandingUpdate('features', 'isVisible', v)} />
+                     <InputGroup label="Headline" value={landingConfig.features?.title ?? ''} onChange={(v: string) => handleLandingUpdate('features', 'title', v)} />
+                     <InputGroup label="Description" type="textarea" value={landingConfig.features?.description ?? ''} onChange={(v: string) => handleLandingUpdate('features', 'description', v)} />
+                     
+                     <p className="text-[10px] font-black text-zinc-500 uppercase border-b border-zinc-900 pb-2 mt-6">Feature Cards</p>
+                     {(landingConfig.features?.items || []).map((item, i) => (
+                        <ArrayItem key={i} onDelete={() => handleLandingUpdate('features', 'items', (landingConfig.features?.items || []).filter((_, idx) => idx !== i))}>
+                           <div className="grid grid-cols-2 gap-4 mb-2">
+                              <InputGroup label="Title" value={item.title} onChange={(v: string) => {const n=[...(landingConfig.features?.items || [])]; n[i].title=v; handleLandingUpdate('features', 'items', n)}} />
+                              <InputGroup label="Icon Key" value={item.icon} onChange={(v: string) => {const n=[...(landingConfig.features?.items || [])]; n[i].icon=v; handleLandingUpdate('features', 'items', n)}} placeholder="ShieldCheck, Globe, Cpu..." />
+                           </div>
+                           <InputGroup label="Description" value={item.desc} onChange={(v: string) => {const n=[...(landingConfig.features?.items || [])]; n[i].desc=v; handleLandingUpdate('features', 'items', n)}} />
+                        </ArrayItem>
+                     ))}
+                     <button onClick={() => handleLandingUpdate('features', 'items', [...(landingConfig.features?.items || []), {title:'New Feature', desc:'', icon:'Globe'}])} className="btn-secondary w-full py-4 border-dashed">+ Add Feature</button>
+                  </>
+                )}
                 {activeLandingSection === 'roadmap' && (
                   <>
                     <SectionHeader title="Roadmap Phases" icon={AlignLeft} />
-                    {landingConfig.roadmap.phases.map((p, i) => (
-                      <ArrayItem key={i} onDelete={() => handleLandingUpdate('roadmap', 'phases', landingConfig.roadmap.phases.filter((_, idx) => idx !== i))}>
-                        <div className="grid grid-cols-2 gap-4">
-                          <InputGroup label="Phase #" value={p.phase} onChange={(v: string) => {const n=[...landingConfig.roadmap.phases]; n[i].phase=v; handleLandingUpdate('roadmap', 'phases', n)}} />
-                          <InputGroup label="Status" value={p.status} onChange={(v: string) => {const n=[...landingConfig.roadmap.phases]; n[i].status=v; handleLandingUpdate('roadmap', 'phases', n)}} />
+                    <Toggle label="Section Visible" checked={landingConfig.roadmap?.isVisible ?? true} onChange={(v: boolean) => handleLandingUpdate('roadmap', 'isVisible', v)} />
+                    <InputGroup label="Headline" value={landingConfig.roadmap?.title ?? ''} onChange={(v: string) => handleLandingUpdate('roadmap', 'title', v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.roadmap?.description ?? ''} onChange={(v: string) => handleLandingUpdate('roadmap', 'description', v)} className="mb-6" />
+
+                    {(landingConfig.roadmap?.phases || []).map((p, i) => (
+                      <ArrayItem key={i} onDelete={() => handleLandingUpdate('roadmap', 'phases', (landingConfig.roadmap?.phases || []).filter((_, idx) => idx !== i))}>
+                        <div className="grid grid-cols-3 gap-4">
+                          <InputGroup label="Period" value={p.period} onChange={(v: string) => {const n=[...(landingConfig.roadmap?.phases || [])]; n[i].period=v; handleLandingUpdate('roadmap', 'phases', n)}} />
+                          <InputGroup label="Status" value={p.status} onChange={(v: string) => {const n=[...(landingConfig.roadmap?.phases || [])]; n[i].status=v; handleLandingUpdate('roadmap', 'phases', n)}} placeholder="LIVE / UPCOMING" />
+                          <InputGroup label="Phase #" value={p.phase} onChange={(v: string) => {const n=[...(landingConfig.roadmap?.phases || [])]; n[i].phase=v; handleLandingUpdate('roadmap', 'phases', n)}} />
                         </div>
-                        <InputGroup label="Title" value={p.title} onChange={(v: string) => {const n=[...landingConfig.roadmap.phases]; n[i].title=v; handleLandingUpdate('roadmap', 'phases', n)}} />
-                        <InputGroup label="Description" value={p.desc} onChange={(v: string) => {const n=[...landingConfig.roadmap.phases]; n[i].desc=v; handleLandingUpdate('roadmap', 'phases', n)}} className="mt-2" />
+                        <InputGroup label="Title" value={p.title} onChange={(v: string) => {const n=[...(landingConfig.roadmap?.phases || [])]; n[i].title=v; handleLandingUpdate('roadmap', 'phases', n)}} className="mt-2" />
+                        <InputGroup label="Description" value={p.desc} onChange={(v: string) => {const n=[...(landingConfig.roadmap?.phases || [])]; n[i].desc=v; handleLandingUpdate('roadmap', 'phases', n)}} className="mt-2" />
+                        <div className="mt-2">
+                           <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Features (Comma Separated)</label>
+                           <input 
+                              value={p.features.join(', ')} 
+                              onChange={(e) => {const n=[...(landingConfig.roadmap?.phases || [])]; n[i].features=e.target.value.split(',').map(s=>s.trim()); handleLandingUpdate('roadmap', 'phases', n)}} 
+                              className="cms-input"
+                           />
+                        </div>
                       </ArrayItem>
                     ))}
-                    <button onClick={() => handleLandingUpdate('roadmap', 'phases', [...landingConfig.roadmap.phases, {phase:'04', title:'New', period:'Q1', status:'UPCOMING', desc:'', features:[]}])} className="btn-secondary w-full py-4 border-dashed">+ Add Roadmap Phase</button>
+                    <button onClick={() => handleLandingUpdate('roadmap', 'phases', [...(landingConfig.roadmap?.phases || []), {phase:'04', title:'New Phase', period:'Q1', status:'UPCOMING', desc:'', features:[]}])} className="btn-secondary w-full py-4 border-dashed">+ Add Roadmap Phase</button>
                   </>
                 )}
-                {/* Fallback for other landing sections */}
-                {!['hero', 'roadmap'].includes(activeLandingSection) && (
-                  <div className="py-12 text-center text-zinc-600 italic">Editor for "{activeLandingSection}" is under maintenance. All field updates are correctly bound in the database.</div>
+                {activeLandingSection === 'faq' && (
+                  <>
+                     <SectionHeader title="FAQ Items" icon={HelpCircle} />
+                     <Toggle label="Section Visible" checked={landingConfig.faq.isVisible} onChange={(v: boolean) => handleLandingUpdate('faq', 'isVisible', v)} />
+                     <InputGroup label="Headline" value={landingConfig.faq.title} onChange={(v: string) => handleLandingUpdate('faq', 'title', v)} className="mb-6" />
+                     {landingConfig.faq.items.map((item, i) => (
+                        <ArrayItem key={i} onDelete={() => handleLandingUpdate('faq', 'items', landingConfig.faq.items.filter((_, idx) => idx !== i))}>
+                           <InputGroup label="Question" value={item.q} onChange={(v: string) => {const n=[...landingConfig.faq.items]; n[i].q=v; handleLandingUpdate('faq', 'items', n)}} />
+                           <InputGroup label="Answer" type="textarea" value={item.a} onChange={(v: string) => {const n=[...landingConfig.faq.items]; n[i].a=v; handleLandingUpdate('faq', 'items', n)}} className="mt-2" />
+                        </ArrayItem>
+                     ))}
+                     <button onClick={() => handleLandingUpdate('faq', 'items', [...landingConfig.faq.items, {q:'New Question', a:''}])} className="btn-secondary w-full py-4 border-dashed">+ Add Question</button>
+                  </>
+                )}
+                {activeLandingSection === 'cta' && (
+                   <>
+                      <SectionHeader title="Call to Action" icon={MousePointer} />
+                      <Toggle label="Section Visible" checked={landingConfig.cta.isVisible} onChange={(v: boolean) => handleLandingUpdate('cta', 'isVisible', v)} />
+                      <InputGroup label="Headline" value={landingConfig.cta.title} onChange={(v: string) => handleLandingUpdate('cta', 'title', v)} />
+                      <InputGroup label="Description" type="textarea" value={landingConfig.cta.description} onChange={(v: string) => handleLandingUpdate('cta', 'description', v)} className="mt-2" />
+                      <InputGroup label="Button Label" value={landingConfig.cta.buttonText} onChange={(v: string) => handleLandingUpdate('cta', 'buttonText', v)} className="mt-4" />
+                   </>
+                )}
+                {activeLandingSection === 'footer' && (
+                   <>
+                      <SectionHeader title="Footer Config" icon={MapPin} />
+                      <Toggle label="Section Visible" checked={landingConfig.footer?.isVisible ?? true} onChange={(v: boolean) => handleLandingUpdate('footer', 'isVisible', v)} />
+                      <InputGroup label="Copyright Text" value={landingConfig.footer?.copyright ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'copyright', v)} />
+                      <InputGroup label="Footer Title" value={landingConfig.footer?.title ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'title', v)} className="mt-4" />
+                      <InputGroup label="Footer Description" type="textarea" value={landingConfig.footer?.description ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'description', v)} className="mt-2" />
+                   </>
                 )}
               </div>
             )}
@@ -326,6 +421,14 @@ const AdminPanel = () => {
                     <InputGroup label="Desc" type="textarea" value={(aboutConfig as any)[key].desc} onChange={(v: string) => handleAboutUpdate(key as any, {...(aboutConfig as any)[key], desc:v})} className="mt-2" />
                   </div>
                 ))}
+                <div className="mt-8">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-2">Partners List (One per line)</label>
+                    <textarea 
+                      value={aboutConfig.partners.join('\n')} 
+                      onChange={(e) => handleAboutUpdate('partners', e.target.value.split('\n'))}
+                      className="cms-input h-32 font-mono"
+                    />
+                </div>
               </div>
             )}
 
@@ -345,6 +448,15 @@ const AdminPanel = () => {
                   </ArrayItem>
                 ))}
                 <button onClick={() => handleArchUpdate('layers', [...archConfig.layers, {title:'New', stat:'', desc:''}])} className="btn-secondary w-full py-4 border-dashed">+ Add technical Layer</button>
+                
+                <p className="text-[10px] font-black text-zinc-500 uppercase border-b border-zinc-900 pb-2 mt-8">Features Grid</p>
+                {archConfig.features.map((f, i) => (
+                  <ArrayItem key={i} onDelete={() => handleArchUpdate('features', archConfig.features.filter((_, idx) => idx !== i))}>
+                    <InputGroup label="Feature Title" value={f.title} onChange={(v: string) => {const n=[...archConfig.features]; n[i].title=v; handleArchUpdate('features', n)}} />
+                    <InputGroup label="Description" value={f.desc} onChange={(v: string) => {const n=[...archConfig.features]; n[i].desc=v; handleArchUpdate('features', n)}} className="mt-2" />
+                  </ArrayItem>
+                ))}
+                 <button onClick={() => handleArchUpdate('features', [...archConfig.features, {title:'New Feature', desc:''}])} className="btn-secondary w-full py-4 border-dashed">+ Add Feature Block</button>
               </div>
             )}
 
