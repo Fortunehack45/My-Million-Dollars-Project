@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router';
 import { 
@@ -75,6 +74,16 @@ const Sidebar = () => {
     { to: '/leaderboard', label: 'Rank', icon: Trophy },
   ];
 
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Session termination failed:", err);
+    }
+  };
+
   return (
     <>
       {/* MOBILE: Top Header (Branding & Admin/Profile) */}
@@ -92,7 +101,11 @@ const Sidebar = () => {
               <ShieldAlert className="w-4 h-4 text-primary" />
             </Link>
           )}
-          <button onClick={logout} className="p-2 bg-zinc-900 rounded-lg border border-zinc-800 text-zinc-400">
+          <button 
+            type="button" 
+            onClick={handleLogout} 
+            className="p-2 bg-zinc-900 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
+          >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
@@ -153,9 +166,13 @@ const Sidebar = () => {
                   <p className="label-meta text-[8px] text-zinc-500 uppercase">{isAuthorizedAdmin ? 'ROOT_ADMIN' : 'SYS_OP'}</p>
                 </div>
               </div>
-              <button onClick={logout} className="mt-4 flex items-center space-x-3 w-full px-4 py-2 text-zinc-600 hover:text-white transition-colors">
-                <LogOut className="w-3 h-3" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Terminate Session</span>
+              <button 
+                type="button" 
+                onClick={handleLogout} 
+                className="mt-4 flex items-center space-x-3 w-full px-4 py-2 text-zinc-600 hover:text-white transition-colors cursor-pointer group"
+              >
+                <LogOut className="w-3 h-3 group-hover:text-primary transition-colors" />
+                <span className="text-[10px] font-bold uppercase tracking-widest group-hover:text-white transition-colors">Terminate Session</span>
               </button>
             </div>
           )}

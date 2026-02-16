@@ -309,7 +309,11 @@ export const logout = async () => {
   if (currentUser) {
     // Attempt to manually flag as offline before signing out
     try {
-      await manualOffline(currentUser.uid);
+      // Race the manual offline update against a 1s timeout to ensure we don't hang
+      await Promise.race([
+        manualOffline(currentUser.uid),
+        new Promise(resolve => setTimeout(resolve, 1000))
+      ]);
     } catch (e) {
       console.warn("Failed to set manual offline status.");
     }
