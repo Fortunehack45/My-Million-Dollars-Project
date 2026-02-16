@@ -312,7 +312,7 @@ const Landing = () => {
           </div>
 
           {/* Institutional Terminal UI */}
-          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden md:block" style={{ animationDelay: '0.5s' }}>
+          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block" style={{ animationDelay: '0.5s' }}>
              <div className="relative bg-zinc-950/90 backdrop-blur-xl border border-zinc-800 rounded-lg overflow-hidden shadow-2xl font-mono text-[10px] leading-relaxed">
                 <div className="bg-zinc-900/80 px-4 py-2 flex items-center justify-between border-b border-zinc-800">
                    <div className="flex gap-2">
