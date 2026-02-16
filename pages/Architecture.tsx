@@ -1,256 +1,257 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { 
   GitMerge, Database, Cpu, Network, Shield, Zap, Server, Code, 
-  Lock, Globe, Activity, Hash, Clock, Share2, ArrowUpRight, 
-  CheckCircle2, Box, Layers, PlayCircle, PauseCircle
+  Lock, Globe, Activity, Hash, Clock, Layers, Wifi, Map, 
+  Terminal, ArrowRight
 } from 'lucide-react';
 
-// --- Professional GhostDAG Visualization Component ---
-const GhostDAGVisual = () => {
-  const [activeId, setActiveId] = useState<string>('tip');
-  const [isSimulating, setIsSimulating] = useState(true);
-  const [tick, setTick] = useState(0);
+// --- World Map SVG Paths (Simplified Mercator) ---
+const WorldMap = () => (
+  <svg viewBox="0 0 1000 500" className="absolute inset-0 w-full h-full opacity-20 pointer-events-none fill-zinc-700 stroke-zinc-600 stroke-[0.5]">
+     {/* North America */}
+     <path d="M150,80 L250,50 L350,50 L300,150 L200,200 L100,150 Z" className="fill-zinc-800/50" /> 
+     {/* South America */}
+     <path d="M220,220 L300,220 L320,350 L250,450 L200,350 Z" className="fill-zinc-800/50" />
+     {/* Europe / Africa */}
+     <path d="M420,80 L520,80 L550,200 L500,400 L400,300 L400,150 Z" className="fill-zinc-800/50" />
+     {/* Asia */}
+     <path d="M550,80 L800,80 L850,200 L750,300 L600,250 Z" className="fill-zinc-800/50" />
+     {/* Australia */}
+     <path d="M750,350 L850,350 L850,450 L750,450 Z" className="fill-zinc-800/50" />
+     
+     {/* Accurate-ish Abstract Shapes for better visual cue */}
+     <path d="M 120 70 Q 200 20 350 50 L 320 180 L 250 210 L 150 150 Z" /> {/* NA */}
+     <path d="M 260 220 L 330 230 L 300 420 L 240 350 Z" /> {/* SA */}
+     <path d="M 430 80 L 530 70 L 520 160 L 450 150 Z" /> {/* EU */}
+     <path d="M 440 170 L 540 170 L 500 380 L 420 300 Z" /> {/* AF */}
+     <path d="M 550 70 L 850 80 L 820 250 L 700 280 L 600 200 Z" /> {/* AS */}
+     <path d="M 760 320 L 880 320 L 860 420 L 750 400 Z" /> {/* AU */}
+  </svg>
+);
 
-  // Simulation loop for "live" telemetry feel
+// --- Global Network Mesh Visualization ---
+const NetworkMesh = () => {
+  // Region-based nodes (x,y in percentages)
+  const initialNodes = [
+    { id: 'US-E', x: 28, y: 35, label: 'US-EAST', active: true },
+    { id: 'US-W', x: 15, y: 38, label: 'US-WEST', active: true },
+    { id: 'SA-N', x: 32, y: 65, label: 'SA-NODES', active: true },
+    { id: 'EU-C', x: 48, y: 28, label: 'EU-CENTRAL', active: true },
+    { id: 'EU-W', x: 45, y: 32, label: 'EU-WEST', active: true },
+    { id: 'AS-S', x: 75, y: 55, label: 'SINGAPORE', active: true },
+    { id: 'AS-E', x: 82, y: 35, label: 'TOKYO', active: true },
+    { id: 'AU-S', x: 85, y: 78, label: 'SYDNEY', active: true },
+  ];
+
+  const [packets, setPackets] = useState<{id: number, start: {x:number,y:number}, end: {x:number,y:number}, progress: number}[]>([]);
+  const [logs, setLogs] = useState<{time: string, msg: string}[]>([]);
+  const logContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll logs
   useEffect(() => {
-    if (!isSimulating) return;
-    const interval = setInterval(() => setTick(t => t + 1), 1000);
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [logs]);
+
+  // Traffic Simulation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // 1. Create Packet
+      if (Math.random() > 0.4) {
+        const start = initialNodes[Math.floor(Math.random() * initialNodes.length)];
+        const end = initialNodes[Math.floor(Math.random() * initialNodes.length)];
+        
+        if (start.id !== end.id) {
+          setPackets(prev => [...prev, {
+            id: Date.now() + Math.random(),
+            start: {x: start.x, y: start.y},
+            end: {x: end.x, y: end.y},
+            progress: 0
+          }]);
+
+          // 2. Add Log
+          const latency = Math.floor(Math.random() * 40 + 10);
+          const newLog = {
+            time: new Date().toISOString().split('T')[1].slice(0,8),
+            msg: `SYNC::${start.id} >> ${end.id} [${latency}ms]`
+          };
+          setLogs(prev => [...prev.slice(-6), newLog]);
+        }
+      }
+
+      // 3. Move Packets
+      setPackets(prev => prev.map(p => ({
+        ...p,
+        progress: p.progress + 0.015
+      })).filter(p => p.progress < 1));
+
+    }, 100);
     return () => clearInterval(interval);
-  }, [isSimulating]);
-
-  // Topology Data - Statically defined for stability but styled dynamically
-  const nodes = [
-    { id: 'gen', x: 50, y: 200, type: 'finalized', label: 'GEN', hash: '0x0000...0000', score: 0, time: 'T-12s' },
-    { id: 'a1', x: 150, y: 120, type: 'blue', label: 'A1', hash: '0x3F2A...91B2', score: 140, time: 'T-9s' },
-    { id: 'b1', x: 150, y: 280, type: 'red', label: 'B1', hash: '0x81C2...29A1', score: 132, time: 'T-9s' },
-    { id: 'a2', x: 280, y: 150, type: 'blue', label: 'A2', hash: '0x9B21...11C2', score: 290, time: 'T-6s' },
-    { id: 'b2', x: 280, y: 300, type: 'red', label: 'B2', hash: '0x1C99...44D3', score: 285, time: 'T-6s' },
-    { id: 'c1', x: 400, y: 100, type: 'blue', label: 'C1', hash: '0x77A1...88B2', score: 450, time: 'T-3s' },
-    { id: 'tip', x: 520, y: 200, type: 'pending', label: 'TIP', hash: '0xFFFF...EEEE', score: 610, time: 'NOW' },
-  ];
-
-  const edges = [
-    { from: 'gen', to: 'a1', type: 'parent' },
-    { from: 'gen', to: 'b1', type: 'parent' },
-    { from: 'a1', to: 'a2', type: 'parent' },
-    { from: 'b1', to: 'a2', type: 'merge' },
-    { from: 'a1', to: 'b2', type: 'parent' },
-    { from: 'b1', to: 'b2', type: 'merge' },
-    { from: 'a2', to: 'c1', type: 'parent' },
-    { from: 'b2', to: 'c1', type: 'merge' },
-    { from: 'c1', to: 'tip', type: 'parent' },
-    { from: 'b2', to: 'tip', type: 'merge' },
-  ];
-
-  const activeNode = nodes.find(n => n.id === activeId) || nodes[nodes.length - 1];
+  }, []);
 
   return (
-    <div className="w-full h-[600px] bg-[#09090b] rounded-3xl border border-zinc-900 overflow-hidden relative shadow-2xl flex flex-col md:flex-row">
-       {/* --- LEFT: Interactive Graph Area --- */}
-       <div className="flex-1 relative h-full bg-[#050505] overflow-hidden group select-none">
-          {/* Background Grid */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-          
-          {/* Controls */}
-          <div className="absolute top-6 left-6 z-30 flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/80 border border-zinc-800 rounded-full backdrop-blur-md">
-                <div className={`w-2 h-2 rounded-full ${isSimulating ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div>
-                <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-widest">
-                    {isSimulating ? 'LIVE_NET' : 'PAUSED'}
-                </span>
-            </div>
-            <button onClick={() => setIsSimulating(!isSimulating)} className="text-zinc-500 hover:text-white transition-colors">
-                {isSimulating ? <PauseCircle className="w-5 h-5" /> : <PlayCircle className="w-5 h-5" />}
-            </button>
-          </div>
+    <div className="w-full h-[600px] bg-[#050505] rounded-3xl border border-zinc-900 overflow-hidden relative shadow-2xl group flex flex-col md:flex-row">
+      
+      {/* Map Area */}
+      <div className="relative flex-1 h-full overflow-hidden">
+        {/* Decorative Grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80 pointer-events-none"></div>
 
-          <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
-             <defs>
-                <linearGradient id="parentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                   <stop offset="0%" stopColor="#27272a" stopOpacity="0.1" />
-                   <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.8" />
-                </linearGradient>
-                <linearGradient id="mergeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                   <stop offset="0%" stopColor="#27272a" stopOpacity="0.1" />
-                   <stop offset="100%" stopColor="#52525b" stopOpacity="0.5" />
-                </linearGradient>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                   <feGaussianBlur stdDeviation="4" result="blur" />
-                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-             </defs>
+        {/* World Map SVG */}
+        <WorldMap />
 
-             {/* Edges */}
-             {edges.map((edge, i) => {
-                const f = nodes.find(n => n.id === edge.from)!;
-                const t = nodes.find(n => n.id === edge.to)!;
-                const isActivePath = activeId === edge.to || activeId === edge.from;
-                const isParent = edge.type === 'parent';
-                
-                return (
-                   <g key={i}>
-                      <path 
-                         d={`M ${f.x} ${f.y} C ${f.x + 80} ${f.y}, ${t.x - 80} ${t.y}, ${t.x} ${t.y}`}
-                         fill="none"
-                         stroke={isParent ? "url(#parentGrad)" : "url(#mergeGrad)"}
-                         strokeWidth={isParent ? 2 : 1}
-                         strokeDasharray={isParent ? "0" : "4 4"}
-                         className="transition-all duration-500"
-                         style={{ opacity: isActivePath ? 1 : 0.3 }}
-                      />
-                      {/* Data Packet Animation */}
-                      {isSimulating && isParent && (
-                         <circle r="2" fill={isActivePath ? "#fff" : "#F43F5E"}>
-                            <animateMotion 
-                               dur={`${1.5 + (i * 0.2)}s`} 
-                               repeatCount="indefinite"
-                               path={`M ${f.x} ${f.y} C ${f.x + 80} ${f.y}, ${t.x - 80} ${t.y}, ${t.x} ${t.y}`}
-                            />
-                         </circle>
-                      )}
-                   </g>
-                );
-             })}
-          </svg>
+        {/* Data Arcs (SVG Overlay) */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+          <defs>
+             <linearGradient id="packetGrad" gradientUnits="userSpaceOnUse">
+               <stop offset="0%" stopColor="#F43F5E" stopOpacity="0" />
+               <stop offset="50%" stopColor="#F43F5E" stopOpacity="1" />
+               <stop offset="100%" stopColor="#F43F5E" stopOpacity="0" />
+             </linearGradient>
+          </defs>
+          {packets.map(p => {
+             // Calculate control point for curve (simple quadratic bezier)
+             // Lift the curve up (lower Y) based on distance
+             const mx = (p.start.x + p.end.x) / 2;
+             const my = (p.start.y + p.end.y) / 2;
+             const dist = Math.sqrt(Math.pow(p.end.x - p.start.x, 2) + Math.pow(p.end.y - p.start.y, 2));
+             const cY = my - (dist * 0.5); // Arch factor
 
-          {/* Nodes */}
-          {nodes.map((node) => {
-             const isActive = activeId === node.id;
-             const isTip = node.id === 'tip';
-             
+             const pathD = `M ${p.start.x}% ${p.start.y}% Q ${mx}% ${cY}% ${p.end.x}% ${p.end.y}%`;
+
              return (
-                <div 
-                   key={node.id}
-                   className={`absolute w-12 h-12 -ml-6 -mt-6 cursor-pointer z-10 transition-all duration-300 ${isActive ? 'scale-110 z-20' : 'scale-100 hover:scale-105'}`}
-                   style={{ left: node.x, top: node.y }}
-                   onClick={() => setActiveId(node.id)}
-                >
-                   {/* Glow Effect */}
-                   <div className={`absolute inset-0 rounded-full blur-xl transition-opacity duration-300 ${isActive ? 'opacity-40' : 'opacity-0'} ${node.type === 'blue' || isTip ? 'bg-primary' : 'bg-zinc-500'}`}></div>
-                   
-                   {/* Node Body */}
-                   <div className={`relative w-full h-full rounded-xl border flex items-center justify-center backdrop-blur-md transition-colors duration-300
-                      ${node.type === 'blue' || isTip 
-                         ? 'bg-zinc-900/90 border-primary/40 shadow-[0_0_15px_rgba(244,63,94,0.15)]' 
-                         : 'bg-zinc-950/90 border-zinc-800'}
-                      ${isActive ? 'border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : ''}
-                   `}>
-                      <div className={`w-2.5 h-2.5 rounded-full ${node.type === 'blue' || isTip ? 'bg-primary' : 'bg-zinc-600'}`}></div>
-                   </div>
-
-                   {/* Label */}
-                   <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-mono font-bold tracking-widest whitespace-nowrap transition-colors
-                      ${isActive ? 'text-white' : 'text-zinc-600'}
-                   `}>
-                      {node.label}
-                   </div>
-                </div>
+                <g key={p.id}>
+                   <path d={pathD} stroke="#F43F5E" strokeWidth="1" fill="none" opacity="0.1" />
+                   <circle r="2" fill="#fff">
+                      <animateMotion dur="1s" repeatCount="1" path={pathD} keyPoints={`${p.progress};${p.progress+0.01}`} keyTimes="0;1" />
+                   </circle>
+                </g>
              );
           })}
-       </div>
+        </svg>
 
-       {/* --- RIGHT: Inspector HUD --- */}
-       <div className="w-full md:w-96 bg-zinc-950 border-t md:border-t-0 md:border-l border-zinc-900 flex flex-col z-20">
-          <div className="p-6 border-b border-zinc-900 bg-zinc-900/30">
-             <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                   <Activity className="w-4 h-4 text-primary" />
-                   <h3 className="text-xs font-black text-white uppercase tracking-widest">Inspector</h3>
-                </div>
-                <div className="flex items-center gap-1.5">
-                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                   <span className="text-[9px] font-mono text-zinc-500">SYNCED</span>
-                </div>
-             </div>
-             <p className="text-[10px] text-zinc-500">Live block metadata stream</p>
-          </div>
-
-          <div className="p-6 space-y-8 flex-1 overflow-y-auto">
-             {/* Block ID */}
-             <div className="space-y-3">
-                <span className="label-meta flex items-center gap-2">
-                   <Box className="w-3 h-3" /> Block Identifier
-                </span>
-                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800 space-y-2">
-                   <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold text-zinc-400">HASH</span>
-                      <span className="text-[10px] font-mono text-white">{activeNode.hash}</span>
+        {/* Nodes */}
+        {initialNodes.map(node => (
+          <div 
+             key={node.id}
+             className="absolute -translate-x-1/2 -translate-y-1/2 group/node cursor-pointer"
+             style={{ left: `${node.x}%`, top: `${node.y}%` }}
+          >
+             {/* Pulse Ring */}
+             <div className="absolute inset-0 -m-4 bg-primary/20 rounded-full blur-md opacity-0 group-hover/node:opacity-100 transition-opacity"></div>
+             <div className="relative">
+                <div className="w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#f43f5e] animate-pulse"></div>
+                {/* Tooltip */}
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 bg-zinc-900/90 border border-zinc-800 px-3 py-1.5 rounded backdrop-blur-md opacity-0 group-hover/node:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
+                   <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span className="text-[10px] font-mono font-bold text-white">{node.label}</span>
                    </div>
-                   <div className="h-px bg-zinc-800 w-full"></div>
-                   <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold text-zinc-400">NONCE</span>
-                      <span className="text-[10px] font-mono text-zinc-500">49201948</span>
+                   <div className="text-[9px] text-zinc-500 font-mono mt-0.5">Hashrate: 4.2 EH/s</div>
+                </div>
+             </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Info Panel / Telemetry HUD */}
+      <div className="w-full md:w-80 bg-zinc-950/80 backdrop-blur-xl border-t md:border-t-0 md:border-l border-zinc-900 flex flex-col">
+         <div className="p-4 border-b border-zinc-900 bg-zinc-900/30">
+            <div className="flex items-center gap-2 mb-1">
+               <Activity className="w-4 h-4 text-primary" />
+               <h3 className="text-xs font-black text-white uppercase tracking-widest">Live Telemetry</h3>
+            </div>
+            <p className="text-[10px] text-zinc-500 font-mono">Global State Synchronization</p>
+         </div>
+
+         {/* Log Feed */}
+         <div 
+            ref={logContainerRef}
+            className="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-[10px]"
+         >
+            {logs.map((log, i) => (
+               <div key={i} className="flex gap-3 text-zinc-400 border-l-2 border-zinc-800 pl-2 py-0.5 animate-in fade-in slide-in-from-left-2 duration-300">
+                  <span className="text-zinc-600 shrink-0">{log.time}</span>
+                  <span className="text-white">{log.msg}</span>
+               </div>
+            ))}
+            <div className="flex items-center gap-2 pt-2 animate-pulse">
+               <span className="text-primary">_</span>
+            </div>
+         </div>
+
+         {/* Summary Stats */}
+         <div className="p-4 border-t border-zinc-900 bg-zinc-900/20 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+               <div className="p-3 rounded bg-zinc-900 border border-zinc-800">
+                  <span className="block text-[9px] text-zinc-500 uppercase font-bold mb-1">Active Regions</span>
+                  <span className="block text-lg font-mono font-bold text-white">12</span>
+               </div>
+               <div className="p-3 rounded bg-zinc-900 border border-zinc-800">
+                  <span className="block text-[9px] text-zinc-500 uppercase font-bold mb-1">Avg Latency</span>
+                  <span className="block text-lg font-mono font-bold text-emerald-500">14ms</span>
+               </div>
+            </div>
+            <button className="w-full py-2 bg-white hover:bg-zinc-200 text-black text-[10px] font-black uppercase tracking-widest rounded flex items-center justify-center gap-2 transition-colors">
+               View Full Explorer <ArrowRight className="w-3 h-3" />
+            </button>
+         </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Benchmark Chart Component ---
+const BenchmarkChart = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+       {[
+          { label: 'Transactions Per Second', argus: '400,000', eth: '29', sol: '65,000', unit: 'TPS' },
+          { label: 'Time to Finality', argus: '400ms', eth: '12m', sol: '12.8s', unit: 'Time' },
+          { label: 'Validator Reqs', argus: 'Standard', eth: '32 ETH', sol: 'High-End', unit: 'Hardware' },
+       ].map((metric, i) => (
+          <div key={i} className="surface p-6 rounded-2xl space-y-4">
+             <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">{metric.label}</h4>
+             
+             <div className="space-y-3">
+                {/* Argus */}
+                <div className="space-y-1">
+                   <div className="flex justify-between text-[10px] font-bold uppercase">
+                      <span className="text-primary">Argus Protocol</span>
+                      <span className="text-white">{metric.argus}</span>
+                   </div>
+                   <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary w-full shadow-[0_0_10px_#f43f5e]"></div>
+                   </div>
+                </div>
+                
+                {/* Solana */}
+                <div className="space-y-1 opacity-60">
+                   <div className="flex justify-between text-[10px] font-bold uppercase">
+                      <span className="text-zinc-400">Solana</span>
+                      <span className="text-zinc-400">{metric.sol}</span>
+                   </div>
+                   <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-zinc-700 w-[60%]"></div>
+                   </div>
+                </div>
+
+                {/* Ethereum */}
+                <div className="space-y-1 opacity-40">
+                   <div className="flex justify-between text-[10px] font-bold uppercase">
+                      <span className="text-zinc-400">Ethereum</span>
+                      <span className="text-zinc-400">{metric.eth}</span>
+                   </div>
+                   <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-zinc-700 w-[15%]"></div>
                    </div>
                 </div>
              </div>
-
-             {/* Topology Metrics */}
-             <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-zinc-900/30 rounded-lg border border-zinc-800 space-y-2">
-                   <span className="text-[9px] font-bold text-zinc-500 uppercase">Blue Score</span>
-                   <div className="text-lg font-mono font-bold text-white">{activeNode.score}</div>
-                </div>
-                <div className="p-4 bg-zinc-900/30 rounded-lg border border-zinc-800 space-y-2">
-                   <span className="text-[9px] font-bold text-zinc-500 uppercase">DAA Score</span>
-                   <div className="text-lg font-mono font-bold text-zinc-400">{(activeNode.score * 1.05).toFixed(0)}</div>
-                </div>
-             </div>
-
-             {/* Consensus Status */}
-             <div className="space-y-3">
-                <span className="label-meta flex items-center gap-2">
-                   <Shield className="w-3 h-3" /> Consensus State
-                </span>
-                <div className={`p-3 rounded-lg border flex items-center gap-3 ${
-                   activeNode.type === 'blue' || activeNode.type === 'pending' || activeNode.type === 'finalized'
-                      ? 'bg-primary/5 border-primary/20' 
-                      : 'bg-zinc-900 border-zinc-800'
-                }`}>
-                   {activeNode.type === 'pending' ? (
-                      <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-                   ) : (
-                      <CheckCircle2 className={`w-4 h-4 ${activeNode.type === 'blue' || activeNode.type === 'finalized' ? 'text-primary' : 'text-zinc-600'}`} />
-                   )}
-                   <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                      activeNode.type === 'blue' || activeNode.type === 'finalized' ? 'text-white' : 'text-zinc-400'
-                   }`}>
-                      {activeNode.type === 'pending' ? 'PROPAGATING...' : activeNode.type.toUpperCase()}
-                   </span>
-                </div>
-             </div>
-
-             {/* Parents List */}
-             <div className="space-y-3">
-                <span className="label-meta flex items-center gap-2">
-                   <Share2 className="w-3 h-3" /> DAG Parents
-                </span>
-                <div className="space-y-2">
-                   {activeNode.id === 'gen' ? (
-                      <div className="text-[10px] text-zinc-600 italic pl-2">Genesis Block (Root)</div>
-                   ) : (
-                      edges.filter(e => e.to === activeNode.id).map((e, i) => (
-                         <div key={i} className="flex items-center justify-between p-2.5 bg-zinc-900/40 rounded border border-zinc-800/50">
-                            <span className="text-[10px] font-mono text-zinc-400">BLOCK_{e.from.toUpperCase()}</span>
-                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                               e.type === 'parent' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-zinc-800 text-zinc-500'
-                            }`}>
-                               {e.type === 'parent' ? 'SELECTED_PARENT' : 'MERGE_SET'}
-                            </span>
-                         </div>
-                      ))
-                   )}
-                </div>
-             </div>
           </div>
-          
-          <div className="p-4 bg-zinc-950 border-t border-zinc-900">
-             <button className="w-full py-3 bg-white hover:bg-zinc-200 text-black text-[10px] font-black uppercase tracking-widest rounded transition-colors flex items-center justify-center gap-2">
-                Open in Block Explorer <ArrowUpRight className="w-3 h-3" />
-             </button>
-          </div>
-       </div>
+       ))}
     </div>
   );
 };
@@ -295,7 +296,7 @@ const Architecture = () => {
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           
           {/* Header */}
-          <div className="text-center max-w-4xl mx-auto mb-32">
+          <div className="text-center max-w-4xl mx-auto mb-20">
             <div 
               data-id="hero-badge" 
               className={`inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/80 border border-zinc-800 backdrop-blur-md rounded-full mb-8 transition-all duration-1000 ${isVisible('hero-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
@@ -319,6 +320,24 @@ const Architecture = () => {
               Argus decouples consensus from execution using a novel BlockDAG topology.
               <br className="hidden md:block"/> Linear scalability with atomic composability for institutional finance.
             </p>
+          </div>
+
+          {/* New Live Metrics Strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-32 border-y border-zinc-900/50 py-8">
+             {[
+                { label: 'Block Height', val: '14,021,992', icon: Hash },
+                { label: 'Epoch Time', val: '400ms', icon: Clock },
+                { label: 'Global Hashrate', val: '42.5 EH/s', icon: Activity },
+                { label: 'Active Shards', val: '128', icon: Layers },
+             ].map((stat, i) => (
+                <div key={i} className="text-center md:text-left border-r last:border-0 border-zinc-900 px-4">
+                   <div className="flex items-center justify-center md:justify-start gap-2 mb-2 text-zinc-500">
+                      <stat.icon className="w-3 h-3" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">{stat.label}</span>
+                   </div>
+                   <p className="text-xl font-mono font-bold text-white">{stat.val}</p>
+                </div>
+             ))}
           </div>
 
           {/* Core Layers Diagram - ICONS UNIFIED TO WHITE */}
@@ -386,23 +405,23 @@ const Architecture = () => {
              ))}
           </div>
 
-          {/* Deep Dive Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-32 items-center">
-             <div className="lg:col-span-4 space-y-12">
+          {/* Deep Dive Section - REPLACED GHOSTDAG WITH NETWORK MAP */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-24 items-center">
+             <div className="lg:col-span-5 space-y-12">
                 <div data-id="spec-header" className={`transition-all duration-1000 ${isVisible('spec-header') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
-                   <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-6">Protocol<br/>Specifications</h2>
+                   <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-6">Global State<br/>Synchronization</h2>
                    <p className="text-zinc-400 text-lg">
-                      Engineered for high-frequency trading and real-time settlement. Argus minimizes state bloat while maximizing throughput.
+                      Argus utilizes a geographic sharding protocol to minimize latency. 
+                      Nodes form localized meshes for millisecond-level consensus before broadcasting to the global state.
                    </p>
                 </div>
 
                 <div className="space-y-4">
                    {[
-                      { label: 'Consensus Family', val: 'BlockDAG (GhostDAG)', icon: GitMerge },
+                      { label: 'Geo-Sharding', val: 'Enabled (12 Regions)', icon: Globe },
+                      { label: 'Node Distribution', val: 'Fully Decentralized', icon: Network },
                       { label: 'Sybil Resistance', val: 'Proof-of-Uptime (PoU)', icon: Shield },
-                      { label: 'Smart Contracts', val: 'Rust, Solidity (via EVM)', icon: Code },
-                      { label: 'Finality Time', val: '~400ms (Probabilistic)', icon: Zap },
-                      { label: 'Validator Count', val: '24,000+ Active Nodes', icon: Server },
+                      { label: 'Inter-Shard Comms', val: 'Atomic Composability', icon: Wifi },
                    ].map((spec, i) => (
                       <div 
                         key={i} 
@@ -420,23 +439,25 @@ const Architecture = () => {
                 </div>
              </div>
 
-             {/* Visual Representation of DAG */}
-             <div className="lg:col-span-8">
+             {/* Visual Representation of Network Map */}
+             <div className="lg:col-span-7">
                 <div 
                   data-id="dag-vis"
                   className={`relative transition-all duration-1000 delay-300 ${isVisible('dag-vis') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}
                 >
-                   <div className="mb-6 flex items-center justify-between">
-                     <div>
-                       <h3 className="text-xl font-bold text-white mb-1">GhostDAG Topology</h3>
-                       <p className="text-sm text-zinc-500">Visualizing parallel block references and consensus ordering.</p>
-                     </div>
-                   </div>
-
-                   {/* REPLACED CSS VISUAL WITH NEW COMPONENT */}
-                   <GhostDAGVisual />
+                   {/* NEW NETWORK MESH COMPONENT */}
+                   <NetworkMesh />
                 </div>
              </div>
+          </div>
+          
+          {/* New Performance Benchmarks Section */}
+          <div className="mb-32">
+             <div className="text-center mb-12">
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Protocol Benchmarks</h3>
+                <p className="text-zinc-500">Comparative analysis against legacy networks.</p>
+             </div>
+             <BenchmarkChart />
           </div>
 
           {/* Security Features */}
