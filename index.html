@@ -12,7 +12,7 @@
   body{background:#000;color:#0f0;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;overflow:hidden;}
   #loader{text-align:center;animation:pulse 2s infinite;}
   @keyframes pulse{0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3}}
-  .err{color:red;font-weight:bold;}
+  .err{color:#F43F5E;font-weight:bold;text-transform:uppercase;letter-spacing:1px;font-size:12px;}
 </style>
 <script type="importmap">
 {
@@ -37,25 +37,28 @@
   // Anti-Debugging / Anti-Tamper
   const _0x=()=>{const e=new Date().getTime();/*debugger*/};setInterval(_0x,500);
 
-  // Valid Base64 Payload (Compressed & Sanitized)
-  // Decodes to the full HTML structure with ImportMaps, Tailwind, and React mounting point.
-  const _payload = "PCFET0NUWVBFIGh0bWw+PGh0bWwgbGFuZz0iZW4iPjxoZWFkPjxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsaW5pdGlhbC1zY2FsZT0xLjAiLz48dGl0bGU+QXJndXMgUHJvdG9jb2wgfCBJbnN0aXR1dGlvbmFsIElhYVM8L3RpdGxlPjxzY3JpcHQgc3JjPSJodHRwczovL2Nkbi50YWlsd2luZGNzcy5jb20iPjwvc2NyaXB0PjxzY3JpcHQ+dGFpbHdpbmQuY29uZmlZID0ge3RoZW1lOntleHRlbmQ6e2NvbG9yczp7cHJpbWFyeToiI0Y0M0Y1RSIsemluYzp7OTUwOiIjMDMwMzAzIiw5MDA6IiMwQTBBMEIiLDgwMDoiIzE0MTQxNiIsNzAwOiIjMjcyNzJBIiw0MDA6IiNBMUEtRUEiLDEwMDoiI0Y0RjRGNSJ9fSxmb250RmFtaWx5OntzYW5zOlsnIkludGVyIicsJ3N5c3RlbS11aScsJ3NhbnMtc2VyaWYnXSwgbW9ubzpbJyJKZXRCcmFpbnMgTW9ubyInLCdtb25vc3BhY2UnXX19fX08L3NjcmlwdD48c3R5bGU+QGltcG9ydCB1cmwoJ2h0dHBzOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20vY3NzMj9mYW1pbHk9SW50ZXI6d2dodEAxMDAuLjkwMCZmYW1pbHk9SmV0QnJhaW5zK01vbm86d2dodEA0MDA7NzAwJmRpc3BsYXk9c3dhcCcpO2JvZHl7Zm9udC1mYW1pbHk6J0ludGVyJyxzYW5zLXNlcmlmO2JhY2tncm91bmQtY29sb3I6IzAzMDMwMztjb2xvcjojRjRGNEY1O21hcmdpbjowO292ZXJmbG93LXg6aGlkZGVuO3VzZXItc2VsZWN0Om5vbmV9LmxhYmVsLW1ldGF7Zm9udC1mYW1pbHk6J0pldEJyYWlucyBNb25vJyxtb25vc3BhY2U7Zm9udC1zaXplOjlweDtmb250LXdlaWdodDo3MDA7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2NvbG9yOiM1MjUyNUI7fS5zdXJmYWNle2JhY2tncm91bmQ6IzBBMEEwQjtib3JkZXI6MXB4IHNvbGlkICMxNDE0MTZ9LmJ0bi1wcmltYXJ5e2JhY2tncm91bmQ6I0Y0M0Y1RTtjb2xvcjojRkZGO2ZvbnQtd2VpZ2h0OjgwMDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Zm9udC1zaXplOjAuN3JlbTtwYWRkaW5nOjAuODVyZW0gMS41cmVtO2JvcmRlcjpub25lO2N1cnNvcjpwb2ludGVyO30uYnRuLXNlY29uZGFyeXtiYWNrZ3JvdW5kOnRyYW5zcGFyZW50O2JvcmRlcjoxcHggc29saWQgIzI3MjcyQTtjb2xvcjojQTFBMUFBO2ZvbnQtd2VpZ2h0OjcwMDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Zm9udC1zaXplOjEwcHg7cGFkZGluZzowLjc1cmVtIDEuNXJlbTtjdXJzb3I6cG9pbnRlcn08L3N0eWxlPjxzY3JpcHQgdHlwZT0iaW1wb3J0bWFwIj57ImltcG9ydHMiOnsibHVjaWRlLXJlYWN0IjoiaHR0cHM6Ly9lc20uc2gvbHVjaWRlLXJlYWN0QF4wLjU2NC4wIiwicmVhY3QtZG9tLyI6Imh0dHBzOi8vZXNtLnNoL3JlYWN0LWRvbUBea2V5LjE5LjIuNC8iLCJyZWFjdC8iOiJodHRwczovL2VzbS5zaC9yZWFjdEBeMTkuMi40LyIsInJlYWN0IjoiaHR0cHM6Ly9lc20uc2gvcmVhY3RAXjE5LjIuNCIsImZpcmViYXNlLyI6Imh0dHBzOi8vZXNtLnNoL2ZpcmViYXNlQF4xMi45LjAvIiwicmVhY3Qtcm91dGVyIjoiaHR0cHM6Ly9lc20uc2gvcmVhY3Qtcm91dGVyQF43LjEzLjAifX08L3NjcmlwdD48L2hlYWQ+PGJvZHk+PGRpdiBpZD0icm9vdCI+PC9kaXY+PHNjcmlwdD53aW5kb3cuX19BUkdVU19TRUNVUkVfQk9PVCA9IHRydWU7PC9zY3JpcHQ+PHNjcmlwdCB0eXBlPSJtb2R1bGUiIHNyYz0iLi9pbmRleC50c3giPjwvc2NyaXB0PjwvYm9keT48L2h0bWw+";
+  // Payload: Base64 Encoded HTML Shell
+  // Includes: Tailwind CDN, Config, Fonts, Styles, ImportMap, Root Div, and Module Script
+  const _payload = "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgo8dGl0bGU+QXJndXMgUHJvdG9jb2wgfCBJbnN0aXR1dGlvbmFsIElhYVM8L3RpdGxlPgo8c2NyaXB0IHNyYz0iaHR0cHM6Ly9jZG4udGFpbHdpbmRjc3MuY29tIj48L3NjcmlwdD4KPHNjcmlwdD50YWlsd2luZC5jb25maWc9e3RoZW1lOntleHRlbmQ6e2NvbG9yczp7cHJpbWFyeToiI0Y0M0Y1RSIsemluYzp7OTUwOiIjMDMwMzAzIiw5MDA6IiMwQTBBMEIiLDgwMDoiIzE0MTQxNiIsNzAwOiIjMjcyNzJBIiw0MDA6IiNBMUEtRUEiLDEwMDoiI0Y0RjRGNSJ9fSxmb250RmFtaWx5OntzYW5zOlsnIkludGVyIicsJ3N5c3RlbS11aScsJ3NhbnMtc2VyaWYnXSwgbW9ubzpbJyJKZXRCcmFpbnMgTW9ubyInLCdtb25vc3BhY2UnXX0sYW5pbWF0aW9uOnttYXJxdWVlOidtYXJxdWVlIDQwcyBsaW5lYXIgaW5maW5pdGUnfSxrZXlmcmFtZXM6e21hcnF1ZWU6eycwJSc6e3RyYW5zZm9ybTondHJhbnNsYXRlWCgwJSInfSwnMTAwJSc6e3RyYW5zZm9ybTondHJhbnNsYXRlWCgtNTAlKSd9fX19fX08L3NjcmlwdD4KPHN0eWxlPkBpbXBvcnQgdXJsKCdodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2NzczI/ZmFtaWx5PUludGVyOml0YWwsb3BzeCx3Z2h0QDAsMTQuLjMyLDEwMC4uOTAwOzEsMTQuLjMyLDEwMC4uOTAwJmZhbWlseT1KZXRCcmFpbnMrTW9ubzp3Z2h0QDQwMDs1MDA7NzAwJmRpc3BsYXk9c3dhcCcpO2JvZHl7Zm9udC1mYW1pbHk6J0ludGVyJyxzYW5zLXNlcmlmO2JhY2tncm91bmQtY29sb3I6IzAzMDMwMztjb2xvcjojRjRGNEY1O21hcmdpbjowO292ZXJmbG93LXg6aGlkZGVuO3VzZXItc2VsZWN0Om5vbmV9LmxhYmVsLW1ldGF7Zm9udC1mYW1pbHk6J0pldEJyYWlucyBNb25vJyxtb25vc3BhY2U7Zm9udC1zaXplOjlweDtmb250LXdlaWdodDo3MDA7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2NvbG9yOiM1MjUyNUI7fS5zdXJmYWNle2JhY2tncm91bmQ6IzBBMEEwQjtib3JkZXI6MXB4IHNvbGlkICMxNDE0MTZ9LmJ0bi1wcmltYXJ5e2JhY2tncm91bmQ6I0Y0M0Y1RTtjb2xvcjojRkZGO2ZvbnQtd2VpZ2h0OjgwMDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Zm9udC1zaXplOjAuN3JlbTtwYWRkaW5nOjAuODVyZW0gMS41cmVtO2JvcmRlcjpub25lO2N1cnNvcjpwb2ludGVyO30uYnRuLXNlY29uZGFyeXtiYWNrZ3JvdW5kOnRyYW5zcGFyZW50O2JvcmRlcjoxcHggc29saWQgIzI3MjcyQTtjb2xvcjojQTFBMUFBO2ZvbnQtd2VpZ2h0OjcwMDt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7Zm9udC1zaXplOjEwcHg7cGFkZGluZzowLjc1cmVtIDEuNXJlbTtjdXJzb3I6cG9pbnRlcn08L3N0eWxlPgo8c2NyaXB0IHR5cGU9ImltcG9ydG1hcCI+eyJpbXBvcnRzIjp7Imx1Y2lkZS1yZWFjdCI6Imh0dHBzOi8vZXNtLnNoL2x1Y2lkZS1yZWFjdEBeMC41NjQuMCIsInJlYWN0LWRvbS8iOiJodHRwczovL2VzbS5zaC9yZWFjdC1kb21AXjE5LjIuNC8iLCJyZWFjdC8iOiJodHRwczovL2VzbS5zaC9yZWFjdEBeMTkuMi40LyIsInJlYWN0IjoiaHR0cHM6Ly9lc20uc2gvcmVhY3RAXjE5LjIuNCIsImZpcmViYXNlLyI6Imh0dHBzOi8vZXNtLnNoL2ZpcmViYXNlQF4xMi45LjAvIiwicmVhY3Qtcm91dGVyIjoiaHR0cHM6Ly9lc20uc2gvcmVhY3Qtcm91dGVyQF43LjEzLjAifX08L3NjcmlwdD4KPC9oZWFkPgo8Ym9keT4KPGRpdiBpZD0icm9vdCI+PC9kaXY+CjxzY3JpcHQ+d2luZG93Ll9fQVJHVVNfU0VDVVJFX0JPT1QgPSB0cnVlOzwvc2NyaXB0Pgo8c2NyaXB0IHR5cGU9Im1vZHVsZSIgc3JjPSIuL2luZGV4LnRzeCI+PC9zY3JpcHQ+CjwvYm9keT4KPC9odG1sPg==";
 
   setTimeout(function(){
     try {
-        // Decode
-        const decoded = atob(_payload);
+        // Sanitize payload to remove any accidental newlines or whitespace
+        var cleanPayload = _payload.replace(/[\n\r\s]/g, "");
         
-        // Wipe and rewrite
+        // Decode
+        var decoded = atob(cleanPayload);
+        
+        // Decoy / Wipe / Rewrite
         document.open();
         document.write(decoded);
         document.close();
     } catch(e) {
-        document.getElementById('status').innerText = "FATAL: DECRYPTION_FAILURE";
+        document.getElementById('status').innerText = "FATAL: DECRYPTION_FAILURE (" + e.message + ")";
         document.getElementById('status').className = "err";
-        console.error("Secure Boot Failed");
+        console.error("Secure Boot Failed:", e);
     }
-  }, 1200);
+  }, 1000);
 
 })();
 </script>
