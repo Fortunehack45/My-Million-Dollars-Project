@@ -14,7 +14,6 @@ import AdminPanel from './pages/AdminPanel';
 import Landing from './pages/Landing';
 import Architecture from './pages/Architecture';
 import Whitepaper from './pages/Whitepaper';
-import Docs from './pages/Docs';
 import About from './pages/About';
 import { Terms, Privacy } from './pages/Legal';
 
@@ -115,7 +114,6 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/architecture" element={<Architecture />} />
       <Route path="/whitepaper" element={<Whitepaper />} />
-      <Route path="/docs" element={<Docs />} />
       <Route path="/about" element={<About />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />

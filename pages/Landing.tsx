@@ -169,7 +169,7 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos, initialTerminalPos, hasInteracted]);
 
-  // MATRIX RAIN CANVAS
+  // RED MATRIX RAIN CANVAS
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -183,20 +183,17 @@ const Landing = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    const chars = "ABCDEF0123456789";
-    const fontSize = 14;
+    const chars = "01";
+    const fontSize = 16;
     let columns = Math.floor(canvas.width / fontSize);
-    let drops: number[] = [];
-    
-    for(let i=0; i<columns; i++) {
-        drops[i] = Math.random() * (canvas.height / fontSize);
-    }
+    let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
     const draw = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.font = `bold ${fontSize}px 'JetBrains Mono'`;
-      
+      ctx.font = fontSize + "px monospace";
+      const fadeSize = canvas.height * 0.25;
+
       const beamX = beamRef.current.x;
       const beamY = beamRef.current.y + window.scrollY; 
       const radius = 350; 
@@ -205,26 +202,22 @@ const Landing = () => {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
-
+        
+        // Calculate interactive alpha based on "flashlight"
         const dx = x - beamX;
         const dy = y - (beamY - window.scrollY); 
         const dist = Math.sqrt(dx*dx + dy*dy);
         
-        let alpha = 0;
+        let opacity = 0.2; // Base matrix opacity
         if (dist < radius) {
-            alpha = 1 - (dist / radius);
-            alpha = alpha * alpha * alpha; 
+            let interactAlpha = 1 - (dist / radius);
+            opacity = Math.max(opacity, interactAlpha * interactAlpha);
         }
 
-        if (alpha > 0.01) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-            ctx.fillText(char, x, y);
-        }
-
-        if (y > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i] += 0.85; 
+        ctx.fillStyle = `rgba(244, 63, 94, ${opacity})`; 
+        ctx.fillText(char, x, y);
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
       }
       requestRef.current = requestAnimationFrame(draw);
     };
@@ -266,7 +259,7 @@ const Landing = () => {
       <section id="hero" className="relative z-10 pt-32 pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-24 items-center w-full">
           
-          {/* Hero Left: Text Content - Increased column span to 7 for better text containment */}
+          {/* Hero Left: Text Content */}
           <div className="lg:col-span-7 space-y-12 animate-fade-in-up relative z-20">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full backdrop-blur-md animate-fade-in opacity-0" style={{ animationDelay: '0.2s' }}>
@@ -274,7 +267,6 @@ const Landing = () => {
                  <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              {/* Reduced font sizes at lg/xl breakpoints to ensure long words like "DECENTRALIZED" fit perfectly */}
               <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-5xl xl:text-7xl 2xl:text-8xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
                 {content.hero.title}
               </h1>
@@ -295,7 +287,7 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Hero Right: Terminal UI - Reduced column span to 5 and constrained max-width */}
+          {/* Hero Right: Terminal UI */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10" style={{ animationDelay: '0.5s' }}>
              <div className="relative max-w-lg ml-auto bg-black/90 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8),0_0_50px_rgba(244,63,94,0.05)] font-mono text-[10px] ring-1 ring-white/5">
                 

@@ -64,7 +64,6 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const navLinks = [
     { label: 'Architecture', path: '/architecture' },
     { label: 'Whitepaper', path: '/whitepaper' },
-    { label: 'Docs', path: '/docs' },
   ];
 
   return (
@@ -168,7 +167,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               <div className="lg:col-span-1 space-y-6">
                  <span className="text-[10px] font-black text-white uppercase tracking-widest border-b border-primary/20 pb-2 inline-block">Protocol</span>
                  <div className="flex flex-col gap-3">
-                    {['Architecture', 'Whitepaper', 'Explorer', 'Tokenomics'].map(link => (
+                    {['Architecture', 'Whitepaper', 'Tokenomics'].map(link => (
                       <Link key={link} to={`/${link.toLowerCase()}`} className="text-xs text-zinc-500 hover:text-primary transition-colors flex items-center gap-2 group">
                         <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                         {link}
