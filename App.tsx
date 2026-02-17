@@ -15,6 +15,8 @@ import Landing from './pages/Landing';
 import Architecture from './pages/Architecture';
 import Whitepaper from './pages/Whitepaper';
 import About from './pages/About';
+import Explorer from './pages/Explorer';
+import Docs from './pages/Docs';
 import { Terms, Privacy } from './pages/Legal';
 
 // Protected Route Wrapper
@@ -48,6 +50,7 @@ const AppRoutes = () => {
   const { firebaseUser, user, loading } = useAuth();
   const [searchParams] = useSearchParams();
 
+  // Capture referral code from URL and persist it
   useEffect(() => {
     const ref = searchParams.get('ref');
     if (ref) {
@@ -79,6 +82,7 @@ const AppRoutes = () => {
         firebaseUser && !user ? <ProfileSetup /> : <Navigate to="/" />
       } />
       
+      {/* App Routes */}
       <Route path="/tasks" element={
         <ProtectedRoute>
           <SocialTasks />
@@ -109,9 +113,12 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
 
+      {/* Public Routes */}
       <Route path="/architecture" element={<Architecture />} />
       <Route path="/whitepaper" element={<Whitepaper />} />
       <Route path="/about" element={<About />} />
+      <Route path="/explorer" element={<Explorer />} />
+      <Route path="/docs" element={<Docs />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
 
