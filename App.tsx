@@ -48,7 +48,6 @@ const AppRoutes = () => {
   const { firebaseUser, user, loading } = useAuth();
   const [searchParams] = useSearchParams();
 
-  // Capture referral code from URL and persist it
   useEffect(() => {
     const ref = searchParams.get('ref');
     if (ref) {
@@ -80,7 +79,6 @@ const AppRoutes = () => {
         firebaseUser && !user ? <ProfileSetup /> : <Navigate to="/" />
       } />
       
-      {/* App Routes */}
       <Route path="/tasks" element={
         <ProtectedRoute>
           <SocialTasks />
@@ -111,7 +109,6 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
 
-      {/* Public Routes */}
       <Route path="/architecture" element={<Architecture />} />
       <Route path="/whitepaper" element={<Whitepaper />} />
       <Route path="/about" element={<About />} />
