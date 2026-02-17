@@ -2,9 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { Hexagon, ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
+import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
+
+const LOGO_SRC = "https://arguz.edgeone.app/A_20260217_132556_0001.png";
+const logoStyle = {
+    maskImage: `url(${LOGO_SRC})`,
+    maskSize: 'contain',
+    maskPosition: 'center',
+    maskRepeat: 'no-repeat',
+    WebkitMaskImage: `url(${LOGO_SRC})`,
+    WebkitMaskSize: 'contain',
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+};
 
 // Custom Social Icons for better branding
 const XIcon = ({ className }: { className?: string }) => (
@@ -62,7 +74,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 md:gap-4 z-50">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)]">
-              <Hexagon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+              <div className="w-5 h-5 md:w-6 md:h-6 bg-primary" style={logoStyle} />
             </div>
             <div className="flex flex-col -space-y-0.5 md:-space-y-1">
               <span className="font-bold text-lg md:text-xl tracking-tight text-white">Argus<span className="text-zinc-500">Protocol</span></span>
@@ -132,7 +144,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               {/* Brand Column */}
               <div className="lg:col-span-2 space-y-6">
                  <div className="flex items-center gap-2">
-                    <Hexagon className="w-6 h-6 text-primary" />
+                    <div className="w-6 h-6 bg-primary" style={logoStyle} />
                     <span className="text-xl font-black text-white tracking-tight uppercase">Argus Protocol</span>
                  </div>
                  <p className="text-sm text-zinc-500 leading-relaxed max-w-sm">

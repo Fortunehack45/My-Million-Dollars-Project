@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router';
 import { 
@@ -15,6 +16,18 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL } from '../services/firebase';
+
+const LOGO_SRC = "https://arguz.edgeone.app/A_20260217_132556_0001.png";
+const logoStyle = {
+    maskImage: `url(${LOGO_SRC})`,
+    maskSize: 'contain',
+    maskPosition: 'center',
+    maskRepeat: 'no-repeat',
+    WebkitMaskImage: `url(${LOGO_SRC})`,
+    WebkitMaskSize: 'contain',
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+};
 
 const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean, key?: React.Key }) => {
   const location = useLocation();
@@ -91,7 +104,7 @@ const Sidebar = () => {
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-xl z-50 flex items-center justify-between px-6 border-b border-zinc-900/80">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg shadow-primary/5">
-             <Hexagon className="w-4 h-4 text-primary" />
+             <div className="w-5 h-5 bg-primary" style={logoStyle} />
           </div>
           <span className="font-black text-sm tracking-tighter uppercase italic text-white">Argus<span className="text-zinc-600">Protocol</span></span>
         </div>
@@ -132,7 +145,7 @@ const Sidebar = () => {
           <div className="mb-10 px-4 pt-2">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center shadow-xl shadow-black/50">
-                 <Hexagon className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+                 <div className="w-6 h-6 bg-primary drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]" style={logoStyle} />
               </div>
               <div>
                 <span className="block font-black text-lg tracking-tighter text-white uppercase italic leading-none">Argus</span>

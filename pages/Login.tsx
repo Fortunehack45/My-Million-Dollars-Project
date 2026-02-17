@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -11,6 +12,18 @@ import {
   Terminal as TerminalIcon,
   Server
 } from 'lucide-react';
+
+const LOGO_SRC = "https://arguz.edgeone.app/A_20260217_132556_0001.png";
+const logoStyle = {
+    maskImage: `url(${LOGO_SRC})`,
+    maskSize: 'contain',
+    maskPosition: 'center',
+    maskRepeat: 'no-repeat',
+    WebkitMaskImage: `url(${LOGO_SRC})`,
+    WebkitMaskSize: 'contain',
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+};
 
 const Login = () => {
   const { login } = useAuth();
@@ -44,7 +57,7 @@ const Login = () => {
           <div className="flex items-start justify-between mb-20">
             <div className="flex gap-4 items-center">
               <div className="w-10 h-10 border border-primary flex items-center justify-center bg-primary/5">
-                <Hexagon className="w-5 h-5 text-primary" />
+                <div className="w-6 h-6 bg-primary" style={logoStyle} />
               </div>
               <div>
                 <h1 className="text-xl font-black text-white tracking-widest uppercase leading-none">Argus_Terminal</h1>
