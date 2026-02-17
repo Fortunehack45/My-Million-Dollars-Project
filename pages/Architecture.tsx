@@ -3,10 +3,72 @@ import React, { useState, useEffect, useRef } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { 
   GitMerge, Database, Cpu, Shield, Zap, 
-  Lock, Globe, Activity, Hash, Clock, Layers
+  Lock, Globe, Activity, Hash, Clock, Layers, GitBranch, Share2, Box
 } from 'lucide-react';
 import { subscribeToContent, DEFAULT_ARCHITECTURE_CONFIG } from '../services/firebase';
 import { ArchitecturePageConfig } from '../types';
+
+const GhostDAGExplainer = () => {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-32">
+       <div className="space-y-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+             <Zap className="w-3 h-3 text-primary" />
+             <span className="text-[9px] font-black text-primary uppercase tracking-widest">Core_Protocol_Breakthrough</span>
+          </div>
+          <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-tight">GhostDAG: The Death of Orphans</h2>
+          <p className="text-zinc-500 leading-relaxed text-lg">
+             Unlike traditional serial blockchains that discard parallel blocks (orphans), GhostDAG includes them in a directed acyclic graph. Our <span className="text-white">PHANTOM algorithm</span> then orders these blocks topologically to achieve consistent consensus without wasting network bandwidth.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div className="p-5 bg-zinc-900/50 border border-zinc-900 rounded-2xl space-y-2">
+                <GitBranch className="w-4 h-4 text-emerald-500" />
+                <h4 className="text-xs font-black text-white uppercase">Blue Set (Honest)</h4>
+                <p className="text-[10px] text-zinc-500 leading-tight">Blocks originating from honest nodes with high connectivity.</p>
+             </div>
+             <div className="p-5 bg-zinc-900/50 border border-zinc-900 rounded-2xl space-y-2">
+                <Share2 className="w-4 h-4 text-primary" />
+                <h4 className="text-xs font-black text-white uppercase">Red Set (Outliers)</h4>
+                <p className="text-[10px] text-zinc-500 leading-tight">Blocks with low connectivity or those attempting double-spends.</p>
+             </div>
+          </div>
+       </div>
+       <div className="surface p-12 rounded-[2.5rem] border border-zinc-900 bg-zinc-950/50 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+          <div className="relative space-y-8">
+             <div className="h-64 border-2 border-dashed border-zinc-900 rounded-3xl flex items-center justify-center p-8">
+                <div className="w-full flex justify-around items-center">
+                   {[1, 2, 3].map(i => (
+                      <div key={i} className="flex flex-col items-center gap-6">
+                         <div className="w-12 h-12 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center relative">
+                            {/* Added Box icon import fix */}
+                            <Box className="w-6 h-6 text-zinc-600" />
+                            {i === 2 && <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-ping"></div>}
+                         </div>
+                         <div className="h-20 w-px bg-zinc-900"></div>
+                         <div className="w-12 h-12 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center">
+                            {/* Added Box icon import fix */}
+                            <Box className="w-6 h-6 text-zinc-600" />
+                         </div>
+                      </div>
+                   ))}
+                </div>
+             </div>
+             <div className="flex justify-between items-center px-4">
+                <div className="space-y-1">
+                   <p className="text-[10px] text-zinc-500 font-bold uppercase">Consensus Layer</p>
+                   <p className="text-lg font-black text-white uppercase">Linear Ordering</p>
+                </div>
+                <div className="text-right space-y-1">
+                   <p className="text-[10px] text-zinc-500 font-bold uppercase">Efficiency</p>
+                   <p className="text-lg font-black text-emerald-500">100% UTIL</p>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+  );
+};
 
 // --- Benchmark Chart Component ---
 const BenchmarkChart = () => {
@@ -15,16 +77,16 @@ const BenchmarkChart = () => {
        {[
           { label: 'Transactions Per Second', argus: '400,000', eth: '29', sol: '65,000', unit: 'TPS' },
           { label: 'Time to Finality', argus: '400ms', eth: '12m', sol: '12.8s', unit: 'Time' },
-          { label: 'Validator Reqs', argus: 'Standard', eth: '32 ETH', sol: 'High-End', unit: 'Hardware' },
+          { label: 'Validator Reqs', argus: 'GhostDAG', eth: '32 ETH', sol: 'High-End', unit: 'Logic' },
        ].map((metric, i) => (
-          <div key={i} className="surface p-6 rounded-2xl space-y-4">
+          <div key={i} className="surface p-6 rounded-2xl space-y-4 border border-zinc-900">
              <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">{metric.label}</h4>
              
              <div className="space-y-3">
                 {/* Argus */}
                 <div className="space-y-1">
                    <div className="flex justify-between text-[10px] font-bold uppercase">
-                      <span className="text-primary">Argus Protocol</span>
+                      <span className="text-primary">Argus GhostDAG</span>
                       <span className="text-white">{metric.argus}</span>
                    </div>
                    <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
@@ -35,7 +97,7 @@ const BenchmarkChart = () => {
                 {/* Solana */}
                 <div className="space-y-1 opacity-60">
                    <div className="flex justify-between text-[10px] font-bold uppercase">
-                      <span className="text-zinc-400">Solana</span>
+                      <span className="text-zinc-400">Solana (Serial)</span>
                       <span className="text-zinc-400">{metric.sol}</span>
                    </div>
                    <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
@@ -46,7 +108,7 @@ const BenchmarkChart = () => {
                 {/* Ethereum */}
                 <div className="space-y-1 opacity-40">
                    <div className="flex justify-between text-[10px] font-bold uppercase">
-                      <span className="text-zinc-400">Ethereum</span>
+                      <span className="text-zinc-400">Ethereum (L1)</span>
                       <span className="text-zinc-400">{metric.eth}</span>
                    </div>
                    <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
@@ -166,31 +228,31 @@ const Architecture = () => {
               className={`inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/80 border border-zinc-800 backdrop-blur-md rounded-full mb-8 transition-all duration-1000 ${isVisible('hero-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-               <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Argus Stack V2.8 (RC1)</span>
+               <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">GhostDAG Stack V2.8 (PHANTOM)</span>
             </div>
             
             <h1 
               data-id="hero-title"
               className={`text-6xl md:text-8xl font-black text-white uppercase tracking-tighter mb-8 leading-[0.9] transition-all duration-1000 delay-100 ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
             >
-              {content.heroTitle}
+              The Parallel Economy
             </h1>
             
             <p 
               data-id="hero-desc"
               className={`text-lg md:text-xl text-zinc-400 leading-relaxed max-w-2xl mx-auto transition-all duration-1000 delay-200 ${isVisible('hero-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
             >
-              {content.heroSubtitle}
+              Argus Protocol utilizes a novel GhostDAG topology to solve the trilemma. By allowing parallel blocks to coexist and order themselves, we achieve instant finality.
             </p>
           </div>
 
           {/* New Live Metrics Strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-32 border-y border-zinc-900/50 py-8">
              {[
-                { label: 'Block Height', val: '14,021,992', icon: Hash },
-                { label: 'Epoch Time', val: '400ms', icon: Clock },
-                { label: 'Global Hashrate', val: '42.5 EH/s', icon: Activity },
-                { label: 'Active Shards', val: '128', icon: Layers },
+                { label: 'BlockDAG Height', val: '14,021,992', icon: Hash },
+                { label: 'Ghost Time', val: '400ms', icon: Clock },
+                { label: 'DAG Density', val: '98.2%', icon: Activity },
+                { label: 'Active Clusters', val: '128', icon: Layers },
              ].map((stat, i) => (
                 <div key={i} className="text-center md:text-left border-r last:border-0 border-zinc-900 px-4">
                    <div className="flex items-center justify-center md:justify-start gap-2 mb-2 text-zinc-500">
@@ -201,6 +263,8 @@ const Architecture = () => {
                 </div>
              ))}
           </div>
+
+          <GhostDAGExplainer />
 
           {/* Core Layers Diagram */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-40 relative">
@@ -233,7 +297,7 @@ const Architecture = () => {
                      </div>
                      
                      <div className="mt-8 pt-6 border-t border-zinc-900/80 flex justify-between items-center relative z-10">
-                        <span className="text-[10px] font-mono font-bold text-zinc-600 uppercase">Performance</span>
+                        <span className="text-[10px] font-mono font-bold text-zinc-600 uppercase">Throughput</span>
                         <span className="text-xs font-mono font-bold text-white bg-zinc-900 px-3 py-1 rounded border border-zinc-800">{layer.stat}</span>
                      </div>
                   </div>
@@ -243,8 +307,8 @@ const Architecture = () => {
 
           <div className="mb-32">
              <div className="text-center mb-12">
-                <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Protocol Benchmarks</h3>
-                <p className="text-zinc-500">Comparative analysis against legacy networks.</p>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Topology Benchmarks</h3>
+                <p className="text-zinc-500">GhostDAG parallel block ordering compared to legacy serial chains.</p>
              </div>
              <BenchmarkChart />
           </div>

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   startMiningSession, 
@@ -11,8 +11,86 @@ import {
   REFERRAL_BOOST,
   MAX_REFERRALS
 } from '../services/firebase';
-import { Clock, Database, Activity, Cpu, ShieldCheck, Box, HardDrive, Zap, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { Clock, Database, Activity, Cpu, ShieldCheck, Box, Zap, AlertTriangle, ArrowUpRight, GitMerge, Share2 } from 'lucide-react';
 import { NetworkStats } from '../types';
+
+// GhostDAG Topology Visualization Component
+const GhostDAGVisualizer = () => {
+  const [blocks, setBlocks] = useState<Array<{id: number, x: number, y: number, color: string, parents: number[]}>>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Initial blocks
+    const initial = [
+      { id: 0, x: 20, y: 50, color: 'text-emerald-500', parents: [] },
+      { id: 1, x: 120, y: 30, color: 'text-emerald-500', parents: [0] },
+      { id: 2, x: 120, y: 70, color: 'text-emerald-500', parents: [0] }
+    ];
+    setBlocks(initial);
+
+    const interval = setInterval(() => {
+      setBlocks(prev => {
+        const lastBlocks = prev.slice(-3);
+        const newId = prev.length;
+        const x = (prev[prev.length - 1].x + 80);
+        const y = 30 + Math.random() * 40;
+        const isBlue = Math.random() > 0.15; // 85% Blue Set probability
+        
+        const newBlock = {
+          id: newId,
+          x,
+          y,
+          color: isBlue ? 'text-emerald-500' : 'text-primary',
+          parents: lastBlocks.map(b => b.id).filter(() => Math.random() > 0.4)
+        };
+
+        const next = [...prev, newBlock];
+        return next.length > 15 ? next.slice(1).map(b => ({...b, x: b.x - 80})) : next;
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="w-full h-40 relative overflow-hidden bg-zinc-950/50 rounded-2xl border border-zinc-900 mb-6 group">
+      <div className="absolute top-3 left-4 flex items-center gap-2 z-10">
+        <GitMerge className="w-3 h-3 text-emerald-500" />
+        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">GhostDAG_Topology_Stream</span>
+      </div>
+      <svg className="w-full h-full">
+        {/* Render Connections */}
+        {blocks.map(block => 
+          block.parents.map(parentId => {
+            const parent = blocks.find(b => b.id === parentId);
+            if (!parent) return null;
+            return (
+              <line 
+                key={`${block.id}-${parentId}`}
+                x1={parent.x} y1={parent.y}
+                x2={block.x} y2={block.y}
+                stroke="currentColor"
+                strokeWidth="1"
+                className="text-zinc-800 transition-all duration-1000"
+              />
+            );
+          })
+        )}
+        {/* Render Blocks */}
+        {blocks.map(block => (
+          <g key={block.id} className="transition-all duration-1000" transform={`translate(${block.x},${block.y})`}>
+            <circle r="4" className={`${block.color} fill-current shadow-[0_0_10px_currentColor]`} />
+            <circle r="8" className={`${block.color} fill-current opacity-10 animate-pulse`} />
+          </g>
+        ))}
+      </svg>
+      <div className="absolute bottom-3 right-4 flex gap-4 text-[7px] font-bold uppercase tracking-widest">
+         <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> <span className="text-zinc-500">Blue_Set</span></div>
+         <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary"></div> <span className="text-zinc-500">Red_Set</span></div>
+      </div>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { user, refreshUser } = useAuth();
@@ -20,14 +98,12 @@ const Dashboard = () => {
   const [pendingPoints, setPendingPoints] = useState(0);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
   
-  const MAX_SESSION_TIME = 24 * 60 * 60; // 24 Hours in seconds
+  const MAX_SESSION_TIME = 24 * 60 * 60; 
 
-  // Mining Rate = (Base + (Refs * Boost)) / 3600 (to get per second)
   const referrals = Math.min(user?.referralCount || 0, MAX_REFERRALS);
   const currentHourlyRate = BASE_MINING_RATE + (referrals * REFERRAL_BOOST);
   const ratePerSecond = currentHourlyRate / 3600;
 
-  // Sync Referrals on Mount
   useEffect(() => {
     if (user) {
       syncReferralStats(user.uid, user.referralCount, user.points)
@@ -58,7 +134,6 @@ const Dashboard = () => {
     const elapsedSeconds = Math.floor((now - user.miningStartTime) / 1000);
     
     if (elapsedSeconds >= MAX_SESSION_TIME) {
-      // Session expired
       setMiningTimer(MAX_SESSION_TIME);
       setPendingPoints(MAX_SESSION_TIME * ratePerSecond);
     } else {
@@ -116,16 +191,16 @@ const Dashboard = () => {
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">System Online</span>
+             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">GhostDAG Node Operational</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase italic leading-none">Argus Infrastructure</h1>
-          <p className="text-zinc-500 text-sm font-medium">Monitoring active node contribution. <span className="text-zinc-400">Yield Velocity:</span> <span className="text-primary font-mono font-bold">{currentHourlyRate.toFixed(2)} ARG/hr</span></p>
+          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase italic leading-none">Argus_BlockDAG_Interface</h1>
+          <p className="text-zinc-500 text-sm font-medium">Validating parallel block clusters. <span className="text-zinc-400">Blue-Set Velocity:</span> <span className="text-primary font-mono font-bold">{currentHourlyRate.toFixed(2)} ARG/hr</span></p>
         </div>
         <div className="text-right flex flex-col items-end gap-3 bg-zinc-900/30 p-4 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
-          <p className="label-meta text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Protocol Scarcity</p>
+          <p className="label-meta text-[9px] text-zinc-500 font-bold uppercase tracking-widest">DAG Emission Cap</p>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-mono font-black text-white">{(leftToMine / 1000000).toFixed(2)}M <span className="text-zinc-600">REMAINING</span></p>
+              <p className="text-sm font-mono font-black text-white">{(leftToMine / 1000000).toFixed(2)}M <span className="text-zinc-600">UNMINED</span></p>
               <div className="w-40 h-2 bg-zinc-950 mt-2 rounded-full overflow-hidden border border-zinc-800/50">
                 <div className="h-full bg-gradient-to-r from-primary to-rose-400 shadow-[0_0_15px_#f43f5e]" style={{ width: `${miningPercent}%` }}></div>
               </div>
@@ -135,142 +210,81 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Boost Panel */}
-      <div className="surface p-6 md:p-8 rounded-3xl border-primary/20 bg-gradient-to-br from-zinc-900/80 to-primary/5 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden animate-zoom-in" style={{ animationDelay: '0.2s' }}>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 animate-pulse-slow"></div>
-        
-        <div className="flex items-center gap-6 relative z-10">
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/30 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
-            <Zap className="w-7 h-7 text-primary fill-primary/20" />
-          </div>
-          <div>
-            <h3 className="text-xl font-black text-white uppercase italic tracking-tight">Efficiency Protocol</h3>
-            <div className="flex items-center gap-2 mt-1">
-               <span className="text-xs text-zinc-400 font-medium">Base: 0.06/hr</span>
-               <span className="text-zinc-700">•</span>
-               <span className="text-xs text-primary font-bold">Boost: +{(referrals * REFERRAL_BOOST).toFixed(2)}/hr</span>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-1.5 relative z-10">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div 
-              key={i} 
-              className={`w-1.5 h-8 rounded-full transition-all duration-500 ${i < referrals ? 'bg-primary shadow-[0_0_8px_#f43f5e] scale-y-110' : 'bg-zinc-800 scale-y-75'}`}
-              title={`Peer Node ${i+1}`}
-            ></div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { label: 'Asset Balance', value: Math.floor(user.points * 100) / 100, unit: 'ARG', icon: Database, color: 'text-white' },
-          { label: 'Session Time', value: formatTime(miningTimer), unit: 'REM', icon: Clock, color: 'text-emerald-400' },
-          { label: 'Active Nodes', value: netStats.activeNodes.toLocaleString(), unit: 'LIVE', icon: Activity, color: 'text-primary' },
-          { label: 'Cumulative Mined', value: Math.floor(netStats.totalMined).toLocaleString(), unit: 'ARG', icon: Box, color: 'text-indigo-400' }
-        ].map((stat, i) => (
-          <div key={i} className="surface p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border border-zinc-900 bg-gradient-to-b from-zinc-900/40 to-zinc-950 animate-fade-in-up" style={{ animationDelay: `${0.3 + (i * 0.1)}s` }}>
-            <div className="flex items-center justify-between mb-8">
-              <div className="p-2.5 bg-zinc-950 border border-zinc-900 rounded-xl group-hover:border-zinc-700 transition-colors">
-                 <stat.icon className={`w-4 h-4 text-zinc-500 group-hover:${stat.color} transition-colors`} />
-              </div>
-              <ArrowUpRight className="w-3 h-3 text-zinc-700 group-hover:text-zinc-500" />
-            </div>
-            <p className="label-meta mb-1 text-zinc-500">{stat.label}</p>
-            <div className="flex items-baseline gap-2">
-              <h3 className={`text-2xl font-mono font-bold tracking-tight ${stat.color}`}>{stat.value}</h3>
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{stat.unit}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 surface p-12 rounded-3xl flex flex-col items-center justify-center min-h-[420px] relative overflow-hidden border-zinc-900 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(244,63,94,0.05),transparent_70%)] animate-pulse-slow"></div>
+        <div className="lg:col-span-3 surface p-10 rounded-3xl flex flex-col min-h-[480px] relative overflow-hidden border-zinc-900 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(244,63,94,0.03),transparent_70%)]"></div>
           
-          <div className="absolute top-6 left-6 flex items-center gap-2 bg-zinc-950/50 px-3 py-1.5 rounded-full border border-zinc-900 backdrop-blur-md">
-             <div className={`w-1.5 h-1.5 rounded-full ${user.miningActive ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`}></div>
-             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-mono">Instance::ALPHA</p>
-          </div>
+          <GhostDAGVisualizer />
 
           {user.miningActive ? (
-            <div className="text-center space-y-12 w-full max-w-sm relative z-10 animate-zoom-in">
+            <div className="text-center space-y-10 w-full relative z-10 animate-zoom-in mt-auto pb-4">
               <div className="space-y-4">
                 <div className="inline-block">
                   <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isSessionComplete ? 'text-emerald-500 animate-pulse' : 'text-primary'}`}>
-                    {isSessionComplete ? 'SESSION COMPLETE' : 'ACCUMULATING CREDITS'}
+                    {isSessionComplete ? 'TOPOLOGY SEALED' : 'GHOSTDAG_ACCUMULATION_ACTIVE'}
                   </p>
                   <h2 className="text-7xl font-mono font-bold text-white tracking-tighter tabular-nums drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                     {pendingPoints.toFixed(4)}
                   </h2>
                 </div>
-                <div className="flex justify-center">
-                   <p className="text-[10px] text-zinc-500 font-mono bg-zinc-950/80 px-4 py-1 rounded-full border border-zinc-900">
-                      ESTIMATED YIELD AT <span className="text-zinc-300">{currentHourlyRate.toFixed(2)} ARG/HR</span>
-                   </p>
+                <div className="flex justify-center gap-4">
+                   <div className="text-[9px] text-zinc-500 font-mono bg-zinc-950/80 px-4 py-1.5 rounded-full border border-zinc-900">
+                      BLUE_SCORE: <span className="text-emerald-500">+{Math.floor(miningTimer/10)}</span>
+                   </div>
+                   <div className="text-[9px] text-zinc-500 font-mono bg-zinc-950/80 px-4 py-1.5 rounded-full border border-zinc-900">
+                      K_PARAMETER: <span className="text-primary">18</span>
+                   </div>
                 </div>
               </div>
               
-              <div className="w-full space-y-4">
+              <div className="w-full max-w-xs mx-auto space-y-4">
                 <button 
                   onClick={handleClaim} 
-                  className={`w-full py-5 font-black uppercase tracking-[0.15em] text-xs rounded-xl transition-all shadow-lg active:scale-[0.98] ${isSessionComplete ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-600 hover:bg-zinc-800'}`}
+                  className={`w-full py-5 font-black uppercase tracking-[0.15em] text-xs rounded-xl transition-all shadow-lg active:scale-[0.98] ${isSessionComplete ? 'bg-emerald-500 text-black hover:bg-emerald-400' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-600 hover:bg-zinc-800'}`}
                 >
-                  {isSessionComplete ? 'Secure 24h Yield' : 'Stop & Claim Early'}
+                  {isSessionComplete ? 'Secure DAG Reward' : 'Seal Current Cluster'}
                 </button>
-                {isSessionComplete && (
-                   <div className="flex items-center justify-center gap-2 text-emerald-500/50 animate-in fade-in slide-in-from-bottom-2">
-                      <ShieldCheck className="w-3 h-3" />
-                      <span className="text-[8px] font-bold uppercase tracking-widest">Integrity Verified</span>
-                   </div>
-                )}
               </div>
             </div>
           ) : (
-            <div className="text-center space-y-10 max-w-sm relative z-10 animate-fade-in">
+            <div className="text-center space-y-10 max-w-sm mx-auto relative z-10 animate-fade-in mt-auto pb-10">
               <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-3xl flex items-center justify-center mx-auto shadow-2xl relative group cursor-pointer hover:border-primary/50 transition-all duration-500" onClick={handleStartMining}>
                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="absolute -inset-0.5 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-3xl opacity-50"></div>
                 <div className="relative w-full h-full bg-zinc-950 rounded-[22px] flex items-center justify-center border border-zinc-800 group-hover:border-primary/50 transition-colors">
-                   <Cpu className="w-10 h-10 text-zinc-600 group-hover:text-primary transition-colors duration-300" />
+                   <Zap className="w-10 h-10 text-zinc-600 group-hover:text-primary transition-colors duration-300" />
                 </div>
               </div>
               
               <div className="space-y-3">
-                <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Core Idle</h2>
-                <p className="text-zinc-500 text-sm leading-relaxed">Initialize a 24-hour mining sequence to secure your allocation of the genesis supply.</p>
+                <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">DAG_IDLE</h2>
+                <p className="text-zinc-500 text-sm leading-relaxed">Initialize node presence to begin topological block ordering and claim GhostDAG emission rewards.</p>
               </div>
               
               <button 
                 onClick={handleStartMining} 
-                className="w-full py-5 bg-primary text-white font-black uppercase tracking-[0.15em] text-xs rounded-xl shadow-[0_10px_30px_rgba(244,63,94,0.25)] hover:shadow-[0_15px_40px_rgba(244,63,94,0.4)] hover:-translate-y-1 active:translate-y-0 transition-all duration-300 relative overflow-hidden group"
+                className="w-full py-5 bg-primary text-white font-black uppercase tracking-[0.15em] text-xs rounded-xl shadow-[0_10px_30px_rgba(244,63,94,0.25)] hover:shadow-[0_15px_40px_rgba(244,63,94,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
               >
-                <span className="relative z-10">Initiate 24H Sequence</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+                <span className="relative z-10">Initialize GhostDAG Sequence</span>
               </button>
             </div>
           )}
         </div>
 
         <div className="lg:col-span-2 space-y-6 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
-          <div className="surface p-8 rounded-3xl flex-1 border-emerald-500/10 bg-emerald-500/[0.02] flex flex-col justify-between min-h-[220px] hover:bg-emerald-500/[0.04] transition-colors">
+          <div className="surface p-8 rounded-3xl flex-1 border-emerald-500/10 bg-emerald-500/[0.02] flex flex-col justify-between min-h-[220px]">
             <h3 className="label-meta mb-6 flex justify-between items-center text-emerald-500">
-              Protocol Telemetry
-              <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
-                 <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
-                 <span className="font-bold text-[8px] tracking-widest text-emerald-400">ONLINE</span>
-              </span>
+              PHANTOM_CONSENSUS_FEED
+              <span className="text-[8px] tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">SYNC_OK</span>
             </h3>
             <div className="space-y-4 font-mono text-[10px]">
               {[
-                { msg: 'Auth Key Validated', time: 'SUCCESS', status: 'OK', color: 'text-emerald-500' },
-                { msg: `Current Hash: ${currentHourlyRate.toFixed(2)} ARG/HR`, time: 'YIELD', status: 'OK', color: 'text-primary' },
-                { msg: `${referrals}/20 Peering Status`, time: 'NODES', status: 'OK', color: 'text-zinc-400' },
-                { msg: `24H Cycle Initialized`, time: 'CORE', status: 'INFO', color: 'text-zinc-400' },
+                { msg: 'Parenting_Vector_Set', time: 'SUCCESS', status: 'OK', color: 'text-emerald-500' },
+                { msg: `Local Blue-Score: ${Math.floor(miningTimer/10)}`, time: 'CLUSTER', status: 'OK', color: 'text-primary' },
+                { msg: `K-Cluster Density Optimal`, time: 'CONSENSUS', status: 'OK', color: 'text-zinc-400' },
+                { msg: `BlockDAG_Traversal_Active`, time: 'TOPOLOGY', status: 'INFO', color: 'text-zinc-400' },
               ].map((log, i) => (
-                <div key={i} className="flex gap-4 border-l-2 border-emerald-500/10 pl-4 py-1 hover:bg-emerald-500/5 transition-colors rounded-r cursor-default">
+                <div key={i} className="flex gap-4 border-l-2 border-emerald-500/10 pl-4 py-1">
                   <span className="text-zinc-600 w-12">{log.time}</span>
                   <p className="text-zinc-400 font-medium truncate">
                     <span className={`font-bold mr-2 ${log.color}`}>[{log.status}]</span> {log.msg}
@@ -280,18 +294,41 @@ const Dashboard = () => {
             </div>
           </div>
           
-          <div className="surface p-8 rounded-3xl bg-zinc-900/30 border-zinc-900 border-dashed hover:border-zinc-700 transition-colors">
+          <div className="surface p-8 rounded-3xl bg-zinc-900/30 border-zinc-900 border-dashed">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                 <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                 <AlertTriangle className="w-4 h-4 text-primary" />
               </div>
-              <p className="label-meta text-amber-500/80">Operator Warning</p>
+              <p className="label-meta text-primary/80">Protocol Restriction</p>
             </div>
             <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">
-              Mining requires periodic check-ins. Re-initialize your node every 24 hours to ensure continuous credit accumulation.
+              GhostDAG requires continuous network connectivity. Orphaned clusters (Red-Set blocks) do not accumulate reward credits. Ensure persistent node uptime.
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          { label: 'Cumulative Reward', value: Math.floor(user.points * 100) / 100, unit: 'ARG', icon: Database, color: 'text-white' },
+          { label: 'Topology Uptime', value: formatTime(miningTimer), unit: 'REM', icon: Clock, color: 'text-emerald-400' },
+          { label: 'Active Validators', value: netStats.activeNodes.toLocaleString(), unit: 'LIVE', icon: Activity, color: 'text-primary' },
+          { label: 'DAG Block Count', value: Math.floor(netStats.totalMined * 12).toLocaleString(), unit: 'BLOCKS', icon: Box, color: 'text-indigo-400' }
+        ].map((stat, i) => (
+          <div key={i} className="surface p-6 rounded-2xl border border-zinc-900 bg-gradient-to-b from-zinc-900/40 to-zinc-950 animate-fade-in-up" style={{ animationDelay: `${0.3 + (i * 0.1)}s` }}>
+            <div className="flex items-center justify-between mb-8">
+              <div className="p-2.5 bg-zinc-950 border border-zinc-900 rounded-xl">
+                 <stat.icon className={`w-4 h-4 text-zinc-500`} />
+              </div>
+              <ArrowUpRight className="w-3 h-3 text-zinc-700" />
+            </div>
+            <p className="label-meta mb-1 text-zinc-500">{stat.label}</p>
+            <div className="flex items-baseline gap-2">
+              <h3 className={`text-2xl font-mono font-bold tracking-tight ${stat.color}`}>{stat.value}</h3>
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{stat.unit}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
