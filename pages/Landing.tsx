@@ -143,12 +143,14 @@ const Terminal = () => {
   }, [logs, currentLine]);
 
   return (
-    <div className="relative w-full h-[400px] xl:h-[520px] bg-zinc-950/90 backdrop-blur-xl rounded-xl border border-zinc-800/80 shadow-2xl flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] transform transition-all hover:border-primary/30 group animate-fade-in-right">
-      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/50 border-b border-zinc-800/50">
+    <div className="relative w-full h-[400px] xl:h-[500px] bg-[#09090b] rounded-xl border border-zinc-800 shadow-2xl flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] group animate-fade-in-right hover:border-zinc-700 transition-colors">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/50 border-b border-zinc-800">
         <div className="flex gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500/80 shadow-sm"></div>
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80 shadow-sm"></div>
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 shadow-sm"></div>
+          <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+          <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
+          <div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500/50"></div>
         </div>
         <div className="text-zinc-500 font-bold uppercase tracking-widest text-[9px] flex items-center gap-2 opacity-70">
           <TerminalIcon className="w-3 h-3" /> Argus_Node_CLI
@@ -158,11 +160,18 @@ const Terminal = () => {
            <span className="text-emerald-500 text-[9px] font-bold">NET_ACTIVE</span>
         </div>
       </div>
-      <div className="relative flex-1 p-0 overflow-hidden bg-black/50">
+
+      {/* Body */}
+      <div className="relative flex-1 p-0 overflow-hidden bg-black/40">
+        {/* Subtle grid line overlay for tech feel */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+             style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '100% 24px' }}>
+        </div>
+
         <div ref={scrollRef} className="absolute inset-0 p-5 overflow-y-auto custom-scrollbar space-y-1.5">
           {logs.map((log) => (
             <div key={log.id} className="flex gap-3 leading-relaxed opacity-90 hover:opacity-100 transition-opacity">
-              <span className="text-zinc-600 shrink-0 select-none">[{log.timestamp}]</span>
+              <span className="text-zinc-600 shrink-0 select-none w-14 text-right">[{log.timestamp.split('.')[0]}]</span>
               <div className={`break-words ${
                 log.type === 'error' ? 'text-red-400' :
                 log.type === 'warning' ? 'text-amber-400' :
@@ -176,7 +185,7 @@ const Terminal = () => {
             </div>
           ))}
           <div className="flex gap-3 pt-1">
-             <span className="text-zinc-600 shrink-0 select-none">[{getLocalTime()}]</span>
+             <span className="text-zinc-600 shrink-0 select-none w-14 text-right">[{getLocalTime().split('.')[0]}]</span>
              <div className="text-primary break-words leading-relaxed flex items-center">
                 <span className="mr-2">➜</span>
                 {currentLine}
@@ -184,6 +193,18 @@ const Terminal = () => {
              </div>
           </div>
         </div>
+      </div>
+
+      {/* Footer Status Bar - The Fix for "Lower Part Gap" */}
+      <div className="px-4 py-2 bg-zinc-900 border-t border-zinc-800 flex justify-between items-center">
+         <div className="flex gap-4 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+            <span className="flex items-center gap-1.5"><Activity className="w-3 h-3" /> CPU: 12%</span>
+            <span>MEM: 4.2GB</span>
+            <span className="text-emerald-500">PEERS: 842</span>
+         </div>
+         <div className="text-[9px] font-mono text-zinc-600">
+            PID: 8042
+         </div>
       </div>
     </div>
   );
