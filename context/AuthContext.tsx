@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '../types';
-import { auth, signInWithGoogle, logout as serviceLogout, getUserData, setupPresence } from '../services/firebase';
+import { auth, signInWithGoogle, logout as serviceLogout, subscribeToUserProfile, setupPresence } from '../services/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface AuthContextType {
@@ -20,39 +21,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+    let unsubscribeProfile: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
+      
       if (fbUser) {
         setupPresence(fbUser.uid); // establish heartbeat
-        try {
-          const profile = await getUserData(fbUser.uid);
-          setUser(profile);
-        } catch (error) {
-          setUser(null);
-        }
+        
+        // Subscribe to real-time profile changes
+        unsubscribeProfile = subscribeToUserProfile(fbUser.uid, (userData) => {
+          if (userData) {
+            setUser(userData);
+          } else {
+            // User authenticated in Firebase Auth, but document deleted from Firestore
+            setUser(null);
+          }
+          setLoading(false);
+        });
       } else {
+        if (unsubscribeProfile) {
+          unsubscribeProfile();
+          unsubscribeProfile = undefined;
+        }
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
   }, []);
 
   const login = async () => {
     try {
-      const fbUser = await signInWithGoogle();
-      setFirebaseUser(fbUser);
-      const profile = await getUserData(fbUser.uid);
-      setUser(profile);
+      await signInWithGoogle();
+      // The onAuthStateChanged listener will handle the rest
     } catch (e) { console.error(e); }
   };
 
   const logout = async () => {
     try {
       await serviceLogout();
-      setFirebaseUser(null);
-      setUser(null);
+      // User state cleared by listener
     } catch (error) { console.error(error); }
   };
 

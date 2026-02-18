@@ -1,26 +1,33 @@
 
 import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
-import { subscribeToContent, DEFAULT_TOKENOMICS_CONFIG } from '../services/firebase';
-import { TokenomicsConfig } from '../types';
+import { subscribeToContent, subscribeToNetworkStats, DEFAULT_TOKENOMICS_CONFIG } from '../services/firebase';
+import { TokenomicsConfig, NetworkStats } from '../types';
 import { PieChart, Zap, ShieldCheck, Lock, Activity, Layers, ArrowRight, TrendingUp, Info } from 'lucide-react';
 
 const IconMap: any = { Zap, ShieldCheck, Lock, Activity, Layers, TrendingUp };
 
 const Tokenomics = () => {
   const [content, setContent] = useState<TokenomicsConfig>(DEFAULT_TOKENOMICS_CONFIG);
+  const [stats, setStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
   const [visible, setVisible] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const unsub = subscribeToContent('tokenomics', DEFAULT_TOKENOMICS_CONFIG, setContent);
+    const unsubContent = subscribeToContent('tokenomics', DEFAULT_TOKENOMICS_CONFIG, setContent);
+    const unsubStats = subscribeToNetworkStats(setStats);
+    
     // Slight delay to ensure content is ready before animating in
     const timer = setTimeout(() => setVisible(true), 150);
     return () => {
-      unsub();
+      unsubContent();
+      unsubStats();
       clearTimeout(timer);
     };
   }, []);
+
+  // Format real-time supply nicely (e.g. 145,000,000)
+  const circulatingSupplyDisplay = Math.floor(stats.totalMined).toLocaleString();
 
   // --- SVG Chart Math ---
   const RADIUS = 15.9155;
@@ -85,9 +92,12 @@ const Tokenomics = () => {
                 <div>
                    <div className="flex items-center gap-2 mb-2">
                       <Activity className="w-4 h-4 text-primary" />
-                      <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Circulating Supply</p>
+                      <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Circulating Supply (Live)</p>
                    </div>
-                   <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">{content.circulatingSupply}</p>
+                   {/* Dynamically displaying totalMined from network stats */}
+                   <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">
+                      {circulatingSupplyDisplay} <span className="text-xl text-zinc-600">ARG</span>
+                   </p>
                 </div>
                 <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner">
                    <div className="w-3 h-3 bg-primary rounded-full animate-pulse shadow-[0_0_10px_#f43f5e]"></div>

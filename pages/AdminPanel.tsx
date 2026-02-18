@@ -127,7 +127,7 @@ const AdminPanel = () => {
   const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy'>('landing');
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
-  const [hasUnsaved changes, setHasUnsavedChanges] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Config States
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
@@ -178,7 +178,7 @@ const AdminPanel = () => {
       const newState = { ...prev };
       let current = newState;
       for (let i = 0; i < path.length - 1; i++) {
-        current[path[i]] = { ...current[path[i]] };
+        if (!current[path[i]]) current[path[i]] = {}; 
         current = current[path[i]];
       }
       current[path[path.length - 1]] = value;
@@ -193,9 +193,12 @@ const AdminPanel = () => {
       const newState = { ...prev };
       let current = newState;
       for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) current[path[i]] = {};
         current = current[path[i]];
       }
-      current[path[path.length - 1]] = [...current[path[path.length - 1]], item];
+      const key = path[path.length - 1];
+      if (!Array.isArray(current[key])) current[key] = [];
+      current[key] = [...current[key], item];
       return newState;
     });
     setHasUnsavedChanges(true);
@@ -206,9 +209,13 @@ const AdminPanel = () => {
       const newState = { ...prev };
       let current = newState;
       for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) return newState; // Abort if path doesn't exist
         current = current[path[i]];
       }
-      current[path[path.length - 1]] = current[path[path.length - 1]].filter((_: any, i: number) => i !== index);
+      const key = path[path.length - 1];
+      if (Array.isArray(current[key])) {
+          current[key] = current[key].filter((_: any, i: number) => i !== index);
+      }
       return newState;
     });
     setHasUnsavedChanges(true);

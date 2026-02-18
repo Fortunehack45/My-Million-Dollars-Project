@@ -1,3 +1,4 @@
+
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -64,10 +65,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Use initializeFirestore with forced long polling to bypass WebSocket restrictions common in some environments.
-// We also configure local cache to be robust but optional if persistence fails.
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-  // localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) // Optional: Enable if offline persistence is strictly needed
 });
 
 export const rtdb = getDatabase(app);
@@ -332,6 +331,21 @@ export const getUserData = async (uid: string): Promise<User | null> => {
   return null;
 };
 
+// REAL-TIME USER LISTENER (For AuthContext)
+// This ensures that if admin deletes the user from DB, the app knows instantly
+export const subscribeToUserProfile = (uid: string, callback: (user: User | null) => void) => {
+  return onSnapshot(doc(db, 'users', uid), (doc) => {
+    if (doc.exists()) {
+      callback(doc.data() as User);
+    } else {
+      callback(null); // User deleted or doesn't exist
+    }
+  }, (error) => {
+    console.error("Profile Subscription Error:", error);
+    callback(null);
+  });
+};
+
 export const signInWithGoogle = async (): Promise<FirebaseUser> => {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
@@ -468,7 +482,6 @@ export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
   return onSnapshot(q, (snapshot) => {
     const allTasks = snapshot.docs.map(doc => doc.data() as Task);
     // Client-side filtering for expired tasks to ensure clean display
-    // "visible until" logic
     const now = Date.now();
     const visibleTasks = allTasks.filter(t => !t.expiresAt || t.expiresAt > now);
     callback(visibleTasks);
@@ -517,7 +530,30 @@ export const deleteTask = async (taskId: string) => {
   await deleteDoc(taskRef);
 };
 
+// --- REAL-TIME LEADERBOARD ---
+export const subscribeToLeaderboard = (callback: (entries: LeaderboardEntry[]) => void) => {
+  const q = query(collection(db, "users"), orderBy("points", "desc"), limit(25));
+  return onSnapshot(q, (snapshot) => {
+    const leaderboard: LeaderboardEntry[] = [];
+    let rank = 1;
+    snapshot.forEach((doc) => {
+      const data = doc.data() as User;
+      leaderboard.push({ 
+        uid: data.uid, 
+        displayName: data.displayName || "Node_Operator", 
+        points: data.points, 
+        rank: rank++ 
+      });
+    });
+    callback(leaderboard);
+  }, (error) => {
+    console.warn("Leaderboard Subscription Error:", error);
+    callback([]);
+  });
+};
+
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
+  // Keeping for backward compatibility or one-off fetches, but recommending subscribeToLeaderboard
   const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
   const querySnapshot = await getDocs(q);
   const leaderboard: LeaderboardEntry[] = [];

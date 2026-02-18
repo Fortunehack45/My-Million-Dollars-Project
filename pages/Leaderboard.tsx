@@ -1,5 +1,6 @@
+
 import React, { useEffect, useState } from 'react';
-import { getLeaderboardData } from '../services/firebase';
+import { subscribeToLeaderboard } from '../services/firebase';
 import { LeaderboardEntry } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Trophy, Medal, Crown } from 'lucide-react';
@@ -10,13 +11,11 @@ const Leaderboard = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const result = await getLeaderboardData();
-        setData(result);
-      } catch (e) { console.error(e); } finally { setLoading(false); }
-    };
-    fetchLeaderboard();
+    const unsubscribe = subscribeToLeaderboard((entries) => {
+      setData(entries);
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const getRankIcon = (rank: number) => {
