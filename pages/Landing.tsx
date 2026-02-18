@@ -435,7 +435,7 @@ const Landing = () => {
       {/* ENHANCED ROADMAP SECTION */}
       {content.roadmap?.isVisible && (
         <section id="roadmap" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
-            <div className={`mb-24 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className={`mb-32 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full mb-6">
                   <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full"></div>
                   <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Protocol Timeline</span>
@@ -445,55 +445,68 @@ const Landing = () => {
             </div>
 
             <div className="relative">
-               {/* Animated Central Timeline */}
-               <div className="absolute left-[20px] md:left-1/2 top-0 bottom-0 w-0.5 bg-zinc-900 md:-translate-x-1/2 rounded-full">
+               {/* Central Line - Improved visual */}
+               <div className="absolute left-[20px] md:left-1/2 top-0 bottom-0 w-px bg-zinc-900 md:-translate-x-1/2">
                   <div 
-                    className={`absolute top-0 left-0 w-full bg-gradient-to-b from-primary via-primary to-transparent transition-all duration-[2000ms] ease-out shadow-[0_0_15px_#f43f5e] ${visibleSections.has('roadmap') ? 'h-full opacity-100' : 'h-0 opacity-0'}`}
+                    className={`absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2000ms] ease-out opacity-50 ${visibleSections.has('roadmap') ? 'h-full' : 'h-0'}`}
                   ></div>
                </div>
 
-               <div className="space-y-16 md:space-y-32">
+               <div className="space-y-24">
                   {content.roadmap.phases.map((phase, i) => (
                      <div 
                         key={i} 
-                        className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} group`}
+                        className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} group`}
                      >
-                        {/* Timeline Node */}
+                        {/* Connector Line (Horizontal) */}
+                        <div className={`hidden md:block absolute top-8 ${i % 2 === 0 ? 'left-1/2 right-1/2 w-[40px]' : 'right-1/2 left-auto w-[40px] -translate-x-full'} h-px bg-zinc-800 group-hover:bg-primary/50 transition-colors duration-500`}></div>
+
+                        {/* Timeline Node - Tech Hexagon */}
                         <div 
-                           className={`absolute left-[20px] md:left-1/2 w-10 h-10 -ml-[20px] bg-zinc-950 border-4 ${phase.status === 'LIVE' ? 'border-primary shadow-[0_0_20px_rgba(244,63,94,0.5)]' : 'border-zinc-800'} rounded-full flex items-center justify-center z-10 transition-all duration-700 delay-[${i * 300}ms] ${visibleSections.has('roadmap') ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+                           className={`absolute left-[20px] md:left-1/2 -translate-x-1/2 w-10 h-10 z-10 flex items-center justify-center transition-all duration-700 delay-[${i * 200}ms] ${visibleSections.has('roadmap') ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
                         >
-                           <div className={`w-2.5 h-2.5 rounded-full ${phase.status === 'LIVE' ? 'bg-primary animate-ping' : 'bg-zinc-700'}`}></div>
+                           <div className={`w-3 h-3 rotate-45 border-2 ${phase.status === 'LIVE' ? 'bg-zinc-950 border-primary shadow-[0_0_15px_#f43f5e]' : 'bg-zinc-950 border-zinc-700'} transition-all duration-500 group-hover:scale-125`}></div>
                         </div>
+
+                        {/* Spacer for alignment */}
+                        <div className="md:w-1/2"></div>
 
                         {/* Content Card */}
                         <div 
-                           className={`pl-16 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-24 md:text-right' : 'md:pl-24 md:text-left'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-                           style={{ transitionDelay: `${i * 300}ms` }}
+                           className={`pl-12 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-16' : 'md:pr-16'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                           style={{ transitionDelay: `${i * 200}ms` }}
                         >
-                           <div className={`relative p-8 bg-zinc-900/20 border ${phase.status === 'LIVE' ? 'border-primary/30 bg-primary/5' : 'border-zinc-800'} rounded-3xl backdrop-blur-sm group-hover:border-zinc-700 transition-all duration-500 overflow-hidden`}>
-                              {/* Glitch/Scan Effect for Active Phase */}
-                              {phase.status === 'LIVE' && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
-                              )}
+                           <div className={`relative bg-zinc-900/10 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900/30 p-8 rounded-2xl backdrop-blur-sm transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl`}>
+                              {/* Decorative Corners */}
+                              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-700 rounded-tl-lg"></div>
+                              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-700 rounded-tr-lg"></div>
+                              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-700 rounded-bl-lg"></div>
+                              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-700 rounded-br-lg"></div>
 
-                              <div className={`flex flex-col ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'} relative z-10`}>
-                                 <div className="flex items-center gap-3 mb-3">
-                                    <span className={`text-[9px] font-black px-2 py-1 rounded border ${phase.status === 'LIVE' ? 'bg-primary text-white border-primary' : 'bg-zinc-950 text-zinc-500 border-zinc-800'}`}>
-                                       {phase.status}
-                                    </span>
-                                    <span className="text-xs font-mono font-bold text-zinc-500">{phase.period}</span>
+                              {/* Status Header */}
+                              <div className="flex items-center justify-between mb-6">
+                                 <span className="text-[10px] font-mono font-bold text-zinc-500 bg-zinc-950/50 px-2 py-1 rounded border border-zinc-900">
+                                    PHASE_{phase.phase}
+                                 </span>
+                                 <div className={`flex items-center gap-2 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${phase.status === 'LIVE' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
+                                    {phase.status === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>}
+                                    {phase.status}
                                  </div>
-                                 <h3 className="text-3xl font-black text-white uppercase tracking-tight mb-2">{phase.title}</h3>
-                                 <p className="text-sm text-zinc-400 leading-relaxed mb-6">{phase.desc}</p>
-                                 
-                                 <div className={`space-y-2 w-full ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'} flex flex-col`}>
-                                    {phase.features.map((feat, idx) => (
-                                       <div key={idx} className={`flex items-center gap-3 p-2 rounded-lg bg-zinc-950/50 border border-zinc-900/50 w-full md:w-auto ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
-                                          <CheckCircle2 className={`w-4 h-4 ${phase.status === 'LIVE' ? 'text-primary' : 'text-zinc-700'}`} />
-                                          <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide">{feat}</span>
-                                       </div>
-                                    ))}
-                                 </div>
+                              </div>
+
+                              {/* Content */}
+                              <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors">{phase.title}</h3>
+                              <p className="text-xs font-mono text-zinc-500 mb-4">{phase.period}</p>
+                              <p className="text-sm text-zinc-400 leading-relaxed mb-6">{phase.desc}</p>
+                              
+                              {/* Features List */}
+                              <div className="space-y-3 pt-6 border-t border-zinc-800/50">
+                                 {phase.features.map((feat, idx) => (
+                                    <div key={idx} className="flex items-start gap-3">
+                                       <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${phase.status === 'LIVE' ? 'text-primary' : 'text-zinc-700'}`} />
+                                       <span className="text-xs font-medium text-zinc-300">{feat}</span>
+                                    </div>
+                                 ))}
                               </div>
                            </div>
                         </div>
