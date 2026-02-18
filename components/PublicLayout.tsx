@@ -199,7 +199,6 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                   <Link to="/architecture" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Architecture</Link>
                   <Link to="/tokenomics" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Tokenomics</Link>
                   <Link to="/whitepaper" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Whitepaper</Link>
-                  <a href="#" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Explorer</a>
                </div>
 
                <div className="md:col-span-2 space-y-4">
