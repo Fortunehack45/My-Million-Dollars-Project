@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
@@ -27,6 +27,7 @@ const DiscordIcon = ({ className }: { className?: string }) => (
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const [footerVisible, setFooterVisible] = useState(false);
@@ -72,6 +73,15 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     { label: 'Whitepaper', path: '/whitepaper' },
   ];
 
+  const handleConsoleClick = () => {
+    navigate('/login');
+  };
+
+  const handleMobileConsoleClick = () => {
+    navigate('/login');
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-primary selection:text-white font-sans scroll-smooth">
       {/* Navbar - Solid background on mobile to prevent transparency issues */}
@@ -102,7 +112,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-             <button onClick={login} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black text-[11px] font-black uppercase tracking-widest rounded hover:bg-primary hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
+             <button onClick={handleConsoleClick} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black text-[11px] font-black uppercase tracking-widest rounded hover:bg-primary hover:text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all">
                 Initialize Console
                 <ChevronRight className="w-3 h-3" />
              </button>
@@ -137,111 +147,83 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                   {item.label}
                 </Link>
               ))}
-            </div>
-            
-            <div className="mt-auto w-full space-y-6">
-              <div className="flex justify-center gap-6 pb-6 border-b border-zinc-900">
-                  <a href={landingConfig.socials?.twitter} target="_blank" className="p-3 bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-colors"><XIcon className="w-5 h-5" /></a>
-                  <a href={landingConfig.socials?.github} target="_blank" className="p-3 bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-colors"><GithubIcon className="w-5 h-5" /></a>
-                  <a href={landingConfig.socials?.discord} target="_blank" className="p-3 bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-colors"><DiscordIcon className="w-5 h-5" /></a>
-              </div>
+              
+              {/* Added Mobile Console Button */}
               <button 
-                onClick={() => { login(); setIsMobileMenuOpen(false); }} 
-                className="w-full py-5 bg-primary text-white text-sm font-black uppercase tracking-widest rounded-xl shadow-[0_0_30px_rgba(244,63,94,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
+                 onClick={handleMobileConsoleClick}
+                 className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-primary hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
+                 style={{ animationDelay: '300ms' }}
               >
-                Launch Console <ChevronRight className="w-4 h-4" />
+                 Launch Console <ChevronRight className="w-4 h-4" />
               </button>
+            </div>
+
+            <div className="mt-auto flex flex-col items-center gap-6">
+               <div className="flex gap-8">
+                  <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></a>
+                  <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><DiscordIcon className="w-6 h-6" /></a>
+                  <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><GithubIcon className="w-6 h-6" /></a>
+               </div>
+               <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Argus Protocol v2.8</p>
             </div>
         </div>
       </nav>
 
-      {/* Page Content */}
-      <main className="flex-grow w-full overflow-x-hidden">
+      <main className="flex-grow w-full relative z-10">
         {children}
       </main>
 
-      {/* Enhanced Footer */}
-      <footer id="main-footer" className="border-t border-zinc-900 bg-zinc-950 pt-16 pb-8 px-6 relative overflow-hidden">
-         {/* Footer Background Effect */}
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-         
-         <div className={`max-w-7xl mx-auto transition-all duration-1000 ease-out ${footerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
-              
-              {/* Brand Column */}
-              <div className="lg:col-span-2 space-y-6">
-                 <div className="flex items-center gap-2">
-                    {/* Font Based Logo "A" in Footer */}
-                    <div className="w-6 h-6 bg-primary flex items-center justify-center rounded">
-                        <span className="font-gothic text-lg text-white leading-none mt-0.5">A</span>
-                    </div>
-                    <span className="text-xl font-gothic text-white tracking-normal">Argus Protocol</span>
-                 </div>
-                 <p className="text-sm text-zinc-500 leading-relaxed max-w-sm">
-                   The institutional-grade infrastructure layer for the decentralized web. 
-                   Powering high-frequency consensus and zero-touch node deployment.
-                 </p>
-                 <div className="flex gap-4 pt-2">
-                   <a href={landingConfig.socials?.twitter || "#"} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 group">
-                      <XIcon className="w-4 h-4" />
-                   </a>
-                   <a href={landingConfig.socials?.github || "#"} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 group">
-                      <GithubIcon className="w-4 h-4" />
-                   </a>
-                   <a href={landingConfig.socials?.discord || "#"} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 group">
-                      <DiscordIcon className="w-4 h-4" />
-                   </a>
-                 </div>
-              </div>
+      {/* Footer */}
+      <footer id="main-footer" className="bg-zinc-950 border-t border-zinc-900 pt-20 pb-12 relative z-10">
+         <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+               <div className="md:col-span-5 space-y-6">
+                  <div className="flex items-center gap-3">
+                     <div className="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center">
+                        <span className="font-gothic text-xl text-primary leading-none mt-1">A</span>
+                     </div>
+                     <span className="font-gothic text-2xl text-white tracking-normal">{landingConfig.footer.title}</span>
+                  </div>
+                  <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
+                     {landingConfig.footer.description}
+                  </p>
+                  <div className="flex gap-4">
+                     <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><XIcon className="w-4 h-4" /></a>
+                     <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white transition-all"><DiscordIcon className="w-4 h-4" /></a>
+                     <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><GithubIcon className="w-4 h-4" /></a>
+                  </div>
+               </div>
+               
+               <div className="md:col-span-2 space-y-4">
+                  <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Protocol</h4>
+                  <Link to="/architecture" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Architecture</Link>
+                  <Link to="/tokenomics" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Tokenomics</Link>
+                  <Link to="/whitepaper" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Whitepaper</Link>
+                  <a href="#" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Explorer</a>
+               </div>
 
-              {/* Links Columns */}
-              <div className="lg:col-span-1 space-y-6">
-                 <span className="text-[10px] font-black text-white uppercase tracking-widest border-b border-primary/20 pb-2 inline-block">Protocol</span>
-                 <div className="flex flex-col gap-3">
-                    {['Architecture', 'Tokenomics', 'Whitepaper'].map(link => (
-                      <Link key={link} to={`/${link.toLowerCase()}`} className="text-xs text-zinc-500 hover:text-primary transition-colors flex items-center gap-2 group">
-                        <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                        {link}
-                      </Link>
-                    ))}
-                 </div>
-              </div>
-              
-              <div className="lg:col-span-1 space-y-6">
-                 <span className="text-[10px] font-black text-white uppercase tracking-widest border-b border-primary/20 pb-2 inline-block">Company</span>
-                 <div className="flex flex-col gap-3">
-                    {['About Us', 'Careers', 'Contact'].map(link => (
-                      <Link key={link} to={`/${link.replace(' ', '').toLowerCase()}`} className="text-xs text-zinc-500 hover:text-primary transition-colors flex items-center gap-2 group">
-                        <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                        {link}
-                      </Link>
-                    ))}
-                 </div>
-              </div>
+               <div className="md:col-span-2 space-y-4">
+                  <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Organization</h4>
+                  <Link to="/about" className="block text-zinc-500 hover:text-primary text-sm transition-colors">About Us</Link>
+                  <Link to="/careers" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Careers</Link>
+                  <Link to="/contact" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Contact</Link>
+                  <a href="#" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Press Kit</a>
+               </div>
 
-              <div className="lg:col-span-1 space-y-6">
-                 <span className="text-[10px] font-black text-white uppercase tracking-widest border-b border-primary/20 pb-2 inline-block">Legal</span>
-                 <div className="flex flex-col gap-3">
-                    {['Terms of Service', 'Privacy Policy'].map(link => (
-                      <Link key={link} to={`/${link.split(' ')[0].toLowerCase()}`} className="text-xs text-zinc-500 hover:text-primary transition-colors flex items-center gap-2 group">
-                        <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                        {link}
-                      </Link>
-                    ))}
-                 </div>
-              </div>
+               <div className="md:col-span-3 space-y-4">
+                  <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Legal</h4>
+                  <Link to="/terms" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Terms of Service</Link>
+                  <Link to="/privacy" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Privacy Policy</Link>
+               </div>
+            </div>
 
-           </div>
-
-           <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-              <span className="text-[10px] text-zinc-600 font-mono font-medium">
-                 {landingConfig.footer.copyright}
-              </span>
-              <div className="flex items-center gap-3 px-3 py-1.5 bg-zinc-900/50 rounded-full border border-zinc-800/50">
-                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></div>
-                 <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">Mainnet Alpha: Operational</span>
-              </div>
-           </div>
+            <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
+               <p className="text-zinc-600 text-xs">{landingConfig.footer.copyright}</p>
+               <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">All Systems Operational</span>
+               </div>
+            </div>
          </div>
       </footer>
     </div>

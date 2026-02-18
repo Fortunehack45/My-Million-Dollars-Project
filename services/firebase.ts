@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import * as firebaseApp from 'firebase/app';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -60,7 +60,8 @@ const firebaseConfig = {
 };
 
 // Initialize using the named import to avoid 'no exported member' issues
-const app = initializeApp(firebaseConfig);
+// Used namespace import to handle potential ESM/CJS interop issues with bundlers
+const app = firebaseApp.initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Use initializeFirestore with forced long polling to bypass WebSocket restrictions common in some environments.
