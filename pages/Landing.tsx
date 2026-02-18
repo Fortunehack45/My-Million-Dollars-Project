@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate, Link } from 'react-router';
 import { subscribeToLandingConfig } from '../services/firebase';
 import { LandingConfig } from '../types';
 import PublicLayout from '../components/PublicLayout';
@@ -20,7 +20,6 @@ import {
   Globe,
   Milestone
 } from 'lucide-react';
-import { Link } from 'react-router';
 
 // Icon mapping for dynamic content
 const IconMap: Record<string, any> = {
@@ -213,7 +212,7 @@ const MobileStatusCard = () => (
 );
 
 const Landing = () => {
-  const { login } = useAuth();
+  const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [content, setContent] = useState<LandingConfig | null>(null);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
@@ -364,7 +363,7 @@ const Landing = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-              <button onClick={login} className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+              <button onClick={() => navigate('/login')} className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
@@ -640,7 +639,7 @@ const Landing = () => {
               </div>
               
               <div className="flex flex-col items-center gap-8 pt-6">
-                 <button onClick={login} className="h-14 md:h-24 px-8 md:px-20 bg-primary text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                 <button onClick={() => navigate('/login')} className="h-14 md:h-24 px-8 md:px-20 bg-primary text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
                     {content.cta.buttonText} 
                     <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-3 transition-transform duration-500" />
                  </button>

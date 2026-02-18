@@ -600,6 +600,58 @@ const AdminPanel = () => {
                 </>
               )}
 
+              {/* ARCHITECTURE CONFIG */}
+              {activeCmsPage === 'architecture' && (
+                <div className="space-y-8">
+                  <SectionHeader title="Architecture Config" icon={Cpu} />
+                  <InputGroup label="Hero Title" value={archConfig.heroTitle} onChange={(v: string) => updateState(setArchConfig, ['heroTitle'], v)} />
+                  <InputGroup label="Hero Subtitle" type="textarea" value={archConfig.heroSubtitle} onChange={(v: string) => updateState(setArchConfig, ['heroSubtitle'], v)} />
+                  
+                  <div className="space-y-4 pt-6">
+                     <span className="text-xs font-bold text-zinc-500 uppercase">Tech Layers</span>
+                     {archConfig.layers.map((layer, idx) => (
+                        <AccordionItem key={idx} title={layer.title} onDelete={() => removeItem(setArchConfig, ['layers'], idx)}>
+                           <InputGroup label="Layer Title" value={layer.title} onChange={(v: string) => {
+                              const newLayers = [...archConfig.layers];
+                              newLayers[idx].title = v;
+                              updateState(setArchConfig, ['layers'], newLayers);
+                           }} />
+                           <InputGroup label="Description" value={layer.desc} onChange={(v: string) => {
+                              const newLayers = [...archConfig.layers];
+                              newLayers[idx].desc = v;
+                              updateState(setArchConfig, ['layers'], newLayers);
+                           }} />
+                           <InputGroup label="Statistic" value={layer.stat} onChange={(v: string) => {
+                              const newLayers = [...archConfig.layers];
+                              newLayers[idx].stat = v;
+                              updateState(setArchConfig, ['layers'], newLayers);
+                           }} />
+                        </AccordionItem>
+                     ))}
+                     <button onClick={() => addItem(setArchConfig, ['layers'], { title: "New Layer", desc: "Description", stat: "100%" })} className="btn-primary w-full py-3">+ Add Layer</button>
+                  </div>
+
+                  <div className="space-y-4 pt-6">
+                     <span className="text-xs font-bold text-zinc-500 uppercase">Features</span>
+                     {archConfig.features.map((feat, idx) => (
+                        <AccordionItem key={idx} title={feat.title} onDelete={() => removeItem(setArchConfig, ['features'], idx)}>
+                           <InputGroup label="Feature Title" value={feat.title} onChange={(v: string) => {
+                              const newFeats = [...archConfig.features];
+                              newFeats[idx].title = v;
+                              updateState(setArchConfig, ['features'], newFeats);
+                           }} />
+                           <InputGroup label="Description" value={feat.desc} onChange={(v: string) => {
+                              const newFeats = [...archConfig.features];
+                              newFeats[idx].desc = v;
+                              updateState(setArchConfig, ['features'], newFeats);
+                           }} />
+                        </AccordionItem>
+                     ))}
+                     <button onClick={() => addItem(setArchConfig, ['features'], { title: "New Feature", desc: "Description" })} className="btn-primary w-full py-3">+ Add Feature</button>
+                  </div>
+                </div>
+              )}
+
               {/* ABOUT CONFIG */}
               {activeCmsPage === 'about' && (
                  <div className="space-y-8">
@@ -696,10 +748,117 @@ const AdminPanel = () => {
                  </div>
               )}
 
-              {/* OTHER PAGES: Placeholder for brevity, follow same pattern */}
-              {['careers', 'contact', 'terms', 'privacy', 'architecture'].includes(activeCmsPage) && (
-                 <div className="text-center py-20">
-                    <p className="text-zinc-500">Editor for {activeCmsPage} is implemented similarly. (Omitted for brevity in this response)</p>
+              {/* CAREERS CONFIG */}
+              {activeCmsPage === 'careers' && (
+                 <div className="space-y-8">
+                    <SectionHeader title="Careers Config" icon={Briefcase} />
+                    <InputGroup label="Title" value={careersConfig.title} onChange={(v: string) => updateState(setCareersConfig, ['title'], v)} />
+                    <InputGroup label="Subtitle" type="textarea" value={careersConfig.subtitle} onChange={(v: string) => updateState(setCareersConfig, ['subtitle'], v)} />
+                    
+                    <div className="space-y-4 pt-6">
+                       {careersConfig.positions.map((job, idx) => (
+                          <AccordionItem key={idx} title={job.title} onDelete={() => removeItem(setCareersConfig, ['positions'], idx)}>
+                             <div className="grid grid-cols-2 gap-4">
+                                <InputGroup label="Job Title" value={job.title} onChange={(v: string) => {
+                                   const newPos = [...careersConfig.positions];
+                                   newPos[idx].title = v;
+                                   updateState(setCareersConfig, ['positions'], newPos);
+                                }} />
+                                <InputGroup label="Department" value={job.department} onChange={(v: string) => {
+                                   const newPos = [...careersConfig.positions];
+                                   newPos[idx].department = v;
+                                   updateState(setCareersConfig, ['positions'], newPos);
+                                }} />
+                             </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <InputGroup label="Location" value={job.location} onChange={(v: string) => {
+                                   const newPos = [...careersConfig.positions];
+                                   newPos[idx].location = v;
+                                   updateState(setCareersConfig, ['positions'], newPos);
+                                }} />
+                                <InputGroup label="Type" value={job.type} onChange={(v: string) => {
+                                   const newPos = [...careersConfig.positions];
+                                   newPos[idx].type = v;
+                                   updateState(setCareersConfig, ['positions'], newPos);
+                                }} />
+                             </div>
+                             <InputGroup label="Description" type="textarea" value={job.description} onChange={(v: string) => {
+                                const newPos = [...careersConfig.positions];
+                                newPos[idx].description = v;
+                                updateState(setCareersConfig, ['positions'], newPos);
+                             }} />
+                          </AccordionItem>
+                       ))}
+                       <button onClick={() => addItem(setCareersConfig, ['positions'], { title: "New Job", department: "Engineering", location: "Remote", type: "Full-time", description: "Desc..." })} className="btn-primary w-full py-3">+ Add Position</button>
+                    </div>
+                 </div>
+              )}
+
+              {/* CONTACT CONFIG */}
+              {activeCmsPage === 'contact' && (
+                 <div className="space-y-8">
+                    <SectionHeader title="Contact Page Config" icon={Phone} />
+                    <InputGroup label="Main Title" value={contactConfig.title} onChange={(v: string) => updateState(setContactConfig, ['title'], v)} />
+                    <InputGroup label="Subtitle" type="textarea" value={contactConfig.subtitle} onChange={(v: string) => updateState(setContactConfig, ['subtitle'], v)} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <InputGroup label="Email Address" value={contactConfig.email} onChange={(v: string) => updateState(setContactConfig, ['email'], v)} />
+                        <InputGroup label="Support Hours" value={contactConfig.supportHours} onChange={(v: string) => updateState(setContactConfig, ['supportHours'], v)} />
+                    </div>
+                    <InputGroup label="Physical Address" type="textarea" value={contactConfig.address} onChange={(v: string) => updateState(setContactConfig, ['address'], v)} />
+                 </div>
+              )}
+
+              {/* TERMS CONFIG */}
+              {activeCmsPage === 'terms' && (
+                 <div className="space-y-8">
+                    <SectionHeader title="Terms of Service Config" icon={BookOpen} />
+                    <InputGroup label="Page Title" value={termsConfig.title} onChange={(v: string) => updateState(setTermsConfig, ['title'], v)} />
+                    <InputGroup label="Last Updated" value={termsConfig.lastUpdated} onChange={(v: string) => updateState(setTermsConfig, ['lastUpdated'], v)} />
+                    
+                    <div className="space-y-4 pt-6">
+                       {termsConfig.sections.map((sec, idx) => (
+                          <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setTermsConfig, ['sections'], idx)}>
+                             <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
+                                const newSecs = [...termsConfig.sections];
+                                newSecs[idx].heading = v;
+                                updateState(setTermsConfig, ['sections'], newSecs);
+                             }} />
+                             <InputGroup label="Content" type="textarea" value={sec.content} onChange={(v: string) => {
+                                const newSecs = [...termsConfig.sections];
+                                newSecs[idx].content = v;
+                                updateState(setTermsConfig, ['sections'], newSecs);
+                             }} />
+                          </AccordionItem>
+                       ))}
+                       <button onClick={() => addItem(setTermsConfig, ['sections'], { heading: "New Clause", content: "Details..." })} className="btn-primary w-full py-3">+ Add Clause</button>
+                    </div>
+                 </div>
+              )}
+
+              {/* PRIVACY CONFIG */}
+              {activeCmsPage === 'privacy' && (
+                 <div className="space-y-8">
+                    <SectionHeader title="Privacy Policy Config" icon={Shield} />
+                    <InputGroup label="Page Title" value={privacyConfig.title} onChange={(v: string) => updateState(setPrivacyConfig, ['title'], v)} />
+                    <InputGroup label="Last Updated" value={privacyConfig.lastUpdated} onChange={(v: string) => updateState(setPrivacyConfig, ['lastUpdated'], v)} />
+                    
+                    <div className="space-y-4 pt-6">
+                       {privacyConfig.sections.map((sec, idx) => (
+                          <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setPrivacyConfig, ['sections'], idx)}>
+                             <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
+                                const newSecs = [...privacyConfig.sections];
+                                newSecs[idx].heading = v;
+                                updateState(setPrivacyConfig, ['sections'], newSecs);
+                             }} />
+                             <InputGroup label="Content" type="textarea" value={sec.content} onChange={(v: string) => {
+                                const newSecs = [...privacyConfig.sections];
+                                newSecs[idx].content = v;
+                                updateState(setPrivacyConfig, ['sections'], newSecs);
+                             }} />
+                          </AccordionItem>
+                       ))}
+                       <button onClick={() => addItem(setPrivacyConfig, ['sections'], { heading: "New Section", content: "Details..." })} className="btn-primary w-full py-3">+ Add Section</button>
+                    </div>
                  </div>
               )}
 

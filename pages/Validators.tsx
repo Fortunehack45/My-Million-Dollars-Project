@@ -1,10 +1,11 @@
+
 import React from 'react';
+import { useNavigate } from 'react-router';
 import PublicLayout from '../components/PublicLayout';
 import { Server, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 const Validators = () => {
-  const { login } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <PublicLayout>
@@ -36,7 +37,7 @@ const Validators = () => {
                   </div>
                </div>
 
-               <button onClick={login} className="btn-primary w-full md:w-auto flex items-center justify-center gap-3">
+               <button onClick={() => navigate('/login')} className="btn-primary w-full md:w-auto flex items-center justify-center gap-3">
                   Start Validator Node <ArrowRight className="w-4 h-4" />
                </button>
             </div>
