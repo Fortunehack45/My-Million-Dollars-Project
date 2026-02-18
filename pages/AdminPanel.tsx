@@ -34,7 +34,8 @@ import {
   BookOpen, FileText, Info, Zap, Activity,
   Layers, AlignLeft, CheckCircle2, Shield, MapPin, 
   Briefcase, Phone, HelpCircle, Share2, PieChart,
-  ListPlus, ChevronDown, ChevronRight, Settings
+  ListPlus, ChevronDown, ChevronRight, Settings,
+  Target
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -661,22 +662,37 @@ const AdminPanel = () => {
                     <InputGroup label="Main Title" value={aboutConfig.title} onChange={(v: string) => updateState(setAboutConfig, ['title'], v)} />
                     <InputGroup label="Subtitle" type="textarea" value={aboutConfig.subtitle} onChange={(v: string) => updateState(setAboutConfig, ['subtitle'], v)} />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                       <div className="p-4 border border-zinc-800 rounded-xl space-y-4">
-                          <span className="text-xs font-bold text-white uppercase">Mission</span>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                       <div className="p-4 border border-zinc-800 rounded-xl space-y-4 bg-zinc-950/50">
+                          <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Target className="w-4 h-4"/> Mission</span>
                           <InputGroup label="Title" value={aboutConfig.mission.title} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'title'], v)} />
                           <InputGroup label="Desc" type="textarea" value={aboutConfig.mission.desc} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'desc'], v)} />
                        </div>
-                       <div className="p-4 border border-zinc-800 rounded-xl space-y-4">
-                          <span className="text-xs font-bold text-white uppercase">Vision</span>
+                       <div className="p-4 border border-zinc-800 rounded-xl space-y-4 bg-zinc-950/50">
+                          <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Globe className="w-4 h-4"/> Vision</span>
                           <InputGroup label="Title" value={aboutConfig.vision.title} onChange={(v: string) => updateState(setAboutConfig, ['vision', 'title'], v)} />
                           <InputGroup label="Desc" type="textarea" value={aboutConfig.vision.desc} onChange={(v: string) => updateState(setAboutConfig, ['vision', 'desc'], v)} />
                        </div>
-                       <div className="p-4 border border-zinc-800 rounded-xl space-y-4">
-                          <span className="text-xs font-bold text-white uppercase">Collective</span>
+                       <div className="p-4 border border-zinc-800 rounded-xl space-y-4 bg-zinc-950/50">
+                          <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Users className="w-4 h-4"/> Collective</span>
                           <InputGroup label="Title" value={aboutConfig.collective.title} onChange={(v: string) => updateState(setAboutConfig, ['collective', 'title'], v)} />
                           <InputGroup label="Desc" type="textarea" value={aboutConfig.collective.desc} onChange={(v: string) => updateState(setAboutConfig, ['collective', 'desc'], v)} />
                        </div>
+                    </div>
+
+                    <div className="space-y-4 pt-6 border-t border-zinc-800">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Strategic Partners List</span>
+                        {aboutConfig.partners.map((partner, idx) => (
+                          <div key={idx} className="flex gap-4 items-center">
+                            <InputGroup value={partner} onChange={(v: string) => {
+                              const newPartners = [...aboutConfig.partners];
+                              newPartners[idx] = v;
+                              updateState(setAboutConfig, ['partners'], newPartners);
+                            }} />
+                            <button onClick={() => removeItem(setAboutConfig, ['partners'], idx)} className="text-zinc-600 hover:text-red-500 hover:bg-red-500/10 p-2 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                        ))}
+                        <button onClick={() => addItem(setAboutConfig, ['partners'], "NEW_PARTNER")} className="btn-primary w-full py-3 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">+ Add Partner</button>
                     </div>
                  </div>
               )}
