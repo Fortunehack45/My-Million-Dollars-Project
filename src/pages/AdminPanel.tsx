@@ -13,6 +13,7 @@ import {
   subscribeToContent,
   updateContent,
   updateNetworkCap,
+  recalculateNetworkStats,
   DEFAULT_LANDING_CONFIG,
   DEFAULT_LEGAL_CONFIG,
   DEFAULT_ABOUT_CONFIG,
@@ -35,7 +36,7 @@ import {
   Layers, AlignLeft, CheckCircle2, Shield, MapPin, 
   Briefcase, Phone, HelpCircle, Share2, PieChart,
   ListPlus, ChevronDown, ChevronRight, Settings,
-  Target
+  Target, RefreshCw
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -128,6 +129,7 @@ const AdminPanel = () => {
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Config States
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
@@ -178,7 +180,7 @@ const AdminPanel = () => {
       const newState = { ...prev };
       let current = newState;
       for (let i = 0; i < path.length - 1; i++) {
-        current[path[i]] = { ...current[path[i]] };
+        if (!current[path[i]]) current[path[i]] = {}; 
         current = current[path[i]];
       }
       current[path[path.length - 1]] = value;
@@ -193,9 +195,12 @@ const AdminPanel = () => {
       const newState = { ...prev };
       let current = newState;
       for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) current[path[i]] = {};
         current = current[path[i]];
       }
-      current[path[path.length - 1]] = [...current[path[path.length - 1]], item];
+      const key = path[path.length - 1];
+      if (!Array.isArray(current[key])) current[key] = [];
+      current[key] = [...current[key], item];
       return newState;
     });
     setHasUnsavedChanges(true);
@@ -206,9 +211,13 @@ const AdminPanel = () => {
       const newState = { ...prev };
       let current = newState;
       for (let i = 0; i < path.length - 1; i++) {
+        if (!current[path[i]]) return newState; // Abort if path doesn't exist
         current = current[path[i]];
       }
-      current[path[path.length - 1]] = current[path[path.length - 1]].filter((_: any, i: number) => i !== index);
+      const key = path[path.length - 1];
+      if (Array.isArray(current[key])) {
+          current[key] = current[key].filter((_: any, i: number) => i !== index);
+      }
       return newState;
     });
     setHasUnsavedChanges(true);
@@ -277,6 +286,12 @@ const AdminPanel = () => {
       }
   };
 
+  const handleSyncStats = async () => {
+    setIsSyncing(true);
+    await recalculateNetworkStats();
+    setIsSyncing(false);
+  };
+
   if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono uppercase tracking-widest">Access_Denied</div>;
 
   return (
@@ -325,20 +340,38 @@ const AdminPanel = () => {
                 {/* Protocol Config Section */}
                 <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900">
                     <SectionHeader title="Network Protocol Config" icon={Settings} description="Global parameter adjustments" />
-                    <div className="flex items-end gap-4 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800">
-                        <InputGroup 
-                            label="Max User Cap (Hard Limit)" 
-                            type="number" 
-                            value={capInput} 
-                            onChange={(v: number) => setCapInput(v)} 
-                            placeholder="e.g. 500000"
-                        />
-                        <button 
-                            onClick={handleUpdateCap}
-                            className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors h-[46px] mb-0.5 whitespace-nowrap min-w-[120px]"
-                        >
-                            {capSaveStatus || 'Update Cap'}
-                        </button>
+                    
+                    <div className="space-y-6">
+                      <div className="flex items-end gap-4 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800">
+                          <InputGroup 
+                              label="Max User Cap (Hard Limit)" 
+                              type="number" 
+                              value={capInput} 
+                              onChange={(v: number) => setCapInput(v)} 
+                              placeholder="e.g. 500000"
+                          />
+                          <button 
+                              onClick={handleUpdateCap}
+                              className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors h-[46px] mb-0.5 whitespace-nowrap min-w-[120px]"
+                          >
+                              {capSaveStatus || 'Update Cap'}
+                          </button>
+                      </div>
+
+                      <div className="p-4 bg-zinc-950/50 rounded-xl border border-zinc-800 flex items-center justify-between">
+                         <div>
+                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">System Maintenance</p>
+                            <p className="text-[10px] text-zinc-600">Recalculate global supply counters if drift occurs due to manual DB edits.</p>
+                         </div>
+                         <button 
+                            onClick={handleSyncStats}
+                            disabled={isSyncing}
+                            className={`flex items-center gap-2 bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500/20 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${isSyncing ? 'opacity-50 cursor-wait' : ''}`}
+                         >
+                            <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                            {isSyncing ? 'Syncing...' : 'Sync Stats'}
+                         </button>
+                      </div>
                     </div>
                 </div>
 

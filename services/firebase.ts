@@ -4,9 +4,9 @@ import {
   getAuth, 
   signInWithPopup, 
   GoogleAuthProvider, 
-  signOut as firebaseSignOut,
-  User as FirebaseUser
+  signOut as firebaseSignOut
 } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { 
   initializeFirestore,
   doc, 
@@ -25,7 +25,10 @@ import {
   runTransaction,
   deleteDoc,
   persistentLocalCache,
-  persistentMultipleTabManager
+  persistentMultipleTabManager,
+  getAggregateFromServer,
+  sum,
+  count
 } from 'firebase/firestore';
 import { 
   getDatabase, 
@@ -429,6 +432,29 @@ export const updateNetworkCap = async (newCap: number) => {
     await setDoc(statsRef, { maxUsersCap: newCap }, { merge: true });
 };
 
+// --- STATS RECALCULATION SERVICE ---
+// Used by Admin Panel to fix drifts caused by manual DB edits
+export const recalculateNetworkStats = async () => {
+  try {
+    const usersColl = collection(db, 'users');
+    const snapshot = await getAggregateFromServer(usersColl, {
+      totalUsers: count(),
+      totalMined: sum('points')
+    });
+    
+    const statsRef = doc(db, 'global_stats', 'network');
+    await setDoc(statsRef, {
+      totalUsers: snapshot.data().totalUsers,
+      totalMined: snapshot.data().totalMined
+    }, { merge: true });
+    
+    return true;
+  } catch (e) {
+    console.error("Failed to recalculate stats:", e);
+    return false;
+  }
+};
+
 export const syncReferralStats = async (uid: string, currentReferralCount: number, currentPoints: number) => {
   try {
     const q = query(collection(db, "users"), where("referredBy", "==", uid));
@@ -474,6 +500,7 @@ export const completeTask = async (uid: string, taskId: string, points: number) 
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(points), completedTasks: arrayUnion(taskId) });
+  // Ensure social task earnings are added to global supply
   try { await updateDoc(statsRef, { totalMined: increment(points) }); } catch(e) {}
 };
 
