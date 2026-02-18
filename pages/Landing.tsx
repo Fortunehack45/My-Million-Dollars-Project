@@ -12,21 +12,17 @@ import {
   Database,
   Loader2,
   Zap,
-  ShieldCheck,
-  Globe,
   MapPin,
   CheckCircle2,
   Plus,
-  Wifi,
   Terminal as TerminalIcon,
   Activity,
-  Server
+  Globe
 } from 'lucide-react';
 import { Link } from 'react-router';
 
 // Icon mapping for dynamic content
 const IconMap: Record<string, any> = {
-  'ShieldCheck': ShieldCheck,
   'Cpu': Cpu,
   'Globe': Globe,
   'Zap': Zap,
@@ -342,7 +338,7 @@ const Landing = () => {
       </div>
 
       {/* Hero Section */}
-      <section id="hero" className="relative z-10 pt-24 pb-16 md:pt-32 md:pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[auto] md:min-h-[85vh] flex items-center">
+      <section id="hero" className="relative z-10 pt-28 pb-16 md:pt-32 md:pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[auto] md:min-h-[85vh] flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-24 items-center w-full">
           
           <div className="lg:col-span-7 space-y-8 md:space-y-12 animate-fade-in-up relative z-20">
@@ -352,7 +348,7 @@ const Landing = () => {
                  <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.95] md:leading-[0.9] drop-shadow-2xl text-balance">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.95] md:leading-[0.9] drop-shadow-2xl text-balance break-words hyphens-auto">
                 {content.hero.title}
               </h1>
               

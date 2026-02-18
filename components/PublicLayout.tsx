@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
+import { ChevronRight, Menu, X, ArrowUpRight, Github, Twitter, Disc } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
 
@@ -18,7 +18,7 @@ const logoStyle = {
     WebkitMaskRepeat: 'no-repeat',
 };
 
-// Custom Social Icons for better branding
+// Custom Social Icons
 const XIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -66,6 +66,18 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     setIsMobileMenuOpen(false);
   }, [location]);
 
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   const navLinks = [
     { label: 'Architecture', path: '/architecture' },
     { label: 'Tokenomics', path: '/tokenomics' },
@@ -77,7 +89,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       {/* Navbar */}
       <nav className="sticky top-0 z-[100] bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-900 transition-all">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 md:gap-4 z-50 group">
+          <Link to="/" className="flex items-center gap-3 md:gap-4 z-[110] relative group">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)] group-hover:border-primary/50 transition-colors">
               <div className="w-5 h-5 md:w-6 md:h-6 bg-primary" style={logoStyle} />
             </div>
@@ -107,43 +119,55 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
              </button>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle - Improved visual robustness */}
           <button 
-            className="md:hidden z-50 p-2 text-zinc-400 hover:text-white transition-colors" 
+            className="md:hidden relative z-[110] w-10 h-10 flex items-center justify-center bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-95 transition-all duration-200" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle Menu"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
-        {/* Mobile Nav Overlay */}
-        <div className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-2xl z-40 flex flex-col items-center justify-center space-y-10 md:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-            <div className="flex flex-col items-center gap-8 w-full px-8">
-              {navLinks.map((item) => (
+        {/* Mobile Nav Overlay - Slide Over Animation */}
+        <div 
+           className={`fixed inset-0 bg-zinc-950/98 backdrop-blur-3xl z-[105] flex flex-col pt-24 pb-10 px-6 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+             isMobileMenuOpen 
+               ? 'translate-x-0 opacity-100 pointer-events-auto' 
+               : 'translate-x-full opacity-0 pointer-events-none'
+           }`}
+        >
+            <div className="flex flex-col items-center gap-8 w-full">
+              {navLinks.map((item, index) => (
                 <Link 
                   key={item.path} 
                   to={item.path} 
-                  className="text-2xl font-black uppercase tracking-tighter text-white hover:text-primary transition-colors"
+                  style={{ transitionDelay: `${index * 50 + 100}ms` }}
+                  className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-primary transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
             
-            <div className="w-full px-8 pt-8 border-t border-zinc-900/50">
+            <div className="mt-auto w-full space-y-6">
+              <div className="flex justify-center gap-6 pb-6 border-b border-zinc-900">
+                  <a href={landingConfig.socials?.twitter} target="_blank" className="p-3 bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-colors"><XIcon className="w-5 h-5" /></a>
+                  <a href={landingConfig.socials?.github} target="_blank" className="p-3 bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-colors"><GithubIcon className="w-5 h-5" /></a>
+                  <a href={landingConfig.socials?.discord} target="_blank" className="p-3 bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-colors"><DiscordIcon className="w-5 h-5" /></a>
+              </div>
               <button 
                 onClick={() => { login(); setIsMobileMenuOpen(false); }} 
-                className="w-full px-8 py-5 bg-primary text-white text-sm font-black uppercase tracking-widest rounded-xl shadow-[0_0_30px_rgba(244,63,94,0.3)] active:scale-95 transition-all"
+                className="w-full py-5 bg-primary text-white text-sm font-black uppercase tracking-widest rounded-xl shadow-[0_0_30px_rgba(244,63,94,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
               >
-                Launch Console
+                Launch Console <ChevronRight className="w-4 h-4" />
               </button>
             </div>
         </div>
       </nav>
 
       {/* Page Content */}
-      <main className="flex-grow">
+      <main className="flex-grow w-full overflow-x-hidden">
         {children}
       </main>
 

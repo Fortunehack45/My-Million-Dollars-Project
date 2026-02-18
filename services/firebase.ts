@@ -23,7 +23,9 @@ import {
   orderBy,
   onSnapshot,
   runTransaction,
-  deleteDoc
+  deleteDoc,
+  persistentLocalCache,
+  persistentMultipleTabManager
 } from 'firebase/firestore';
 import { 
   getDatabase, 
@@ -61,10 +63,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// Use initializeFirestore with long polling enabled to resolve connectivity timeouts 
-// often caused by WebSocket restrictions in restricted network environments.
+// Use initializeFirestore with forced long polling to bypass WebSocket restrictions common in some environments.
+// We also configure local cache to be robust but optional if persistence fails.
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
+  // localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) // Optional: Enable if offline persistence is strictly needed
 });
 
 export const rtdb = getDatabase(app);
