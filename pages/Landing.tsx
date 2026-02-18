@@ -19,7 +19,8 @@ import {
   Plus,
   Wifi,
   Terminal as TerminalIcon,
-  Activity
+  Activity,
+  Server
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -192,6 +193,28 @@ const Terminal = () => {
   );
 };
 
+// Simplified Mobile Status Card
+const MobileStatusCard = () => (
+  <div className="w-full bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 flex items-center justify-between mb-8 animate-fade-in-up">
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 bg-zinc-950 rounded-lg flex items-center justify-center border border-zinc-800">
+        <Activity className="w-5 h-5 text-primary" />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Network Status</p>
+        <p className="text-xs font-mono font-bold text-white flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+          Operational
+        </p>
+      </div>
+    </div>
+    <div className="text-right">
+      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">TPS</p>
+      <p className="text-sm font-mono font-bold text-white">402,192</p>
+    </div>
+  </div>
+);
+
 const Landing = () => {
   const { login } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -247,7 +270,6 @@ const Landing = () => {
     resize();
     window.addEventListener('resize', resize);
 
-    // Optimized for mobile: fewer drops, larger font if needed
     const isMobile = window.innerWidth < 768;
     const fontSize = isMobile ? 12 : 14;
     const chars = "01";
@@ -269,7 +291,7 @@ const Landing = () => {
         const y = drops[i] * fontSize;
         
         let alpha = 0.05;
-        if (!isMobile) { // Disable mouse beam effect on mobile for performance
+        if (!isMobile) { 
             const dx = x - beamX;
             const dy = y - beamY;
             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -320,8 +342,8 @@ const Landing = () => {
       </div>
 
       {/* Hero Section */}
-      <section id="hero" className="relative z-10 pt-24 pb-20 md:pt-32 md:pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[85vh] flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center w-full">
+      <section id="hero" className="relative z-10 pt-24 pb-16 md:pt-32 md:pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[auto] md:min-h-[85vh] flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-24 items-center w-full">
           
           <div className="lg:col-span-7 space-y-8 md:space-y-12 animate-fade-in-up relative z-20">
             <div className="space-y-6">
@@ -330,13 +352,18 @@ const Landing = () => {
                  <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9] drop-shadow-2xl text-balance">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.95] md:leading-[0.9] drop-shadow-2xl text-balance">
                 {content.hero.title}
               </h1>
               
               <p className="text-zinc-400 text-sm md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0 text-pretty" style={{ animationDelay: '0.4s' }}>
                 {content.hero.subtitle}
               </p>
+            </div>
+
+            {/* Mobile Status Card (Visible only on small screens) */}
+            <div className="block lg:hidden">
+               <MobileStatusCard />
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
@@ -358,10 +385,10 @@ const Landing = () => {
       </section>
 
       {/* Partners Section */}
-      <section id="partners" className={`relative z-10 py-16 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-         <div className="max-w-7xl mx-auto px-6 text-center">
+      <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+         <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
             <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-6 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                {content.partners.items.map((name, i) => (
                   <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
                ))}
@@ -371,8 +398,8 @@ const Landing = () => {
 
       {/* Features Grid */}
       {content.features?.isVisible && (
-        <section id="features" className="py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
-           <div className={`text-center mb-16 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <section id="features" className="py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           <div className={`text-center mb-12 md:mb-16 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
               <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4 md:mb-6">{content.features.title}</h2>
               <p className="text-zinc-500 text-sm md:text-lg leading-relaxed">{content.features.description}</p>
            </div>
@@ -395,18 +422,18 @@ const Landing = () => {
 
       {/* Architecture Section */}
       {content.architecture.isVisible && (
-        <section id="architecture" className="py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <section id="architecture" className="py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
               <div className={`space-y-8 md:space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
                  <div className="space-y-4 md:space-y-6">
                     <h2 className="text-3xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
                        {content.architecture.title}
                     </h2>
-                    <p className="text-zinc-500 text-base md:text-xl leading-relaxed max-w-lg">
+                    <p className="text-zinc-500 text-sm md:text-xl leading-relaxed max-w-lg">
                        {content.architecture.description}
                     </p>
                  </div>
-                 <div className="space-y-8">
+                 <div className="space-y-6 md:space-y-8">
                     {content.architecture.layers.map((layer, i) => (
                        <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
                           <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 transition-colors">
@@ -444,8 +471,8 @@ const Landing = () => {
 
       {/* ENHANCED ROADMAP SECTION - MOBILE OPTIMIZED */}
       {content.roadmap?.isVisible && (
-        <section id="roadmap" className="py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
-            <div className={`mb-20 md:mb-32 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <section id="roadmap" className="py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
+            <div className={`mb-16 md:mb-32 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full mb-6">
                   <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full"></div>
                   <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Protocol Timeline</span>
@@ -455,14 +482,14 @@ const Landing = () => {
             </div>
 
             <div className="relative">
-               {/* Central Line - Left aligned on mobile, centered on desktop */}
-               <div className="absolute left-[20px] md:left-1/2 top-0 bottom-0 w-px bg-zinc-900 md:-translate-x-1/2">
+               {/* Central Line - Left aligned on mobile (20px approx), centered on desktop */}
+               <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px bg-zinc-900 md:-translate-x-1/2">
                   <div 
                     className={`absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2000ms] ease-out opacity-50 ${visibleSections.has('roadmap') ? 'h-full' : 'h-0'}`}
                   ></div>
                </div>
 
-               <div className="space-y-16 md:space-y-24">
+               <div className="space-y-12 md:space-y-24">
                   {content.roadmap.phases.map((phase, i) => (
                      <div 
                         key={i} 
@@ -483,7 +510,7 @@ const Landing = () => {
 
                         {/* Content Card */}
                         <div 
-                           className={`pl-10 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-16' : 'md:pr-16'} transition-all duration-1000 w-full ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                           className={`pl-12 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-16' : 'md:pr-16'} transition-all duration-1000 w-full ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                            style={{ transitionDelay: `${i * 200}ms` }}
                         >
                            <div className={`relative bg-zinc-900/10 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900/30 p-6 md:p-8 rounded-2xl backdrop-blur-sm transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl`}>
@@ -529,7 +556,7 @@ const Landing = () => {
 
       {/* FAQ Section */}
       {content.faq.isVisible && (
-        <section id="faq" className="py-20 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
+        <section id="faq" className="py-16 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
            <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-12 md:mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
            <div className="space-y-4">
               {content.faq.items.map((item, i) => (
@@ -558,7 +585,7 @@ const Landing = () => {
 
       {/* CTA Section */}
       {content.cta.isVisible && (
-        <section id="cta" className={`py-32 md:py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <section id="cta" className={`py-24 md:py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
            <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-12 md:space-y-16">
               <div className="space-y-6 md:space-y-8">
                 <div className="inline-flex items-center gap-3 px-5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full">
@@ -576,9 +603,9 @@ const Landing = () => {
               </div>
               
               <div className="flex flex-col items-center gap-8 pt-6">
-                 <button onClick={login} className="h-16 md:h-24 px-10 md:px-20 bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                 <button onClick={login} className="h-14 md:h-24 px-8 md:px-20 bg-primary text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
                     {content.cta.buttonText} 
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
+                    <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-3 transition-transform duration-500" />
                  </button>
               </div>
            </div>

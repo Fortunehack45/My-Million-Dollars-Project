@@ -61,6 +61,11 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     return () => observer.disconnect();
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
   const navLinks = [
     { label: 'Architecture', path: '/architecture' },
     { label: 'Tokenomics', path: '/tokenomics' },
@@ -70,14 +75,14 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-primary selection:text-white font-sans scroll-smooth">
       {/* Navbar */}
-      <nav className="sticky top-0 z-[100] bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900">
+      <nav className="sticky top-0 z-[100] bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-900 transition-all">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 md:gap-4 z-50">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)]">
+          <Link to="/" className="flex items-center gap-3 md:gap-4 z-50 group">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)] group-hover:border-primary/50 transition-colors">
               <div className="w-5 h-5 md:w-6 md:h-6 bg-primary" style={logoStyle} />
             </div>
             <div className="flex flex-col -space-y-0.5 md:-space-y-1">
-              <span className="font-bold text-lg md:text-xl tracking-tight text-white">Argus<span className="text-zinc-500">Protocol</span></span>
+              <span className="font-bold text-lg md:text-xl tracking-tight text-white group-hover:text-primary transition-colors">Argus<span className="text-zinc-500 group-hover:text-zinc-400">Protocol</span></span>
               <span className="text-[8px] md:text-[9px] font-mono text-primary/80 tracking-widest uppercase">Testnet_v2.8</span>
             </div>
           </Link>
@@ -103,29 +108,38 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden z-50 p-2 text-zinc-400" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X /> : <Menu />}
+          <button 
+            className="md:hidden z-50 p-2 text-zinc-400 hover:text-white transition-colors" 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Nav Overlay */}
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 bg-zinc-950 z-40 flex flex-col items-center justify-center space-y-8 md:hidden">
-            {navLinks.map((item) => (
-              <Link 
-                key={item.path} 
-                to={item.path} 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-xl font-black uppercase tracking-widest text-white hover:text-primary"
+        <div className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-2xl z-40 flex flex-col items-center justify-center space-y-10 md:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+            <div className="flex flex-col items-center gap-8 w-full px-8">
+              {navLinks.map((item) => (
+                <Link 
+                  key={item.path} 
+                  to={item.path} 
+                  className="text-2xl font-black uppercase tracking-tighter text-white hover:text-primary transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            
+            <div className="w-full px-8 pt-8 border-t border-zinc-900/50">
+              <button 
+                onClick={() => { login(); setIsMobileMenuOpen(false); }} 
+                className="w-full px-8 py-5 bg-primary text-white text-sm font-black uppercase tracking-widest rounded-xl shadow-[0_0_30px_rgba(244,63,94,0.3)] active:scale-95 transition-all"
               >
-                {item.label}
-              </Link>
-            ))}
-            <button onClick={() => { login(); setIsMobileMenuOpen(false); }} className="mt-8 px-8 py-4 bg-primary text-white text-sm font-bold uppercase tracking-widest rounded">
-              Launch Console
-            </button>
-          </div>
-        )}
+                Launch Console
+              </button>
+            </div>
+        </div>
       </nav>
 
       {/* Page Content */}
@@ -134,7 +148,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       </main>
 
       {/* Enhanced Footer */}
-      <footer id="main-footer" className="border-t border-zinc-900 bg-zinc-950 pt-24 pb-12 px-6 relative overflow-hidden">
+      <footer id="main-footer" className="border-t border-zinc-900 bg-zinc-950 pt-16 pb-8 px-6 relative overflow-hidden">
          {/* Footer Background Effect */}
          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
          
@@ -149,7 +163,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                  </div>
                  <p className="text-sm text-zinc-500 leading-relaxed max-w-sm">
                    The institutional-grade infrastructure layer for the decentralized web. 
-                   Powering high-frequency consensus and zero-touch node deployment for the next generation of finance.
+                   Powering high-frequency consensus and zero-touch node deployment.
                  </p>
                  <div className="flex gap-4 pt-2">
                    <a href={landingConfig.socials?.twitter || "#"} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-zinc-600 hover:bg-zinc-800 transition-all duration-300 group">
@@ -203,7 +217,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
            </div>
 
-           <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
+           <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
               <span className="text-[10px] text-zinc-600 font-mono font-medium">
                  {landingConfig.footer.copyright}
               </span>
