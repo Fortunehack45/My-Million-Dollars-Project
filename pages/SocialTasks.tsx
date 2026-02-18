@@ -3,22 +3,54 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { completeTask, subscribeToTasks } from '../services/firebase';
 import { Task } from '../types';
-import { Twitter, MessageCircle, Send, Globe, ShieldCheck, Loader2, Clock, AlertCircle, ArrowRight, ExternalLink } from 'lucide-react';
+import { Twitter, MessageCircle, Send, Globe, ShieldCheck, Loader2, Clock, AlertCircle, ArrowRight, ExternalLink, Timer } from 'lucide-react';
 
 const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => void | Promise<void> }> = ({ task, user, onComplete }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [canClaim, setCanClaim] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const isCompleted = user.completedTasks.includes(task.id);
   const timerRef = useRef<number | null>(null);
+  const countdownIntervalRef = useRef<number | null>(null);
   
   // Use the admin defined verification wait time, default to 3s if not set
   const waitTime = task.verificationWaitTime || 3;
 
   useEffect(() => {
+    // Expiration Countdown logic
+    const updateCountdown = () => {
+      if (!task.expiresAt) {
+        setTimeLeft(null);
+        return;
+      }
+
+      const now = Date.now();
+      const diff = task.expiresAt - now;
+
+      if (diff <= 0) {
+        setTimeLeft('EXPIRED');
+        return;
+      }
+
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const hStr = h > 0 ? `${h}h ` : '';
+      const mStr = m.toString().padStart(2, '0');
+      const sStr = s.toString().padStart(2, '0');
+
+      setTimeLeft(`${hStr}${mStr}:${sStr}`);
+    };
+
+    updateCountdown();
+    countdownIntervalRef.current = window.setInterval(updateCountdown, 1000);
+
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
-  }, []);
+  }, [task.expiresAt]);
 
   const handleStart = () => {
     window.open(task.link, '_blank');
@@ -41,10 +73,17 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
         </div>
 
         <div className="flex-1 space-y-2">
-           <div className="flex items-center gap-3 mb-1">
+           <div className="flex flex-wrap items-center gap-3 mb-1">
               <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest bg-zinc-950 px-2 py-0.5 rounded border border-zinc-900">
                 DIR-{task.id.slice(0, 4)}
               </span>
+              
+              {timeLeft && !isCompleted && timeLeft !== 'EXPIRED' && (
+                <span className={`flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${timeLeft.includes('h') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/50' : 'text-primary border-primary/20 bg-primary/5 animate-pulse'}`}>
+                  <Timer className="w-3 h-3" /> Ends in: {timeLeft}
+                </span>
+              )}
+
               {isVerifying && (
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-500 uppercase bg-amber-500/10 px-2 py-0.5 rounded animate-pulse">
                   <Clock className="w-3 h-3" /> Verifying Protocol...
@@ -65,6 +104,10 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
               <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                 <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Validated</span>
               </div>
+           ) : timeLeft === 'EXPIRED' ? (
+             <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-lg border border-zinc-800 opacity-50">
+               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Closed</span>
+             </div>
            ) : canClaim ? (
              <button onClick={() => onComplete(task)} className="btn-primary flex items-center gap-2 !px-5 !py-2.5 animate-pulse shadow-[0_0_20px_rgba(244,63,94,0.4)]">
                Claim Reward <ArrowRight className="w-3 h-3" />
