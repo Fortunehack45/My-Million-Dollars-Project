@@ -17,7 +17,8 @@ import {
   Plus,
   Terminal as TerminalIcon,
   Activity,
-  Globe
+  Globe,
+  Milestone
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -465,89 +466,107 @@ const Landing = () => {
         </section>
       )}
 
-      {/* ENHANCED ROADMAP SECTION - MOBILE OPTIMIZED */}
+      {/* ENHANCED ROADMAP SECTION */}
       {content.roadmap?.isVisible && (
-        <section id="roadmap" className="py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
-            <div className={`mb-16 md:mb-32 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-               <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full mb-6">
-                  <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full"></div>
-                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Protocol Timeline</span>
-               </div>
-               <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{content.roadmap.title}</h2>
-               <p className="text-zinc-500 text-sm md:text-lg max-w-2xl mx-auto">{content.roadmap.description}</p>
-            </div>
+        <section id="roadmap" className="py-24 md:py-32 relative z-10 overflow-hidden">
+           {/* Background decorative elements for roadmap */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-full bg-primary/5 blur-[100px] pointer-events-none"></div>
 
-            <div className="relative">
-               {/* Central Line - Left aligned on mobile (20px approx), centered on desktop */}
-               <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px bg-zinc-900 md:-translate-x-1/2">
-                  <div 
-                    className={`absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2000ms] ease-out opacity-50 ${visibleSections.has('roadmap') ? 'h-full' : 'h-0'}`}
-                  ></div>
-               </div>
+           <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+              <div className={`text-center max-w-3xl mx-auto mb-20 md:mb-32 transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full mb-6 backdrop-blur-md">
+                    <Milestone className="w-3 h-3 text-primary" />
+                    <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Execution Timeline</span>
+                 </div>
+                 <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 leading-[0.9]">{content.roadmap.title}</h2>
+                 <p className="text-zinc-400 text-sm md:text-lg leading-relaxed">{content.roadmap.description}</p>
+              </div>
 
-               <div className="space-y-12 md:space-y-24">
-                  {content.roadmap.phases.map((phase, i) => (
-                     <div 
-                        key={i} 
-                        className={`flex flex-col md:flex-row gap-6 md:gap-0 items-start relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} group`}
-                     >
-                        {/* Connector Line (Horizontal) - Desktop Only */}
-                        <div className={`hidden md:block absolute top-8 ${i % 2 === 0 ? 'left-1/2 right-1/2 w-[40px]' : 'right-1/2 left-auto w-[40px] -translate-x-full'} h-px bg-zinc-800 group-hover:bg-primary/50 transition-colors duration-500`}></div>
+              <div className="relative">
+                 {/* Central Spine */}
+                 <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2 md:translate-x-0">
+                    <div className="h-full w-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
+                    {/* Progress Line (Visual) */}
+                    <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent h-[50%] opacity-20 blur-sm"></div>
+                 </div>
 
-                        {/* Timeline Node - Tech Hexagon */}
-                        <div 
-                           className={`absolute left-[14px] md:left-1/2 md:-translate-x-1/2 top-0 md:top-6 w-3 h-3 z-10 transition-all duration-700 delay-[${i * 200}ms] ${visibleSections.has('roadmap') ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
-                        >
-                           <div className={`w-3 h-3 rotate-45 border-2 ${phase.status === 'LIVE' ? 'bg-zinc-950 border-primary shadow-[0_0_15px_#f43f5e]' : 'bg-zinc-950 border-zinc-700'} transition-all duration-500 group-hover:scale-125`}></div>
-                        </div>
+                 <div className="space-y-12 md:space-y-32">
+                    {content.roadmap.phases.map((phase, i) => {
+                       const isEven = i % 2 === 0;
+                       return (
+                       <div 
+                          key={i} 
+                          className={`relative flex flex-col md:flex-row items-center gap-8 md:gap-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} group`}
+                       >
+                          {/* Desktop Connector Line */}
+                          <div className={`hidden md:block absolute top-12 ${isEven ? 'left-1/2 w-12' : 'right-1/2 w-12'} h-px bg-zinc-800 group-hover:bg-primary/50 transition-colors duration-500 origin-left`}>
+                             <div className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_5px_#f43f5e] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          </div>
 
-                        {/* Spacer for alignment on Desktop */}
-                        <div className="hidden md:block md:w-1/2"></div>
+                          {/* Central Node */}
+                          <div className="absolute left-[19px] md:left-1/2 -translate-x-1/2 top-0 md:top-8 z-10 flex flex-col items-center justify-center">
+                              <div className={`w-3 h-3 md:w-4 md:h-4 bg-zinc-950 border-2 ${phase.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_#f43f5e]' : 'border-zinc-700'} rotate-45 transition-all duration-500 group-hover:scale-125 group-hover:border-white`}></div>
+                          </div>
 
-                        {/* Content Card */}
-                        <div 
-                           className={`pl-12 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-16' : 'md:pr-16'} transition-all duration-1000 w-full ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-                           style={{ transitionDelay: `${i * 200}ms` }}
-                        >
-                           <div className={`relative bg-zinc-900/10 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900/30 p-6 md:p-8 rounded-2xl backdrop-blur-sm transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl`}>
-                              {/* Decorative Corners */}
-                              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-700 rounded-tl-lg"></div>
-                              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-700 rounded-tr-lg"></div>
-                              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-700 rounded-bl-lg"></div>
-                              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-700 rounded-br-lg"></div>
+                          {/* Spacer for desktop layout balance */}
+                          <div className="hidden md:block w-1/2"></div>
 
-                              {/* Status Header */}
-                              <div className="flex items-center justify-between mb-6">
-                                 <span className="text-[9px] md:text-[10px] font-mono font-bold text-zinc-500 bg-zinc-950/50 px-2 py-1 rounded border border-zinc-900">
-                                    PHASE_{phase.phase}
-                                 </span>
-                                 <div className={`flex items-center gap-2 text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${phase.status === 'LIVE' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
-                                    {phase.status === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>}
-                                    {phase.status}
-                                 </div>
-                              </div>
+                          {/* Content Card */}
+                          <div className={`w-full md:w-1/2 pl-12 md:pl-0 transition-all duration-700 delay-[${i * 100}ms] ${visibleSections.has('roadmap') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-y-12'}`}>
+                             <div className="relative bg-zinc-950 border border-zinc-900 p-8 rounded-3xl overflow-hidden hover:border-zinc-700 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/5">
+                                
+                                {/* Large Background Watermark */}
+                                <div className="absolute -right-4 -top-6 font-gothic text-[10rem] text-white/[0.03] select-none pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12 group-hover:text-white/[0.05]">
+                                   {phase.phase}
+                                </div>
 
-                              {/* Content */}
-                              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors">{phase.title}</h3>
-                              <p className="text-xs font-mono text-zinc-500 mb-4">{phase.period}</p>
-                              <p className="text-sm text-zinc-400 leading-relaxed mb-6">{phase.desc}</p>
-                              
-                              {/* Features List */}
-                              <div className="space-y-3 pt-6 border-t border-zinc-800/50">
-                                 {phase.features.map((feat, idx) => (
-                                    <div key={idx} className="flex items-start gap-3">
-                                       <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${phase.status === 'LIVE' ? 'text-primary' : 'text-zinc-700'}`} />
-                                       <span className="text-xs font-medium text-zinc-300">{feat}</span>
-                                    </div>
-                                 ))}
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-            </div>
-        </section>
+                                {/* Top Bar */}
+                                <div className="flex items-center justify-between mb-6 relative z-10">
+                                   <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest px-2 py-1 bg-primary/10 rounded border border-primary/20">
+                                      Phase {phase.phase}
+                                   </span>
+                                   {phase.status === 'LIVE' && (
+                                      <div className="flex items-center gap-2">
+                                         <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                         </span>
+                                         <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Active Protocol</span>
+                                      </div>
+                                   )}
+                                   {phase.status !== 'LIVE' && (
+                                      <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest border border-zinc-800 px-2 py-1 rounded">{phase.status}</span>
+                                   )}
+                                </div>
+
+                                {/* Title & Desc */}
+                                <div className="relative z-10 mb-8">
+                                   <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors duration-300">{phase.title}</h3>
+                                   <p className="font-mono text-xs text-zinc-500 mb-4">{phase.period}</p>
+                                   <p className="text-sm text-zinc-400 leading-relaxed">{phase.desc}</p>
+                                </div>
+
+                                {/* Features */}
+                                <div className="space-y-3 relative z-10 border-t border-zinc-900 pt-6">
+                                   {phase.features.map((feat, idx) => (
+                                      <div key={idx} className="flex items-start gap-3 group/item">
+                                         <div className={`mt-1 w-1.5 h-1.5 rounded-full ${phase.status === 'LIVE' ? 'bg-primary' : 'bg-zinc-700'} group-hover/item:scale-150 transition-transform`}></div>
+                                         <span className="text-xs font-medium text-zinc-300 group-hover/item:text-white transition-colors">{feat}</span>
+                                      </div>
+                                   ))}
+                                </div>
+
+                                {/* Decorative Corner */}
+                                <div className="absolute bottom-0 right-0 w-12 h-12 bg-gradient-to-tl from-zinc-900/50 to-transparent"></div>
+                                <div className="absolute bottom-3 right-3 w-1.5 h-1.5 bg-zinc-800 rounded-full"></div>
+                             </div>
+                          </div>
+                       </div>
+                    )})}
+                 </div>
+              </div>
+        </div>
+      </section>
       )}
 
       {/* FAQ Section */}
