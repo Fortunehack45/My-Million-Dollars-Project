@@ -92,7 +92,7 @@ const NFTSection = () => {
                           </div>
                           <div className="text-right">
                              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1">Total Supply</p>
-                             <p className="text-lg font-mono font-bold text-zinc-400">5,000</p>
+                             <p className="text-lg font-mono font-bold text-zinc-400">500,000</p>
                           </div>
                        </div>
                     </div>
