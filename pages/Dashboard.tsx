@@ -6,6 +6,8 @@ import {
   claimPoints, 
   subscribeToNetworkStats, 
   syncReferralStats,
+  subscribeToOnlineUsers,
+  calculateCurrentBlockHeight,
   TOTAL_SUPPLY,
   BASE_MINING_RATE,
   REFERRAL_BOOST,
@@ -146,6 +148,9 @@ const Dashboard = () => {
   const [miningTimer, setMiningTimer] = useState(0);
   const [pendingPoints, setPendingPoints] = useState(0);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+  const [livePeers, setLivePeers] = useState(0);
+  const [blockHeight, setBlockHeight] = useState(0);
+  const [tps, setTps] = useState(0);
   
   const MAX_SESSION_TIME = 24 * 60 * 60; 
 
@@ -153,6 +158,7 @@ const Dashboard = () => {
   const currentHourlyRate = BASE_MINING_RATE + (referrals * REFERRAL_BOOST);
   const ratePerSecond = currentHourlyRate / 3600;
 
+  // Sync Referrals
   useEffect(() => {
     if (user) {
       syncReferralStats(user.uid, user.referralCount, user.points)
@@ -168,9 +174,38 @@ const Dashboard = () => {
     }
   }, [user?.uid]); 
 
+  // Live Network Stats subscriptions
   useEffect(() => {
-    const unsubscribe = subscribeToNetworkStats(setStats => setNetStats(setStats));
-    return () => unsubscribe();
+    // 1. Database Stats
+    const unsubscribeStats = subscribeToNetworkStats(setStats => setNetStats(setStats));
+    
+    // 2. Realtime Presence (WebSockets)
+    const unsubscribePresence = subscribeToOnlineUsers((uids) => {
+      setLivePeers(Math.max(1, uids.length)); // Ensure at least 1 (self)
+    });
+
+    return () => {
+      unsubscribeStats();
+      unsubscribePresence();
+    };
+  }, []);
+
+  // Block Height & TPS Simulation (Deterministic)
+  useEffect(() => {
+    const updateChainMetrics = () => {
+      const height = calculateCurrentBlockHeight();
+      setBlockHeight(height);
+      
+      // Simulate TPS fluctuation around 400k (GhostDAG spec)
+      // Uses time to make it consistent-ish but fluctuating
+      const baseTps = 402000;
+      const fluctuation = Math.sin(Date.now() / 2000) * 15000;
+      setTps(Math.floor(baseTps + fluctuation));
+    };
+
+    updateChainMetrics();
+    const interval = setInterval(updateChainMetrics, 100); // 100ms updates for high-speed feel
+    return () => clearInterval(interval);
   }, []);
 
   const calculateProgress = useCallback(() => {
@@ -258,7 +293,7 @@ const Dashboard = () => {
           </p>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-mono font-black text-white">{(leftToMine / 1000000).toFixed(2)}M <span className="text-zinc-600">UNMINED</span></p>
+              <p className="text-sm font-mono font-black text-white">{(leftToMine / 1000000).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} <span className="text-zinc-600">UNMINED</span></p>
               <div className="w-48 h-1.5 bg-zinc-950 mt-2 rounded-full overflow-hidden border border-zinc-800">
                 <div className="h-full bg-gradient-to-r from-primary to-rose-400 shadow-[0_0_10px_#f43f5e]" style={{ width: `${miningPercent}%` }}></div>
               </div>
@@ -283,7 +318,7 @@ const Dashboard = () => {
                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">GhostDAG_Topology</span>
                  </div>
                  <div className="flex gap-4">
-                    <span className="text-[9px] font-mono text-zinc-600">TPS: 402,192</span>
+                    <span className="text-[9px] font-mono text-zinc-600">TPS: {tps.toLocaleString()}</span>
                     <span className="text-[9px] font-mono text-zinc-600">LATENCY: 12ms</span>
                  </div>
               </div>
@@ -349,10 +384,34 @@ const Dashboard = () => {
            {/* Secondary Stats Grid */}
            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Cumulative Reward', value: Math.floor(user.points * 100) / 100, unit: 'ARG', icon: Database, color: 'text-white' },
-                { label: 'Uptime Score', value: '99.9', unit: '%', icon: Activity, color: 'text-emerald-400' },
-                { label: 'Network Peers', value: netStats.activeNodes.toLocaleString(), unit: 'NODES', icon: Server, color: 'text-primary' },
-                { label: 'Block Height', value: Math.floor(netStats.totalMined * 12).toLocaleString(), unit: '#', icon: Layers, color: 'text-indigo-400' }
+                { 
+                  label: 'Cumulative Reward', 
+                  value: user.points.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}), 
+                  unit: 'ARG', 
+                  icon: Database, 
+                  color: 'text-white' 
+                },
+                { 
+                  label: 'Uptime Score', 
+                  value: '99.9', 
+                  unit: '%', 
+                  icon: Activity, 
+                  color: 'text-emerald-400' 
+                },
+                { 
+                  label: 'Network Peers', 
+                  value: livePeers.toLocaleString(), 
+                  unit: 'NODES', 
+                  icon: Server, 
+                  color: 'text-primary' 
+                },
+                { 
+                  label: 'Block Height', 
+                  value: blockHeight.toLocaleString(), 
+                  unit: '#', 
+                  icon: Layers, 
+                  color: 'text-indigo-400' 
+                }
               ].map((stat, i) => (
                 <div key={i} className="bg-zinc-900/20 border border-zinc-800 p-5 rounded-2xl hover:bg-zinc-900/40 transition-colors group">
                    <div className="flex justify-between items-start mb-3">
@@ -381,8 +440,8 @@ const Dashboard = () => {
               <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 font-mono text-[10px]">
                  {[
                     { type: 'sys', msg: 'Syncing DAG topology...', time: '00:00:01' },
-                    { type: 'ok', msg: 'Peer handshake accepted [192.168.x.x]', time: '00:00:02' },
-                    { type: 'info', msg: 'Indexing blue-set blocks...', time: '00:00:05' },
+                    { type: 'ok', msg: `Peers connected: ${livePeers} [Ready]`, time: '00:00:02' },
+                    { type: 'info', msg: `Current Height: ${blockHeight}`, time: '00:00:05' },
                     { type: 'warn', msg: 'High throughput on shard #4', time: '00:00:12' },
                     { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },
                     { type: 'sys', msg: 'Awaiting next cluster...', time: '00:00:18' },

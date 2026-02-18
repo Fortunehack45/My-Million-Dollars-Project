@@ -77,6 +77,15 @@ export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
 export const CURRENT_ARG_PRICE = 4.20; // Constant for valuation logic
 
+// Protocol Constants for Calculations
+export const GENESIS_TIMESTAMP = 1704067200000; // Jan 1, 2024 00:00:00 UTC
+export const AVG_BLOCK_TIME_MS = 400; // 400ms per block (GhostDAG speed)
+
+export const calculateCurrentBlockHeight = (): number => {
+  const now = Date.now();
+  return Math.floor((now - GENESIS_TIMESTAMP) / AVG_BLOCK_TIME_MS);
+};
+
 // --- DEFAULT CMS CONTENT ---
 export const DEFAULT_LANDING_CONFIG: LandingConfig = {
   hero: {
