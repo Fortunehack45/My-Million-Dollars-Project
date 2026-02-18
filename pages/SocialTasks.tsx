@@ -9,16 +9,23 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
   const [isVerifying, setIsVerifying] = useState(false);
   const [canClaim, setCanClaim] = useState(false);
   const isCompleted = user.completedTasks.includes(task.id);
+  const timerRef = useRef<number | null>(null);
   
   // Use the admin defined verification wait time, default to 3s if not set
   const waitTime = task.verificationWaitTime || 3;
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleStart = () => {
     window.open(task.link, '_blank');
     setIsVerifying(true);
     
     // Hidden verification timer
-    setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
         setIsVerifying(false);
         setCanClaim(true);
     }, waitTime * 1000);

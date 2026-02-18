@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Plus,
   Wifi,
-  Server,
   Terminal as TerminalIcon,
   Activity
 } from 'lucide-react';
@@ -36,7 +35,7 @@ const IconMap: Record<string, any> = {
   'CheckCircle2': CheckCircle2
 };
 
-// --- TERMINAL COMPONENT ---
+// --- TERMINAL COMPONENT (Desktop Only Visual) ---
 interface LogEntry {
   id: string;
   text: string;
@@ -51,7 +50,6 @@ const Terminal = () => {
   const timeoutsRef = useRef<number[]>([]);
   const isMountedRef = useRef(true);
 
-  // Helper to get local time string HH:MM:SS.mmm
   const getLocalTime = () => {
     const now = new Date();
     const h = String(now.getHours()).padStart(2, '0');
@@ -71,8 +69,6 @@ const Terminal = () => {
     { text: "Connection secured: RSA-4096/AES-GCM", delay: 10, type: 'success' },
     { text: "Syncing mempool... [428 txn pending]", delay: 25, type: 'info' },
     { text: "Optimizing DAG traverser threads [8/8 cores]...", delay: 15, type: 'info' },
-    { text: "WARNING: High throughput detected on shard #4", delay: 10, type: 'warning' },
-    { text: "Rebalancing node weights...", delay: 20, type: 'info' },
     { text: "SYSTEM_READY: Awaiting validator signature.", delay: 100, type: 'success' }
   ];
 
@@ -94,7 +90,7 @@ const Terminal = () => {
     const addLog = (text: string, type: any = 'info') => {
       if (!isMountedRef.current) return;
       const timestamp = getLocalTime();
-      setLogs(prev => [...prev.slice(-15), { 
+      setLogs(prev => [...prev.slice(-12), { // Keep fewer logs for performance
         id: Math.random().toString(36).substr(2, 9), 
         text, 
         type, 
@@ -129,8 +125,6 @@ const Terminal = () => {
         }
       } else {
         const randomLog = activityLogs[Math.floor(Math.random() * activityLogs.length)];
-        // Type out random logs too for realism, or just push them?
-        // Let's just push them instantly for "fast scrolling" effect
         addLog(randomLog, 'info');
         const nextDelay = Math.random() * 2000 + 1000;
         timeoutsRef.current.push(window.setTimeout(typeWriter, nextDelay));
@@ -145,7 +139,6 @@ const Terminal = () => {
     };
   }, []);
 
-  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -153,9 +146,7 @@ const Terminal = () => {
   }, [logs, currentLine]);
 
   return (
-    <div className="relative w-full h-[520px] bg-zinc-950/90 backdrop-blur-xl rounded-xl border border-zinc-800/80 shadow-2xl flex flex-col overflow-hidden font-mono text-[11px] transform transition-all hover:border-primary/30 group animate-fade-in-right">
-      
-      {/* Glossy Header */}
+    <div className="relative w-full h-[400px] xl:h-[520px] bg-zinc-950/90 backdrop-blur-xl rounded-xl border border-zinc-800/80 shadow-2xl flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] transform transition-all hover:border-primary/30 group animate-fade-in-right">
       <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/50 border-b border-zinc-800/50">
         <div className="flex gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500/80 shadow-sm"></div>
@@ -163,20 +154,14 @@ const Terminal = () => {
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 shadow-sm"></div>
         </div>
         <div className="text-zinc-500 font-bold uppercase tracking-widest text-[9px] flex items-center gap-2 opacity-70">
-          <TerminalIcon className="w-3 h-3" /> Argus_Node_CLI ~ v2.8.4
+          <TerminalIcon className="w-3 h-3" /> Argus_Node_CLI
         </div>
         <div className="flex items-center gap-2">
            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
            <span className="text-emerald-500 text-[9px] font-bold">NET_ACTIVE</span>
         </div>
       </div>
-
-      {/* Terminal Body */}
       <div className="relative flex-1 p-0 overflow-hidden bg-black/50">
-        {/* CRT Scanline & Vignette */}
-        <div className="absolute inset-0 pointer-events-none z-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_3px,3px_100%] opacity-10"></div>
-        <div className="absolute inset-0 pointer-events-none z-20 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]"></div>
-
         <div ref={scrollRef} className="absolute inset-0 p-5 overflow-y-auto custom-scrollbar space-y-1.5">
           {logs.map((log) => (
             <div key={log.id} className="flex gap-3 leading-relaxed opacity-90 hover:opacity-100 transition-opacity">
@@ -193,7 +178,6 @@ const Terminal = () => {
               </div>
             </div>
           ))}
-          
           <div className="flex gap-3 pt-1">
              <span className="text-zinc-600 shrink-0 select-none">[{getLocalTime()}]</span>
              <div className="text-primary break-words leading-relaxed flex items-center">
@@ -202,18 +186,6 @@ const Terminal = () => {
                 <span className="w-2 h-4 bg-primary ml-1 animate-[pulse_1s_steps(2)_infinite]"></span>
              </div>
           </div>
-        </div>
-      </div>
-
-      {/* Terminal Footer Status */}
-      <div className="px-4 py-2 bg-zinc-900/80 border-t border-zinc-800 flex justify-between items-center text-[9px] text-zinc-500 font-mono">
-        <div className="flex gap-4">
-          <span className="flex items-center gap-1.5"><Activity className="w-3 h-3" /> CPU: <span className="text-zinc-300">12%</span></span>
-          <span className="flex items-center gap-1.5"><Database className="w-3 h-3" /> RAM: <span className="text-zinc-300">4.2GB</span></span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Wifi className="w-3 h-3 text-zinc-600" />
-          <span>latency: 14ms</span>
         </div>
       </div>
     </div>
@@ -233,7 +205,6 @@ const Landing = () => {
     return () => unsubscribe();
   }, []);
 
-  // Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -243,7 +214,7 @@ const Landing = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.1 }
     );
 
     const sections = document.querySelectorAll('section');
@@ -263,7 +234,6 @@ const Landing = () => {
     setMousePos({ x: e.clientX, y: e.clientY });
   }, []);
 
-  // Matrix Rain Canvas
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -277,18 +247,18 @@ const Landing = () => {
     resize();
     window.addEventListener('resize', resize);
 
+    // Optimized for mobile: fewer drops, larger font if needed
+    const isMobile = window.innerWidth < 768;
+    const fontSize = isMobile ? 12 : 14;
     const chars = "01";
-    const fontSize = 14;
     let columns = Math.floor(canvas.width / fontSize);
     let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
     const draw = () => {
-      // Use alpha for trail effect
       ctx.fillStyle = "rgba(5, 5, 5, 0.1)"; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = fontSize + "px 'JetBrains Mono', monospace";
 
-      // Beam follows mouse
       const beamX = mousePos.x;
       const beamY = mousePos.y; 
       const radius = 400; 
@@ -298,16 +268,15 @@ const Landing = () => {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
         
-        // Calculate distance from mouse to simulate flashlight
-        const dx = x - beamX;
-        const dy = y - beamY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        
-        let alpha = 0.05; // Base visibility
-        
-        if (dist < radius) {
-            const intensity = 1 - (dist / radius); 
-            alpha = Math.max(alpha, intensity * 0.9);
+        let alpha = 0.05;
+        if (!isMobile) { // Disable mouse beam effect on mobile for performance
+            const dx = x - beamX;
+            const dy = y - beamY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < radius) {
+                const intensity = 1 - (dist / radius); 
+                alpha = Math.max(alpha, intensity * 0.9);
+            }
         }
 
         ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`; 
@@ -344,58 +313,57 @@ const Landing = () => {
       {/* MATRIX BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
         <canvas ref={canvasRef} className="absolute inset-0" />
-        {/* Glow follower */}
         <div 
-           className="absolute w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out"
+           className="absolute w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out hidden md:block"
            style={{ transform: `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)` }}
         />
       </div>
 
       {/* Hero Section */}
-      <section id="hero" className="relative z-10 pt-32 pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center w-full">
+      <section id="hero" className="relative z-10 pt-24 pb-20 md:pt-32 md:pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[85vh] flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center w-full">
           
-          <div className="lg:col-span-7 space-y-12 animate-fade-in-up relative z-20">
+          <div className="lg:col-span-7 space-y-8 md:space-y-12 animate-fade-in-up relative z-20">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-zinc-900/80 border border-zinc-800 rounded-full backdrop-blur-md animate-fade-in opacity-0" style={{ animationDelay: '0.2s' }}>
                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                  <span className="text-[10px] font-mono font-bold text-zinc-300 uppercase tracking-[0.2em]">Genesis_Epoch_Active</span>
               </div>
               
-              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-7xl xl:text-8xl font-black text-white tracking-tighter uppercase leading-[0.85] drop-shadow-2xl">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9] drop-shadow-2xl text-balance">
                 {content.hero.title}
               </h1>
               
-              <p className="text-zinc-400 text-base md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
+              <p className="text-zinc-400 text-sm md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0 text-pretty" style={{ animationDelay: '0.4s' }}>
                 {content.hero.subtitle}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-              <button onClick={login} className="w-full sm:w-auto px-10 py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+              <button onClick={login} className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
-              <Link to="/whitepaper" className="w-full sm:w-auto px-10 py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
+              <Link to="/whitepaper" className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
                 {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
               </Link>
             </div>
           </div>
 
-          {/* Terminal UI */}
-          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10 pl-8 lg:pl-0" style={{ animationDelay: '0.5s' }}>
+          {/* Terminal UI - Hidden on small mobile, visible on lg */}
+          <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10 pl-4 lg:pl-0" style={{ animationDelay: '0.5s' }}>
              <Terminal />
           </div>
         </div>
       </section>
 
       {/* Partners Section */}
-      <section id="partners" className={`relative z-10 py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <section id="partners" className={`relative z-10 py-16 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
          <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-[10px] font-black text-zinc-600 mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
-            <div className="flex flex-wrap justify-center gap-8 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+            <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-6 md:gap-24 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                {content.partners.items.map((name, i) => (
-                  <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-sm md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
+                  <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
                ))}
             </div>
          </div>
@@ -403,22 +371,21 @@ const Landing = () => {
 
       {/* Features Grid */}
       {content.features?.isVisible && (
-        <section id="features" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
-           {/* ... (Features Content same as before) ... */}
-           <div className={`text-center mb-20 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-              <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6">{content.features.title}</h2>
-              <p className="text-zinc-500 text-lg leading-relaxed">{content.features.description}</p>
+        <section id="features" className="py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           <div className={`text-center mb-16 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+              <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4 md:mb-6">{content.features.title}</h2>
+              <p className="text-zinc-500 text-sm md:text-lg leading-relaxed">{content.features.description}</p>
            </div>
            
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {content.features.items.map((item, i) => {
                  const Icon = IconMap[item.icon] || Globe;
                  return (
-                 <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-primary/50 transition-all duration-700 group hover:-translate-y-2 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                 <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-6 md:p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-primary/50 transition-all duration-700 group hover:-translate-y-2 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                     <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors">
                        <Icon className="w-6 h-6 text-zinc-500 group-hover:text-primary transition-colors" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-3 uppercase tracking-tight">{item.title}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white mb-3 uppercase tracking-tight">{item.title}</h3>
                     <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">{item.desc}</p>
                  </div>
               )})}
@@ -428,27 +395,26 @@ const Landing = () => {
 
       {/* Architecture Section */}
       {content.architecture.isVisible && (
-        <section id="architecture" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
-           {/* ... (Architecture Content same as before) ... */}
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-              <div className={`space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
-                 <div className="space-y-6">
-                    <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
+        <section id="architecture" className="py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+              <div className={`space-y-8 md:space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+                 <div className="space-y-4 md:space-y-6">
+                    <h2 className="text-3xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
                        {content.architecture.title}
                     </h2>
-                    <p className="text-zinc-500 text-lg md:text-xl leading-relaxed max-w-lg">
+                    <p className="text-zinc-500 text-base md:text-xl leading-relaxed max-w-lg">
                        {content.architecture.description}
                     </p>
                  </div>
-                 <div className="space-y-10">
+                 <div className="space-y-8">
                     {content.architecture.layers.map((layer, i) => (
-                       <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
-                          <div className="w-16 h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 transition-colors">
-                             <Layers className="w-7 h-7 text-zinc-600 group-hover:text-primary transition-colors" />
+                       <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
+                          <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 transition-colors">
+                             <Layers className="w-6 h-6 md:w-7 md:h-7 text-zinc-600 group-hover:text-primary transition-colors" />
                           </div>
                           <div>
-                             <h4 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{layer.title}</h4>
-                             <p className="text-zinc-500 text-sm leading-relaxed">{layer.desc}</p>
+                             <h4 className="text-lg md:text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{layer.title}</h4>
+                             <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">{layer.desc}</p>
                           </div>
                        </div>
                     ))}
@@ -476,51 +442,51 @@ const Landing = () => {
         </section>
       )}
 
-      {/* ENHANCED ROADMAP SECTION */}
+      {/* ENHANCED ROADMAP SECTION - MOBILE OPTIMIZED */}
       {content.roadmap?.isVisible && (
-        <section id="roadmap" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
-            <div className={`mb-32 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <section id="roadmap" className="py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
+            <div className={`mb-20 md:mb-32 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full mb-6">
                   <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full"></div>
                   <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Protocol Timeline</span>
                </div>
-               <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{content.roadmap.title}</h2>
-               <p className="text-zinc-500 text-lg max-w-2xl mx-auto">{content.roadmap.description}</p>
+               <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{content.roadmap.title}</h2>
+               <p className="text-zinc-500 text-sm md:text-lg max-w-2xl mx-auto">{content.roadmap.description}</p>
             </div>
 
             <div className="relative">
-               {/* Central Line - Improved visual */}
+               {/* Central Line - Left aligned on mobile, centered on desktop */}
                <div className="absolute left-[20px] md:left-1/2 top-0 bottom-0 w-px bg-zinc-900 md:-translate-x-1/2">
                   <div 
                     className={`absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2000ms] ease-out opacity-50 ${visibleSections.has('roadmap') ? 'h-full' : 'h-0'}`}
                   ></div>
                </div>
 
-               <div className="space-y-24">
+               <div className="space-y-16 md:space-y-24">
                   {content.roadmap.phases.map((phase, i) => (
                      <div 
                         key={i} 
-                        className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} group`}
+                        className={`flex flex-col md:flex-row gap-6 md:gap-0 items-start relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} group`}
                      >
-                        {/* Connector Line (Horizontal) */}
+                        {/* Connector Line (Horizontal) - Desktop Only */}
                         <div className={`hidden md:block absolute top-8 ${i % 2 === 0 ? 'left-1/2 right-1/2 w-[40px]' : 'right-1/2 left-auto w-[40px] -translate-x-full'} h-px bg-zinc-800 group-hover:bg-primary/50 transition-colors duration-500`}></div>
 
                         {/* Timeline Node - Tech Hexagon */}
                         <div 
-                           className={`absolute left-[20px] md:left-1/2 -translate-x-1/2 w-10 h-10 z-10 flex items-center justify-center transition-all duration-700 delay-[${i * 200}ms] ${visibleSections.has('roadmap') ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+                           className={`absolute left-[14px] md:left-1/2 md:-translate-x-1/2 top-0 md:top-6 w-3 h-3 z-10 transition-all duration-700 delay-[${i * 200}ms] ${visibleSections.has('roadmap') ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
                         >
                            <div className={`w-3 h-3 rotate-45 border-2 ${phase.status === 'LIVE' ? 'bg-zinc-950 border-primary shadow-[0_0_15px_#f43f5e]' : 'bg-zinc-950 border-zinc-700'} transition-all duration-500 group-hover:scale-125`}></div>
                         </div>
 
-                        {/* Spacer for alignment */}
-                        <div className="md:w-1/2"></div>
+                        {/* Spacer for alignment on Desktop */}
+                        <div className="hidden md:block md:w-1/2"></div>
 
                         {/* Content Card */}
                         <div 
-                           className={`pl-12 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-16' : 'md:pr-16'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                           className={`pl-10 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pl-16' : 'md:pr-16'} transition-all duration-1000 w-full ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                            style={{ transitionDelay: `${i * 200}ms` }}
                         >
-                           <div className={`relative bg-zinc-900/10 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900/30 p-8 rounded-2xl backdrop-blur-sm transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl`}>
+                           <div className={`relative bg-zinc-900/10 border border-zinc-800/50 hover:border-zinc-700 hover:bg-zinc-900/30 p-6 md:p-8 rounded-2xl backdrop-blur-sm transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl`}>
                               {/* Decorative Corners */}
                               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-700 rounded-tl-lg"></div>
                               <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-700 rounded-tr-lg"></div>
@@ -529,17 +495,17 @@ const Landing = () => {
 
                               {/* Status Header */}
                               <div className="flex items-center justify-between mb-6">
-                                 <span className="text-[10px] font-mono font-bold text-zinc-500 bg-zinc-950/50 px-2 py-1 rounded border border-zinc-900">
+                                 <span className="text-[9px] md:text-[10px] font-mono font-bold text-zinc-500 bg-zinc-950/50 px-2 py-1 rounded border border-zinc-900">
                                     PHASE_{phase.phase}
                                  </span>
-                                 <div className={`flex items-center gap-2 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${phase.status === 'LIVE' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
+                                 <div className={`flex items-center gap-2 text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${phase.status === 'LIVE' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
                                     {phase.status === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>}
                                     {phase.status}
                                  </div>
                               </div>
 
                               {/* Content */}
-                              <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors">{phase.title}</h3>
+                              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors">{phase.title}</h3>
                               <p className="text-xs font-mono text-zinc-500 mb-4">{phase.period}</p>
                               <p className="text-sm text-zinc-400 leading-relaxed mb-6">{phase.desc}</p>
                               
@@ -563,24 +529,23 @@ const Landing = () => {
 
       {/* FAQ Section */}
       {content.faq.isVisible && (
-        <section id="faq" className="py-24 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
-           {/* ... (FAQ Content same as before) ... */}
-           <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
+        <section id="faq" className="py-20 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
+           <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-12 md:mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
            <div className="space-y-4">
               {content.faq.items.map((item, i) => (
                  <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`border border-zinc-900 bg-black/40 backdrop-blur-md rounded-xl overflow-hidden hover:border-zinc-700 transition-all duration-700 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                     <button 
                        onClick={() => toggleFaq(i)}
-                       className="w-full flex items-center justify-between p-6 text-left hover:bg-zinc-900/20 transition-colors"
+                       className="w-full flex items-center justify-between p-5 md:p-6 text-left hover:bg-zinc-900/20 transition-colors"
                     >
-                       <span className="font-bold text-white text-sm uppercase tracking-wide pr-4">{item.q}</span>
+                       <span className="font-bold text-white text-xs md:text-sm uppercase tracking-wide pr-4">{item.q}</span>
                        <Plus className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${openFaq === i ? 'rotate-45' : ''} shrink-0`} />
                     </button>
                     <div 
                        className={`grid transition-all duration-500 ease-in-out ${openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                     >
                        <div className="overflow-hidden">
-                           <div className="p-6 pt-0 text-zinc-500 text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
+                           <div className="p-5 md:p-6 pt-0 text-zinc-500 text-xs md:text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
                               {item.a}
                            </div>
                        </div>
@@ -593,25 +558,25 @@ const Landing = () => {
 
       {/* CTA Section */}
       {content.cta.isVisible && (
-        <section id="cta" className={`py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-           <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-16">
-              <div className="space-y-8">
+        <section id="cta" className={`py-32 md:py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+           <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-12 md:space-y-16">
+              <div className="space-y-6 md:space-y-8">
                 <div className="inline-flex items-center gap-3 px-5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full">
                    <Zap className="w-4 h-4 text-primary animate-pulse" />
                    <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest font-mono">Status: Awaiting_Handshake</span>
                 </div>
 
-                <h2 className="text-4xl md:text-8xl lg:text-9xl font-black text-white uppercase tracking-tighter leading-[0.85]">
+                <h2 className="text-3xl sm:text-5xl md:text-8xl lg:text-9xl font-black text-white uppercase tracking-tighter leading-[0.9]">
                    {content.cta.title}
                 </h2>
                 
-                <p className="text-zinc-500 text-lg md:text-2xl max-w-2xl mx-auto leading-relaxed">
+                <p className="text-zinc-500 text-base md:text-2xl max-w-2xl mx-auto leading-relaxed">
                    {content.cta.description}
                 </p>
               </div>
               
               <div className="flex flex-col items-center gap-8 pt-6">
-                 <button onClick={login} className="h-20 md:h-24 px-12 md:px-20 bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                 <button onClick={login} className="h-16 md:h-24 px-10 md:px-20 bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
                     {content.cta.buttonText} 
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" />
                  </button>

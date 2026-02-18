@@ -4,7 +4,7 @@ import { Hexagon, Lock, ShieldAlert, Cpu } from 'lucide-react';
 
 const NFTSection = () => {
   return (
-    <div className="w-full h-[80vh] flex flex-col items-center justify-center space-y-12 relative overflow-hidden">
+    <div className="w-full min-h-[70vh] flex flex-col items-center justify-center space-y-12 relative overflow-hidden px-4 py-12">
       
       {/* Background Ambience */}
       <div className="absolute inset-0 pointer-events-none">
@@ -12,21 +12,21 @@ const NFTSection = () => {
          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
       </div>
 
-      <div className="relative z-10 text-center space-y-8 max-w-2xl mx-auto px-6">
+      <div className="relative z-10 text-center space-y-8 max-w-2xl mx-auto">
         <div className="flex flex-col items-center gap-6">
-           <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-[2rem] flex items-center justify-center shadow-[0_0_50px_rgba(244,63,94,0.15)] relative group">
+           <div className="w-20 h-20 md:w-24 md:h-24 bg-zinc-950 border border-zinc-800 rounded-[2rem] flex items-center justify-center shadow-[0_0_50px_rgba(244,63,94,0.15)] relative group">
               <div className="absolute inset-0 rounded-[2rem] bg-primary/10 blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></div>
-              <Lock className="w-10 h-10 text-primary relative z-10" />
+              <Lock className="w-8 h-8 md:w-10 md:h-10 text-primary relative z-10" />
               <div className="absolute -bottom-3 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[9px] font-black uppercase tracking-widest text-zinc-500">
                  Phase 03
               </div>
            </div>
            
            <div>
-              <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none mb-4">
+              <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none mb-4">
                  Genesis Mint<br /><span className="text-zinc-800">Locked</span>
               </h1>
-              <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-lg mx-auto">
+              <p className="text-zinc-500 text-base md:text-xl font-medium max-w-lg mx-auto">
                  Node authority credential minting is currently paused for the network stabilization epoch.
               </p>
            </div>
@@ -50,7 +50,7 @@ const NFTSection = () => {
         </div>
 
         <div className="pt-8">
-           <button disabled className="px-8 py-4 bg-zinc-900 border border-zinc-800 text-zinc-500 font-black uppercase tracking-[0.2em] rounded-xl cursor-not-allowed text-xs">
+           <button disabled className="px-8 py-4 bg-zinc-900 border border-zinc-800 text-zinc-500 font-black uppercase tracking-[0.2em] rounded-xl cursor-not-allowed text-xs w-full md:w-auto">
               Notify on Unlock
            </button>
         </div>

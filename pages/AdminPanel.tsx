@@ -31,7 +31,8 @@ import {
   Radio, Trash2, Globe, Layout, Save, X, 
   BookOpen, FileText, Info, Zap, Activity,
   Layers, AlignLeft, CheckCircle2, Shield, MapPin, 
-  Briefcase, Phone, HelpCircle, Share2, PieChart
+  Briefcase, Phone, HelpCircle, Share2, PieChart,
+  ListPlus, ChevronDown, ChevronRight
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -59,7 +60,7 @@ const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", c
 );
 
 const Toggle = ({ label, checked, onChange }: any) => (
-  <div className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-zinc-800">
+  <div className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 mb-4">
     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{label}</span>
     <button 
       onClick={() => onChange(!checked)} 
@@ -82,17 +83,23 @@ const SectionHeader = ({ title, icon: Icon, description }: any) => (
   </div>
 );
 
-const ArrayItem = ({ children, onDelete }: any) => (
-  <div className="group relative p-6 bg-zinc-900/30 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all mb-4">
-    <button 
-      onClick={onDelete}
-      className="absolute top-4 right-4 p-1.5 bg-zinc-950 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all rounded-lg border border-zinc-800 shadow-xl z-20"
-    >
-      <X className="w-4 h-4" />
-    </button>
-    {children}
-  </div>
-);
+const AccordionItem = ({ title, children, onDelete }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border border-zinc-800 rounded-xl bg-zinc-900/20 overflow-hidden mb-3">
+      <div className="flex items-center justify-between p-4 bg-zinc-900/40 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
+        <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide flex items-center gap-2">
+          {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          {title}
+        </span>
+        <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="text-zinc-600 hover:text-red-500 transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+      {isOpen && <div className="p-4 border-t border-zinc-800 space-y-4">{children}</div>}
+    </div>
+  );
+};
 
 // --- Main Component ---
 
@@ -114,6 +121,7 @@ const AdminPanel = () => {
   const [cmsStatus, setCmsStatus] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  // Config States
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
   const [aboutConfig, setAboutConfig] = useState<AboutConfig>(DEFAULT_ABOUT_CONFIG);
   const [archConfig, setArchConfig] = useState<ArchitecturePageConfig>(DEFAULT_ARCHITECTURE_CONFIG);
@@ -150,72 +158,56 @@ const AdminPanel = () => {
     };
   }, [isAuthorized]);
 
-  // --- Handlers for Landing Page Updates ---
-  const handleLandingUpdate = (section: keyof LandingConfig, key: string, value: any) => {
-    setLandingConfig(prev => ({ ...prev, [section]: { ...prev[section], [key]: value } }));
+  // Generic Updater
+  const updateState = (setter: any, path: string[], value: any) => {
+    setter((prev: any) => {
+      const newState = { ...prev };
+      let current = newState;
+      for (let i = 0; i < path.length - 1; i++) {
+        current[path[i]] = { ...current[path[i]] };
+        current = current[path[i]];
+      }
+      current[path[path.length - 1]] = value;
+      return newState;
+    });
     setHasUnsavedChanges(true);
   };
 
-  const handleLandingArrayUpdate = (section: keyof LandingConfig, key: string, value: any) => {
-    setLandingConfig(prev => ({ 
-        ...prev, 
-        [section]: { 
-            ...prev[section], 
-            [key]: value 
-        } 
+  // Array Helpers
+  const addItem = (setter: any, path: string[], item: any) => {
+    setter((prev: any) => {
+      const newState = { ...prev };
+      let current = newState;
+      for (let i = 0; i < path.length - 1; i++) {
+        current = current[path[i]];
+      }
+      current[path[path.length - 1]] = [...current[path[path.length - 1]], item];
+      return newState;
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  const removeItem = (setter: any, path: string[], index: number) => {
+    setter((prev: any) => {
+      const newState = { ...prev };
+      let current = newState;
+      for (let i = 0; i < path.length - 1; i++) {
+        current = current[path[i]];
+      }
+      current[path[path.length - 1]] = current[path[path.length - 1]].filter((_: any, i: number) => i !== index);
+      return newState;
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSocialUpdate = (platform: string, url: string) => {
+    setLandingConfig(prev => ({
+      ...prev,
+      socials: {
+        ...prev.socials,
+        [platform]: url
+      }
     }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleSocialUpdate = (key: string, value: string) => {
-      setLandingConfig(prev => ({ 
-          ...prev, 
-          socials: { 
-              ...(prev.socials || DEFAULT_LANDING_CONFIG.socials), 
-              [key]: value 
-          } 
-      }));
-      setHasUnsavedChanges(true);
-  };
-
-  // --- Handlers for Other Pages ---
-  const handleAboutUpdate = (key: keyof AboutConfig, value: any) => {
-    setAboutConfig(prev => ({ ...prev, [key]: value }));
-    setHasUnsavedChanges(true);
-  };
-  const handleAboutSectionUpdate = (section: keyof AboutConfig, key: string, value: any) => {
-    setAboutConfig(prev => ({ ...prev, [section]: { ...(prev[section] as any), [key]: value } }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleArchUpdate = (key: keyof ArchitecturePageConfig, value: any) => {
-    setArchConfig(prev => ({ ...prev, [key]: value }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleWhitepaperUpdate = (key: keyof WhitepaperConfig, value: any) => {
-    setWhitepaperConfig(prev => ({ ...prev, [key]: value }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleTokenomicsUpdate = (key: keyof TokenomicsConfig, value: any) => {
-    setTokenomicsConfig(prev => ({ ...prev, [key]: value }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleCareersUpdate = (key: keyof CareersConfig, value: any) => {
-    setCareersConfig(prev => ({ ...prev, [key]: value }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleContactUpdate = (key: keyof ContactConfig, value: any) => {
-    setContactConfig(prev => ({ ...prev, [key]: value }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleLegalUpdate = (type: 'terms' | 'privacy', key: keyof LegalConfig, value: any) => {
-    const setter = type === 'terms' ? setTermsConfig : setPrivacyConfig;
-    setter(prev => ({ ...prev, [key]: value }));
     setHasUnsavedChanges(true);
   };
 
@@ -239,7 +231,6 @@ const AdminPanel = () => {
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Calculate expiration timestamp
     const expiresAt = newTask.activeDurationHours 
         ? Date.now() + (newTask.activeDurationHours * 60 * 60 * 1000) 
         : null;
@@ -251,8 +242,8 @@ const AdminPanel = () => {
         icon: newTask.icon,
         link: newTask.link,
         actionLabel: newTask.actionLabel,
-        verificationWaitTime: newTask.verificationWaitTime, // Seconds for button timer
-        expiresAt: expiresAt // Timestamp for task disappearance
+        verificationWaitTime: newTask.verificationWaitTime,
+        expiresAt: expiresAt
     };
 
     await addNewTask(payload);
@@ -308,24 +299,11 @@ const AdminPanel = () => {
                   <InputGroup label="Task Title" value={newTask.title} onChange={(v: string) => setNewTask({...newTask, title: v})} />
                   <div className="grid grid-cols-2 gap-4">
                     <InputGroup label="Reward Points" type="number" value={newTask.points} onChange={(v: number) => setNewTask({...newTask, points: v})} />
-                    {/* Time fields */}
-                    <InputGroup 
-                        label="Verification Delay (Sec)" 
-                        type="number" 
-                        value={newTask.verificationWaitTime} 
-                        onChange={(v: number) => setNewTask({...newTask, verificationWaitTime: v})} 
-                        placeholder="Hidden timer"
-                    />
+                    <InputGroup label="Verification Delay (Sec)" type="number" value={newTask.verificationWaitTime} onChange={(v: number) => setNewTask({...newTask, verificationWaitTime: v})} placeholder="Hidden timer" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                      <InputGroup label="Action URL" value={newTask.link} onChange={(v: string) => setNewTask({...newTask, link: v})} />
-                     <InputGroup 
-                        label="Active Duration (Hours)" 
-                        type="number" 
-                        value={newTask.activeDurationHours} 
-                        onChange={(v: number) => setNewTask({...newTask, activeDurationHours: v})} 
-                        placeholder="Time until vanish"
-                     />
+                     <InputGroup label="Visibility Duration (Hours)" type="number" value={newTask.activeDurationHours} onChange={(v: number) => setNewTask({...newTask, activeDurationHours: v})} placeholder="Time until vanish" />
                   </div>
                   <InputGroup label="Description" type="textarea" value={newTask.description} onChange={(v: string) => setNewTask({...newTask, description: v})} />
                   <button className="btn-primary w-full py-4">+ Deploy Directive</button>
@@ -352,11 +330,10 @@ const AdminPanel = () => {
         </div>
       )}
 
-      {/* Rest of CMS code... */}
       {activeTab === 'cms' && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-3 space-y-4">
-            <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1">
+            <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1 sticky top-28">
               {['landing', 'about', 'architecture', 'whitepaper', 'tokenomics', 'careers', 'contact', 'terms', 'privacy'].map(id => (
                 <button key={id} onClick={() => setActiveCmsPage(id as any)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeCmsPage === id ? 'bg-primary text-white' : 'text-zinc-500 hover:bg-zinc-900'}`}>
                   <span className="text-[10px] font-black uppercase tracking-widest">{id.replace('_', ' ')}</span>
@@ -364,7 +341,7 @@ const AdminPanel = () => {
               ))}
             </div>
             {activeCmsPage === 'landing' && (
-              <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1">
+              <div className="surface p-4 rounded-2xl border-zinc-900 space-y-1 sticky top-[28rem]">
                  {['hero', 'partners', 'architecture', 'features', 'roadmap', 'faq', 'cta', 'footer'].map(sec => (
                    <button key={sec} onClick={() => setActiveLandingSection(sec)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeLandingSection === sec ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:bg-zinc-900'}`}>
                      <div className={`w-1.5 h-1.5 rounded-full ${(landingConfig[sec as keyof LandingConfig] as any)?.isVisible ? 'bg-emerald-500' : 'bg-zinc-700'}`}></div>
@@ -376,42 +353,415 @@ const AdminPanel = () => {
           </div>
 
           <div className="md:col-span-9 space-y-8 min-h-[600px] surface p-8 rounded-3xl border-zinc-900 animate-in fade-in duration-500">
-            {/* Landing Page Editor */}
+            {/* --- LANDING PAGE EDITOR --- */}
             {activeCmsPage === 'landing' && (
               <div className="space-y-8">
                 {activeLandingSection === 'hero' && (
                   <>
                     <SectionHeader title="Hero Section" icon={Layout} />
-                    <Toggle label="Section Visible" checked={landingConfig.hero.isVisible} onChange={(v: boolean) => handleLandingUpdate('hero', 'isVisible', v)} />
-                    <InputGroup label="Headline" value={landingConfig.hero.title} onChange={(v: string) => handleLandingUpdate('hero', 'title', v)} />
-                    <InputGroup label="Subtitle" type="textarea" value={landingConfig.hero.subtitle} onChange={(v: string) => handleLandingUpdate('hero', 'subtitle', v)} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <InputGroup label="CTA Primary" value={landingConfig.hero.ctaPrimary} onChange={(v: string) => handleLandingUpdate('hero', 'ctaPrimary', v)} />
-                      <InputGroup label="CTA Secondary" value={landingConfig.hero.ctaSecondary} onChange={(v: string) => handleLandingUpdate('hero', 'ctaSecondary', v)} />
+                    <Toggle label="Section Visible" checked={landingConfig.hero.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['hero', 'isVisible'], v)} />
+                    <InputGroup label="Headline" value={landingConfig.hero.title} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'title'], v)} />
+                    <InputGroup label="Subtitle" type="textarea" value={landingConfig.hero.subtitle} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'subtitle'], v)} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <InputGroup label="CTA Primary" value={landingConfig.hero.ctaPrimary} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'ctaPrimary'], v)} />
+                      <InputGroup label="CTA Secondary" value={landingConfig.hero.ctaSecondary} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'ctaSecondary'], v)} />
                     </div>
                   </>
                 )}
-
-                {/* Simplified rendering for brevity - retaining rest of CMS logic structure */}
+                
                 {activeLandingSection === 'partners' && (
                   <>
                     <SectionHeader title="Partners Ticker" icon={Share2} />
-                    <Toggle label="Section Visible" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => handleLandingUpdate('partners', 'isVisible', v)} />
-                    <InputGroup label="Section Title" value={landingConfig.partners.title} onChange={(v: string) => handleLandingUpdate('partners', 'title', v)} className="mb-4" />
+                    <Toggle label="Section Visible" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['partners', 'isVisible'], v)} />
+                    <InputGroup label="Section Title" value={landingConfig.partners.title} onChange={(v: string) => updateState(setLandingConfig, ['partners', 'title'], v)} />
                     <InputGroup 
-                      label="Partner Names (Comma Separated)" 
+                      label="Partner IDs (Comma Separated)" 
                       value={landingConfig.partners.items.join(', ')} 
-                      onChange={(v: string) => handleLandingUpdate('partners', 'items', v.split(',').map(s => s.trim()))} 
+                      onChange={(v: string) => updateState(setLandingConfig, ['partners', 'items'], v.split(',').map(s => s.trim()))} 
                       type="textarea"
                     />
                   </>
                 )}
-                
-                {/* ... existing CMS sections ... */}
+
+                {activeLandingSection === 'architecture' && (
+                  <>
+                    <SectionHeader title="Architecture Preview" icon={Layers} />
+                    <Toggle label="Section Visible" checked={landingConfig.architecture.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['architecture', 'isVisible'], v)} />
+                    <InputGroup label="Title" value={landingConfig.architecture.title} onChange={(v: string) => updateState(setLandingConfig, ['architecture', 'title'], v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.architecture.description} onChange={(v: string) => updateState(setLandingConfig, ['architecture', 'description'], v)} />
+                    <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-6 mb-4">Preview Layers</h3>
+                    {landingConfig.architecture.layers.map((layer, i) => (
+                      <div key={i} className="mb-4 p-4 border border-zinc-800 rounded-xl bg-zinc-900/30">
+                        <InputGroup label={`Layer ${i+1} Title`} value={layer.title} onChange={(v: string) => {
+                           const newLayers = [...landingConfig.architecture.layers];
+                           newLayers[i].title = v;
+                           updateState(setLandingConfig, ['architecture', 'layers'], newLayers);
+                        }} className="mb-2" />
+                        <InputGroup label={`Layer ${i+1} Description`} value={layer.desc} onChange={(v: string) => {
+                           const newLayers = [...landingConfig.architecture.layers];
+                           newLayers[i].desc = v;
+                           updateState(setLandingConfig, ['architecture', 'layers'], newLayers);
+                        }} />
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {activeLandingSection === 'features' && (
+                  <>
+                    <SectionHeader title="Features Grid" icon={Zap} />
+                    <Toggle label="Section Visible" checked={landingConfig.features.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['features', 'isVisible'], v)} />
+                    <InputGroup label="Title" value={landingConfig.features.title} onChange={(v: string) => updateState(setLandingConfig, ['features', 'title'], v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.features.description} onChange={(v: string) => updateState(setLandingConfig, ['features', 'description'], v)} />
+                    <div className="flex justify-between items-center mt-6 mb-4">
+                       <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Feature Items</h3>
+                       <button onClick={() => addItem(setLandingConfig, ['features', 'items'], { title: 'New Feature', desc: 'Description', icon: 'Globe' })} className="text-xs text-primary hover:underline">+ Add Item</button>
+                    </div>
+                    {landingConfig.features.items.map((item, i) => (
+                      <AccordionItem key={i} title={item.title || 'Untitled'} onDelete={() => removeItem(setLandingConfig, ['features', 'items'], i)}>
+                         <InputGroup label="Title" value={item.title} onChange={(v: string) => {
+                            const newItems = [...landingConfig.features.items]; newItems[i].title = v;
+                            updateState(setLandingConfig, ['features', 'items'], newItems);
+                         }} />
+                         <InputGroup label="Description" type="textarea" value={item.desc} onChange={(v: string) => {
+                            const newItems = [...landingConfig.features.items]; newItems[i].desc = v;
+                            updateState(setLandingConfig, ['features', 'items'], newItems);
+                         }} />
+                         <InputGroup label="Icon Name (Lucide)" value={item.icon} onChange={(v: string) => {
+                            const newItems = [...landingConfig.features.items]; newItems[i].icon = v;
+                            updateState(setLandingConfig, ['features', 'items'], newItems);
+                         }} />
+                      </AccordionItem>
+                    ))}
+                  </>
+                )}
+
+                {activeLandingSection === 'roadmap' && (
+                  <>
+                    <SectionHeader title="Roadmap Timeline" icon={ListPlus} />
+                    <Toggle label="Section Visible" checked={landingConfig.roadmap.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['roadmap', 'isVisible'], v)} />
+                    <InputGroup label="Title" value={landingConfig.roadmap.title} onChange={(v: string) => updateState(setLandingConfig, ['roadmap', 'title'], v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.roadmap.description} onChange={(v: string) => updateState(setLandingConfig, ['roadmap', 'description'], v)} />
+                    
+                    <div className="flex justify-between items-center mt-6 mb-4">
+                       <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Phases</h3>
+                       <button onClick={() => addItem(setLandingConfig, ['roadmap', 'phases'], { phase: '0X', title: 'New Phase', period: 'Q1 2026', status: 'PLANNED', desc: '...', features: [] })} className="text-xs text-primary hover:underline">+ Add Phase</button>
+                    </div>
+                    {landingConfig.roadmap.phases.map((phase, i) => (
+                      <AccordionItem key={i} title={`${phase.phase}: ${phase.title}`} onDelete={() => removeItem(setLandingConfig, ['roadmap', 'phases'], i)}>
+                         <div className="grid grid-cols-2 gap-4">
+                            <InputGroup label="Phase ID" value={phase.phase} onChange={(v: string) => {
+                               const newPhases = [...landingConfig.roadmap.phases]; newPhases[i].phase = v;
+                               updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                            }} />
+                            <InputGroup label="Status" value={phase.status} onChange={(v: string) => {
+                               const newPhases = [...landingConfig.roadmap.phases]; newPhases[i].status = v;
+                               updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                            }} />
+                         </div>
+                         <InputGroup label="Title" value={phase.title} onChange={(v: string) => {
+                            const newPhases = [...landingConfig.roadmap.phases]; newPhases[i].title = v;
+                            updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                         }} />
+                         <InputGroup label="Period" value={phase.period} onChange={(v: string) => {
+                            const newPhases = [...landingConfig.roadmap.phases]; newPhases[i].period = v;
+                            updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                         }} />
+                         <InputGroup label="Description" type="textarea" value={phase.desc} onChange={(v: string) => {
+                            const newPhases = [...landingConfig.roadmap.phases]; newPhases[i].desc = v;
+                            updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                         }} />
+                         <InputGroup 
+                            label="Features (Comma Separated)" 
+                            value={phase.features.join(', ')} 
+                            onChange={(v: string) => {
+                               const newPhases = [...landingConfig.roadmap.phases]; newPhases[i].features = v.split(',').map(s => s.trim());
+                               updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                            }} 
+                            type="textarea"
+                         />
+                      </AccordionItem>
+                    ))}
+                  </>
+                )}
+
+                {activeLandingSection === 'faq' && (
+                  <>
+                    <SectionHeader title="FAQ Section" icon={HelpCircle} />
+                    <Toggle label="Section Visible" checked={landingConfig.faq.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['faq', 'isVisible'], v)} />
+                    <InputGroup label="Title" value={landingConfig.faq.title} onChange={(v: string) => updateState(setLandingConfig, ['faq', 'title'], v)} />
+                    
+                    <div className="flex justify-between items-center mt-6 mb-4">
+                       <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Questions</h3>
+                       <button onClick={() => addItem(setLandingConfig, ['faq', 'items'], { q: 'Question?', a: 'Answer.' })} className="text-xs text-primary hover:underline">+ Add Item</button>
+                    </div>
+                    {landingConfig.faq.items.map((item, i) => (
+                      <AccordionItem key={i} title={item.q} onDelete={() => removeItem(setLandingConfig, ['faq', 'items'], i)}>
+                         <InputGroup label="Question" value={item.q} onChange={(v: string) => {
+                            const newItems = [...landingConfig.faq.items]; newItems[i].q = v;
+                            updateState(setLandingConfig, ['faq', 'items'], newItems);
+                         }} />
+                         <InputGroup label="Answer" type="textarea" value={item.a} onChange={(v: string) => {
+                            const newItems = [...landingConfig.faq.items]; newItems[i].a = v;
+                            updateState(setLandingConfig, ['faq', 'items'], newItems);
+                         }} />
+                      </AccordionItem>
+                    ))}
+                  </>
+                )}
+
+                {activeLandingSection === 'cta' && (
+                  <>
+                    <SectionHeader title="Call to Action" icon={MegaphoneIcon} />
+                    <Toggle label="Section Visible" checked={landingConfig.cta.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['cta', 'isVisible'], v)} />
+                    <InputGroup label="Title" value={landingConfig.cta.title} onChange={(v: string) => updateState(setLandingConfig, ['cta', 'title'], v)} />
+                    <InputGroup label="Description" type="textarea" value={landingConfig.cta.description} onChange={(v: string) => updateState(setLandingConfig, ['cta', 'description'], v)} />
+                    <InputGroup label="Button Text" value={landingConfig.cta.buttonText} onChange={(v: string) => updateState(setLandingConfig, ['cta', 'buttonText'], v)} />
+                  </>
+                )}
+
+                {activeLandingSection === 'footer' && (
+                  <>
+                    <SectionHeader title="Footer" icon={Layout} />
+                    <InputGroup label="Copyright Text" value={landingConfig.footer.copyright} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'copyright'], v)} />
+                    <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-6 mb-4">Social Links</h3>
+                    <InputGroup label="Twitter URL" value={landingConfig.socials?.twitter} onChange={(v: string) => handleSocialUpdate('twitter', v)} className="mb-2" />
+                    <InputGroup label="Discord URL" value={landingConfig.socials?.discord} onChange={(v: string) => handleSocialUpdate('discord', v)} className="mb-2" />
+                    <InputGroup label="GitHub URL" value={landingConfig.socials?.github} onChange={(v: string) => handleSocialUpdate('github', v)} />
+                  </>
+                )}
               </div>
             )}
+
+            {/* --- OTHER PAGES EDITORS --- */}
             
-            {/* ... other CMS pages ... */}
+            {activeCmsPage === 'about' && (
+              <>
+                <SectionHeader title="About Page" icon={Info} />
+                <InputGroup label="Page Title" value={aboutConfig.title} onChange={(v: string) => updateState(setAboutConfig, ['title'], v)} />
+                <InputGroup label="Subtitle" type="textarea" value={aboutConfig.subtitle} onChange={(v: string) => updateState(setAboutConfig, ['subtitle'], v)} />
+                <div className="grid grid-cols-1 gap-6 mt-6">
+                   <div className="p-4 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                      <h4 className="text-xs font-bold text-zinc-400 mb-2">Mission</h4>
+                      <InputGroup label="Title" value={aboutConfig.mission.title} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'title'], v)} className="mb-2" />
+                      <InputGroup label="Description" type="textarea" value={aboutConfig.mission.desc} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'desc'], v)} />
+                   </div>
+                   <div className="p-4 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                      <h4 className="text-xs font-bold text-zinc-400 mb-2">Vision</h4>
+                      <InputGroup label="Title" value={aboutConfig.vision.title} onChange={(v: string) => updateState(setAboutConfig, ['vision', 'title'], v)} className="mb-2" />
+                      <InputGroup label="Description" type="textarea" value={aboutConfig.vision.desc} onChange={(v: string) => updateState(setAboutConfig, ['vision', 'desc'], v)} />
+                   </div>
+                   <div className="p-4 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                      <h4 className="text-xs font-bold text-zinc-400 mb-2">Collective</h4>
+                      <InputGroup label="Title" value={aboutConfig.collective.title} onChange={(v: string) => updateState(setAboutConfig, ['collective', 'title'], v)} className="mb-2" />
+                      <InputGroup label="Description" type="textarea" value={aboutConfig.collective.desc} onChange={(v: string) => updateState(setAboutConfig, ['collective', 'desc'], v)} />
+                   </div>
+                </div>
+                <div className="mt-6">
+                   <InputGroup 
+                      label="Partners List (Comma Separated)" 
+                      value={aboutConfig.partners.join(', ')} 
+                      onChange={(v: string) => updateState(setAboutConfig, ['partners'], v.split(',').map(s => s.trim()))}
+                      type="textarea"
+                   />
+                </div>
+              </>
+            )}
+
+            {activeCmsPage === 'architecture' && (
+              <>
+                <SectionHeader title="Architecture Page" icon={Layers} />
+                <InputGroup label="Hero Title" value={archConfig.heroTitle} onChange={(v: string) => updateState(setArchConfig, ['heroTitle'], v)} />
+                <InputGroup label="Hero Subtitle" type="textarea" value={archConfig.heroSubtitle} onChange={(v: string) => updateState(setArchConfig, ['heroSubtitle'], v)} />
+                
+                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-8 mb-4">Technical Layers</h3>
+                {archConfig.layers.map((layer, i) => (
+                   <AccordionItem key={i} title={`Layer ${i+1}: ${layer.title}`} onDelete={() => removeItem(setArchConfig, ['layers'], i)}>
+                      <InputGroup label="Title" value={layer.title} onChange={(v: string) => {
+                         const n = [...archConfig.layers]; n[i].title = v; updateState(setArchConfig, ['layers'], n);
+                      }} />
+                      <InputGroup label="Description" type="textarea" value={layer.desc} onChange={(v: string) => {
+                         const n = [...archConfig.layers]; n[i].desc = v; updateState(setArchConfig, ['layers'], n);
+                      }} />
+                      <InputGroup label="Stat Badge" value={layer.stat} onChange={(v: string) => {
+                         const n = [...archConfig.layers]; n[i].stat = v; updateState(setArchConfig, ['layers'], n);
+                      }} />
+                   </AccordionItem>
+                ))}
+                <button onClick={() => addItem(setArchConfig, ['layers'], { title: 'New Layer', desc: '...', stat: 'N/A' })} className="text-xs text-primary hover:underline mt-2">+ Add Layer</button>
+
+                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-8 mb-4">Features</h3>
+                {archConfig.features.map((feat, i) => (
+                   <AccordionItem key={i} title={feat.title} onDelete={() => removeItem(setArchConfig, ['features'], i)}>
+                      <InputGroup label="Title" value={feat.title} onChange={(v: string) => {
+                         const n = [...archConfig.features]; n[i].title = v; updateState(setArchConfig, ['features'], n);
+                      }} />
+                      <InputGroup label="Description" type="textarea" value={feat.desc} onChange={(v: string) => {
+                         const n = [...archConfig.features]; n[i].desc = v; updateState(setArchConfig, ['features'], n);
+                      }} />
+                   </AccordionItem>
+                ))}
+                <button onClick={() => addItem(setArchConfig, ['features'], { title: 'New Feature', desc: '...' })} className="text-xs text-primary hover:underline mt-2">+ Add Feature</button>
+              </>
+            )}
+
+            {activeCmsPage === 'whitepaper' && (
+              <>
+                <SectionHeader title="Whitepaper" icon={FileText} />
+                <div className="grid grid-cols-2 gap-4">
+                   <InputGroup label="Title" value={whitepaperConfig.title} onChange={(v: string) => updateState(setWhitepaperConfig, ['title'], v)} />
+                   <InputGroup label="Version" value={whitepaperConfig.version} onChange={(v: string) => updateState(setWhitepaperConfig, ['version'], v)} />
+                </div>
+                <InputGroup label="Subtitle" value={whitepaperConfig.subtitle} onChange={(v: string) => updateState(setWhitepaperConfig, ['subtitle'], v)} />
+                
+                <div className="flex justify-between items-center mt-8 mb-4">
+                   <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Sections</h3>
+                   <button onClick={() => addItem(setWhitepaperConfig, ['sections'], { title: 'New Section', content: '...' })} className="text-xs text-primary hover:underline">+ Add Section</button>
+                </div>
+                {whitepaperConfig.sections.map((section, i) => (
+                   <AccordionItem key={i} title={`${i+1}. ${section.title}`} onDelete={() => removeItem(setWhitepaperConfig, ['sections'], i)}>
+                      <InputGroup label="Heading" value={section.title} onChange={(v: string) => {
+                         const n = [...whitepaperConfig.sections]; n[i].title = v; updateState(setWhitepaperConfig, ['sections'], n);
+                      }} />
+                      <InputGroup label="Content" type="textarea" value={section.content} onChange={(v: string) => {
+                         const n = [...whitepaperConfig.sections]; n[i].content = v; updateState(setWhitepaperConfig, ['sections'], n);
+                      }} className="h-40" />
+                   </AccordionItem>
+                ))}
+              </>
+            )}
+
+            {activeCmsPage === 'tokenomics' && (
+              <>
+                <SectionHeader title="Tokenomics" icon={PieChart} />
+                <InputGroup label="Title" value={tokenomicsConfig.title} onChange={(v: string) => updateState(setTokenomicsConfig, ['title'], v)} />
+                <InputGroup label="Subtitle" type="textarea" value={tokenomicsConfig.subtitle} onChange={(v: string) => updateState(setTokenomicsConfig, ['subtitle'], v)} />
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                   <InputGroup label="Total Supply" value={tokenomicsConfig.totalSupply} onChange={(v: string) => updateState(setTokenomicsConfig, ['totalSupply'], v)} />
+                   <InputGroup label="Circulating Supply" value={tokenomicsConfig.circulatingSupply} onChange={(v: string) => updateState(setTokenomicsConfig, ['circulatingSupply'], v)} />
+                </div>
+
+                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-8 mb-4">Distribution</h3>
+                {tokenomicsConfig.distribution.map((item, i) => (
+                   <AccordionItem key={i} title={item.label} onDelete={() => removeItem(setTokenomicsConfig, ['distribution'], i)}>
+                      <div className="grid grid-cols-2 gap-4">
+                         <InputGroup label="Label" value={item.label} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.distribution]; n[i].label = v; updateState(setTokenomicsConfig, ['distribution'], n);
+                         }} />
+                         <InputGroup label="Value Text" value={item.value} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.distribution]; n[i].value = v; updateState(setTokenomicsConfig, ['distribution'], n);
+                         }} />
+                         <InputGroup label="Percentage" type="number" value={item.percentage} onChange={(v: number) => {
+                            const n = [...tokenomicsConfig.distribution]; n[i].percentage = v; updateState(setTokenomicsConfig, ['distribution'], n);
+                         }} />
+                         <InputGroup label="Color Class (Tailwind)" value={item.color} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.distribution]; n[i].color = v; updateState(setTokenomicsConfig, ['distribution'], n);
+                         }} />
+                      </div>
+                   </AccordionItem>
+                ))}
+                <button onClick={() => addItem(setTokenomicsConfig, ['distribution'], { label: 'New Slice', percentage: 10, value: '100M', color: 'bg-zinc-500' })} className="text-xs text-primary hover:underline mt-2">+ Add Distribution</button>
+
+                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-8 mb-4">Vesting Schedule</h3>
+                {tokenomicsConfig.schedule.map((row, i) => (
+                   <AccordionItem key={i} title={`${row.phase} - ${row.date}`} onDelete={() => removeItem(setTokenomicsConfig, ['schedule'], i)}>
+                      <div className="grid grid-cols-2 gap-4">
+                         <InputGroup label="Phase" value={row.phase} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.schedule]; n[i].phase = v; updateState(setTokenomicsConfig, ['schedule'], n);
+                         }} />
+                         <InputGroup label="Date" value={row.date} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.schedule]; n[i].date = v; updateState(setTokenomicsConfig, ['schedule'], n);
+                         }} />
+                         <InputGroup label="Allocation" value={row.allocation} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.schedule]; n[i].allocation = v; updateState(setTokenomicsConfig, ['schedule'], n);
+                         }} />
+                         <InputGroup label="Action" value={row.action} onChange={(v: string) => {
+                            const n = [...tokenomicsConfig.schedule]; n[i].action = v; updateState(setTokenomicsConfig, ['schedule'], n);
+                         }} />
+                      </div>
+                   </AccordionItem>
+                ))}
+                <button onClick={() => addItem(setTokenomicsConfig, ['schedule'], { phase: 'Phase X', date: 'TBD', allocation: '0%', action: 'Locked' })} className="text-xs text-primary hover:underline mt-2">+ Add Schedule</button>
+              </>
+            )}
+
+            {activeCmsPage === 'careers' && (
+              <>
+                <SectionHeader title="Careers Page" icon={Briefcase} />
+                <InputGroup label="Title" value={careersConfig.title} onChange={(v: string) => updateState(setCareersConfig, ['title'], v)} />
+                <InputGroup label="Subtitle" type="textarea" value={careersConfig.subtitle} onChange={(v: string) => updateState(setCareersConfig, ['subtitle'], v)} />
+                
+                <div className="flex justify-between items-center mt-8 mb-4">
+                   <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Open Positions</h3>
+                   <button onClick={() => addItem(setCareersConfig, ['positions'], { title: 'New Role', department: 'Eng', location: 'Remote', type: 'Full-time', description: '...' })} className="text-xs text-primary hover:underline">+ Add Job</button>
+                </div>
+                {careersConfig.positions.map((job, i) => (
+                   <AccordionItem key={i} title={job.title} onDelete={() => removeItem(setCareersConfig, ['positions'], i)}>
+                      <div className="grid grid-cols-2 gap-4">
+                         <InputGroup label="Job Title" value={job.title} onChange={(v: string) => {
+                            const n = [...careersConfig.positions]; n[i].title = v; updateState(setCareersConfig, ['positions'], n);
+                         }} />
+                         <InputGroup label="Department" value={job.department} onChange={(v: string) => {
+                            const n = [...careersConfig.positions]; n[i].department = v; updateState(setCareersConfig, ['positions'], n);
+                         }} />
+                         <InputGroup label="Location" value={job.location} onChange={(v: string) => {
+                            const n = [...careersConfig.positions]; n[i].location = v; updateState(setCareersConfig, ['positions'], n);
+                         }} />
+                         <InputGroup label="Type" value={job.type} onChange={(v: string) => {
+                            const n = [...careersConfig.positions]; n[i].type = v; updateState(setCareersConfig, ['positions'], n);
+                         }} />
+                      </div>
+                      <InputGroup label="Description" type="textarea" value={job.description} onChange={(v: string) => {
+                         const n = [...careersConfig.positions]; n[i].description = v; updateState(setCareersConfig, ['positions'], n);
+                      }} />
+                   </AccordionItem>
+                ))}
+              </>
+            )}
+
+            {activeCmsPage === 'contact' && (
+              <>
+                <SectionHeader title="Contact Page" icon={Phone} />
+                <InputGroup label="Title" value={contactConfig.title} onChange={(v: string) => updateState(setContactConfig, ['title'], v)} />
+                <InputGroup label="Subtitle" type="textarea" value={contactConfig.subtitle} onChange={(v: string) => updateState(setContactConfig, ['subtitle'], v)} />
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                   <InputGroup label="Email Address" value={contactConfig.email} onChange={(v: string) => updateState(setContactConfig, ['email'], v)} />
+                   <InputGroup label="Support Hours" value={contactConfig.supportHours} onChange={(v: string) => updateState(setContactConfig, ['supportHours'], v)} />
+                </div>
+                <InputGroup label="Physical Address" type="textarea" value={contactConfig.address} onChange={(v: string) => updateState(setContactConfig, ['address'], v)} className="mt-4" />
+              </>
+            )}
+
+            {(activeCmsPage === 'terms' || activeCmsPage === 'privacy') && (
+              <>
+                <SectionHeader title={activeCmsPage === 'terms' ? 'Terms of Service' : 'Privacy Policy'} icon={BookOpen} />
+                {(() => {
+                   const config = activeCmsPage === 'terms' ? termsConfig : privacyConfig;
+                   const setConfig = activeCmsPage === 'terms' ? setTermsConfig : setPrivacyConfig;
+                   return (
+                      <>
+                         <InputGroup label="Document Title" value={config.title} onChange={(v: string) => updateState(setConfig, ['title'], v)} />
+                         <InputGroup label="Last Updated" value={config.lastUpdated} onChange={(v: string) => updateState(setConfig, ['lastUpdated'], v)} />
+                         
+                         <div className="flex justify-between items-center mt-8 mb-4">
+                            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Clauses</h3>
+                            <button onClick={() => addItem(setConfig, ['sections'], { heading: 'New Clause', content: '...' })} className="text-xs text-primary hover:underline">+ Add Clause</button>
+                         </div>
+                         {config.sections.map((sec, i) => (
+                            <AccordionItem key={i} title={sec.heading} onDelete={() => removeItem(setConfig, ['sections'], i)}>
+                               <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
+                                  const n = [...config.sections]; n[i].heading = v; updateState(setConfig, ['sections'], n);
+                               }} />
+                               <InputGroup label="Content" type="textarea" value={sec.content} onChange={(v: string) => {
+                                  const n = [...config.sections]; n[i].content = v; updateState(setConfig, ['sections'], n);
+                               }} className="h-32" />
+                            </AccordionItem>
+                         ))}
+                      </>
+                   );
+                })()}
+              </>
+            )}
           </div>
         </div>
       )}
@@ -423,5 +773,14 @@ const AdminPanel = () => {
     </div>
   );
 };
+
+// Helper Icon for CTA
+const MegaphoneIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+    <path d="M12 8l-4.3 3.6c-.4.4-1 .6-1.5.6H2.6a1 1 0 0 0-.9 1.4l1.6 3.1c.3.5.8.8 1.4.8h.1L12 21V8z" />
+    <path d="M16 8a5 5 0 0 1 0 8" />
+    <path d="M19 5a9 9 0 0 1 0 14" />
+  </svg>
+);
 
 export default AdminPanel;
