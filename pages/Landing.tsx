@@ -51,6 +51,16 @@ const Terminal = () => {
   const timeoutsRef = useRef<number[]>([]);
   const isMountedRef = useRef(true);
 
+  // Helper to get local time string HH:MM:SS.mmm
+  const getLocalTime = () => {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const ms = String(now.getMilliseconds()).padStart(3, '0');
+    return `${h}:${m}:${s}.${ms}`;
+  };
+
   const bootSequence = [
     { text: "ARGUS_KERNEL_V2.8.4 initializing...", delay: 20, type: 'system' },
     { text: "Loading cryptographic modules [SECP256K1]... OK", delay: 10, type: 'success' },
@@ -83,7 +93,7 @@ const Terminal = () => {
 
     const addLog = (text: string, type: any = 'info') => {
       if (!isMountedRef.current) return;
-      const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+      const timestamp = getLocalTime();
       setLogs(prev => [...prev.slice(-15), { 
         id: Math.random().toString(36).substr(2, 9), 
         text, 
@@ -185,7 +195,7 @@ const Terminal = () => {
           ))}
           
           <div className="flex gap-3 pt-1">
-             <span className="text-zinc-600 shrink-0 select-none">[{new Date().toISOString().split('T')[1].slice(0, 12)}]</span>
+             <span className="text-zinc-600 shrink-0 select-none">[{getLocalTime()}]</span>
              <div className="text-primary break-words leading-relaxed flex items-center">
                 <span className="mr-2">➜</span>
                 {currentLine}

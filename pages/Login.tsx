@@ -27,11 +27,20 @@ const logoStyle = {
 
 const Login = () => {
   const { login } = useAuth();
-  const [timestamp, setTimestamp] = useState(new Date().toISOString());
+  
+  const getLocalTime = () => {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  };
+
+  const [timestamp, setTimestamp] = useState(getLocalTime());
   const [bootSequence, setBootSequence] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => setTimestamp(new Date().toISOString()), 1000);
+    const timer = setInterval(() => setTimestamp(getLocalTime()), 1000);
     // Boot sequence animation
     const bootTimer = setInterval(() => {
       setBootSequence(prev => (prev < 100 ? prev + 1 : 100));
