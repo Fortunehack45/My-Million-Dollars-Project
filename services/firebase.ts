@@ -1,5 +1,5 @@
 
-import { initializeApp } from 'firebase/app';
+import * as firebaseApp from 'firebase/app';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -60,7 +60,8 @@ const firebaseConfig = {
   measurementId: "G-6EVXT8DJMK"
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize using the namespace import to avoid 'no exported member' issues in some TS environments
+const app = firebaseApp.initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Use initializeFirestore with forced long polling to bypass WebSocket restrictions common in some environments.
@@ -79,6 +80,7 @@ export const REFERRAL_BOOST = 0.1; // ARG per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
 export const CURRENT_ARG_PRICE = 4.20; // Constant for valuation logic
+export const MAX_USERS_CAP = 500000; // Hard cap for Testnet participants
 
 // Protocol Constants for Calculations
 export const GENESIS_TIMESTAMP = 1704067200000; // Jan 1, 2024 00:00:00 UTC
@@ -394,6 +396,13 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
   }
   
   return newUser;
+};
+
+export const getNetworkStats = async (): Promise<NetworkStats | null> => {
+    const statsRef = doc(db, 'global_stats', 'network');
+    const snap = await getDoc(statsRef);
+    if (snap.exists()) return snap.data() as NetworkStats;
+    return null;
 };
 
 export const syncReferralStats = async (uid: string, currentReferralCount: number, currentPoints: number) => {

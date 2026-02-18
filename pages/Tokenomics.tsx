@@ -14,13 +14,15 @@ const Tokenomics = () => {
 
   useEffect(() => {
     const unsub = subscribeToContent('tokenomics', DEFAULT_TOKENOMICS_CONFIG, setContent);
-    setTimeout(() => setVisible(true), 100);
-    return () => unsub();
+    // Slight delay to ensure content is ready before animating in
+    const timer = setTimeout(() => setVisible(true), 150);
+    return () => {
+      unsub();
+      clearTimeout(timer);
+    };
   }, []);
 
   // --- SVG Chart Math ---
-  // A radius of 15.9155 creates a circumference of exactly 100 (2 * pi * r).
-  // This allows us to use percentages directly for stroke-dasharray.
   const RADIUS = 15.9155;
   const CIRCUMFERENCE = 100;
   
@@ -30,15 +32,8 @@ const Tokenomics = () => {
     const startOffset = cumulativePercent;
     cumulativePercent += item.percentage;
     
-    // Calculate stroke-dasharray: [length of arc, length of gap]
-    // We leave a tiny gap (0.5) for visual separation if there are multiple slices
     const gap = content.distribution.length > 1 ? 0.5 : 0;
     const value = Math.max(0, item.percentage - gap);
-    
-    // Calculate rotation: start at top (-90deg or 25 units offset)
-    // In SVG, positive offset pushes dash back. We want to rotate the circle.
-    // Simpler method: rotate the entire circle element or calculate dashoffset.
-    // Dashoffset = 25 (top) - cumulativeStart
     const offset = 25 - startOffset;
 
     return { 
@@ -74,25 +69,25 @@ const Tokenomics = () => {
 
           {/* Supply Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-24">
-             <div className={`glass-panel p-10 rounded-[2rem] flex items-center justify-between transition-all duration-1000 delay-100 border border-zinc-800 hover:border-zinc-700 group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+             <div className={`glass-panel p-10 rounded-[2rem] flex items-center justify-between transition-all duration-1000 delay-150 border border-zinc-800 hover:border-zinc-700 group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                 <div>
                    <div className="flex items-center gap-2 mb-2">
                       <Lock className="w-4 h-4 text-zinc-500" />
                       <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Max Supply (Hard Cap)</p>
                    </div>
-                   <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left">{content.totalSupply}</p>
+                   <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">{content.totalSupply}</p>
                 </div>
                 <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner group-hover:shadow-primary/10 transition-shadow">
                    <div className="w-3 h-3 bg-zinc-700 rounded-full"></div>
                 </div>
              </div>
-             <div className={`glass-panel p-10 rounded-[2rem] flex items-center justify-between transition-all duration-1000 delay-200 border border-zinc-800 hover:border-primary/30 group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+             <div className={`glass-panel p-10 rounded-[2rem] flex items-center justify-between transition-all duration-1000 delay-300 border border-zinc-800 hover:border-primary/30 group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                 <div>
                    <div className="flex items-center gap-2 mb-2">
                       <Activity className="w-4 h-4 text-primary" />
                       <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Circulating Supply</p>
                    </div>
-                   <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left">{content.circulatingSupply}</p>
+                   <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">{content.circulatingSupply}</p>
                 </div>
                 <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner">
                    <div className="w-3 h-3 bg-primary rounded-full animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
@@ -103,10 +98,10 @@ const Tokenomics = () => {
           {/* Interactive Distribution Section */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mb-32">
              {/* Chart Visualization */}
-             <div className={`lg:col-span-5 relative flex items-center justify-center transition-all duration-1000 delay-300 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+             <div className={`lg:col-span-5 relative flex items-center justify-center transition-all duration-1000 delay-500 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
                 <div className="relative w-full max-w-[500px] aspect-square">
-                   {/* Background Glow */}
-                   <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full"></div>
+                   {/* Background Glow - Rotates slowly */}
+                   <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full animate-spin-slow"></div>
                    
                    <svg viewBox="0 0 42 42" className="w-full h-full transform drop-shadow-2xl">
                       {/* Placeholder ring background */}
@@ -127,10 +122,15 @@ const Tokenomics = () => {
                                strokeDashoffset={item.strokeDashoffset}
                                className={`
                                   ${item.color.includes('bg-') ? item.color.replace('bg-', 'text-') : 'text-zinc-500'} 
-                                  transition-all duration-300 ease-out cursor-pointer
-                                  ${isActive ? 'brightness-125' : 'hover:brightness-110'}
+                                  transition-all duration-500 ease-out cursor-pointer origin-center
+                                  ${isActive ? 'brightness-125 scale-105' : 'hover:brightness-110'}
+                                  ${visible ? 'opacity-100' : 'opacity-0'}
                                `}
-                               style={{ color: !item.color.startsWith('bg-') ? item.color : undefined }}
+                               style={{ 
+                                  color: !item.color.startsWith('bg-') ? item.color : undefined,
+                                  transformOrigin: 'center',
+                                  transitionDelay: `${i * 100}ms` // Staggered entry for segments
+                               }}
                                onMouseEnter={() => setActiveIndex(i)}
                                onMouseLeave={() => setActiveIndex(null)}
                             />
@@ -140,21 +140,21 @@ const Tokenomics = () => {
 
                    {/* Center Content */}
                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                      <div className="bg-zinc-950/80 backdrop-blur-md rounded-full w-[60%] h-[60%] flex flex-col items-center justify-center border border-zinc-800 shadow-2xl p-4 transition-all duration-300">
+                      <div className="bg-zinc-950/90 backdrop-blur-xl rounded-full w-[55%] h-[55%] flex flex-col items-center justify-center border border-zinc-800 shadow-2xl p-4 transition-all duration-300 z-10">
                          {activeItem ? (
-                            <>
-                               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center animate-in fade-in slide-in-from-bottom-2">{activeItem.label}</p>
-                               <p className={`text-4xl md:text-5xl font-black transition-colors ${activeItem.color.replace('bg-', 'text-')} animate-in zoom-in-50`}>
+                            <div className="animate-in fade-in zoom-in-95 duration-200">
+                               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center">{activeItem.label}</p>
+                               <p className={`text-4xl md:text-5xl font-black text-center transition-colors ${activeItem.color.replace('bg-', 'text-')}`}>
                                   {activeItem.percentage}%
                                </p>
-                               <p className="text-xs font-mono text-zinc-400 mt-1 font-bold">{activeItem.value}</p>
-                            </>
+                               <p className="text-xs font-mono text-zinc-400 mt-1 font-bold text-center">{activeItem.value}</p>
+                            </div>
                          ) : (
-                            <>
-                               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Allocation</p>
-                               <p className="text-4xl md:text-5xl font-black text-white">100%</p>
-                               <p className="text-xs font-mono text-zinc-600 mt-1 font-bold">1B TOKENS</p>
-                            </>
+                            <div className="animate-in fade-in zoom-in-95 duration-200">
+                               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center">Total Allocation</p>
+                               <p className="text-4xl md:text-5xl font-black text-white text-center">100%</p>
+                               <p className="text-xs font-mono text-zinc-600 mt-1 font-bold text-center">1B TOKENS</p>
+                            </div>
                          )}
                       </div>
                    </div>
@@ -170,11 +170,11 @@ const Tokenomics = () => {
                       onMouseLeave={() => setActiveIndex(null)}
                       className={`
                          glass-panel p-5 rounded-2xl flex items-center justify-between cursor-pointer border
-                         transition-all duration-300 group
+                         transition-all duration-500 group
                          ${activeIndex === i ? 'bg-zinc-900 border-zinc-700 translate-x-2' : 'border-transparent hover:bg-zinc-900/40 hover:border-zinc-800'}
                          ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}
                       `}
-                      style={{ transitionDelay: `${400 + (i * 50)}ms` }}
+                      style={{ transitionDelay: `${600 + (i * 100)}ms` }}
                    >
                       <div className="flex items-center gap-5">
                          <div className={`w-4 h-4 rounded-full ${item.color} shadow-[0_0_12px_currentColor] transition-transform duration-300 ${activeIndex === i ? 'scale-125' : ''}`}></div>
@@ -193,7 +193,7 @@ const Tokenomics = () => {
 
           {/* Utility Grid */}
           <div className="mb-32">
-             <div className="text-center mb-16">
+             <div className={`text-center mb-16 transition-all duration-1000 delay-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <div className="inline-flex items-center gap-2 mb-4">
                    <Zap className="w-4 h-4 text-zinc-500" />
                    <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Network Utility</h2>
@@ -204,8 +204,8 @@ const Tokenomics = () => {
                 {content.utility.map((u, i) => {
                    const Icon = IconMap[u.icon] || Zap;
                    return (
-                      <div key={i} className={`surface p-10 rounded-[2.5rem] bg-zinc-900/10 border border-zinc-900 hover:border-primary/30 transition-all duration-700 group hover:-translate-y-2 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${i * 150}ms` }}>
-                         <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 mb-8 group-hover:scale-110 transition-transform duration-500">
+                      <div key={i} className={`surface p-10 rounded-[2.5rem] bg-zinc-900/10 border border-zinc-900 hover:border-primary/30 transition-all duration-700 group hover:-translate-y-2 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
+                         <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
                             <Icon className="w-7 h-7 text-zinc-400 group-hover:text-primary transition-colors" />
                          </div>
                          <h3 className="text-xl font-bold text-white uppercase mb-4 group-hover:text-primary transition-colors">{u.title}</h3>
@@ -217,7 +217,7 @@ const Tokenomics = () => {
           </div>
 
           {/* Release Schedule */}
-          <div className={`glass-panel p-1 rounded-[2.5rem] overflow-hidden transition-all duration-1000 delay-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+          <div className={`glass-panel p-1 rounded-[2.5rem] overflow-hidden transition-all duration-1000 delay-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
              <div className="bg-zinc-950 rounded-[2.4rem] overflow-hidden border border-zinc-900">
                 <div className="p-10 border-b border-zinc-900 bg-zinc-900/30 flex justify-between items-center">
                    <div>

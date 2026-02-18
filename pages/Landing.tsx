@@ -234,7 +234,7 @@ const Landing = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.15 } // Increased threshold slightly for better trigger point
     );
 
     const sections = document.querySelectorAll('section');
@@ -484,10 +484,12 @@ const Landing = () => {
 
               <div className="relative">
                  {/* Central Spine */}
-                 <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2 md:translate-x-0">
-                    <div className="h-full w-full bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
-                    {/* Progress Line (Visual) */}
-                    <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent h-[50%] opacity-20 blur-sm"></div>
+                 <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2 md:translate-x-0 bg-zinc-800/50">
+                    {/* Animated Beam Fill - Triggered by scroll visibility */}
+                    <div 
+                       className="absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2500ms] ease-out-expo"
+                       style={{ height: visibleSections.has('roadmap') ? '100%' : '0%' }}
+                    ></div>
                  </div>
 
                  <div className="space-y-12 md:space-y-32">
@@ -498,25 +500,45 @@ const Landing = () => {
                           key={i} 
                           className={`relative flex flex-col md:flex-row items-center gap-8 md:gap-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} group`}
                        >
-                          {/* Desktop Connector Line */}
-                          <div className={`hidden md:block absolute top-12 ${isEven ? 'left-1/2 w-12' : 'right-1/2 w-12'} h-px bg-zinc-800 group-hover:bg-primary/50 transition-colors duration-500 origin-left`}>
+                          {/* Desktop Connector Line - Grows outwards */}
+                          <div 
+                             className={`hidden md:block absolute top-12 ${isEven ? 'left-1/2' : 'right-1/2'} h-px bg-gradient-to-r from-primary/40 to-transparent transition-all duration-1000 ease-out`}
+                             style={{ 
+                                width: visibleSections.has('roadmap') ? '3rem' : '0', 
+                                transitionDelay: `${i * 300 + 500}ms`
+                             }}
+                          >
                              <div className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_5px_#f43f5e] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           </div>
 
                           {/* Central Node */}
                           <div className="absolute left-[19px] md:left-1/2 -translate-x-1/2 top-0 md:top-8 z-10 flex flex-col items-center justify-center">
-                              <div className={`w-3 h-3 md:w-4 md:h-4 bg-zinc-950 border-2 ${phase.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_#f43f5e]' : 'border-zinc-700'} rotate-45 transition-all duration-500 group-hover:scale-125 group-hover:border-white`}></div>
+                              <div 
+                                className={`w-3 h-3 md:w-4 md:h-4 bg-zinc-950 border-2 ${phase.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_#f43f5e]' : 'border-zinc-700'} rotate-45 transition-all duration-500 group-hover:scale-125 group-hover:border-white z-20`}
+                                style={{
+                                    transitionDelay: `${i * 300}ms`,
+                                    opacity: visibleSections.has('roadmap') ? 1 : 0,
+                                    transform: visibleSections.has('roadmap') ? 'rotate(45deg) scale(1)' : 'rotate(0deg) scale(0)'
+                                }}
+                              ></div>
                           </div>
 
                           {/* Spacer for desktop layout balance */}
                           <div className="hidden md:block w-1/2"></div>
 
-                          {/* Content Card */}
-                          <div className={`w-full md:w-1/2 pl-12 md:pl-0 transition-all duration-700 delay-[${i * 100}ms] ${visibleSections.has('roadmap') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-y-12'}`}>
-                             <div className="relative bg-zinc-950 border border-zinc-900 p-8 rounded-3xl overflow-hidden hover:border-zinc-700 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/5">
+                          {/* Content Card - Staggered Slide In */}
+                          <div 
+                             className={`w-full md:w-1/2 pl-12 md:pl-0 transition-all duration-1000 ease-out-expo`}
+                             style={{ 
+                                transitionDelay: `${i * 300 + 200}ms`,
+                                opacity: visibleSections.has('roadmap') ? 1 : 0,
+                                transform: visibleSections.has('roadmap') ? 'translateX(0)' : `translateX(${isEven ? '50px' : '-50px'})`
+                             }}
+                          >
+                             <div className="relative bg-zinc-950/80 backdrop-blur-sm border border-zinc-900 p-8 rounded-3xl overflow-hidden hover:border-zinc-700 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/5 hover:-translate-y-1">
                                 
-                                {/* Large Background Watermark */}
-                                <div className="absolute -right-4 -top-6 font-gothic text-[10rem] text-white/[0.03] select-none pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12 group-hover:text-white/[0.05]">
+                                {/* Large Background Watermark - Gothic Font */}
+                                <div className="absolute -right-4 -top-6 font-gothic text-[8rem] md:text-[10rem] text-white/[0.03] select-none pointer-events-none transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12 group-hover:text-white/[0.05]">
                                    {phase.phase}
                                 </div>
 

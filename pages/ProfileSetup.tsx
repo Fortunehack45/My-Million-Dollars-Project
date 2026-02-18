@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData } from '../services/firebase';
+import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData, getNetworkStats, MAX_USERS_CAP } from '../services/firebase';
 import { 
   Fingerprint, 
   ArrowRight, 
@@ -9,6 +9,7 @@ import {
   Terminal, 
   AlertCircle,
   Loader2,
+  Lock
 } from 'lucide-react';
 
 const ProfileSetup = () => {
@@ -19,6 +20,8 @@ const ProfileSetup = () => {
   const [checkingName, setCheckingName] = useState(false);
   const [isNameTaken, setIsNameTaken] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isNetworkCapped, setIsNetworkCapped] = useState<boolean>(false);
+  const [loadingCap, setLoadingCap] = useState<boolean>(true);
 
   // Auto-fill referral code
   useEffect(() => {
@@ -26,6 +29,23 @@ const ProfileSetup = () => {
     if (savedRef) {
       setRefCode(savedRef.toUpperCase());
     }
+  }, []);
+
+  // Check network capacity on mount
+  useEffect(() => {
+    const checkCap = async () => {
+      try {
+        const stats = await getNetworkStats();
+        if (stats && stats.totalUsers >= MAX_USERS_CAP) {
+          setIsNetworkCapped(true);
+        }
+      } catch (e) {
+        console.error("Cap check failed", e);
+      } finally {
+        setLoadingCap(false);
+      }
+    };
+    checkCap();
   }, []);
 
   useEffect(() => {
@@ -51,6 +71,12 @@ const ProfileSetup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firebaseUser || !username || isNameTaken) return;
+    
+    // Double check cap before submit to prevent race condition bypass
+    if (isNetworkCapped) {
+      setError("NETWORK_FULL: Max capacity reached. Registration closed.");
+      return;
+    }
     
     setIsSubmitting(true);
     setError(null);
@@ -90,6 +116,42 @@ const ProfileSetup = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (loadingCap) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  // --- CAP REACHED SCREEN ---
+  if (isNetworkCapped) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 relative overflow-hidden font-sans">
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '30px 30px' }}>
+        </div>
+        <div className="relative z-10 max-w-md w-full text-center space-y-8 p-10 bg-zinc-900/20 border border-zinc-900 rounded-[2rem] backdrop-blur-xl">
+           <div className="w-20 h-20 bg-zinc-950 border border-zinc-800 rounded-full flex items-center justify-center mx-auto shadow-2xl">
+              <Lock className="w-8 h-8 text-primary" />
+           </div>
+           <div className="space-y-4">
+              <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Epoch Full</h1>
+              <p className="text-zinc-500 font-medium">
+                The Genesis Epoch has reached its maximum capacity of <span className="text-white font-mono">500,000</span> nodes.
+              </p>
+           </div>
+           <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+              <p className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">
+                 Registration_Protocol_Locked
+              </p>
+           </div>
+           <p className="text-xs text-zinc-600">Please follow our official channels for Epoch 2 whitelist announcements.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 relative overflow-hidden font-sans">
