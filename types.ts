@@ -91,3 +91,42 @@ export interface ArchitecturePageConfig {
   layers: Array<{ title: string; desc: string; stat: string }>;
   features: Array<{ title: string; desc: string }>;
 }
+
+export interface TokenomicsItem {
+  label: string;
+  percentage: number;
+  color: string;
+  value: string;
+}
+
+export interface TokenomicsConfig {
+  title: string;
+  subtitle: string;
+  totalSupply: string;
+  circulatingSupply: string;
+  distribution: TokenomicsItem[];
+  utility: Array<{ title: string; desc: string; icon: string }>;
+  schedule: Array<{ phase: string; date: string; allocation: string; action: string }>;
+}
+
+export interface JobPosition {
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+}
+
+export interface CareersConfig {
+  title: string;
+  subtitle: string;
+  positions: JobPosition[];
+}
+
+export interface ContactConfig {
+  title: string;
+  subtitle: string;
+  email: string;
+  address: string;
+  supportHours: string;
+}

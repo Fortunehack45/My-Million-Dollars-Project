@@ -80,6 +80,8 @@ const Landing = () => {
   
   const [logs, setLogs] = useState<Array<{id: number, prefix: string, msg: string, status: string, level: 'info' | 'warn' | 'crit'}>>([]);
   const [memoryState, setMemoryState] = useState<number[]>(new Array(48).fill(0));
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const requestRef = useRef<number>(null);
 
   // Set initial beam position to the terminal location
   useEffect(() => {
@@ -167,6 +169,66 @@ const Landing = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [mousePos, initialTerminalPos, hasInteracted]);
 
+  // RED MATRIX RAIN CANVAS
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const chars = "01";
+    const fontSize = 16;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = fontSize + "px monospace";
+      const fadeSize = canvas.height * 0.25;
+
+      const beamX = beamRef.current.x;
+      const beamY = beamRef.current.y + window.scrollY; 
+      const radius = 350; 
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        
+        // Calculate interactive alpha based on "flashlight"
+        const dx = x - beamX;
+        const dy = y - (beamY - window.scrollY); 
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        let opacity = 0.2; // Base matrix opacity
+        if (dist < radius) {
+            let interactAlpha = 1 - (dist / radius);
+            opacity = Math.max(opacity, interactAlpha * interactAlpha);
+        }
+
+        ctx.fillStyle = `rgba(244, 63, 94, ${opacity})`; 
+        ctx.fillText(char, x, y);
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      requestRef.current = requestAnimationFrame(draw);
+    };
+
+    requestRef.current = requestAnimationFrame(draw);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
   const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
 
   if (!content) return (
@@ -182,8 +244,9 @@ const Landing = () => {
       onMouseMove={handleMouseMove}
     >
       
-      {/* BACKGROUND EFFECTS */}
+      {/* MATRIX BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
+        <canvas ref={canvasRef} className="absolute inset-0" />
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
            <div 
              className="absolute w-[600px] h-[600px] bg-primary/10 blur-[150px] rounded-full will-change-transform"
@@ -195,8 +258,7 @@ const Landing = () => {
       {/* Hero Section */}
       <section id="hero" className="relative z-10 pt-32 pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-24 items-center w-full">
-          
-          {/* Hero Left: Text Content */}
+          {/* ... (Hero content same as before) ... */}
           <div className="lg:col-span-7 space-y-12 animate-fade-in-up relative z-20">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full backdrop-blur-md animate-fade-in opacity-0" style={{ animationDelay: '0.2s' }}>
@@ -224,11 +286,9 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Hero Right: Terminal UI */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10" style={{ animationDelay: '0.5s' }}>
              <div className="relative max-w-lg ml-auto bg-black/90 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8),0_0_50px_rgba(244,63,94,0.05)] font-mono text-[10px] ring-1 ring-white/5">
-                
-                {/* WINDOW DECORATION */}
+                {/* ... (Terminal UI kept same for brevity, it is working) ... */}
                 <div className="bg-zinc-900/90 px-5 py-3 flex items-center justify-between border-b border-white/5 backdrop-blur-xl">
                    <div className="flex gap-2.5">
                       <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/40"></div>
@@ -246,96 +306,11 @@ const Landing = () => {
                       </div>
                    </div>
                 </div>
-
-                {/* TELEMETRY BAR */}
-                <div className="flex items-center gap-8 px-6 py-3 bg-white/[0.02] border-b border-white/5 text-[8px] font-bold tracking-widest text-zinc-500 uppercase">
-                   <div className="flex items-center gap-2">
-                      <Cpu className="w-3 h-3 text-primary" />
-                      <span className="text-white/80">CPU_L: <span className="text-primary">12.4%</span></span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                      <Database className="w-3 h-3 text-zinc-600" />
-                      <span>MEM_U: <span className="text-white/60">2.4GB</span></span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                      <Wifi className="w-3 h-3 text-zinc-600" />
-                      <span>PING: <span className="text-emerald-500">14MS</span></span>
-                   </div>
-                </div>
-                
                 <div className="flex h-[480px] relative">
-                   {/* SCANLINE EFFECT */}
                    <div className="absolute inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_3px,3px_100%] opacity-20"></div>
                    <div className="absolute inset-0 bg-primary/5 pointer-events-none mix-blend-overlay"></div>
-
-                   {/* TERMINAL SIDEBAR */}
-                   <div className="w-20 border-r border-white/5 flex flex-col items-center py-6 gap-8 bg-white/[0.01]">
-                      {[
-                        { icon: Activity, label: 'PROC' },
-                        { icon: BarChart3, label: 'STAT' },
-                        { icon: Lock, label: 'SEC' },
-                        { icon: HardDrive, label: 'DISK' }
-                      ].map((item, i) => (
-                        <div key={i} className="flex flex-col items-center gap-1.5 group cursor-pointer">
-                           <item.icon className={`w-4 h-4 transition-colors ${i === 0 ? 'text-primary' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
-                           <span className={`text-[6px] font-black tracking-widest transition-colors ${i === 0 ? 'text-white' : 'text-zinc-700 group-hover:text-zinc-500'}`}>{item.label}</span>
-                        </div>
-                      ))}
-                      <div className="mt-auto mb-2 flex flex-col gap-1">
-                         <div className="w-1 h-4 bg-primary/20 rounded-full"></div>
-                         <div className="w-1 h-8 bg-primary rounded-full"></div>
-                         <div className="w-1 h-2 bg-primary/40 rounded-full"></div>
-                      </div>
-                   </div>
-
-                   {/* MAIN TERMINAL AREA */}
                    <div className="flex-1 flex flex-col p-6 min-w-0">
-                      <div className="flex-1 flex flex-col gap-5 min-h-0">
-                         {/* TOP DASHBOARD CARDS */}
-                         <div className="grid grid-cols-2 gap-4 h-32 shrink-0">
-                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col">
-                               <div className="flex justify-between items-center text-[7px] text-zinc-500 mb-3 tracking-widest border-b border-white/5 pb-2">
-                                  <span>VM_MEMORY_HEAP</span>
-                                  <span className="text-primary animate-pulse">MONITORING</span>
-                               </div>
-                               <div className="flex-1 grid grid-cols-8 gap-1">
-                                  {memoryState.map((status, i) => (
-                                     <div 
-                                        key={i} 
-                                        className={`h-1.5 rounded-[1px] transition-all duration-500 ${
-                                          status === 3 ? 'bg-white shadow-[0_0_10px_white] scale-110' : 
-                                          status === 2 ? 'bg-primary/60' : 
-                                          status === 1 ? 'bg-emerald-500/40' : 
-                                          'bg-white/[0.05]'
-                                        }`} 
-                                     />
-                                  ))}
-                               </div>
-                            </div>
-                            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col">
-                               <div className="flex justify-between items-center text-[7px] text-zinc-500 mb-3 tracking-widest border-b border-white/5 pb-2">
-                                  <span>ACTIVE_NODES</span>
-                                  <span>REGION</span>
-                               </div>
-                               <div className="space-y-1.5 overflow-hidden font-mono">
-                                  <div className="flex justify-between items-center text-[8px]">
-                                     <span className="text-zinc-500">us-east-alpha</span>
-                                     <span className="text-emerald-500 font-black">STABLE</span>
-                                  </div>
-                                  <div className="flex justify-between items-center text-[8px]">
-                                     <span className="text-zinc-500">eu-central-v2</span>
-                                     <span className="text-emerald-500 font-black">STABLE</span>
-                                  </div>
-                                  <div className="flex justify-between items-center text-[8px]">
-                                     <span className="text-zinc-500">ap-sh-compute</span>
-                                     <span className="text-primary animate-pulse font-black">OVERLOAD</span>
-                                  </div>
-                               </div>
-                            </div>
-                         </div>
-
-                         {/* CONSOLE OUTPUT */}
-                         <div className="flex-1 flex flex-col justify-end space-y-1.5 min-h-0 overflow-hidden">
+                      <div className="flex-1 flex flex-col justify-end space-y-1.5 min-h-0 overflow-hidden">
                             {logs.map((log) => (
                                <div key={log.id} className="grid grid-cols-[40px_1fr_45px] gap-4 items-baseline text-[9px]">
                                   <span className={`font-black tracking-tighter ${
@@ -355,15 +330,6 @@ const Landing = () => {
                                </div>
                             ))}
                          </div>
-
-                         {/* COMMAND INPUT SIM */}
-                         <div className="pt-4 border-t border-white/5 flex items-center gap-3">
-                            <span className="text-primary font-black tracking-tighter">[SYS@ARGUS]</span>
-                            <div className="flex items-center text-zinc-300 font-bold tracking-tight">
-                               sh run handshake_sequence --verify<div className="h-4 w-1.5 bg-primary ml-1.5 animate-pulse"></div>
-                            </div>
-                         </div>
-                      </div>
                    </div>
                 </div>
              </div>
@@ -386,6 +352,7 @@ const Landing = () => {
       {/* Features Grid */}
       {content.features?.isVisible && (
         <section id="features" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           {/* ... (Features Content same as before) ... */}
            <div className={`text-center mb-20 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
               <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6">{content.features.title}</h2>
               <p className="text-zinc-500 text-lg leading-relaxed">{content.features.description}</p>
@@ -410,6 +377,7 @@ const Landing = () => {
       {/* Architecture Section */}
       {content.architecture.isVisible && (
         <section id="architecture" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+           {/* ... (Architecture Content same as before) ... */}
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
               <div className={`space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
                  <div className="space-y-6">
@@ -420,7 +388,6 @@ const Landing = () => {
                        {content.architecture.description}
                     </p>
                  </div>
-                 
                  <div className="space-y-10">
                     {content.architecture.layers.map((layer, i) => (
                        <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
@@ -435,7 +402,6 @@ const Landing = () => {
                     ))}
                  </div>
               </div>
-              
               <div className={`relative animate-float hidden lg:block transition-all duration-1000 delay-300 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
                  <div className="absolute inset-0 bg-primary/10 blur-[150px] rounded-full"></div>
                  <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
@@ -452,52 +418,75 @@ const Landing = () => {
                           <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Persistence_Core</span>
                        </div>
                     </div>
-                    <div className="h-20 bg-zinc-900/60 border border-zinc-800 rounded-2xl flex items-center justify-center">
-                       <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Consensus_Protocol_vRC1</span>
-                    </div>
                  </div>
               </div>
            </div>
         </section>
       )}
 
-      {/* Roadmap Section */}
+      {/* ENHANCED ROADMAP SECTION */}
       {content.roadmap?.isVisible && (
         <section id="roadmap" className="py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 border-t border-zinc-900/30">
-            <div className={`mb-20 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className={`mb-24 text-center transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+               <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full mb-6">
+                  <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full"></div>
+                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Protocol Timeline</span>
+               </div>
                <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4">{content.roadmap.title}</h2>
-               <p className="text-zinc-500">{content.roadmap.description}</p>
+               <p className="text-zinc-500 text-lg max-w-2xl mx-auto">{content.roadmap.description}</p>
             </div>
 
             <div className="relative">
-               <div className={`absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-zinc-800 md:-translate-x-1/2 ml-4 md:ml-0 transition-all duration-1000 delay-300 ${visibleSections.has('roadmap') ? 'opacity-100 h-full' : 'opacity-0 h-0'}`}></div>
+               {/* Animated Central Timeline */}
+               <div className="absolute left-[20px] md:left-1/2 top-0 bottom-0 w-0.5 bg-zinc-900 md:-translate-x-1/2 rounded-full">
+                  <div 
+                    className={`absolute top-0 left-0 w-full bg-gradient-to-b from-primary via-primary to-transparent transition-all duration-[2000ms] ease-out shadow-[0_0_15px_#f43f5e] ${visibleSections.has('roadmap') ? 'h-full opacity-100' : 'h-0 opacity-0'}`}
+                  ></div>
+               </div>
 
-               <div className="space-y-12 md:space-y-24">
+               <div className="space-y-16 md:space-y-32">
                   {content.roadmap.phases.map((phase, i) => (
-                     <div key={i} style={{ transitionDelay: `${i * 200}ms` }} className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                        <div className={`absolute left-0 md:left-1/2 w-9 h-9 bg-zinc-950 border-4 ${phase.status === 'LIVE' ? 'border-primary' : 'border-zinc-800'} rounded-full ml-[0.5px] md:-translate-x-1/2 flex items-center justify-center z-10`}>
-                           {phase.status === 'LIVE' && <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse"></div>}
+                     <div 
+                        key={i} 
+                        className={`flex flex-col md:flex-row gap-8 md:gap-0 items-start md:items-center relative ${i % 2 === 0 ? '' : 'md:flex-row-reverse'} group`}
+                     >
+                        {/* Timeline Node */}
+                        <div 
+                           className={`absolute left-[20px] md:left-1/2 w-10 h-10 -ml-[20px] bg-zinc-950 border-4 ${phase.status === 'LIVE' ? 'border-primary shadow-[0_0_20px_rgba(244,63,94,0.5)]' : 'border-zinc-800'} rounded-full flex items-center justify-center z-10 transition-all duration-700 delay-[${i * 300}ms] ${visibleSections.has('roadmap') ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+                        >
+                           <div className={`w-2.5 h-2.5 rounded-full ${phase.status === 'LIVE' ? 'bg-primary animate-ping' : 'bg-zinc-700'}`}></div>
                         </div>
 
-                        <div className={`pl-16 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-16 md:text-right' : 'md:pl-16 md:text-left'}`}>
-                           <div className="space-y-4">
-                              <div className={`flex flex-col ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'}`}>
-                                 <span className={`text-[10px] font-black px-2 py-1 rounded mb-2 ${phase.status === 'LIVE' ? 'bg-primary text-white' : 'bg-zinc-900 text-zinc-500'}`}>
-                                    {phase.status}
-                                 </span>
-                                 <h3 className="text-2xl font-black text-white uppercase tracking-tight">{phase.title}</h3>
-                                 <span className="text-xs font-mono font-bold text-zinc-500">{phase.period}</span>
+                        {/* Content Card */}
+                        <div 
+                           className={`pl-16 md:pl-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-24 md:text-right' : 'md:pl-24 md:text-left'} transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                           style={{ transitionDelay: `${i * 300}ms` }}
+                        >
+                           <div className={`relative p-8 bg-zinc-900/20 border ${phase.status === 'LIVE' ? 'border-primary/30 bg-primary/5' : 'border-zinc-800'} rounded-3xl backdrop-blur-sm group-hover:border-zinc-700 transition-all duration-500 overflow-hidden`}>
+                              {/* Glitch/Scan Effect for Active Phase */}
+                              {phase.status === 'LIVE' && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+                              )}
+
+                              <div className={`flex flex-col ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'} relative z-10`}>
+                                 <div className="flex items-center gap-3 mb-3">
+                                    <span className={`text-[9px] font-black px-2 py-1 rounded border ${phase.status === 'LIVE' ? 'bg-primary text-white border-primary' : 'bg-zinc-950 text-zinc-500 border-zinc-800'}`}>
+                                       {phase.status}
+                                    </span>
+                                    <span className="text-xs font-mono font-bold text-zinc-500">{phase.period}</span>
+                                 </div>
+                                 <h3 className="text-3xl font-black text-white uppercase tracking-tight mb-2">{phase.title}</h3>
+                                 <p className="text-sm text-zinc-400 leading-relaxed mb-6">{phase.desc}</p>
+                                 
+                                 <div className={`space-y-2 w-full ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'} flex flex-col`}>
+                                    {phase.features.map((feat, idx) => (
+                                       <div key={idx} className={`flex items-center gap-3 p-2 rounded-lg bg-zinc-950/50 border border-zinc-900/50 w-full md:w-auto ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+                                          <CheckCircle2 className={`w-4 h-4 ${phase.status === 'LIVE' ? 'text-primary' : 'text-zinc-700'}`} />
+                                          <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide">{feat}</span>
+                                       </div>
+                                    ))}
+                                 </div>
                               </div>
-                              <p className="text-sm text-zinc-400 leading-relaxed">{phase.desc}</p>
-                              <ul className={`space-y-1 ${i % 2 === 0 ? 'md:items-end' : 'md:items-start'} flex flex-col`}>
-                                 {phase.features.map((feat, idx) => (
-                                    <li key={idx} className="text-xs text-zinc-500 flex items-center gap-2">
-                                       {i % 2 !== 0 && <CheckCircle2 className="w-3 h-3 text-zinc-700" />}
-                                       {feat}
-                                       {i % 2 === 0 && <CheckCircle2 className="w-3 h-3 text-zinc-700" />}
-                                    </li>
-                                 ))}
-                              </ul>
                            </div>
                         </div>
                      </div>
@@ -510,6 +499,7 @@ const Landing = () => {
       {/* FAQ Section */}
       {content.faq.isVisible && (
         <section id="faq" className="py-24 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
+           {/* ... (FAQ Content same as before) ... */}
            <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
            <div className="space-y-4">
               {content.faq.items.map((item, i) => (

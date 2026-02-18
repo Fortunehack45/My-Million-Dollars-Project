@@ -14,9 +14,10 @@ import AdminPanel from './pages/AdminPanel';
 import Landing from './pages/Landing';
 import Architecture from './pages/Architecture';
 import Whitepaper from './pages/Whitepaper';
+import Tokenomics from './pages/Tokenomics';
 import About from './pages/About';
-import Explorer from './pages/Explorer';
-import Docs from './pages/Docs';
+import Careers from './pages/Careers';
+import Contact from './pages/Contact';
 import { Terms, Privacy } from './pages/Legal';
 
 // Protected Route Wrapper
@@ -116,9 +117,10 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/architecture" element={<Architecture />} />
       <Route path="/whitepaper" element={<Whitepaper />} />
+      <Route path="/tokenomics" element={<Tokenomics />} />
       <Route path="/about" element={<About />} />
-      <Route path="/explorer" element={<Explorer />} />
-      <Route path="/docs" element={<Docs />} />
+      <Route path="/careers" element={<Careers />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
 

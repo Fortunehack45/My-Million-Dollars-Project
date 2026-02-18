@@ -42,7 +42,10 @@ import {
   LegalConfig,
   AboutConfig,
   WhitepaperConfig,
-  ArchitecturePageConfig
+  ArchitecturePageConfig,
+  TokenomicsConfig,
+  CareersConfig,
+  ContactConfig
 } from '../types';
 
 const firebaseConfig = {
@@ -225,6 +228,48 @@ export const DEFAULT_ARCHITECTURE_CONFIG: ArchitecturePageConfig = {
     { title: "Stake Slashing", desc: "Validators signing conflicting blocks are automatically penalized by the protocol." },
     { title: "Global Sharding", desc: "Network automatically partitions state as node count increases." }
   ]
+};
+
+export const DEFAULT_TOKENOMICS_CONFIG: TokenomicsConfig = {
+  title: "Economic Architecture",
+  subtitle: "A deflationary utility model designed for long-term network security and validator incentives. Powered by the ARG token.",
+  totalSupply: "1,000,000,000",
+  circulatingSupply: "145,000,000",
+  distribution: [
+    { label: "Mining / Staking Rewards", percentage: 40, color: "bg-emerald-500", value: "400M ARG" },
+    { label: "Ecosystem Fund", percentage: 20, color: "bg-primary", value: "200M ARG" },
+    { label: "Core Contributors", percentage: 15, color: "bg-zinc-100", value: "150M ARG" },
+    { label: "Early Backers", percentage: 15, color: "bg-zinc-500", value: "150M ARG" },
+    { label: "Public Sale", percentage: 10, color: "bg-amber-500", value: "100M ARG" },
+  ],
+  utility: [
+    { title: "Gas Metering", desc: "Pay for compute cycles and storage on the GhostDAG.", icon: "Zap" },
+    { title: "Validator Staking", desc: "Lock ARG to secure the network and earn yield.", icon: "Lock" },
+    { title: "Governance", desc: "Vote on protocol upgrades and parameter changes.", icon: "ShieldCheck" }
+  ],
+  schedule: [
+    { phase: "Genesis", date: "Q1 2025", allocation: "10%", action: "TGE Unlock" },
+    { phase: "Cliff", date: "Q3 2025", allocation: "0%", action: "Locked" },
+    { phase: "Vesting Linear", date: "Q1 2026", allocation: "5%", action: "Monthly Unlock" }
+  ]
+};
+
+export const DEFAULT_CAREERS_CONFIG: CareersConfig = {
+  title: "Join the Collective",
+  subtitle: "We are building the operating system for the decentralized web. We need engineers, cryptographers, and system architects who are obsessed with uptime.",
+  positions: [
+    { title: "Distributed Systems Engineer", department: "Core Protocol", location: "Remote (Global)", type: "Full-time", description: "Design and implement the consensus engine powering GhostDAG. Rust/Go expertise required." },
+    { title: "Senior Cryptographer", department: "Research", location: "Remote", type: "Full-time", description: "Research and implement ZK-proofs for privacy-preserving transactions." },
+    { title: "Developer Relations Lead", department: "Growth", location: "New York / Remote", type: "Full-time", description: "Build the bridge between the protocol and the developer community." }
+  ]
+};
+
+export const DEFAULT_CONTACT_CONFIG: ContactConfig = {
+  title: "Contact Protocol",
+  subtitle: "Our communication channels are open. For partnership inquiries, technical support, or press requests, please use the channels below.",
+  email: "hello@argus.network",
+  address: "Decentralized Autonomous Org.\nZug, Switzerland",
+  supportHours: "24/7 Node Operations"
 };
 
 export const setupPresence = (uid: string) => {
