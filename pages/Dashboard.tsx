@@ -11,83 +11,132 @@ import {
   REFERRAL_BOOST,
   MAX_REFERRALS
 } from '../services/firebase';
-import { Clock, Database, Activity, Cpu, ShieldCheck, Box, Zap, AlertTriangle, ArrowUpRight, GitMerge, Share2 } from 'lucide-react';
+import { Clock, Database, Activity, Cpu, Box, Zap, AlertTriangle, ArrowUpRight, GitMerge, Layers, Server, Terminal, CheckCircle2 } from 'lucide-react';
 import { NetworkStats } from '../types';
 
-// GhostDAG Topology Visualization Component
+// Enhanced GhostDAG Topology Visualization
 const GhostDAGVisualizer = () => {
-  const [blocks, setBlocks] = useState<Array<{id: number, x: number, y: number, color: string, parents: number[]}>>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initial blocks
-    const initial = [
-      { id: 0, x: 20, y: 50, color: 'text-emerald-500', parents: [] },
-      { id: 1, x: 120, y: 30, color: 'text-emerald-500', parents: [0] },
-      { id: 2, x: 120, y: 70, color: 'text-emerald-500', parents: [0] }
-    ];
-    setBlocks(initial);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const interval = setInterval(() => {
-      setBlocks(prev => {
-        const lastBlocks = prev.slice(-3);
-        const newId = prev.length;
-        const x = (prev[prev.length - 1].x + 80);
-        const y = 30 + Math.random() * 40;
-        const isBlue = Math.random() > 0.15; // 85% Blue Set probability
-        
-        const newBlock = {
-          id: newId,
-          x,
-          y,
-          color: isBlue ? 'text-emerald-500' : 'text-primary',
-          parents: lastBlocks.map(b => b.id).filter(() => Math.random() > 0.4)
-        };
+    let animationFrameId: number;
+    let nodes: Array<{x: number, y: number, vx: number, vy: number, id: number, type: 'blue' | 'red' | 'pending'}> = [];
+    let links: Array<{source: number, target: number}> = [];
+    let nextId = 0;
 
-        const next = [...prev, newBlock];
-        return next.length > 15 ? next.slice(1).map(b => ({...b, x: b.x - 80})) : next;
+    const resize = () => {
+      if (containerRef.current && canvas) {
+        canvas.width = containerRef.current.clientWidth;
+        canvas.height = containerRef.current.clientHeight;
+      }
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Initial seed
+    for(let i=0; i<5; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        id: nextId++,
+        type: 'blue'
       });
-    }, 2500);
+    }
 
-    return () => clearInterval(interval);
+    const addNode = () => {
+      if (nodes.length > 30) {
+        nodes.shift(); // Remove oldest
+        // Clean links
+        const activeIds = new Set(nodes.map(n => n.id));
+        links = links.filter(l => activeIds.has(l.source) && activeIds.has(l.target));
+      }
+      
+      const newNode = {
+        x: canvas.width + 10,
+        y: Math.random() * canvas.height,
+        vx: -0.5 - Math.random(), // Move left
+        vy: (Math.random() - 0.5) * 0.5,
+        id: nextId++,
+        type: Math.random() > 0.8 ? 'red' : 'blue'
+      };
+
+      // Link to 1-3 random existing nodes
+      const targetCount = 1 + Math.floor(Math.random() * 2);
+      for(let i=0; i<targetCount; i++) {
+        if(nodes.length > 0) {
+           const target = nodes[Math.floor(Math.random() * nodes.length)];
+           links.push({ source: newNode.id, target: target.id });
+        }
+      }
+      nodes.push(newNode as any);
+    };
+
+    const interval = setInterval(addNode, 800);
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Update positions
+      nodes.forEach(node => {
+        node.x += node.vx;
+        node.y += node.vy;
+      });
+
+      // Draw Links
+      ctx.lineWidth = 1;
+      links.forEach(link => {
+        const s = nodes.find(n => n.id === link.source);
+        const t = nodes.find(n => n.id === link.target);
+        if (s && t) {
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(t.x, t.y);
+          ctx.strokeStyle = 'rgba(82, 82, 91, 0.3)';
+          ctx.stroke();
+        }
+      });
+
+      // Draw Nodes
+      nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.type === 'red' ? 3 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = node.type === 'blue' ? '#10b981' : '#f43f5e';
+        ctx.fill();
+        
+        // Glow
+        if (node.type === 'blue') {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#10b981';
+        } else {
+          ctx.shadowBlur = 0;
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      clearInterval(interval);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   return (
-    <div ref={containerRef} className="w-full h-40 relative overflow-hidden bg-zinc-950/50 rounded-2xl border border-zinc-900 mb-6 group">
-      <div className="absolute top-3 left-4 flex items-center gap-2 z-10">
-        <GitMerge className="w-3 h-3 text-emerald-500" />
-        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.2em]">GhostDAG_Topology_Stream</span>
-      </div>
-      <svg className="w-full h-full">
-        {/* Render Connections */}
-        {blocks.map(block => 
-          block.parents.map(parentId => {
-            const parent = blocks.find(b => b.id === parentId);
-            if (!parent) return null;
-            return (
-              <line 
-                key={`${block.id}-${parentId}`}
-                x1={parent.x} y1={parent.y}
-                x2={block.x} y2={block.y}
-                stroke="currentColor"
-                strokeWidth="1"
-                className="text-zinc-800 transition-all duration-1000"
-              />
-            );
-          })
-        )}
-        {/* Render Blocks */}
-        {blocks.map(block => (
-          <g key={block.id} className="transition-all duration-1000" transform={`translate(${block.x},${block.y})`}>
-            <circle r="4" className={`${block.color} fill-current shadow-[0_0_10px_currentColor]`} />
-            <circle r="8" className={`${block.color} fill-current opacity-10 animate-pulse`} />
-          </g>
-        ))}
-      </svg>
-      <div className="absolute bottom-3 right-4 flex gap-4 text-[7px] font-bold uppercase tracking-widest">
-         <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> <span className="text-zinc-500">Blue_Set</span></div>
-         <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary"></div> <span className="text-zinc-500">Red_Set</span></div>
-      </div>
+    <div ref={containerRef} className="absolute inset-0 w-full h-full">
+      <canvas ref={canvasRef} className="w-full h-full opacity-60" />
     </div>
   );
 };
@@ -186,149 +235,188 @@ const Dashboard = () => {
   const isSessionComplete = miningTimer >= MAX_SESSION_TIME;
 
   return (
-    <div className="w-full space-y-8 animate-fade-in pb-12">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+    <div className="w-full space-y-8 animate-in fade-in duration-500 pb-12">
+      
+      {/* HEADER */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 backdrop-blur-md">
              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">GhostDAG Node Operational</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase italic leading-none">Argus_BlockDAG_Interface</h1>
-          <p className="text-zinc-500 text-sm font-medium">Validating parallel block clusters. <span className="text-zinc-400">Blue-Set Velocity:</span> <span className="text-primary font-mono font-bold">{currentHourlyRate.toFixed(2)} ARG/hr</span></p>
+          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase italic leading-none">
+            Dashboard<span className="text-zinc-700">_View</span>
+          </h1>
+          <p className="text-zinc-500 text-sm font-medium">Validating parallel block clusters. <span className="text-zinc-600">Blue-Set Velocity:</span> <span className="text-primary font-mono font-bold">{currentHourlyRate.toFixed(2)} ARG/hr</span></p>
         </div>
-        <div className="text-right flex flex-col items-end gap-3 bg-zinc-900/30 p-4 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
-          <p className="label-meta text-[9px] text-zinc-500 font-bold uppercase tracking-widest">DAG Emission Cap</p>
+        
+        {/* NETWORK STATS MINI */}
+        <div className="text-right flex flex-col items-end gap-3 bg-zinc-900/40 p-5 rounded-2xl border border-zinc-800 backdrop-blur-sm shadow-xl">
+          <p className="label-meta text-[9px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2">
+            <Database className="w-3 h-3" />
+            DAG Emission Cap
+          </p>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-sm font-mono font-black text-white">{(leftToMine / 1000000).toFixed(2)}M <span className="text-zinc-600">UNMINED</span></p>
-              <div className="w-40 h-2 bg-zinc-950 mt-2 rounded-full overflow-hidden border border-zinc-800/50">
-                <div className="h-full bg-gradient-to-r from-primary to-rose-400 shadow-[0_0_15px_#f43f5e]" style={{ width: `${miningPercent}%` }}></div>
+              <div className="w-48 h-1.5 bg-zinc-950 mt-2 rounded-full overflow-hidden border border-zinc-800">
+                <div className="h-full bg-gradient-to-r from-primary to-rose-400 shadow-[0_0_10px_#f43f5e]" style={{ width: `${miningPercent}%` }}></div>
               </div>
             </div>
-            <Box className="w-8 h-8 text-zinc-800" />
           </div>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 surface p-10 rounded-3xl flex flex-col min-h-[480px] relative overflow-hidden border-zinc-900 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(244,63,94,0.03),transparent_70%)]"></div>
-          
-          <GhostDAGVisualizer />
+      {/* MAIN CONTENT GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* LEFT COLUMN: VISUALIZER & CONTROLS */}
+        <div className="lg:col-span-8 space-y-8">
+           {/* Visualizer Card */}
+           <div className="relative bg-zinc-950 border border-zinc-900 rounded-[2rem] overflow-hidden min-h-[400px] flex flex-col shadow-2xl group">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(24,24,27,0.5),rgba(9,9,11,1))]" />
+              
+              {/* Header inside card */}
+              <div className="relative z-10 px-6 py-4 border-b border-zinc-900/50 flex justify-between items-center bg-zinc-950/50 backdrop-blur-md">
+                 <div className="flex items-center gap-2">
+                    <GitMerge className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">GhostDAG_Topology</span>
+                 </div>
+                 <div className="flex gap-4">
+                    <span className="text-[9px] font-mono text-zinc-600">TPS: 402,192</span>
+                    <span className="text-[9px] font-mono text-zinc-600">LATENCY: 12ms</span>
+                 </div>
+              </div>
 
-          {user.miningActive ? (
-            <div className="text-center space-y-10 w-full relative z-10 animate-zoom-in mt-auto pb-4">
-              <div className="space-y-4">
-                <div className="inline-block">
-                  <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isSessionComplete ? 'text-emerald-500 animate-pulse' : 'text-primary'}`}>
-                    {isSessionComplete ? 'TOPOLOGY SEALED' : 'GHOSTDAG_ACCUMULATION_ACTIVE'}
-                  </p>
-                  <h2 className="text-7xl font-mono font-bold text-white tracking-tighter tabular-nums drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                    {pendingPoints.toFixed(4)}
-                  </h2>
-                </div>
-                <div className="flex justify-center gap-4">
-                   <div className="text-[9px] text-zinc-500 font-mono bg-zinc-950/80 px-4 py-1.5 rounded-full border border-zinc-900">
-                      BLUE_SCORE: <span className="text-emerald-500">+{Math.floor(miningTimer/10)}</span>
-                   </div>
-                   <div className="text-[9px] text-zinc-500 font-mono bg-zinc-950/80 px-4 py-1.5 rounded-full border border-zinc-900">
-                      K_PARAMETER: <span className="text-primary">18</span>
-                   </div>
-                </div>
+              {/* Canvas Container */}
+              <div className="relative flex-1 w-full h-64 md:h-auto overflow-hidden">
+                 <GhostDAGVisualizer />
               </div>
-              
-              <div className="w-full max-w-xs mx-auto space-y-4">
-                <button 
-                  onClick={handleClaim} 
-                  className={`w-full py-5 font-black uppercase tracking-[0.15em] text-xs rounded-xl transition-all shadow-lg active:scale-[0.98] ${isSessionComplete ? 'bg-emerald-500 text-black hover:bg-emerald-400' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-600 hover:bg-zinc-800'}`}
-                >
-                  {isSessionComplete ? 'Secure DAG Reward' : 'Seal Current Cluster'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center space-y-10 max-w-sm mx-auto relative z-10 animate-fade-in mt-auto pb-10">
-              <div className="w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-3xl flex items-center justify-center mx-auto shadow-2xl relative group cursor-pointer hover:border-primary/50 transition-all duration-500" onClick={handleStartMining}>
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-zinc-700 to-zinc-900 rounded-3xl opacity-50"></div>
-                <div className="relative w-full h-full bg-zinc-950 rounded-[22px] flex items-center justify-center border border-zinc-800 group-hover:border-primary/50 transition-colors">
-                   <Zap className="w-10 h-10 text-zinc-600 group-hover:text-primary transition-colors duration-300" />
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">DAG_IDLE</h2>
-                <p className="text-zinc-500 text-sm leading-relaxed">Initialize node presence to begin topological block ordering and claim GhostDAG emission rewards.</p>
-              </div>
-              
-              <button 
-                onClick={handleStartMining} 
-                className="w-full py-5 bg-primary text-white font-black uppercase tracking-[0.15em] text-xs rounded-xl shadow-[0_10px_30px_rgba(244,63,94,0.25)] hover:shadow-[0_15px_40px_rgba(244,63,94,0.4)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
-              >
-                <span className="relative z-10">Initialize GhostDAG Sequence</span>
-              </button>
-            </div>
-          )}
-        </div>
 
-        <div className="lg:col-span-2 space-y-6 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
-          <div className="surface p-8 rounded-3xl flex-1 border-emerald-500/10 bg-emerald-500/[0.02] flex flex-col justify-between min-h-[220px]">
-            <h3 className="label-meta mb-6 flex justify-between items-center text-emerald-500">
-              PHANTOM_CONSENSUS_FEED
-              <span className="text-[8px] tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">SYNC_OK</span>
-            </h3>
-            <div className="space-y-4 font-mono text-[10px]">
+              {/* Footer Control Panel */}
+              <div className="relative z-10 p-6 md:p-8 border-t border-zinc-900 bg-zinc-900/10 backdrop-blur-xl">
+                 <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                    {user.miningActive ? (
+                       <div className="w-full">
+                          <div className="flex justify-between items-end mb-4">
+                             <div>
+                                <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isSessionComplete ? 'text-emerald-500 animate-pulse' : 'text-primary'}`}>
+                                  {isSessionComplete ? 'TOPOLOGY SEALED' : 'ACCUMULATING_REWARDS'}
+                                </p>
+                                <h2 className="text-4xl md:text-5xl font-mono font-bold text-white tracking-tighter tabular-nums text-shadow-glow">
+                                   {pendingPoints.toFixed(4)} <span className="text-lg text-zinc-600">ARG</span>
+                                </h2>
+                             </div>
+                             <div className="text-right hidden md:block">
+                                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Session Timer</p>
+                                <p className="text-2xl font-mono text-emerald-400 font-bold">{formatTime(miningTimer)}</p>
+                             </div>
+                          </div>
+                          
+                          <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden mb-6">
+                             <div className={`h-full ${isSessionComplete ? 'bg-emerald-500' : 'bg-primary'} transition-all duration-1000`} style={{ width: `${(miningTimer / MAX_SESSION_TIME) * 100}%` }}></div>
+                          </div>
+
+                          <button 
+                             onClick={handleClaim} 
+                             className={`w-full py-4 font-black uppercase tracking-[0.15em] text-xs rounded-xl transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 ${isSessionComplete ? 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-white text-black hover:bg-zinc-200'}`}
+                          >
+                             {isSessionComplete ? <CheckCircle2 className="w-4 h-4" /> : <Box className="w-4 h-4" />}
+                             {isSessionComplete ? 'Secure DAG Reward' : 'Seal Current Cluster'}
+                          </button>
+                       </div>
+                    ) : (
+                       <div className="w-full flex flex-col md:flex-row items-center gap-6">
+                          <div className="w-16 h-16 bg-zinc-950 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-lg shrink-0">
+                             <Zap className="w-8 h-8 text-zinc-600" />
+                          </div>
+                          <div className="flex-1 text-center md:text-left space-y-1">
+                             <h3 className="text-lg font-bold text-white uppercase">Node Idle</h3>
+                             <p className="text-xs text-zinc-500 max-w-sm">Initialize validation sequence to begin topological ordering and earn rewards.</p>
+                          </div>
+                          <button 
+                             onClick={handleStartMining} 
+                             className="w-full md:w-auto px-8 py-4 bg-primary text-white font-black uppercase tracking-[0.15em] text-xs rounded-xl shadow-[0_10px_30px_rgba(244,63,94,0.25)] hover:shadow-[0_15px_40px_rgba(244,63,94,0.4)] hover:-translate-y-1 transition-all duration-300"
+                          >
+                             Initialize_Node
+                          </button>
+                       </div>
+                    )}
+                 </div>
+              </div>
+           </div>
+           
+           {/* Secondary Stats Grid */}
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { msg: 'Parenting_Vector_Set', time: 'SUCCESS', status: 'OK', color: 'text-emerald-500' },
-                { msg: `Local Blue-Score: ${Math.floor(miningTimer/10)}`, time: 'CLUSTER', status: 'OK', color: 'text-primary' },
-                { msg: `K-Cluster Density Optimal`, time: 'CONSENSUS', status: 'OK', color: 'text-zinc-400' },
-                { msg: `BlockDAG_Traversal_Active`, time: 'TOPOLOGY', status: 'INFO', color: 'text-zinc-400' },
-              ].map((log, i) => (
-                <div key={i} className="flex gap-4 border-l-2 border-emerald-500/10 pl-4 py-1">
-                  <span className="text-zinc-600 w-12">{log.time}</span>
-                  <p className="text-zinc-400 font-medium truncate">
-                    <span className={`font-bold mr-2 ${log.color}`}>[{log.status}]</span> {log.msg}
-                  </p>
+                { label: 'Cumulative Reward', value: Math.floor(user.points * 100) / 100, unit: 'ARG', icon: Database, color: 'text-white' },
+                { label: 'Uptime Score', value: '99.9', unit: '%', icon: Activity, color: 'text-emerald-400' },
+                { label: 'Network Peers', value: netStats.activeNodes.toLocaleString(), unit: 'NODES', icon: Server, color: 'text-primary' },
+                { label: 'Block Height', value: Math.floor(netStats.totalMined * 12).toLocaleString(), unit: '#', icon: Layers, color: 'text-indigo-400' }
+              ].map((stat, i) => (
+                <div key={i} className="bg-zinc-900/20 border border-zinc-800 p-5 rounded-2xl hover:bg-zinc-900/40 transition-colors group">
+                   <div className="flex justify-between items-start mb-3">
+                      <stat.icon className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                      <ArrowUpRight className="w-3 h-3 text-zinc-700" />
+                   </div>
+                   <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{stat.label}</p>
+                   <p className={`text-lg md:text-xl font-mono font-bold ${stat.color} truncate`}>
+                      {stat.value} <span className="text-[9px] text-zinc-600 ml-1">{stat.unit}</span>
+                   </p>
                 </div>
               ))}
-            </div>
-          </div>
-          
-          <div className="surface p-8 rounded-3xl bg-zinc-900/30 border-zinc-900 border-dashed">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                 <AlertTriangle className="w-4 h-4 text-primary" />
-              </div>
-              <p className="label-meta text-primary/80">Protocol Restriction</p>
-            </div>
-            <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">
-              GhostDAG requires continuous network connectivity. Orphaned clusters (Red-Set blocks) do not accumulate reward credits. Ensure persistent node uptime.
-            </p>
-          </div>
+           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { label: 'Cumulative Reward', value: Math.floor(user.points * 100) / 100, unit: 'ARG', icon: Database, color: 'text-white' },
-          { label: 'Topology Uptime', value: formatTime(miningTimer), unit: 'REM', icon: Clock, color: 'text-emerald-400' },
-          { label: 'Active Validators', value: netStats.activeNodes.toLocaleString(), unit: 'LIVE', icon: Activity, color: 'text-primary' },
-          { label: 'DAG Block Count', value: Math.floor(netStats.totalMined * 12).toLocaleString(), unit: 'BLOCKS', icon: Box, color: 'text-indigo-400' }
-        ].map((stat, i) => (
-          <div key={i} className="surface p-6 rounded-2xl border border-zinc-900 bg-gradient-to-b from-zinc-900/40 to-zinc-950 animate-fade-in-up" style={{ animationDelay: `${0.3 + (i * 0.1)}s` }}>
-            <div className="flex items-center justify-between mb-8">
-              <div className="p-2.5 bg-zinc-950 border border-zinc-900 rounded-xl">
-                 <stat.icon className={`w-4 h-4 text-zinc-500`} />
+        {/* RIGHT COLUMN: LOGS & ALERTS */}
+        <div className="lg:col-span-4 space-y-6">
+           {/* Protocol Feed */}
+           <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-6 h-[400px] flex flex-col">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-900">
+                 <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
+                   <Terminal className="w-4 h-4 text-primary" /> Protocol_Log
+                 </h3>
+                 <span className="text-[9px] font-mono text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">LIVE</span>
               </div>
-              <ArrowUpRight className="w-3 h-3 text-zinc-700" />
-            </div>
-            <p className="label-meta mb-1 text-zinc-500">{stat.label}</p>
-            <div className="flex items-baseline gap-2">
-              <h3 className={`text-2xl font-mono font-bold tracking-tight ${stat.color}`}>{stat.value}</h3>
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{stat.unit}</span>
-            </div>
-          </div>
-        ))}
+              <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 font-mono text-[10px]">
+                 {[
+                    { type: 'sys', msg: 'Syncing DAG topology...', time: '00:00:01' },
+                    { type: 'ok', msg: 'Peer handshake accepted [192.168.x.x]', time: '00:00:02' },
+                    { type: 'info', msg: 'Indexing blue-set blocks...', time: '00:00:05' },
+                    { type: 'warn', msg: 'High throughput on shard #4', time: '00:00:12' },
+                    { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },
+                    { type: 'sys', msg: 'Awaiting next cluster...', time: '00:00:18' },
+                    user.miningActive ? { type: 'ok', msg: 'Mining credits accumulating...', time: 'NOW' } : null
+                 ].filter(Boolean).map((log: any, i) => (
+                    <div key={i} className="flex gap-3 animate-in fade-in slide-in-from-left-2" style={{ animationDelay: `${i * 100}ms` }}>
+                       <span className="text-zinc-600 shrink-0">{log.time}</span>
+                       <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-amber-500' : log.type === 'sys' ? 'text-primary' : 'text-zinc-400'}`}>
+                          {log.type === 'sys' && '> '}
+                          {log.msg}
+                       </span>
+                    </div>
+                 ))}
+                 <div className="animate-pulse text-primary font-bold">_</div>
+              </div>
+           </div>
+
+           {/* Alert Box */}
+           <div className="bg-amber-500/5 border border-amber-500/10 rounded-3xl p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                 <AlertTriangle className="w-24 h-24 text-amber-500" />
+              </div>
+              <div className="relative z-10 space-y-3">
+                 <div className="flex items-center gap-2 text-amber-500">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Protocol Notice</span>
+                 </div>
+                 <p className="text-xs text-amber-200/60 leading-relaxed font-medium">
+                    GhostDAG requires continuous network connectivity. Orphaned clusters (Red-Set blocks) do not accumulate reward credits. Ensure persistent node uptime to maximize yield.
+                 </p>
+              </div>
+           </div>
+        </div>
+
       </div>
     </div>
   );

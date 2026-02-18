@@ -31,13 +31,13 @@ import {
   Radio, Trash2, Globe, Layout, Save, X, Plus, 
   BookOpen, FileText, Info, Zap, Activity,
   Layers, List, AlignLeft, CheckCircle2, Shield, MapPin, MousePointer, HelpCircle,
-  Share2, PieChart, Briefcase, Phone
+  Share2, PieChart, Briefcase, Phone, Target
 } from 'lucide-react';
 
 // --- Helper Components ---
 
-const InputGroup = ({ label, value, onChange, type = "text", placeholder = "" }: any) => (
-  <div className="space-y-1.5 w-full">
+const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", className="" }: any) => (
+  <div className={`space-y-1.5 w-full ${className}`}>
     <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</label>
     {type === 'textarea' ? (
       <textarea 
@@ -167,6 +167,10 @@ const AdminPanel = () => {
 
   const handleAboutUpdate = (key: keyof AboutConfig, value: any) => {
     setAboutConfig(prev => ({ ...prev, [key]: value }));
+    setHasUnsavedChanges(true);
+  };
+  const handleAboutSectionUpdate = (section: keyof AboutConfig, key: string, value: any) => {
+    setAboutConfig(prev => ({ ...prev, [section]: { ...(prev[section] as any), [key]: value } }));
     setHasUnsavedChanges(true);
   };
 
@@ -316,10 +320,9 @@ const AdminPanel = () => {
           </div>
 
           <div className="md:col-span-9 space-y-8 min-h-[600px] surface p-8 rounded-3xl border-zinc-900 animate-in fade-in duration-500">
-            {/* ... Landing CMS Section (Kept Same) ... */}
+            {/* Landing Page Editor */}
             {activeCmsPage === 'landing' && (
               <div className="space-y-8">
-                {/* Hero, Partners, etc. standard editors */}
                 {activeLandingSection === 'hero' && (
                   <>
                     <SectionHeader title="Hero Section" icon={Layout} />
@@ -332,7 +335,7 @@ const AdminPanel = () => {
                     </div>
                   </>
                 )}
-                {/* ... other sections implied/same logic ... */}
+                {/* ... Add other landing sections as needed, roadmap example included ... */}
                 {activeLandingSection === 'roadmap' && (
                   <>
                     <SectionHeader title="Roadmap Phases" icon={AlignLeft} />
@@ -362,22 +365,80 @@ const AdminPanel = () => {
                     <button onClick={() => handleLandingUpdate('roadmap', 'phases', [...(landingConfig.roadmap?.phases || []), {phase:'04', title:'New Phase', period:'Q1', status:'UPCOMING', desc:'', features:[]}])} className="btn-secondary w-full py-4 border-dashed">+ Add Roadmap Phase</button>
                   </>
                 )}
-                {/* ... Include basic footer config as requested ... */}
-                {activeLandingSection === 'footer' && (
-                   <>
-                      <SectionHeader title="Footer Config" icon={MapPin} />
-                      <Toggle label="Section Visible" checked={landingConfig.footer?.isVisible ?? true} onChange={(v: boolean) => handleLandingUpdate('footer', 'isVisible', v)} />
-                      <InputGroup label="Copyright Text" value={landingConfig.footer?.copyright ?? ''} onChange={(v: string) => handleLandingUpdate('footer', 'copyright', v)} />
-                      <div className="mt-8 pt-8 border-t border-zinc-900">
-                          <SectionHeader title="Social Links" icon={Share2} />
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <InputGroup label="Twitter / X URL" value={landingConfig.socials?.twitter ?? ''} onChange={(v: string) => handleSocialUpdate('twitter', v)} />
-                              <InputGroup label="Discord URL" value={landingConfig.socials?.discord ?? ''} onChange={(v: string) => handleSocialUpdate('discord', v)} />
-                              <InputGroup label="GitHub URL" value={landingConfig.socials?.github ?? ''} onChange={(v: string) => handleSocialUpdate('github', v)} />
-                          </div>
-                      </div>
-                   </>
-                )}
+                {/* ... other landing sections ... */}
+              </div>
+            )}
+
+            {/* About Page Editor */}
+            {activeCmsPage === 'about' && (
+              <div className="space-y-8">
+                <SectionHeader title="About Page" icon={Info} />
+                <InputGroup label="Main Title" value={aboutConfig.title} onChange={(v: string) => handleAboutUpdate('title', v)} />
+                <InputGroup label="Subtitle" type="textarea" value={aboutConfig.subtitle} onChange={(v: string) => handleAboutUpdate('subtitle', v)} />
+                
+                <h3 className="text-sm font-bold text-white uppercase mt-8 border-b border-zinc-900 pb-2">Mission Section</h3>
+                <InputGroup label="Mission Title" value={aboutConfig.mission.title} onChange={(v: string) => handleAboutSectionUpdate('mission', 'title', v)} />
+                <InputGroup label="Mission Description" type="textarea" value={aboutConfig.mission.desc} onChange={(v: string) => handleAboutSectionUpdate('mission', 'desc', v)} />
+
+                <h3 className="text-sm font-bold text-white uppercase mt-8 border-b border-zinc-900 pb-2">Vision Section</h3>
+                <InputGroup label="Vision Title" value={aboutConfig.vision.title} onChange={(v: string) => handleAboutSectionUpdate('vision', 'title', v)} />
+                <InputGroup label="Vision Description" type="textarea" value={aboutConfig.vision.desc} onChange={(v: string) => handleAboutSectionUpdate('vision', 'desc', v)} />
+
+                <h3 className="text-sm font-bold text-white uppercase mt-8 border-b border-zinc-900 pb-2">Partners List</h3>
+                <InputGroup label="Partners (Comma Separated)" value={aboutConfig.partners.join(', ')} onChange={(v: string) => handleAboutUpdate('partners', v.split(',').map(s => s.trim()))} />
+              </div>
+            )}
+
+            {/* Architecture Page Editor */}
+            {activeCmsPage === 'architecture' && (
+              <div className="space-y-8">
+                <SectionHeader title="Architecture Page" icon={Cpu} />
+                <InputGroup label="Hero Title" value={archConfig.heroTitle} onChange={(v: string) => handleArchUpdate('heroTitle', v)} />
+                <InputGroup label="Hero Subtitle" type="textarea" value={archConfig.heroSubtitle} onChange={(v: string) => handleArchUpdate('heroSubtitle', v)} />
+                
+                <h3 className="text-sm font-bold text-white uppercase mt-8 border-b border-zinc-900 pb-2">Protocol Layers</h3>
+                {archConfig.layers.map((layer, i) => (
+                  <ArrayItem key={i} onDelete={() => handleArchUpdate('layers', archConfig.layers.filter((_, idx) => idx !== i))}>
+                     <InputGroup label="Layer Title" value={layer.title} onChange={(v: string) => {const n=[...archConfig.layers]; n[i].title=v; handleArchUpdate('layers', n)}} />
+                     <InputGroup label="Description" value={layer.desc} onChange={(v: string) => {const n=[...archConfig.layers]; n[i].desc=v; handleArchUpdate('layers', n)}} className="mt-2" />
+                     <InputGroup label="Stat/Metric" value={layer.stat} onChange={(v: string) => {const n=[...archConfig.layers]; n[i].stat=v; handleArchUpdate('layers', n)}} className="mt-2" />
+                  </ArrayItem>
+                ))}
+                <button onClick={() => handleArchUpdate('layers', [...archConfig.layers, {title:'New Layer', desc:'', stat:''}])} className="btn-secondary w-full py-4 border-dashed">+ Add Layer</button>
+              </div>
+            )}
+
+            {/* Whitepaper Editor */}
+            {activeCmsPage === 'whitepaper' && (
+              <div className="space-y-8">
+                <SectionHeader title="Whitepaper Content" icon={FileText} />
+                <div className="grid grid-cols-2 gap-4">
+                  <InputGroup label="Title" value={whitepaperConfig.title} onChange={(v: string) => handleWhitepaperUpdate('title', v)} />
+                  <InputGroup label="Version" value={whitepaperConfig.version} onChange={(v: string) => handleWhitepaperUpdate('version', v)} />
+                </div>
+                <InputGroup label="Subtitle" value={whitepaperConfig.subtitle} onChange={(v: string) => handleWhitepaperUpdate('subtitle', v)} />
+
+                <h3 className="text-sm font-bold text-white uppercase mt-8 border-b border-zinc-900 pb-2">Sections</h3>
+                {whitepaperConfig.sections.map((section, i) => (
+                  <ArrayItem key={i} onDelete={() => handleWhitepaperUpdate('sections', whitepaperConfig.sections.filter((_, idx) => idx !== i))}>
+                     <InputGroup label="Section Title" value={section.title} onChange={(v: string) => {const n=[...whitepaperConfig.sections]; n[i].title=v; handleWhitepaperUpdate('sections', n)}} />
+                     <InputGroup label="Content Body" type="textarea" value={section.content} onChange={(v: string) => {const n=[...whitepaperConfig.sections]; n[i].content=v; handleWhitepaperUpdate('sections', n)}} className="mt-2 h-64" />
+                  </ArrayItem>
+                ))}
+                <button onClick={() => handleWhitepaperUpdate('sections', [...whitepaperConfig.sections, {title:'New Section', content:''}])} className="btn-secondary w-full py-4 border-dashed">+ Add Section</button>
+              </div>
+            )}
+
+            {/* Tokenomics Editor */}
+            {activeCmsPage === 'tokenomics' && (
+              <div className="space-y-8">
+                <SectionHeader title="Tokenomics Configuration" icon={PieChart} />
+                <InputGroup label="Page Title" value={tokenomicsConfig.title} onChange={(v: string) => handleTokenomicsUpdate('title', v)} />
+                <InputGroup label="Subtitle" type="textarea" value={tokenomicsConfig.subtitle} onChange={(v: string) => handleTokenomicsUpdate('subtitle', v)} />
+                <div className="grid grid-cols-2 gap-4">
+                   <InputGroup label="Total Supply" value={tokenomicsConfig.totalSupply} onChange={(v: string) => handleTokenomicsUpdate('totalSupply', v)} />
+                   <InputGroup label="Circulating Supply" value={tokenomicsConfig.circulatingSupply} onChange={(v: string) => handleTokenomicsUpdate('circulatingSupply', v)} />
+                </div>
               </div>
             )}
 
@@ -420,20 +481,7 @@ const AdminPanel = () => {
               </div>
             )}
 
-            {/* Keep existing editors for other pages (Tokenomics, About, etc.) */}
-            {activeCmsPage === 'tokenomics' && (
-              <div className="space-y-8">
-                <SectionHeader title="Tokenomics Configuration" icon={PieChart} />
-                <InputGroup label="Page Title" value={tokenomicsConfig.title} onChange={(v: string) => handleTokenomicsUpdate('title', v)} />
-                {/* ... simplified for brevity, full fields assumed ... */}
-                <InputGroup label="Subtitle" type="textarea" value={tokenomicsConfig.subtitle} onChange={(v: string) => handleTokenomicsUpdate('subtitle', v)} />
-                <div className="grid grid-cols-2 gap-4">
-                   <InputGroup label="Total Supply" value={tokenomicsConfig.totalSupply} onChange={(v: string) => handleTokenomicsUpdate('totalSupply', v)} />
-                   <InputGroup label="Circulating Supply" value={tokenomicsConfig.circulatingSupply} onChange={(v: string) => handleTokenomicsUpdate('circulatingSupply', v)} />
-                </div>
-              </div>
-            )}
-
+            {/* Legal Pages Editor */}
             {(activeCmsPage === 'terms' || activeCmsPage === 'privacy') && (
               <div className="space-y-8">
                 <SectionHeader title={activeCmsPage.toUpperCase()} icon={Shield} />

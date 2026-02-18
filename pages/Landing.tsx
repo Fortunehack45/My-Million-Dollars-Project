@@ -16,14 +16,11 @@ import {
   Globe,
   MapPin,
   CheckCircle2,
-  Lock,
-  Hash,
-  Clock,
-  Activity,
   Plus,
-  Terminal as TerminalIcon,
   Wifi,
-  Server
+  Server,
+  Terminal as TerminalIcon,
+  Activity
 } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -40,28 +37,35 @@ const IconMap: Record<string, any> = {
 };
 
 // --- TERMINAL COMPONENT ---
+interface LogEntry {
+  id: string;
+  text: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'system';
+  timestamp: string;
+}
+
 const Terminal = () => {
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [currentLine, setCurrentLine] = useState('');
-  const [cursorVisible, setCursorVisible] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const timeoutsRef = useRef<number[]>([]);
+  const isMountedRef = useRef(true);
 
   const bootSequence = [
-    { text: "ARGUS_KERNEL_V2.8.4 initializing...", delay: 20 },
-    { text: "Loading cryptographic modules [SECP256K1]... OK", delay: 10 },
-    { text: "Mounting GhostDAG virtual file system... OK", delay: 15 },
-    { text: "Verifying blue-set topology integrity...", delay: 30 },
-    { text: "> 14,021,992 blocks indexed in 402ms", delay: 5 },
-    { text: "Establishing P2P handshake (WSS://NODE_MAIN)...", delay: 40 },
-    { text: "Connection secured: RSA-4096/AES-GCM", delay: 10 },
-    { text: "Syncing mempool... [428 txn pending]", delay: 25 },
-    { text: "Optimizing DAG traverser threads [8/8 cores]...", delay: 15 },
-    { text: "WARNING: High throughput detected on shard #4", delay: 10, color: "text-amber-500" },
-    { text: "Rebalancing node weights...", delay: 20 },
-    { text: "SYSTEM_READY: Awaiting validator signature.", delay: 100, color: "text-emerald-500 font-bold" }
+    { text: "ARGUS_KERNEL_V2.8.4 initializing...", delay: 20, type: 'system' },
+    { text: "Loading cryptographic modules [SECP256K1]... OK", delay: 10, type: 'success' },
+    { text: "Mounting GhostDAG virtual file system... OK", delay: 15, type: 'success' },
+    { text: "Verifying blue-set topology integrity...", delay: 30, type: 'info' },
+    { text: "> 14,021,992 blocks indexed in 402ms", delay: 5, type: 'info' },
+    { text: "Establishing P2P handshake (WSS://NODE_MAIN)...", delay: 40, type: 'warning' },
+    { text: "Connection secured: RSA-4096/AES-GCM", delay: 10, type: 'success' },
+    { text: "Syncing mempool... [428 txn pending]", delay: 25, type: 'info' },
+    { text: "Optimizing DAG traverser threads [8/8 cores]...", delay: 15, type: 'info' },
+    { text: "WARNING: High throughput detected on shard #4", delay: 10, type: 'warning' },
+    { text: "Rebalancing node weights...", delay: 20, type: 'info' },
+    { text: "SYSTEM_READY: Awaiting validator signature.", delay: 100, type: 'success' }
   ];
 
-  // Random activity logs after boot
   const activityLogs = [
     "Validating block #14022001 (Hash: 0x8F...2A)",
     "Propagating cluster data to peer 192.168.X.X",
@@ -72,50 +76,63 @@ const Terminal = () => {
   ];
 
   useEffect(() => {
+    isMountedRef.current = true;
     let lineIndex = 0;
     let charIndex = 0;
-    let timeoutId: number;
     let isBooting = true;
 
+    const addLog = (text: string, type: any = 'info') => {
+      if (!isMountedRef.current) return;
+      const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+      setLogs(prev => [...prev.slice(-15), { 
+        id: Math.random().toString(36).substr(2, 9), 
+        text, 
+        type, 
+        timestamp 
+      }]);
+    };
+
     const typeWriter = () => {
+      if (!isMountedRef.current) return;
+
       if (isBooting) {
         if (lineIndex < bootSequence.length) {
-          const targetLine = bootSequence[lineIndex].text;
+          const currentSeq = bootSequence[lineIndex];
+          const targetLine = currentSeq.text;
           
           if (charIndex < targetLine.length) {
             setCurrentLine(targetLine.substring(0, charIndex + 1));
             charIndex++;
-            // Randomize typing speed slightly for realism
-            timeoutId = window.setTimeout(typeWriter, Math.random() * 30 + 10); 
+            const speed = Math.random() * 30 + 10;
+            timeoutsRef.current.push(window.setTimeout(typeWriter, speed));
           } else {
-            // Line finished
-            setLogs(prev => [...prev, targetLine]);
+            addLog(targetLine, currentSeq.type);
             setCurrentLine('');
             charIndex = 0;
             lineIndex++;
-            timeoutId = window.setTimeout(typeWriter, bootSequence[lineIndex - 1]?.delay * 10 || 300);
+            const delay = currentSeq.delay * 10 || 300;
+            timeoutsRef.current.push(window.setTimeout(typeWriter, delay));
           }
         } else {
           isBooting = false;
-          timeoutId = window.setTimeout(typeWriter, 1000);
+          timeoutsRef.current.push(window.setTimeout(typeWriter, 1000));
         }
       } else {
-        // Continuous random logs
         const randomLog = activityLogs[Math.floor(Math.random() * activityLogs.length)];
-        const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
-        setLogs(prev => [...prev.slice(-14), `[${timestamp}] ${randomLog}`]);
-        timeoutId = window.setTimeout(typeWriter, Math.random() * 2000 + 1000);
+        // Type out random logs too for realism, or just push them?
+        // Let's just push them instantly for "fast scrolling" effect
+        addLog(randomLog, 'info');
+        const nextDelay = Math.random() * 2000 + 1000;
+        timeoutsRef.current.push(window.setTimeout(typeWriter, nextDelay));
       }
     };
 
     typeWriter();
-    return () => clearTimeout(timeoutId);
-  }, []);
 
-  // Blinking cursor
-  useEffect(() => {
-    const interval = setInterval(() => setCursorVisible(v => !v), 500);
-    return () => clearInterval(interval);
+    return () => {
+      isMountedRef.current = false;
+      timeoutsRef.current.forEach(window.clearTimeout);
+    };
   }, []);
 
   // Auto-scroll
@@ -126,46 +143,63 @@ const Terminal = () => {
   }, [logs, currentLine]);
 
   return (
-    <div className="relative w-full h-[480px] bg-black/90 rounded-2xl border border-zinc-800 overflow-hidden font-mono text-[10px] md:text-xs shadow-2xl flex flex-col">
-      {/* Terminal Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/90 border-b border-zinc-800">
+    <div className="relative w-full h-[520px] bg-zinc-950/90 backdrop-blur-xl rounded-xl border border-zinc-800/80 shadow-2xl flex flex-col overflow-hidden font-mono text-[11px] transform transition-all hover:border-primary/30 group animate-fade-in-right">
+      
+      {/* Glossy Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/50 border-b border-zinc-800/50">
         <div className="flex gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500/80 shadow-sm"></div>
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80 shadow-sm"></div>
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 shadow-sm"></div>
         </div>
-        <div className="text-zinc-500 font-bold uppercase tracking-widest text-[9px] flex items-center gap-2">
-          <Server className="w-3 h-3" /> Argus_Node_CLI
+        <div className="text-zinc-500 font-bold uppercase tracking-widest text-[9px] flex items-center gap-2 opacity-70">
+          <TerminalIcon className="w-3 h-3" /> Argus_Node_CLI ~ v2.8.4
         </div>
-        <div className="text-emerald-500 text-[9px] font-bold animate-pulse">ONLINE</div>
+        <div className="flex items-center gap-2">
+           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+           <span className="text-emerald-500 text-[9px] font-bold">NET_ACTIVE</span>
+        </div>
       </div>
 
       {/* Terminal Body */}
-      <div className="relative flex-1 p-6 overflow-hidden">
-        {/* CRT Scanline Effect */}
-        <div className="absolute inset-0 pointer-events-none z-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_3px,3px_100%] opacity-20"></div>
-        <div className="absolute inset-0 pointer-events-none z-10 bg-gradient-to-b from-transparent to-black/30"></div>
+      <div className="relative flex-1 p-0 overflow-hidden bg-black/50">
+        {/* CRT Scanline & Vignette */}
+        <div className="absolute inset-0 pointer-events-none z-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_3px,3px_100%] opacity-10"></div>
+        <div className="absolute inset-0 pointer-events-none z-20 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]"></div>
 
-        <div ref={scrollRef} className="absolute inset-0 p-6 overflow-y-auto custom-scrollbar space-y-1">
-          {logs.map((log, i) => (
-            <div key={i} className={`break-words leading-relaxed ${log.includes("WARNING") ? 'text-amber-400' : log.includes("SYSTEM_READY") ? 'text-emerald-400' : 'text-zinc-400'}`}>
-              <span className="text-zinc-700 mr-2">$</span>
-              {log}
+        <div ref={scrollRef} className="absolute inset-0 p-5 overflow-y-auto custom-scrollbar space-y-1.5">
+          {logs.map((log) => (
+            <div key={log.id} className="flex gap-3 leading-relaxed opacity-90 hover:opacity-100 transition-opacity">
+              <span className="text-zinc-600 shrink-0 select-none">[{log.timestamp}]</span>
+              <div className={`break-words ${
+                log.type === 'error' ? 'text-red-400' :
+                log.type === 'warning' ? 'text-amber-400' :
+                log.type === 'success' ? 'text-emerald-400' :
+                log.type === 'system' ? 'text-primary font-bold' :
+                'text-zinc-300'
+              }`}>
+                {log.type === 'system' && <span className="text-primary mr-2">➜</span>}
+                {log.text}
+              </div>
             </div>
           ))}
-          <div className="text-primary break-words leading-relaxed">
-            <span className="text-zinc-700 mr-2">$</span>
-            {currentLine}
-            {cursorVisible && <span className="inline-block w-2 h-4 bg-primary align-middle ml-1"></span>}
+          
+          <div className="flex gap-3 pt-1">
+             <span className="text-zinc-600 shrink-0 select-none">[{new Date().toISOString().split('T')[1].slice(0, 12)}]</span>
+             <div className="text-primary break-words leading-relaxed flex items-center">
+                <span className="mr-2">➜</span>
+                {currentLine}
+                <span className="w-2 h-4 bg-primary ml-1 animate-[pulse_1s_steps(2)_infinite]"></span>
+             </div>
           </div>
         </div>
       </div>
 
       {/* Terminal Footer Status */}
-      <div className="px-4 py-2 bg-zinc-900/50 border-t border-zinc-800 flex justify-between items-center text-[9px] text-zinc-500 font-mono">
+      <div className="px-4 py-2 bg-zinc-900/80 border-t border-zinc-800 flex justify-between items-center text-[9px] text-zinc-500 font-mono">
         <div className="flex gap-4">
-          <span>CPU: <span className="text-zinc-300">12%</span></span>
-          <span>RAM: <span className="text-zinc-300">4.2GB</span></span>
+          <span className="flex items-center gap-1.5"><Activity className="w-3 h-3" /> CPU: <span className="text-zinc-300">12%</span></span>
+          <span className="flex items-center gap-1.5"><Database className="w-3 h-3" /> RAM: <span className="text-zinc-300">4.2GB</span></span>
         </div>
         <div className="flex items-center gap-2">
           <Wifi className="w-3 h-3 text-zinc-600" />
@@ -239,14 +273,15 @@ const Landing = () => {
     let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
     const draw = () => {
-      ctx.fillStyle = "rgba(5, 5, 5, 0.1)"; // Fade effect
+      // Use alpha for trail effect
+      ctx.fillStyle = "rgba(5, 5, 5, 0.1)"; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = fontSize + "px 'JetBrains Mono', monospace";
 
-      // Beam follows mouse instantly
+      // Beam follows mouse
       const beamX = mousePos.x;
       const beamY = mousePos.y; 
-      const radius = 400; // Flashlight radius
+      const radius = 400; 
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
@@ -258,10 +293,9 @@ const Landing = () => {
         const dy = y - beamY;
         const dist = Math.sqrt(dx*dx + dy*dy);
         
-        let alpha = 0.05; // Base visibility (very dim)
+        let alpha = 0.05; // Base visibility
         
         if (dist < radius) {
-            // Brightness increases closer to mouse
             const intensity = 1 - (dist / radius); 
             alpha = Math.max(alpha, intensity * 0.9);
         }
@@ -309,7 +343,7 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section id="hero" className="relative z-10 pt-32 pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center w-full">
           
           <div className="lg:col-span-7 space-y-12 animate-fade-in-up relative z-20">
             <div className="space-y-6">
@@ -339,7 +373,7 @@ const Landing = () => {
           </div>
 
           {/* Terminal UI */}
-          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10 lg:pl-12" style={{ animationDelay: '0.5s' }}>
+          <div className="lg:col-span-5 relative mt-12 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10 pl-8 lg:pl-0" style={{ animationDelay: '0.5s' }}>
              <Terminal />
           </div>
         </div>
