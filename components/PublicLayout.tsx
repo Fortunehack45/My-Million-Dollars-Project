@@ -6,18 +6,6 @@ import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
 
-const LOGO_SRC = "https://arguz.edgeone.app/A_20260217_132556_0001.png";
-const logoStyle = {
-    maskImage: `url(${LOGO_SRC})`,
-    maskSize: 'contain',
-    maskPosition: 'center',
-    maskRepeat: 'no-repeat',
-    WebkitMaskImage: `url(${LOGO_SRC})`,
-    WebkitMaskSize: 'contain',
-    WebkitMaskPosition: 'center',
-    WebkitMaskRepeat: 'no-repeat',
-};
-
 // Custom Social Icons
 const XIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -90,12 +78,13 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       <nav className="sticky top-0 z-[100] bg-zinc-950 border-b border-zinc-900 transition-all">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 md:gap-4 z-[110] relative group">
+            {/* Font Based Logo "A" */}
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)] group-hover:border-primary/50 transition-colors">
-              <div className="w-5 h-5 md:w-6 md:h-6 bg-primary" style={logoStyle} />
+              <span className="font-gothic text-2xl md:text-3xl text-primary leading-none mt-1">A</span>
             </div>
-            <div className="flex flex-col -space-y-0.5 md:-space-y-1">
+            <div className="flex flex-col -space-y-1">
               <span className="font-gothic text-xl md:text-2xl tracking-normal text-white group-hover:text-primary transition-colors">Argus Protocol</span>
-              <span className="text-[8px] md:text-[9px] font-mono text-primary/80 tracking-widest uppercase">Testnet_v2.8</span>
+              <span className="text-[8px] md:text-[9px] font-mono text-primary/80 tracking-widest uppercase pl-0.5">Testnet_v2.8</span>
             </div>
           </Link>
 
@@ -182,7 +171,10 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               {/* Brand Column */}
               <div className="lg:col-span-2 space-y-6">
                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-primary" style={logoStyle} />
+                    {/* Font Based Logo "A" in Footer */}
+                    <div className="w-6 h-6 bg-primary flex items-center justify-center rounded">
+                        <span className="font-gothic text-lg text-white leading-none mt-0.5">A</span>
+                    </div>
                     <span className="text-xl font-gothic text-white tracking-normal">Argus Protocol</span>
                  </div>
                  <p className="text-sm text-zinc-500 leading-relaxed max-w-sm">

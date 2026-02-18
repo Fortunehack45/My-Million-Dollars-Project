@@ -13,18 +13,6 @@ import {
   Server
 } from 'lucide-react';
 
-const LOGO_SRC = "https://arguz.edgeone.app/A_20260217_132556_0001.png";
-const logoStyle = {
-    maskImage: `url(${LOGO_SRC})`,
-    maskSize: 'contain',
-    maskPosition: 'center',
-    maskRepeat: 'no-repeat',
-    WebkitMaskImage: `url(${LOGO_SRC})`,
-    WebkitMaskSize: 'contain',
-    WebkitMaskPosition: 'center',
-    WebkitMaskRepeat: 'no-repeat',
-};
-
 const Login = () => {
   const { login } = useAuth();
   
@@ -66,7 +54,7 @@ const Login = () => {
           <div className="flex items-start justify-between mb-20">
             <div className="flex gap-4 items-center">
               <div className="w-10 h-10 border border-primary flex items-center justify-center bg-primary/5">
-                <div className="w-6 h-6 bg-primary" style={logoStyle} />
+                <span className="font-gothic text-2xl text-primary leading-none mt-1">A</span>
               </div>
               <div>
                 <h1 className="text-2xl font-gothic text-white tracking-normal leading-none">Argus Protocol</h1>
