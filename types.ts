@@ -33,6 +33,7 @@ export interface NetworkStats {
   totalMined: number;
   totalUsers: number;
   activeNodes: number;
+  maxUsersCap?: number;
 }
 
 export interface LeaderboardEntry {

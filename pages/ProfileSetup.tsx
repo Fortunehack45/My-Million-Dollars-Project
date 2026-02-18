@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData, getNetworkStats, MAX_USERS_CAP } from '../services/firebase';
+import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData, getNetworkStats, DEFAULT_MAX_USERS_CAP } from '../services/firebase';
 import { 
   Fingerprint, 
   ArrowRight, 
@@ -22,6 +22,7 @@ const ProfileSetup = () => {
   const [error, setError] = useState<string | null>(null);
   const [isNetworkCapped, setIsNetworkCapped] = useState<boolean>(false);
   const [loadingCap, setLoadingCap] = useState<boolean>(true);
+  const [limitCount, setLimitCount] = useState<number>(DEFAULT_MAX_USERS_CAP);
 
   // Auto-fill referral code
   useEffect(() => {
@@ -36,7 +37,9 @@ const ProfileSetup = () => {
     const checkCap = async () => {
       try {
         const stats = await getNetworkStats();
-        if (stats && stats.totalUsers >= MAX_USERS_CAP) {
+        const limit = stats?.maxUsersCap || DEFAULT_MAX_USERS_CAP;
+        setLimitCount(limit);
+        if (stats && stats.totalUsers >= limit) {
           setIsNetworkCapped(true);
         }
       } catch (e) {
@@ -139,7 +142,7 @@ const ProfileSetup = () => {
            <div className="space-y-4">
               <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Epoch Full</h1>
               <p className="text-zinc-500 font-medium">
-                The Genesis Epoch has reached its maximum capacity of <span className="text-white font-mono">500,000</span> nodes.
+                The Genesis Epoch has reached its maximum capacity of <span className="text-white font-mono">{limitCount.toLocaleString()}</span> nodes.
               </p>
            </div>
            <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">

@@ -1,5 +1,4 @@
-
-import * as firebaseApp from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -60,8 +59,8 @@ const firebaseConfig = {
   measurementId: "G-6EVXT8DJMK"
 };
 
-// Initialize using the namespace import to avoid 'no exported member' issues in some TS environments
-const app = firebaseApp.initializeApp(firebaseConfig);
+// Initialize using the named import to avoid 'no exported member' issues
+const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Use initializeFirestore with forced long polling to bypass WebSocket restrictions common in some environments.
@@ -80,7 +79,7 @@ export const REFERRAL_BOOST = 0.1; // ARG per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
 export const CURRENT_ARG_PRICE = 4.20; // Constant for valuation logic
-export const MAX_USERS_CAP = 500000; // Hard cap for Testnet participants
+export const DEFAULT_MAX_USERS_CAP = 500000; // Hard cap default
 
 // Protocol Constants for Calculations
 export const GENESIS_TIMESTAMP = 1704067200000; // Jan 1, 2024 00:00:00 UTC
@@ -401,8 +400,19 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
 export const getNetworkStats = async (): Promise<NetworkStats | null> => {
     const statsRef = doc(db, 'global_stats', 'network');
     const snap = await getDoc(statsRef);
-    if (snap.exists()) return snap.data() as NetworkStats;
+    if (snap.exists()) {
+      const data = snap.data();
+      return {
+        maxUsersCap: DEFAULT_MAX_USERS_CAP,
+        ...data
+      } as NetworkStats;
+    }
     return null;
+};
+
+export const updateNetworkCap = async (newCap: number) => {
+    const statsRef = doc(db, 'global_stats', 'network');
+    await setDoc(statsRef, { maxUsersCap: newCap }, { merge: true });
 };
 
 export const syncReferralStats = async (uid: string, currentReferralCount: number, currentPoints: number) => {
@@ -482,14 +492,18 @@ export const subscribeToUsers = (callback: (users: User[]) => void) => {
 export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void) => {
   return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
     if (snapshot.exists()) {
-      callback(snapshot.data() as NetworkStats);
+      const data = snapshot.data();
+      callback({
+        maxUsersCap: DEFAULT_MAX_USERS_CAP,
+        ...data
+      } as NetworkStats);
     } else {
       // Return actual initial state if DB is fresh
-      callback({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+      callback({ totalMined: 0, totalUsers: 0, activeNodes: 0, maxUsersCap: DEFAULT_MAX_USERS_CAP });
     }
   }, (error) => {
     console.warn("Stats Subscription Error:", error);
-    callback({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+    callback({ totalMined: 0, totalUsers: 0, activeNodes: 0, maxUsersCap: DEFAULT_MAX_USERS_CAP });
   });
 };
 
