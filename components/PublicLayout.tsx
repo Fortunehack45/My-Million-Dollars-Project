@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { ChevronRight, Menu, X, ArrowUpRight, Github, Twitter, Disc } from 'lucide-react';
+import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
 
@@ -94,7 +94,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               <div className="w-5 h-5 md:w-6 md:h-6 bg-primary" style={logoStyle} />
             </div>
             <div className="flex flex-col -space-y-0.5 md:-space-y-1">
-              <span className="font-bold text-lg md:text-xl tracking-tight text-white group-hover:text-primary transition-colors">Argus<span className="text-zinc-500 group-hover:text-zinc-400">Protocol</span></span>
+              <span className="font-gothic text-xl md:text-2xl tracking-normal text-white group-hover:text-primary transition-colors">Argus Protocol</span>
               <span className="text-[8px] md:text-[9px] font-mono text-primary/80 tracking-widest uppercase">Testnet_v2.8</span>
             </div>
           </Link>
@@ -183,7 +183,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               <div className="lg:col-span-2 space-y-6">
                  <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-primary" style={logoStyle} />
-                    <span className="text-xl font-black text-white tracking-tight uppercase">Argus Protocol</span>
+                    <span className="text-xl font-gothic text-white tracking-normal">Argus Protocol</span>
                  </div>
                  <p className="text-sm text-zinc-500 leading-relaxed max-w-sm">
                    The institutional-grade infrastructure layer for the decentralized web. 

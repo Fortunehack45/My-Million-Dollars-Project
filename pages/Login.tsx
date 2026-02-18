@@ -69,7 +69,7 @@ const Login = () => {
                 <div className="w-6 h-6 bg-primary" style={logoStyle} />
               </div>
               <div>
-                <h1 className="text-xl font-black text-white tracking-widest uppercase leading-none">Argus_Terminal</h1>
+                <h1 className="text-2xl font-gothic text-white tracking-normal leading-none">Argus Protocol</h1>
                 <p className="label-meta mt-1 opacity-50">Infrastructure Authorization Service</p>
               </div>
             </div>

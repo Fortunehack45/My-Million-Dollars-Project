@@ -107,7 +107,7 @@ const Sidebar = () => {
           <div className="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center shadow-lg shadow-primary/5">
              <div className="w-5 h-5 bg-primary" style={logoStyle} />
           </div>
-          <span className="font-black text-sm tracking-tighter uppercase italic text-white">Argus<span className="text-zinc-600">Protocol</span></span>
+          <span className="font-gothic text-lg text-white tracking-normal">Argus Protocol</span>
         </div>
         
         <div className="flex items-center gap-4">
@@ -149,8 +149,8 @@ const Sidebar = () => {
                  <div className="w-6 h-6 bg-primary drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]" style={logoStyle} />
               </div>
               <div>
-                <span className="block font-black text-lg tracking-tighter text-white uppercase italic leading-none">Argus</span>
-                <span className="block text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-0.5">Protocol v2.0</span>
+                <span className="block font-gothic text-xl text-white tracking-normal leading-none">Argus Protocol</span>
+                <span className="block text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-0.5">Testnet_v2.8</span>
               </div>
             </div>
           </div>
