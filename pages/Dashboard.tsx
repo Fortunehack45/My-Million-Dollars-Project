@@ -16,9 +16,10 @@ import {
 import { 
   Database, Activity, Cpu, Box, Zap, 
   AlertTriangle, ArrowUpRight, GitMerge, Layers, 
-  Server, Terminal, CheckCircle2, Globe, Clock, Wifi 
+  Server, Terminal, CheckCircle2, Globe, Clock, Wifi, Info 
 } from 'lucide-react';
 import { NetworkStats } from '../types';
+import { Tooltip } from '../components/Tooltip';
 
 // Enhanced GhostDAG Topology Visualization
 const GhostDAGVisualizer = () => {
@@ -133,7 +134,7 @@ const GhostDAGVisualizer = () => {
   );
 };
 
-const StatCard = ({ label, value, subValue, icon: Icon, trend }: any) => (
+const StatCard = ({ label, value, subValue, icon: Icon, trend, tooltip }: any) => (
   <div className="bg-zinc-950 border border-zinc-900 p-5 flex flex-col justify-between h-full group hover:border-zinc-800 transition-colors">
     <div className="flex justify-between items-start mb-4">
       <div className="p-2 bg-zinc-900/50 rounded-lg border border-zinc-800 group-hover:border-zinc-700 transition-colors">
@@ -146,7 +147,12 @@ const StatCard = ({ label, value, subValue, icon: Icon, trend }: any) => (
       )}
     </div>
     <div>
-      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{label}</p>
+      <div className="flex items-center gap-1.5 mb-1">
+        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{label}</p>
+        <Tooltip text={tooltip} position="right">
+          <Info className="w-2.5 h-2.5 text-zinc-700 hover:text-zinc-400 transition-colors cursor-help" />
+        </Tooltip>
+      </div>
       <p className="text-xl font-mono font-bold text-white tracking-tight">{value}</p>
       {subValue && <p className="text-[10px] text-zinc-600 mt-1 font-medium">{subValue}</p>}
     </div>
@@ -315,12 +321,14 @@ const Dashboard = () => {
             value={`${user.points.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ARG`}
             icon={Database}
             trend="+2.4%"
+            tooltip="Total accumulated credits for this node identity."
          />
          <StatCard 
             label="Unmined Supply" 
             value={formatLargeNumber(leftToMine)} 
             subValue={`Cap: ${formatLargeNumber(TOTAL_SUPPLY)} ARG`}
             icon={Layers}
+            tooltip="Remaining ARG pool allocated for Genesis Epoch distribution."
          />
          <StatCard 
             label="Network Throughput" 
@@ -328,12 +336,14 @@ const Dashboard = () => {
             subValue="Finality: < 400ms"
             icon={Zap}
             trend="Stable"
+            tooltip="Aggregate transaction volume processed per second across global shards."
          />
          <StatCard 
             label="Active Validators" 
             value={livePeers.toLocaleString()}
             subValue={`Global Shards: ${Math.max(1, Math.floor(livePeers / 50))}`}
             icon={Server}
+            tooltip="Current count of verified peer nodes securing the GhostDAG."
          />
       </div>
 
@@ -395,7 +405,9 @@ const Dashboard = () => {
                  </div>
 
                  <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase">
-                    <span>Rate: {currentHourlyRate.toFixed(2)} ARG/h</span>
+                    <Tooltip text="Composite mining speed calculated as [Base 0.06] + [Referral Boosts]" position="top">
+                      <span className="cursor-help hover:text-zinc-300 transition-colors">Rate: {currentHourlyRate.toFixed(2)} ARG/h</span>
+                    </Tooltip>
                     <span>T-Minus: {formatTime(miningTimer)}</span>
                  </div>
               </div>

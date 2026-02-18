@@ -4,6 +4,7 @@ import PublicLayout from '../components/PublicLayout';
 import { subscribeToContent, subscribeToNetworkStats, DEFAULT_TOKENOMICS_CONFIG } from '../services/firebase';
 import { TokenomicsConfig, NetworkStats } from '../types';
 import { PieChart, Zap, ShieldCheck, Lock, Activity, Layers, ArrowRight, TrendingUp, Info } from 'lucide-react';
+import { Tooltip } from '../components/Tooltip';
 
 const IconMap: any = { Zap, ShieldCheck, Lock, Activity, Layers, TrendingUp };
 
@@ -92,7 +93,12 @@ const Tokenomics = () => {
                 <div>
                    <div className="flex items-center gap-2 mb-2">
                       <Activity className="w-4 h-4 text-primary" />
-                      <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Circulating Supply (Live)</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Circulating Supply (Live)</p>
+                        <Tooltip text="Sum of all ARG credits successfully mined by network participants." position="right">
+                           <Info className="w-3 h-3 text-zinc-700 hover:text-primary transition-colors cursor-help" />
+                        </Tooltip>
+                      </div>
                    </div>
                    {/* Dynamically displaying totalMined from network stats */}
                    <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">
