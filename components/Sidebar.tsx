@@ -12,7 +12,8 @@ import {
   Settings,
   ShieldAlert,
   Menu,
-  X
+  X,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL } from '../services/firebase';
@@ -83,7 +84,7 @@ const Sidebar = () => {
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/tasks', label: 'Tasks', icon: CheckSquare },
-    { to: '/nft', label: 'Authority', icon: ShieldCheck },
+    { to: '/nft', label: 'Mint', icon: CreditCard },
     { to: '/referrals', label: 'Network', icon: Users },
     { to: '/leaderboard', label: 'Rank', icon: Trophy },
   ];
