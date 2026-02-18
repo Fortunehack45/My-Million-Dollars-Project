@@ -86,8 +86,8 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-primary selection:text-white font-sans scroll-smooth">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-[100] bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-900 transition-all">
+      {/* Navbar - Solid background on mobile to prevent transparency issues */}
+      <nav className="sticky top-0 z-[100] bg-zinc-950 border-b border-zinc-900 transition-all">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 md:gap-4 z-[110] relative group">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-zinc-900 border border-primary/30 flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(244,63,94,0.1)] group-hover:border-primary/50 transition-colors">
@@ -119,13 +119,13 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
              </button>
           </div>
 
-          {/* Mobile Menu Toggle - Improved visual robustness */}
+          {/* Mobile Menu Toggle - Updated for visibility and robustness */}
           <button 
-            className="md:hidden relative z-[110] w-10 h-10 flex items-center justify-center bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:border-zinc-700 active:scale-95 transition-all duration-200" 
+            className="md:hidden relative z-[110] w-10 h-10 flex items-center justify-center bg-zinc-800 border border-zinc-700 rounded-lg text-white shadow-lg shadow-zinc-900/50 hover:bg-zinc-700 active:scale-95 transition-all duration-200"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle Menu"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isMobileMenuOpen ? <X className="w-5 h-5" strokeWidth={2.5} /> : <Menu className="w-5 h-5" strokeWidth={2.5} />}
           </button>
         </div>
 
