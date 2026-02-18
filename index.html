@@ -1,12 +1,178 @@
-<script type="importmap">
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" type="image/png" href="https://arguz.edgeone.app/A_20260217_132556_0001.png" />
+  <link rel="apple-touch-icon" href="https://arguz.edgeone.app/A_20260217_132556_0001.png" />
+
+  <!-- SEO: Primary Metadata -->
+  <title>Argus Protocol | Decentralized Node Infrastructure Layer</title>
+  <meta name="description" content="Argus Protocol is the institutional-grade compute layer for the decentralized web. Deploy zero-touch validator nodes, mine NEX credits, and power the multi-chain economy." />
+  <meta name="keywords" content="Argus Protocol, Argus Network, Node Infrastructure, DePIN, Decentralized Compute, Web3 Mining, Validator Node, Blockchain Testnet" />
+  <meta name="author" content="Argus Labs" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://argus-protocol.xyz/" />
+
+  <!-- SEO: Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://argus-protocol.xyz/" />
+  <meta property="og:title" content="Argus Protocol | The Global Truth Layer" />
+  <meta property="og:description" content="Join the Argus Testnet. Deploy high-performance validator nodes and secure the future of decentralized infrastructure." />
+  <meta property="og:image" content="https://arguz.edgeone.app/A_20260217_132556_0001.png" />
+  <meta property="og:site_name" content="Argus Protocol" />
+
+  <!-- SEO: Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@ArgusProtocol" />
+  <meta name="twitter:title" content="Argus Protocol | Institutional IaaS" />
+  <meta name="twitter:description" content="The high-speed rail for the multi-chain economy. Deploy zero-touch validator nodes today." />
+  <meta name="twitter:image" content="https://arguz.edgeone.app/A_20260217_132556_0001.png" />
+
+  <!-- SEO: Structured Data (JSON-LD) for Google Knowledge Graph -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Argus Protocol",
+    "operatingSystem": "Decentralized Network",
+    "applicationCategory": "Blockchain Infrastructure",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Institutional-grade infrastructure layer for the decentralized web.",
+    "url": "https://argus-protocol.xyz",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Argus Labs",
+      "logo": "https://arguz.edgeone.app/A_20260217_132556_0001.png"
+    }
+  }
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#F43F5E',
+            zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a', 700: '#3f3f46' }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'monospace'],
+            sans: ['Inter', 'sans-serif'],
+            // Using UnifrakturMaguntia as the "Was BusstickNP" style match
+            gothic: ['UnifrakturMaguntia', 'cursive'] 
+          },
+          transitionTimingFunction: {
+            'out-expo': 'cubic-bezier(0.19, 1, 0.22, 1)',
+            'out-circ': 'cubic-bezier(0.075, 0.82, 0.165, 1)',
+          },
+          animation: {
+            'shimmer': 'shimmer 2.5s infinite linear',
+            'float': 'float 6s ease-in-out infinite',
+            'scanline': 'scanline 8s linear infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'fade-in': 'fadeIn 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+            'fade-in-up': 'fadeInUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+            'fade-in-right': 'fadeInRight 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+            'reveal': 'reveal 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+            'scale-in': 'scaleIn 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+            'spin-slow': 'spin 12s linear infinite',
+          },
+          keyframes: {
+            shimmer: {
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(100%)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' }
+            },
+            scanline: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(1000%)' }
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(40px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            fadeInRight: {
+              '0%': { opacity: '0', transform: 'translateX(-30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            reveal: {
+              '0%': { opacity: '0', filter: 'blur(10px)', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', filter: 'blur(0)', transform: 'translateY(0)' }
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+
+  <style>
+    body { background-color: #000000; margin: 0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .mask-radial { mask-image: radial-gradient(circle at center, black, transparent 80%); }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(24, 24, 27, 0.5); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+    
+    /* Font Class for exact style matching */
+    .font-gothic { font-family: 'UnifrakturMaguntia', cursive; }
+    
+    /* Glassmorphism Utilities */
+    .glass-panel {
+      background: rgba(24, 24, 27, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+  <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "firebase/app": "https://esm.sh/firebase@11.1.0/app",
+    "firebase/auth": "https://esm.sh/firebase@11.1.0/auth?deps=firebase@11.1.0",
+    "firebase/firestore": "https://esm.sh/firebase@11.1.0/firestore?deps=firebase@11.1.0",
+    "firebase/database": "https://esm.sh/firebase@11.1.0/database?deps=firebase@11.1.0",
+    "react-router": "https://esm.sh/react-router@7.1.0",
+    "lucide-react": "https://esm.sh/lucide-react@0.468.0",
+    "clsx": "https://esm.sh/clsx@2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.5",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
-    "firebase/": "https://esm.sh/firebase@^12.9.0/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.574.0",
-    "react-router": "https://esm.sh/react-router@^7.13.0"
+    "firebase/": "https://esm.sh/firebase@^12.9.0/"
   }
 }
 </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
+</body>
+</html>
