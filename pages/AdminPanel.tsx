@@ -39,6 +39,8 @@ import {
 
 // --- Helper Components ---
 
+const INPUT_STYLES = "w-full bg-zinc-950 border border-zinc-800 text-zinc-200 p-3 rounded-lg focus:border-primary/50 focus:bg-zinc-900 outline-none transition-all text-xs font-mono placeholder:text-zinc-700";
+
 const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", className="" }: any) => (
   <div className={`space-y-2 w-full ${className}`}>
     <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</label>
@@ -46,7 +48,7 @@ const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", c
       <textarea 
         value={value || ''} 
         onChange={e => onChange(e.target.value)} 
-        className="cms-input min-h-[100px] resize-y" 
+        className={`${INPUT_STYLES} min-h-[100px] resize-y`} 
         placeholder={placeholder}
       />
     ) : (
@@ -54,7 +56,7 @@ const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", c
         type={type} 
         value={value || ''} 
         onChange={e => onChange(type === 'number' ? parseFloat(e.target.value) : e.target.value)} 
-        className="cms-input" 
+        className={INPUT_STYLES} 
         placeholder={placeholder}
       />
     )}
@@ -539,7 +541,7 @@ const AdminPanel = () => {
                              <div className="space-y-2">
                                 <span className="text-[10px] font-bold text-zinc-500 uppercase">Features (Comma Separated)</span>
                                 <textarea 
-                                  className="cms-input"
+                                  className={INPUT_STYLES}
                                   value={phase.features.join(', ')}
                                   onChange={(e) => {
                                      const newPhases = [...landingConfig.roadmap.phases];
