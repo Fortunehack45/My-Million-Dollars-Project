@@ -444,8 +444,12 @@ export const completeTask = async (uid: string, taskId: string, points: number) 
 export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
   const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
-    const tasks = snapshot.docs.map(doc => doc.data() as Task);
-    callback(tasks);
+    const allTasks = snapshot.docs.map(doc => doc.data() as Task);
+    // Client-side filtering for expired tasks to ensure clean display
+    // "visible until" logic
+    const now = Date.now();
+    const visibleTasks = allTasks.filter(t => !t.expiresAt || t.expiresAt > now);
+    callback(visibleTasks);
   }, (error) => {
     console.warn("Tasks Subscription Error:", error);
     callback([]);

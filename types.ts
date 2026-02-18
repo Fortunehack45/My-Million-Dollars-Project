@@ -25,7 +25,8 @@ export interface Task {
   link: string;
   actionLabel: string;
   createdAt?: number;
-  timerSeconds?: number; // Optional countdown timer in seconds
+  verificationWaitTime?: number; // Seconds user waits (hidden)
+  expiresAt?: number; // Timestamp when task disappears
 }
 
 export interface NetworkStats {
