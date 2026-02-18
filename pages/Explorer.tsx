@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { Search, Box, Activity, Clock, ChevronRight } from 'lucide-react';
-import { subscribeToNetworkStats, CURRENT_ARG_PRICE } from '../services/firebase';
+import { subscribeToNetworkStats, subscribeToOnlineUsers, CURRENT_ARG_PRICE } from '../services/firebase';
 import { NetworkStats } from '../types';
 
 const Explorer = () => {
   const [stats, setStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+  const [livePeers, setLivePeers] = useState(0);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [txs, setTxs] = useState<any[]>([]);
 
   useEffect(() => {
-    const unsub = subscribeToNetworkStats(setStats);
-    return () => unsub();
+    const unsubStats = subscribeToNetworkStats(setStats);
+    const unsubPresence = subscribeToOnlineUsers((uids) => {
+        setLivePeers(Math.max(1, uids.length));
+    });
+    return () => {
+        unsubStats();
+        unsubPresence();
+    };
   }, []);
 
   useEffect(() => {
@@ -19,7 +26,7 @@ const Explorer = () => {
     const genBlock = (i: number) => ({
       number: 14000000 + i,
       hash: '0x' + Math.random().toString(16).slice(2),
-      validator: 'Argus_Val_' + Math.floor(Math.random() * (stats.activeNodes || 100)),
+      validator: 'Argus_Val_' + Math.floor(Math.random() * (livePeers || 100)),
       txs: Math.floor(Math.random() * 200),
       time: 'Just now'
     });
@@ -41,7 +48,7 @@ const Explorer = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [stats.activeNodes]);
+  }, [livePeers]);
 
   const marketCap = stats.totalMined * CURRENT_ARG_PRICE;
 
@@ -63,7 +70,7 @@ const Explorer = () => {
        </div>
 
        <div className="max-w-7xl mx-auto px-6 py-12">
-          {/* Stats Bar - EXTRACTED FROM DATABASE */}
+          {/* Stats Bar - EXTRACTED FROM DATABASE & REALTIME */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
              <div className="surface p-6 rounded-xl">
                 <p className="label-meta text-zinc-500">ARG Price</p>
@@ -79,7 +86,7 @@ const Explorer = () => {
              </div>
              <div className="surface p-6 rounded-xl">
                 <p className="label-meta text-zinc-500">Active Validators</p>
-                <p className="text-xl font-mono font-bold text-white">{stats.activeNodes.toLocaleString()}</p>
+                <p className="text-xl font-mono font-bold text-white">{livePeers.toLocaleString()}</p>
              </div>
           </div>
 

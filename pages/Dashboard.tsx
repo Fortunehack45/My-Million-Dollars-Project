@@ -161,6 +161,7 @@ const Dashboard = () => {
   const [livePeers, setLivePeers] = useState(0);
   const [blockHeight, setBlockHeight] = useState(0);
   const [tps, setTps] = useState(0);
+  const [hashrate, setHashrate] = useState(402.1);
   
   const MAX_SESSION_TIME = 24 * 60 * 60; 
 
@@ -186,7 +187,10 @@ const Dashboard = () => {
   useEffect(() => {
     const unsubscribeStats = subscribeToNetworkStats(setStats => setNetStats(setStats));
     const unsubscribePresence = subscribeToOnlineUsers((uids) => {
-      setLivePeers(Math.max(1, uids.length)); 
+      const activeCount = Math.max(1, uids.length);
+      setLivePeers(activeCount);
+      // Dynamic hashrate based on real connected peers
+      setHashrate(402.1 + (activeCount * 0.05));
     });
     return () => {
       unsubscribeStats();
@@ -265,9 +269,7 @@ const Dashboard = () => {
   if (!user) return null;
 
   // Real data calculations
-  // Fixed: Removed division by 1,000,000 to show full supply
   const leftToMine = Math.max(0, TOTAL_SUPPLY - netStats.totalMined);
-  const miningPercent = (netStats.totalMined / TOTAL_SUPPLY) * 100;
   const isSessionComplete = miningTimer >= MAX_SESSION_TIME;
 
   // Format large numbers cleanly
@@ -288,7 +290,7 @@ const Dashboard = () => {
             <h1 className="text-xl font-bold text-white uppercase tracking-tight leading-none">Network Operations</h1>
             <div className="flex items-center gap-2 mt-1.5">
                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-               <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">System Operational • {livePeers} Peers</p>
+               <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">System Operational • {livePeers.toLocaleString()} Peers</p>
             </div>
           </div>
         </div>
@@ -296,7 +298,7 @@ const Dashboard = () => {
         <div className="flex items-center gap-6">
            <div className="text-right">
               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Hashrate</p>
-              <p className="text-sm font-mono font-bold text-white">402.1 <span className="text-zinc-600">PH/s</span></p>
+              <p className="text-sm font-mono font-bold text-white">{hashrate.toFixed(1)} <span className="text-zinc-600">PH/s</span></p>
            </div>
            <div className="h-8 w-px bg-zinc-900"></div>
            <div className="text-right">
@@ -316,7 +318,7 @@ const Dashboard = () => {
          />
          <StatCard 
             label="Unmined Supply" 
-            value={formatLargeNumber(leftToMine)} // Display full 1 Billion format
+            value={formatLargeNumber(leftToMine)} 
             subValue={`Cap: ${formatLargeNumber(TOTAL_SUPPLY)} ARG`}
             icon={Layers}
          />
