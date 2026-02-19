@@ -1,18 +1,18 @@
 
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as firebaseSignOut
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { 
+import {
   initializeFirestore,
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc, 
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
   increment,
   collection,
   query,
@@ -30,19 +30,19 @@ import {
   sum,
   count
 } from 'firebase/firestore';
-import { 
-  getDatabase, 
-  ref, 
-  onValue, 
-  set, 
-  onDisconnect, 
-  serverTimestamp 
+import {
+  getDatabase,
+  ref,
+  onValue,
+  set,
+  onDisconnect,
+  serverTimestamp
 } from 'firebase/database';
-import { 
-  User, 
-  Task, 
-  LeaderboardEntry, 
-  NetworkStats, 
+import {
+  User,
+  Task,
+  LeaderboardEntry,
+  NetworkStats,
   LandingConfig,
   LegalConfig,
   AboutConfig,
@@ -116,9 +116,9 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     title: "The Global Truth Layer",
     description: "Where every packet of data meets its decentralized destination. Argus acts as the primary layer of trust for the internet.",
     layers: [
-       { title: 'Resilient Backbone', desc: 'Zero-touch infrastructure eliminating technical barriers.' },
-       { title: 'RWA Integration', desc: 'High-throughput pipes for Real-World Asset tokenization.' },
-       { title: 'Automated Logic', desc: 'AI-driven predictive scaling across 50+ chains.' }
+      { title: 'Resilient Backbone', desc: 'Zero-touch infrastructure eliminating technical barriers.' },
+      { title: 'RWA Integration', desc: 'High-throughput pipes for Real-World Asset tokenization.' },
+      { title: 'Automated Logic', desc: 'AI-driven predictive scaling across 50+ chains.' }
     ]
   },
   features: {
@@ -126,9 +126,9 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     title: "Zero-Touch Decentralization",
     description: "Making Web3 deployment as boring (and reliable) as a light switch.",
     items: [
-       { title: "Institutional Grade", desc: "Hardware designed for the Fortune 500 running core logic.", icon: 'ShieldCheck' },
-       { title: "Predictive Scaling", desc: "AI-driven allocation ensuring 99.999% uptime.", icon: 'Cpu' },
-       { title: "One-Click Deploy", desc: "Seamless deployment across 50+ blockchain networks.", icon: 'Globe' }
+      { title: "Institutional Grade", desc: "Hardware designed for the Fortune 500 running core logic.", icon: 'ShieldCheck' },
+      { title: "Predictive Scaling", desc: "AI-driven allocation ensuring 99.999% uptime.", icon: 'Cpu' },
+      { title: "One-Click Deploy", desc: "Seamless deployment across 50+ blockchain networks.", icon: 'Globe' }
     ]
   },
   roadmap: {
@@ -136,40 +136,40 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     title: "The Argus Trajectory",
     description: "Building the universal standard for decentralized computing.",
     phases: [
-        { 
-            phase: "01", 
-            title: "Genesis Epoch", 
-            period: "Q1 2025", 
-            status: "LIVE", 
-            desc: "Initial network bootstrapping and validator onboarding.",
-            features: ["Validator Registry Contract", "Proof-of-Uptime Consensus Alpha", "Incentivized Testnet Launch"] 
-        },
-        { 
-            phase: "02", 
-            title: "Expansion Layer", 
-            period: "Q3 2025", 
-            status: "UPCOMING", 
-            desc: "Scaling node topology and introducing smart contract execution.",
-            features: ["EVM Compatibility Layer", "Cross-Region Sharding", "Public Stress Testing"] 
-        },
-        { 
-            phase: "03", 
-            title: "Mainnet Singularity", 
-            period: "Q1 2026", 
-            status: "LOCKED", 
-            desc: "Full decentralization and governance handover.",
-            features: ["Token Generation Event (TGE)", "DAO Governance Module", "Global Compute Marketplace"] 
-        }
+      {
+        phase: "01",
+        title: "Genesis Epoch",
+        period: "Q1 2025",
+        status: "LIVE",
+        desc: "Initial network bootstrapping and validator onboarding.",
+        features: ["Validator Registry Contract", "Proof-of-Uptime Consensus Alpha", "Incentivized Testnet Launch"]
+      },
+      {
+        phase: "02",
+        title: "Expansion Layer",
+        period: "Q3 2025",
+        status: "UPCOMING",
+        desc: "Scaling node topology and introducing smart contract execution.",
+        features: ["EVM Compatibility Layer", "Cross-Region Sharding", "Public Stress Testing"]
+      },
+      {
+        phase: "03",
+        title: "Mainnet Singularity",
+        period: "Q1 2026",
+        status: "LOCKED",
+        desc: "Full decentralization and governance handover.",
+        features: ["Token Generation Event (TGE)", "DAO Governance Module", "Global Compute Marketplace"]
+      }
     ]
   },
   faq: {
     isVisible: true,
     title: "Protocol FAQ",
     items: [
-       { q: "What is Argus Protocol?", a: "Argus is the high-speed rail for the multi-chain economy, providing zero-touch infrastructure for DeFi and RWA tokenization." },
-       { q: "How are rewards calculated?", a: "Rewards are based on uptime proofs and referral topology. The base rate is 0.06 ARG/hr, with multipliers for verified referral connections." },
-       { q: "Is the testnet incentivized?", a: "Yes. Points earned during the Genesis Epoch will be converted to mainnet ARG tokens at TGE based on a vesting schedule." },
-       { q: "Can I run multiple nodes?", a: "During Phase 1, we limit one validator ID per KYC/Identity to ensure fair distribution and network decentralization." }
+      { q: "What is Argus Protocol?", a: "Argus is the high-speed rail for the multi-chain economy, providing zero-touch infrastructure for DeFi and RWA tokenization." },
+      { q: "How are rewards calculated?", a: "Rewards are based on uptime proofs and referral topology. The base rate is 0.06 ARG/hr, with multipliers for verified referral connections." },
+      { q: "Is the testnet incentivized?", a: "Yes. Points earned during the Genesis Epoch will be converted to mainnet ARG tokens at TGE based on a vesting schedule." },
+      { q: "Can I run multiple nodes?", a: "During Phase 1, we limit one validator ID per KYC/Identity to ensure fair distribution and network decentralization." }
     ]
   },
   cta: {
@@ -291,9 +291,9 @@ export const setupPresence = (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
   const isOfflineForDatabase = { state: 'offline', last_changed: serverTimestamp(), uid };
   const isOnlineForDatabase = { state: 'online', last_changed: serverTimestamp(), uid };
-  
+
   const connectedRef = ref(rtdb, '.info/connected');
-  
+
   onValue(connectedRef, (snapshot) => {
     if (snapshot.val() === false) return;
     onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase).then(() => {
@@ -306,10 +306,10 @@ export const setupPresence = (uid: string) => {
 
 export const manualOffline = async (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
-  await set(userStatusDatabaseRef, { 
-    state: 'offline', 
-    last_changed: serverTimestamp(), 
-    uid 
+  await set(userStatusDatabaseRef, {
+    state: 'offline',
+    last_changed: serverTimestamp(),
+    uid
   });
 };
 
@@ -372,7 +372,7 @@ export const checkUsernameTaken = async (username: string): Promise<boolean> => 
 export const createInitialProfile = async (fbUser: FirebaseUser, username: string, referrerUid: string | null): Promise<User> => {
   const userRef = doc(db, 'users', fbUser.uid);
   const nameRef = doc(db, 'usernames', username.toLowerCase());
-  
+
   const newUser: User = {
     uid: fbUser.uid,
     displayName: username,
@@ -402,34 +402,34 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
 
   try {
     const statsRef = doc(db, 'global_stats', 'network');
-    await setDoc(statsRef, { 
-      totalUsers: increment(1), 
+    await setDoc(statsRef, {
+      totalUsers: increment(1),
       totalMined: increment(5.0),
       activeNodes: increment(0)
     }, { merge: true });
   } catch (e) {
     console.warn("Global stats update skipped.");
   }
-  
+
   return newUser;
 };
 
 export const getNetworkStats = async (): Promise<NetworkStats | null> => {
-    const statsRef = doc(db, 'global_stats', 'network');
-    const snap = await getDoc(statsRef);
-    if (snap.exists()) {
-      const data = snap.data();
-      return {
-        maxUsersCap: DEFAULT_MAX_USERS_CAP,
-        ...data
-      } as NetworkStats;
-    }
-    return null;
+  const statsRef = doc(db, 'global_stats', 'network');
+  const snap = await getDoc(statsRef);
+  if (snap.exists()) {
+    const data = snap.data();
+    return {
+      maxUsersCap: DEFAULT_MAX_USERS_CAP,
+      ...data
+    } as NetworkStats;
+  }
+  return null;
 };
 
 export const updateNetworkCap = async (newCap: number) => {
-    const statsRef = doc(db, 'global_stats', 'network');
-    await setDoc(statsRef, { maxUsersCap: newCap }, { merge: true });
+  const statsRef = doc(db, 'global_stats', 'network');
+  await setDoc(statsRef, { maxUsersCap: newCap }, { merge: true });
 };
 
 // --- STATS RECALCULATION SERVICE ---
@@ -441,13 +441,13 @@ export const recalculateNetworkStats = async () => {
       totalUsers: count(),
       totalMined: sum('points')
     });
-    
+
     const statsRef = doc(db, 'global_stats', 'network');
     await setDoc(statsRef, {
       totalUsers: snapshot.data().totalUsers,
       totalMined: snapshot.data().totalMined
     }, { merge: true });
-    
+
     return true;
   } catch (e) {
     console.error("Failed to recalculate stats:", e);
@@ -472,7 +472,7 @@ export const syncReferralStats = async (uid: string, currentReferralCount: numbe
       });
       if (pointsToAdd > 0) {
         const statsRef = doc(db, 'global_stats', 'network');
-        try { await updateDoc(statsRef, { totalMined: increment(pointsToAdd) }); } catch(e) {}
+        try { await updateDoc(statsRef, { totalMined: increment(pointsToAdd) }); } catch (e) { }
       }
       return { referralCount: realCount, points: currentPoints + pointsToAdd };
     }
@@ -486,14 +486,14 @@ export const startMiningSession = async (uid: string) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { miningActive: true, miningStartTime: Date.now() });
-  try { await updateDoc(statsRef, { activeNodes: increment(1) }); } catch(e) {}
+  try { await updateDoc(statsRef, { activeNodes: increment(1) }); } catch (e) { }
 };
 
 export const claimPoints = async (uid: string, amount: number) => {
   const userRef = doc(db, 'users', uid);
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(amount), miningActive: false, miningStartTime: null });
-  try { await updateDoc(statsRef, { totalMined: increment(amount), activeNodes: increment(-1) }); } catch(e) {}
+  try { await updateDoc(statsRef, { totalMined: increment(amount), activeNodes: increment(-1) }); } catch (e) { }
 };
 
 export const completeTask = async (uid: string, taskId: string, points: number) => {
@@ -501,7 +501,7 @@ export const completeTask = async (uid: string, taskId: string, points: number) 
   const statsRef = doc(db, 'global_stats', 'network');
   await updateDoc(userRef, { points: increment(points), completedTasks: arrayUnion(taskId) });
   // Ensure social task earnings are added to global supply
-  try { await updateDoc(statsRef, { totalMined: increment(points) }); } catch(e) {}
+  try { await updateDoc(statsRef, { totalMined: increment(points) }); } catch (e) { }
 };
 
 export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
@@ -565,11 +565,11 @@ export const subscribeToLeaderboard = (callback: (entries: LeaderboardEntry[]) =
     let rank = 1;
     snapshot.forEach((doc) => {
       const data = doc.data() as User;
-      leaderboard.push({ 
-        uid: data.uid, 
-        displayName: data.displayName || "Node_Operator", 
-        points: data.points, 
-        rank: rank++ 
+      leaderboard.push({
+        uid: data.uid,
+        displayName: data.displayName || "Node_Operator",
+        points: data.points,
+        rank: rank++
       });
     });
     callback(leaderboard);
@@ -617,7 +617,7 @@ export const logout = async () => {
         manualOffline(currentUser.uid),
         new Promise(resolve => setTimeout(resolve, 800))
       ]);
-    } catch (e) {}
+    } catch (e) { }
   }
   await firebaseSignOut(auth);
 };
