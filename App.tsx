@@ -18,6 +18,7 @@ import Tokenomics from './pages/Tokenomics';
 import About from './pages/About';
 import Careers from './pages/Careers';
 import Contact from './pages/Contact';
+import Docs from './pages/Docs';
 import { Terms, Privacy } from './pages/Legal';
 
 // Protected Route Wrapper
@@ -115,6 +116,7 @@ const AppRoutes = () => {
       } />
 
       {/* Public Routes */}
+      <Route path="/docs" element={<Docs />} />
       <Route path="/architecture" element={<Architecture />} />
       <Route path="/whitepaper" element={<Whitepaper />} />
       <Route path="/tokenomics" element={<Tokenomics />} />
