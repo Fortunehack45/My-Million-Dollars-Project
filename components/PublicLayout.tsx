@@ -68,6 +68,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }, [isMobileMenuOpen]);
 
   const navLinks = [
+    { label: 'Docs', path: '/docs' },
     { label: 'Architecture', path: '/architecture' },
     { label: 'Tokenomics', path: '/tokenomics' },
     { label: 'Whitepaper', path: '/whitepaper' },
@@ -196,6 +197,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                
                <div className="md:col-span-2 space-y-4">
                   <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Protocol</h4>
+                  <Link to="/docs" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Documentation</Link>
                   <Link to="/architecture" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Architecture</Link>
                   <Link to="/tokenomics" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Tokenomics</Link>
                   <Link to="/whitepaper" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Whitepaper</Link>
