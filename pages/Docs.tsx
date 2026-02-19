@@ -10,11 +10,12 @@ import {
   Box, 
   Activity, 
   Server, 
-  Code, 
   Copy, 
   Check,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Hash,
+  ArrowRight
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -24,7 +25,7 @@ function cn(...inputs: (string | undefined | null | false)[]) {
   return twMerge(clsx(inputs));
 }
 
-const CodeBlock = ({ code, language = 'bash' }: { code: string; language?: string }) => {
+const CodeBlock = ({ code, language = 'bash', title }: { code: string; language?: string; title?: string }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -34,18 +35,24 @@ const CodeBlock = ({ code, language = 'bash' }: { code: string; language?: strin
   };
 
   return (
-    <div className="relative group rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950/50 my-4">
-      <div className="flex items-center justify-between px-4 py-2 bg-zinc-900/50 border-b border-zinc-800">
-        <span className="text-xs font-mono text-zinc-500">{language}</span>
-        <button 
-          onClick={handleCopy}
-          className="p-1.5 hover:bg-zinc-800 rounded-md transition-colors text-zinc-500 hover:text-zinc-300"
-        >
-          {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-        </button>
-      </div>
-      <div className="p-4 overflow-x-auto">
-        <pre className="text-sm font-mono text-zinc-300 leading-relaxed">
+    <div className="my-6 rounded-lg overflow-hidden border border-zinc-800 bg-[#0D0D0D]">
+      {(title || language) && (
+        <div className="flex items-center justify-between px-4 py-2 bg-zinc-900/30 border-b border-zinc-800/50">
+          <div className="flex items-center gap-2">
+            {title && <span className="text-xs font-medium text-zinc-400">{title}</span>}
+            {!title && <span className="text-xs font-mono text-zinc-600">{language}</span>}
+          </div>
+          <button 
+            onClick={handleCopy}
+            className="p-1 hover:bg-zinc-800 rounded transition-colors text-zinc-500 hover:text-zinc-300"
+            aria-label="Copy code"
+          >
+            {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+          </button>
+        </div>
+      )}
+      <div className="p-4 overflow-x-auto custom-scrollbar">
+        <pre className="text-[13px] font-mono text-zinc-300 leading-relaxed">
           {code}
         </pre>
       </div>
@@ -53,31 +60,34 @@ const CodeBlock = ({ code, language = 'bash' }: { code: string; language?: strin
   );
 };
 
-const Badge = ({ children, color = 'blue' }: { children: React.ReactNode; color?: 'blue' | 'purple' | 'green' | 'rose' }) => {
+const Endpoint = ({ method, path, description }: { method: 'GET' | 'POST' | 'WS'; path: string; description: string }) => {
   const colors = {
-    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    green: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    rose: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    GET: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+    POST: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    WS: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
   };
 
   return (
-    <span className={cn("px-2.5 py-0.5 rounded-full text-[10px] font-medium border uppercase tracking-wider", colors[color])}>
-      {children}
-    </span>
+    <div className="group flex flex-col sm:flex-row sm:items-baseline gap-3 py-3 border-b border-zinc-800/50 last:border-0">
+      <div className="flex items-center gap-3 shrink-0">
+        <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold border font-mono", colors[method])}>
+          {method}
+        </span>
+        <code className="text-sm font-mono text-zinc-200">{path}</code>
+      </div>
+      <p className="text-sm text-zinc-500 leading-relaxed">{description}</p>
+    </div>
   );
 };
 
-const Section = ({ id, title, icon: Icon, children }: { id: string; title: string; icon?: any; children: React.ReactNode }) => (
-  <section id={id} className="scroll-mt-24 mb-16">
-    <div className="flex items-center gap-3 mb-6 border-b border-zinc-800 pb-4">
-      {Icon && <Icon className="w-6 h-6 text-primary" />}
-      <h2 className="text-2xl font-bold text-white tracking-tight">{title}</h2>
-    </div>
-    <div className="space-y-4 text-zinc-400 leading-relaxed">
-      {children}
-    </div>
-  </section>
+const SectionHeading = ({ id, children, icon: Icon }: { id: string; children: React.ReactNode; icon?: any }) => (
+  <h2 id={id} className="group flex items-center gap-3 text-xl font-semibold text-white mt-12 mb-6 scroll-mt-32">
+    {Icon && <Icon className="w-5 h-5 text-zinc-500 group-hover:text-primary transition-colors" />}
+    {children}
+    <a href={`#${id}`} className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-zinc-400 transition-opacity">
+      <Hash size={16} />
+    </a>
+  </h2>
 );
 
 const Docs = () => {
@@ -113,10 +123,10 @@ const Docs = () => {
     <button
       onClick={() => scrollTo(id)}
       className={cn(
-        "w-full text-left px-4 py-2 text-sm border-l-2 transition-colors",
+        "w-full text-left px-3 py-1.5 text-[13px] border-l transition-all duration-200",
         activeSection === id 
-          ? "border-primary text-white font-medium bg-primary/5" 
-          : "border-transparent text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
+          ? "border-primary text-primary font-medium" 
+          : "border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600"
       )}
     >
       {label}
@@ -127,82 +137,102 @@ const Docs = () => {
     <PublicLayout>
       <div className="min-h-screen bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col lg:flex-row gap-12">
+          <div className="flex flex-col lg:flex-row gap-16">
             
             {/* Sidebar Navigation */}
-            <div className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-24 space-y-8">
-                <div>
-                  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 px-4">Contents</h3>
-                  <nav className="space-y-1">
-                    <NavItem id="overview" label="Overview" />
-                    <NavItem id="architecture" label="Architecture" />
-                    <NavItem id="crates" label="Crate Map" />
-                    <NavItem id="prerequisites" label="Prerequisites" />
-                    <NavItem id="quick-start" label="Quick Start" />
-                    <NavItem id="api" label="API Reference" />
-                    <NavItem id="streams" label="WebSocket Streams" />
-                    <NavItem id="math" label="Under the Hood" />
-                  </nav>
-                </div>
-                
-                <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800">
-                  <h4 className="text-sm font-medium text-white mb-2">Need Help?</h4>
-                  <p className="text-xs text-zinc-500 mb-3">Join our community of protocol engineers.</p>
-                  <a href="#" className="text-xs text-primary hover:text-rose-400 flex items-center gap-1">
-                    Join Discord <ExternalLink size={10} />
+            <div className="hidden lg:block w-56 shrink-0">
+              <div className="sticky top-28">
+                <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-4 pl-3">Documentation</h3>
+                <nav className="space-y-0.5">
+                  <NavItem id="overview" label="Introduction" />
+                  <NavItem id="architecture" label="Architecture" />
+                  <NavItem id="crates" label="Core Stack" />
+                  <NavItem id="prerequisites" label="Prerequisites" />
+                  <NavItem id="quick-start" label="Quick Start" />
+                  <NavItem id="api" label="API Reference" />
+                  <NavItem id="streams" label="WebSocket Streams" />
+                  <NavItem id="math" label="Mathematical Model" />
+                </nav>
+
+                <div className="mt-10 pl-3">
+                  <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-3">Community</h4>
+                  <a 
+                    href="#" 
+                    className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-primary transition-colors mb-2"
+                  >
+                    GitHub Repository <ExternalLink size={12} />
+                  </a>
+                  <a 
+                    href="#" 
+                    className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-primary transition-colors"
+                  >
+                    Discord Server <ExternalLink size={12} />
                   </a>
                 </div>
               </div>
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 max-w-3xl">
               
               {/* Hero Section */}
-              <section id="overview" className="mb-16 scroll-mt-24">
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <Badge color="purple">Argus Orchestration</Badge>
-                  <Badge color="blue">GhostDAG</Badge>
-                  <Badge color="green">Agentic Infrastructure</Badge>
+              <section id="overview" className="mb-16 scroll-mt-32">
+                <div className="flex items-center gap-2 mb-6 text-sm text-zinc-500">
+                  <span>Docs</span>
+                  <ChevronRight size={14} />
+                  <span className="text-zinc-300">Introduction</span>
                 </div>
                 
-                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
+                <h1 className="text-4xl font-bold text-white tracking-tight mb-4">
                   Argus Protocol
-                  <span className="block text-2xl md:text-3xl font-normal text-zinc-500 mt-2">
-                    Zero-Ops Agentic Gateway for GhostDAG
-                  </span>
                 </h1>
-
-                <blockquote className="border-l-4 border-primary pl-6 py-2 my-8 bg-zinc-900/30 rounded-r-lg">
-                  <p className="text-xl text-zinc-300 italic font-serif">"From Tangled DAGs to Deterministic Streams."</p>
-                </blockquote>
-
-                <p className="text-lg text-zinc-400 leading-relaxed mb-8">
-                  Argus is a <strong className="text-white">senior-grade orchestration layer</strong> that sits on top of a GhostDAG / Kaspa node. 
-                  It requires zero manual intervention — it monitors its own position in the k-cluster, recovers from blue-set 
-                  divergence autonomously, linearizes the 3D block-DAG into a real-time edge stream for GNNs, and dynamically 
-                  tunes the k-parameter using a live PPO reinforcement learning agent.
+                
+                <p className="text-xl text-zinc-400 leading-relaxed mb-8 font-light">
+                  A zero-ops orchestration layer for GhostDAG nodes. Argus linearizes the 3D block-DAG into deterministic streams for GNNs and autonomously optimizes network parameters using reinforcement learning.
                 </p>
 
-                <div className="flex gap-4">
-                  <a href="https://github.com/ArgusProtocol/Argus-Synapse.git" target="_blank" rel="noopener noreferrer" 
-                     className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-zinc-200 transition-colors">
-                    <GitBranch size={18} />
-                    Repository
+                <div className="flex gap-4 mb-12">
+                  <button 
+                    onClick={() => scrollTo('quick-start')}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-md text-sm font-medium hover:bg-zinc-200 transition-colors"
+                  >
+                    Start Building
+                    <ArrowRight size={16} />
+                  </button>
+                  <a 
+                    href="https://github.com/ArgusProtocol/Argus-Synapse.git" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white rounded-md text-sm font-medium hover:bg-zinc-800 border border-zinc-800 transition-colors"
+                  >
+                    <GitBranch size={16} />
+                    View Source
                   </a>
-                  <a href="https://argus-protocol.xyz" target="_blank" rel="noopener noreferrer"
-                     className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 text-white rounded-lg font-medium hover:bg-zinc-700 transition-colors border border-zinc-700">
-                    <ExternalLink size={18} />
-                    Website
-                  </a>
+                </div>
+
+                <div className="p-6 bg-zinc-900/20 border border-zinc-800 rounded-lg">
+                  <div className="flex gap-4">
+                    <div className="shrink-0 w-1 bg-primary rounded-full" />
+                    <div>
+                      <h4 className="text-sm font-medium text-white mb-1">Core Philosophy</h4>
+                      <p className="text-sm text-zinc-400 leading-relaxed italic">
+                        "From Tangled DAGs to Deterministic Streams."
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </section>
 
-              <Section id="architecture" title="Architecture" icon={Network}>
-                <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 overflow-x-auto font-mono text-xs md:text-sm text-zinc-300 leading-none shadow-2xl shadow-black/50">
-                  <pre>{`
-┌─────────────────────────────────────────────────────────────────┐
+              <div className="h-px bg-zinc-900 w-full mb-12" />
+
+              <SectionHeading id="architecture" icon={Network}>Architecture</SectionHeading>
+              <p className="text-zinc-400 leading-7 mb-6">
+                Argus sits between the raw GhostDAG node and your application layer. It acts as a linearization engine, flattening the complex 3D graph structure into a consumable edge stream.
+              </p>
+              
+              <div className="bg-[#0D0D0D] border border-zinc-800 rounded-lg p-6 overflow-x-auto shadow-inner">
+                <pre className="font-mono text-xs md:text-[13px] text-zinc-400 leading-tight">
+{`┌─────────────────────────────────────────────────────────────────┐
 │                     Frontend / GNN Client                        │
 │       REST (JSON)  +  WebSocket (JSON stream)                    │
 └────────────────────────┬────────────────────────────────────────┘
@@ -224,113 +254,126 @@ const Docs = () => {
 ┌─────────────────────────────────▼───────────────────────────────┐
 │                  GhostDAG Node  (unmodified kaspad)              │
 │   GHOSTDAG(G,k) consensus — blue_score, past(), anticone()       │
-└─────────────────────────────────────────────────────────────────┘
-                  `}</pre>
-                </div>
-              </Section>
+└─────────────────────────────────────────────────────────────────┘`}
+                </pre>
+              </div>
 
-              <Section id="crates" title="Crate Map (Core Stack)" icon={Box}>
-                <div className="overflow-hidden rounded-xl border border-zinc-800">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-zinc-900/50 text-zinc-400">
-                      <tr>
-                        <th className="px-6 py-4 font-medium">Crate</th>
-                        <th className="px-6 py-4 font-medium">Role</th>
+              <SectionHeading id="crates" icon={Box}>Core Stack</SectionHeading>
+              <p className="text-zinc-400 leading-7 mb-6">
+                The protocol is modularized into specialized crates, each handling a specific aspect of the orchestration pipeline.
+              </p>
+              <div className="border border-zinc-800 rounded-lg overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-zinc-900/50 text-zinc-400 border-b border-zinc-800">
+                    <tr>
+                      <th className="px-6 py-3 font-medium w-48">Crate</th>
+                      <th className="px-6 py-3 font-medium">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800 bg-zinc-950/50">
+                    {[
+                      { name: 'argus-ghostdag', role: 'Mathematical core. Implements bit-perfect k-cluster coloring.' },
+                      { name: 'argus-agent', role: 'Autonomous 4-state FSM for self-healing and recovery.' },
+                      { name: 'argus-linearizer', role: 'Flattening engine for GNN-ready JSON streams.' },
+                      { name: 'argus-pybridge', role: 'High-performance PyO3 bridge for Python orchestration.' },
+                      { name: 'argus_rl', role: 'RL environment + PPO training for k-parameter tuning.' },
+                      { name: 'argus_gateway', role: 'Zero-Ops FastAPI gateway for developers.' },
+                    ].map((item, i) => (
+                      <tr key={i} className="hover:bg-zinc-900/20 transition-colors">
+                        <td className="px-6 py-4 font-mono text-primary text-xs">{item.name}</td>
+                        <td className="px-6 py-4 text-zinc-400">{item.role}</td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800 bg-zinc-950/30">
-                      {[
-                        { name: 'argus-ghostdag', role: 'Mathematical core. Implements bit-perfect k-cluster coloring.' },
-                        { name: 'argus-agent', role: 'Autonomous 4-state FSM for self-healing and recovery.' },
-                        { name: 'argus-linearizer', role: 'Flattening engine for GNN-ready JSON streams.' },
-                        { name: 'argus-pybridge', role: 'High-performance PyO3 bridge for Python orchestration.' },
-                        { name: 'argus_rl', role: 'RL environment + PPO training for k-parameter tuning.' },
-                        { name: 'argus_gateway', role: 'Zero-Ops FastAPI gateway for developers.' },
-                      ].map((item, i) => (
-                        <tr key={i} className="hover:bg-zinc-900/30 transition-colors">
-                          <td className="px-6 py-4 font-mono text-primary">{item.name}</td>
-                          <td className="px-6 py-4 text-zinc-300">{item.role}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </Section>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-              <Section id="prerequisites" title="Prerequisites" icon={Check}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { tool: 'Rust', version: '≥ 1.75', note: 'Install via rustup' },
-                    { tool: 'Python', version: '≥ 3.10', note: 'Required for RL and Gateway' },
-                    { tool: 'kaspad', version: 'latest', note: 'Node binary with --utxoindex' },
-                    { tool: 'OpenSSL', version: 'any', note: 'For secure RPC communication' },
-                  ].map((item, i) => (
-                    <div key={i} className="p-4 rounded-lg border border-zinc-800 bg-zinc-900/20 flex justify-between items-center">
-                      <div>
-                        <div className="font-bold text-white">{item.tool}</div>
-                        <div className="text-xs text-zinc-500">{item.note}</div>
-                      </div>
-                      <div className="px-2 py-1 rounded bg-zinc-800 text-xs font-mono text-zinc-300">
-                        {item.version}
-                      </div>
+              <SectionHeading id="prerequisites" icon={Check}>Prerequisites</SectionHeading>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                {[
+                  { tool: 'Rust', version: '≥ 1.75', note: 'Install via rustup' },
+                  { tool: 'Python', version: '≥ 3.10', note: 'Required for RL and Gateway' },
+                  { tool: 'kaspad', version: 'latest', note: 'Node binary with --utxoindex' },
+                  { tool: 'OpenSSL', version: 'any', note: 'For secure RPC communication' },
+                ].map((item, i) => (
+                  <div key={i} className="p-4 rounded-lg border border-zinc-800 bg-zinc-900/10 flex justify-between items-start">
+                    <div>
+                      <div className="font-medium text-white mb-1">{item.tool}</div>
+                      <div className="text-xs text-zinc-500">{item.note}</div>
                     </div>
-                  ))}
-                </div>
-              </Section>
+                    <div className="px-2 py-1 rounded bg-zinc-900 text-[10px] font-mono text-zinc-400 border border-zinc-800">
+                      {item.version}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-              <Section id="quick-start" title="Quick Start" icon={Zap}>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-2 flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-xs text-zinc-400 border border-zinc-700">1</span>
-                      Build and Initialize (Rust CLI)
-                    </h3>
-                    <CodeBlock code={`git clone https://github.com/ArgusProtocol/Argus-Synapse.git
+              <SectionHeading id="quick-start" icon={Zap}>Quick Start</SectionHeading>
+              
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-base font-medium text-white mb-3">1. Build and Initialize</h3>
+                  <p className="text-sm text-zinc-400 mb-4">Clone the repository and build the unified CLI binary using Cargo.</p>
+                  <CodeBlock 
+                    title="Terminal"
+                    code={`git clone https://github.com/ArgusProtocol/Argus-Synapse.git
 cd Argus-Synapse
 
 # Build the unified CLI binary
-cargo build -p argus-cli --release`} />
-                  </div>
+cargo build -p argus-cli --release`} 
+                  />
+                </div>
 
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-2 flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-xs text-zinc-400 border border-zinc-700">2</span>
-                      Activate the CLI Node
-                    </h3>
-                    <p className="text-sm text-zinc-400 mb-2 ml-8">Once built, the <code className="text-primary">argus</code> binary is the primary entry point.</p>
-                    <CodeBlock code={`# Check connectivity to your local kaspad node
+                <div>
+                  <h3 className="text-base font-medium text-white mb-3">2. Activate the CLI Node</h3>
+                  <p className="text-sm text-zinc-400 mb-4">The <code className="text-primary bg-primary/10 px-1 rounded">argus</code> binary is the primary entry point.</p>
+                  <CodeBlock 
+                    title="Terminal"
+                    code={`# Check connectivity to your local kaspad node
 ./target/release/argus check --endpoint http://localhost:9293
 
 # Start the Argus Orchestration Layer
-./target/release/argus start --rpc-port 9293 --ws-port 9292 --k 3`} />
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-2 flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-xs text-zinc-400 border border-zinc-700">3</span>
-                      Setup Orchestrator (Python Gateway)
-                    </h3>
-                    <CodeBlock code={`cd python
-pip install -r requirements.txt
-uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`} />
-                  </div>
-                  
-                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-sm flex items-center gap-3">
-                    <Check className="w-5 h-5 shrink-0" />
-                    Argus is now accessible at http://localhost:8080
-                  </div>
+./target/release/argus start --rpc-port 9293 --ws-port 9292 --k 3`} 
+                  />
                 </div>
-              </Section>
 
-              <Section id="api" title="API Reference" icon={Server}>
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">GET</span>
-                      <code className="text-white font-mono">/agent/health</code>
-                    </div>
-                    <p className="text-sm text-zinc-400">Returns the primary operational dashboard for the agent.</p>
-                    <CodeBlock language="json" code={`{
+                <div>
+                  <h3 className="text-base font-medium text-white mb-3">3. Setup Orchestrator</h3>
+                  <p className="text-sm text-zinc-400 mb-4">Initialize the Python gateway for the RL agent.</p>
+                  <CodeBlock 
+                    title="Terminal"
+                    code={`cd python
+pip install -r requirements.txt
+uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`} 
+                  />
+                </div>
+              </div>
+
+              <SectionHeading id="api" icon={Server}>API Reference</SectionHeading>
+              <div className="space-y-2">
+                <Endpoint 
+                  method="GET" 
+                  path="/agent/health" 
+                  description="Returns the primary operational dashboard for the agent, including sync status and RL confidence." 
+                />
+                <Endpoint 
+                  method="GET" 
+                  path="/dag/snapshot?n=100" 
+                  description="Returns the recent sub-graph formatted for Graph Neural Networks (GNNs)." 
+                />
+                <Endpoint 
+                  method="POST" 
+                  path="/tx/submit-smart" 
+                  description="Guarantees the fastest inclusion by pointing new transactions to the 3-5 'Bluest' tips autonomously." 
+                />
+              </div>
+              
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-white mb-3">Example Response</h4>
+                <CodeBlock 
+                  language="json" 
+                  title="Response Body"
+                  code={`{
   "status": "SYNCED",
   "current_k": 18,
   "orphan_rate": 0.042,
@@ -338,112 +381,92 @@ uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`} />
   "local_blue_score": 81204931,
   "network_blue_score": 81204931,
   "version": "0.1.0"
-}`} />
-                  </div>
+}`} 
+                />
+              </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">GET</span>
-                      <code className="text-white font-mono">/dag/snapshot?n=100</code>
-                    </div>
-                    <p className="text-sm text-zinc-400">Returns the recent sub-graph formatted for <strong>Graph Neural Networks (GNNs)</strong>.</p>
-                  </div>
+              <SectionHeading id="streams" icon={Activity}>WebSocket Streams</SectionHeading>
+              <p className="text-zinc-400 leading-7 mb-6">
+                Argus provides a real-time linearized block stream with PHANTOM total ordering via <code className="text-sm font-mono text-zinc-300">ws://localhost:8080/v1/stream/blocks</code>.
+              </p>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30">POST</span>
-                      <code className="text-white font-mono">/tx/submit-smart</code>
-                    </div>
-                    <p className="text-sm text-zinc-400">Guarantees the fastest inclusion by pointing new transactions to the 3-5 "Bluest" tips autonomously.</p>
-                  </div>
-                </div>
-              </Section>
-
-              <Section id="streams" title="WebSocket Streams" icon={Activity}>
-                <div className="mb-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="px-2 py-1 rounded bg-purple-500/20 text-purple-400 text-xs font-bold border border-purple-500/30">WS</span>
-                    <code className="text-white font-mono">/v1/stream/blocks</code>
-                  </div>
-                  <p className="text-sm text-zinc-400">Real-time linearized block stream with PHANTOM total ordering.</p>
-                </div>
-
-                <div className="overflow-hidden rounded-xl border border-zinc-800">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-zinc-900/50 text-zinc-400">
-                      <tr>
-                        <th className="px-6 py-4 font-medium">Edge Type</th>
-                        <th className="px-6 py-4 font-medium">Meaning</th>
-                        <th className="px-6 py-4 font-medium">GNN Utility</th>
+              <div className="border border-zinc-800 rounded-lg overflow-hidden">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-zinc-900/50 text-zinc-400 border-b border-zinc-800">
+                    <tr>
+                      <th className="px-6 py-3 font-medium">Edge Type</th>
+                      <th className="px-6 py-3 font-medium">Meaning</th>
+                      <th className="px-6 py-3 font-medium">GNN Utility</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800 bg-zinc-950/50">
+                    {[
+                      { type: 'PARENT_OF', meaning: 'Structural parent link', utility: 'Topology analysis' },
+                      { type: 'BLUE_PAST', meaning: 'Block is in blue cluster', utility: 'Trust signal' },
+                      { type: 'RED_PAST', meaning: 'Block is orphaned (red)', utility: 'Latency signal' },
+                    ].map((item, i) => (
+                      <tr key={i} className="hover:bg-zinc-900/20 transition-colors">
+                        <td className="px-6 py-4 font-mono text-purple-400 text-xs">{item.type}</td>
+                        <td className="px-6 py-4 text-zinc-400">{item.meaning}</td>
+                        <td className="px-6 py-4 text-zinc-500">{item.utility}</td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800 bg-zinc-950/30">
-                      {[
-                        { type: 'PARENT_OF', meaning: 'Structural parent link', utility: 'Topology analysis' },
-                        { type: 'BLUE_PAST', meaning: 'Block is in blue cluster', utility: 'Trust signal' },
-                        { type: 'RED_PAST', meaning: 'Block is orphaned (red)', utility: 'Latency signal' },
-                      ].map((item, i) => (
-                        <tr key={i} className="hover:bg-zinc-900/30 transition-colors">
-                          <td className="px-6 py-4 font-mono text-purple-400">{item.type}</td>
-                          <td className="px-6 py-4 text-zinc-300">{item.meaning}</td>
-                          <td className="px-6 py-4 text-zinc-400">{item.utility}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </Section>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-              <Section id="math" title="Under the Hood: The Math" icon={Cpu}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/20">
-                    <h3 className="text-lg font-bold text-white mb-4">PHANTOM Total Ordering</h3>
-                    <p className="text-sm text-zinc-400 mb-4">Argus resolves parallel block conflicts by applying the PHANTOM sorting rule:</p>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-zinc-300">
-                      <li><span className="font-semibold text-primary">Primary:</span> Sort by <code className="font-mono text-xs bg-zinc-800 px-1 py-0.5 rounded">BlueScore(B)</code> ascending.</li>
-                      <li><span className="font-semibold text-primary">Secondary:</span> XOR tie-break: <code className="font-mono text-xs bg-zinc-800 px-1 py-0.5 rounded">Hash(B) ⊕ Hash(SelectedParent(B))</code>.</li>
-                    </ol>
+              <SectionHeading id="math" icon={Cpu}>Mathematical Model</SectionHeading>
+              <div className="space-y-6">
+                <div className="p-6 rounded-lg border border-zinc-800 bg-zinc-900/10">
+                  <h3 className="text-base font-bold text-white mb-3">PHANTOM Total Ordering</h3>
+                  <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
+                    Argus resolves parallel block conflicts by applying the PHANTOM sorting rule. This ensures a deterministic ordering of the DAG.
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-3 text-sm text-zinc-300">
+                      <span className="font-mono text-zinc-500">01.</span>
+                      <span>Sort by <code className="font-mono text-xs bg-zinc-800 px-1 py-0.5 rounded text-primary">BlueScore(B)</code> ascending.</span>
+                    </div>
+                    <div className="flex items-start gap-3 text-sm text-zinc-300">
+                      <span className="font-mono text-zinc-500">02.</span>
+                      <span>XOR tie-break: <code className="font-mono text-xs bg-zinc-800 px-1 py-0.5 rounded">Hash(B) ⊕ Hash(SelectedParent(B))</code>.</span>
+                    </div>
                   </div>
+                </div>
 
-                  <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900/20">
-                    <h3 className="text-lg font-bold text-white mb-4">RL k-Optimization</h3>
-                    <p className="text-sm text-zinc-400 mb-4">The RL agent (Stable-Baselines3 PPO) monitors network metrics and adjusts <em>k</em> to maximize:</p>
-                    <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-lg text-center font-mono text-sm text-primary">
+                <div className="p-6 rounded-lg border border-zinc-800 bg-zinc-900/10">
+                  <h3 className="text-base font-bold text-white mb-3">RL k-Optimization</h3>
+                  <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
+                    The RL agent (Stable-Baselines3 PPO) monitors network metrics and adjusts <em>k</em> to maximize the reward function:
+                  </p>
+                  <div className="p-4 bg-zinc-950 border border-zinc-800 rounded flex justify-center">
+                    <code className="font-mono text-sm text-zinc-300">
                       R = ω₁(TPS) - ω₂(OrphanRate) - ω₃(SecurityMargin)
-                    </div>
+                    </code>
                   </div>
                 </div>
-              </Section>
+              </div>
 
-              <Section id="security" title="Security & Reliability" icon={Shield}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { title: 'Memoized Traversals', desc: 'past(B) and anticone(B) use internal caching. Amortized O(1).' },
-                    { title: 'Thread Safety', desc: 'RwLock-protected DAG storage for parallel Read/Write throughput.' },
-                    { title: 'RPC Resiliency', desc: 'Automatic retries and robust chunked JSON parsing.' },
-                  ].map((item, i) => (
-                    <div key={i} className="p-4 rounded-lg border border-zinc-800 bg-zinc-900/10 hover:bg-zinc-900/30 transition-colors">
-                      <h4 className="font-bold text-white mb-2">{item.title}</h4>
-                      <p className="text-xs text-zinc-400">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </Section>
-
-              <section className="mt-24 pt-12 border-t border-zinc-800">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1">Argus Protocol</h3>
-                    <p className="text-sm text-zinc-500">Distributed under the MIT License.</p>
+              <SectionHeading id="security" icon={Shield}>Security & Reliability</SectionHeading>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { title: 'Memoized Traversals', desc: 'past(B) and anticone(B) use internal caching. Amortized O(1).' },
+                  { title: 'Thread Safety', desc: 'RwLock-protected DAG storage for parallel Read/Write throughput.' },
+                  { title: 'RPC Resiliency', desc: 'Automatic retries and robust chunked JSON parsing.' },
+                ].map((item, i) => (
+                  <div key={i} className="p-4 rounded-lg border border-zinc-800 bg-zinc-900/10">
+                    <h4 className="font-medium text-white mb-2 text-sm">{item.title}</h4>
+                    <p className="text-xs text-zinc-500 leading-relaxed">{item.desc}</p>
                   </div>
-                  <div className="flex flex-col items-start md:items-end gap-1">
-                    <div className="text-sm font-medium text-white">Alex</div>
-                    <div className="text-xs text-zinc-500">Senior Principal Protocol Engineer</div>
-                    <a href="https://argus-protocol.xyz" className="text-xs text-primary hover:underline mt-1">argus-protocol.xyz</a>
-                  </div>
-                </div>
-              </section>
+                ))}
+              </div>
 
+              <div className="mt-24 pt-8 border-t border-zinc-900 flex justify-between items-center">
+                <div className="text-xs text-zinc-600">
+                  Last updated: <span className="text-zinc-400">February 18, 2026</span>
+                </div>
+                <a href="#" className="text-xs text-primary hover:underline">Edit this page on GitHub</a>
+              </div>
             </div>
           </div>
         </div>
