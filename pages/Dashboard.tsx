@@ -25,18 +25,41 @@ import { Tooltip } from '../components/Tooltip';
 import Skeleton from '../components/Skeleton';
 
 const DashboardSkeleton = () => (
-  <div className="w-full space-y-6 animate-pulse pb-12">
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-zinc-900 border border-zinc-900">
-      {[1, 2, 3, 4].map(i => <div key={i} className="h-36 bg-zinc-950" />)}
-    </div>
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <div className="lg:col-span-8 space-y-6">
-        <div className="h-[380px] bg-zinc-950 border border-zinc-900" />
-        <div className="h-[160px] bg-zinc-950 border border-zinc-900" />
+  <div className="w-full space-y-5 pb-16">
+    <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900">
+      <div className="flex items-center gap-4">
+        <div className="skeleton w-10 h-10 rounded-xl" />
+        <div className="space-y-2">
+          <div className="skeleton h-4 w-32" />
+          <div className="skeleton h-3 w-48" />
+        </div>
       </div>
-      <div className="lg:col-span-4 space-y-6">
-        <div className="h-[280px] bg-zinc-950 border border-zinc-900" />
-        <div className="h-[120px] bg-zinc-950 border border-zinc-900" />
+      <div className="flex items-center gap-5">
+        <div className="skeleton h-10 w-24" />
+        <div className="skeleton h-10 w-24" />
+      </div>
+    </header>
+
+    <div className="grid grid-cols-2 lg:grid-cols-4 border border-zinc-900 overflow-hidden rounded-2xl">
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="h-36 bg-zinc-950 p-6 space-y-4 border-r border-zinc-900 last:border-r-0">
+          <div className="skeleton w-10 h-10 rounded-xl" />
+          <div className="space-y-2">
+            <div className="skeleton h-3 w-16" />
+            <div className="skeleton h-6 w-24" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="lg:col-span-8 space-y-5">
+        <div className="skeleton h-[380px] w-full rounded-2xl" />
+        <div className="skeleton h-[160px] w-full rounded-2xl" />
+      </div>
+      <div className="lg:col-span-4 space-y-5">
+        <div className="skeleton h-[340px] w-full rounded-2xl" />
+        <div className="skeleton h-[120px] w-full rounded-2xl" />
       </div>
     </div>
   </div>

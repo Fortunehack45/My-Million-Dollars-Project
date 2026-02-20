@@ -106,16 +106,28 @@ const Leaderboard = () => {
             </thead>
             <tbody className="divide-y divide-zinc-900/40">
               {loading ? (
-                <tr>
-                  <td colSpan={3} className="px-8 py-32 text-center">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-12 h-1 bg-zinc-900 rounded-full overflow-hidden">
-                        <div className="h-full bg-maroon animate-[loading_2s_infinite]"></div>
+                Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i} className="border-b border-zinc-900/40">
+                    <td className="px-8 py-6">
+                      <div className="skeleton w-4 h-4 rounded" />
+                    </td>
+                    <td className="px-4 sm:px-8 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="skeleton w-1.5 h-1.5 rounded-full" />
+                        <div className="space-y-2">
+                          <div className="skeleton h-4 w-32" />
+                          <div className="skeleton h-2 w-24" />
+                        </div>
                       </div>
-                      <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest animate-pulse">Querying Network States...</span>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="skeleton h-4 w-20" />
+                        <div className="skeleton h-2 w-12" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : (
                 data.map((entry) => (
                   <tr key={entry.uid} className={`group hover:bg-white/[0.02] transition-colors relative ${user?.uid === entry.uid ? 'bg-maroon/[0.02]' : ''}`}>

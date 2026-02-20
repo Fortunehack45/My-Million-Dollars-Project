@@ -391,7 +391,7 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[8rem] xl:text-[9rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0 will-change-premium" style={{ animationDelay: '0.2s' }}>
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.2rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0 will-change-premium" style={{ animationDelay: '0.2s' }}>
                            The Parallel<br />Protocol
                         </h1>
 

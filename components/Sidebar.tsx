@@ -46,22 +46,22 @@ const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: stri
   );
 };
 
-const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any, key?: React.Key }) => {
+const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <Link
       to={to}
-      className={`flex flex-col items-center justify-center space-y-1.5 w-full h-full relative group`}
+      className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative transition-all duration-300 ${isActive ? 'scale-110' : 'active:scale-90 opacity-60'}`}
     >
-      {isActive && (
-        <div className="absolute top-0 w-12 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_#800000]"></div>
-      )}
-      <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-maroon/10' : 'bg-transparent'}`}>
-        <Icon className={`w-5 h-5 transition-colors duration-200 ${isActive ? 'text-maroon' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
+      <div className={`p-2 rounded-2xl transition-all duration-500 ${isActive ? 'bg-maroon/20 text-maroon shadow-[0_0_20px_rgba(128,0,0,0.2)]' : 'text-zinc-500'}`}>
+        <Icon className="w-5 h-5 transition-transform duration-500" />
       </div>
-      <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-zinc-600'}`}>{label}</span>
+      <span className={`text-[8px] font-black uppercase tracking-[0.2em] transition-colors duration-500 ${isActive ? 'text-white' : 'text-zinc-600'}`}>{label}</span>
+      {isActive && (
+        <div className="absolute -top-2 w-8 h-1 bg-maroon rounded-full blur-[2px] shadow-[0_0_10px_#800000] animate-pulse"></div>
+      )}
     </Link>
   );
 };
@@ -119,9 +119,10 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* MOBILE: Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-[5.5rem] bg-zinc-950/95 backdrop-blur-2xl border-t border-zinc-900 z-50 px-2 pb-safe safe-area-bottom">
-        <div className="flex justify-around items-center h-full pb-2">
+      {/* MOBILE: Bottom Navigation Bar - Liquid Glass Effect */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-20 bg-zinc-950/40 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] z-50 px-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-transparent rounded-[2.5rem] pointer-events-none"></div>
+        <div className="flex justify-around items-center h-full relative z-10">
           {navItems.map((item) => (
             <MobileNavItem
               key={item.to}

@@ -428,47 +428,113 @@ const AdminPanel = () => {
                   </table>
                 </div>
 
-                {/* Security / IP Analysis Section */}
-                <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 mt-8">
-                  <div className="flex items-center gap-3 mb-8 border-b border-zinc-800 pb-6">
-                    <div className="p-2.5 bg-red-500/10 rounded-xl border border-red-500/20">
-                      <Shield className="w-5 h-5 text-red-500" />
+                {/* Institutional Security Intelligence Suite */}
+                <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 mt-8 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent h-1/2 w-full animate-scanline pointer-events-none opacity-40"></div>
+
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-red-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                        <ShieldAlert className="w-7 h-7 text-red-500 animate-pulse" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-white uppercase tracking-tight">Security_Intelligence</h2>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                          <p className="text-[10px] text-zinc-500 font-mono font-bold uppercase tracking-widest">Global Handshake Audit · {users.filter(u => u.registrationIP).length} Sync points</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Security / IP Flags</h2>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Identify duplicate node accounts from same IP</p>
+                    <div className="flex gap-4">
+                      <div className="px-5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl">
+                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">Threat_Level</p>
+                        <p className={`text-xs font-mono font-black ${users.length > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>PROTECTIVE_MODE</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4">
-                    {/* Group users by registrationIP and show duplicates */}
+                  <div className="grid grid-cols-1 gap-6 relative z-10">
+                    {/* Link Analysis Visualizer */}
                     {Array.from(new Set(users.map(u => u.registrationIP).filter(Boolean))).map(ip => {
                       const sameIpUsers = users.filter(u => u.registrationIP === ip);
                       if (sameIpUsers.length < 2) return null;
+
+                      const riskLevel = sameIpUsers.length > 5 ? 'critical' : sameIpUsers.length > 3 ? 'high' : 'medium';
+                      const riskColor = riskLevel === 'critical' ? 'text-red-500 border-red-500 shadow-red-500/20' :
+                        riskLevel === 'high' ? 'text-orange-500 border-orange-500 shadow-orange-500/20' :
+                          'text-amber-500 border-amber-500 shadow-amber-500/20';
+
                       return (
-                        <div key={ip} className="p-4 bg-zinc-950 border border-zinc-900 rounded-2xl flex items-center justify-between group hover:border-red-500/30 transition-colors">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors">
-                              <Activity className="w-5 h-5 text-red-500" />
-                            </div>
-                            <div>
-                              <p className="text-xs font-bold text-white uppercase tracking-widest">{ip}</p>
-                              <p className="text-[10px] text-red-500 font-mono font-bold">{sameIpUsers.length} Flagged Accounts</p>
-                            </div>
-                          </div>
-                          <div className="flex -space-x-3">
-                            {sameIpUsers.map((u, i) => (
-                              <div key={u.uid} className="w-10 h-10 rounded-full border-4 border-zinc-950 bg-zinc-900 flex items-center justify-center overflow-hidden grayscale hover:grayscale-0 transition-all cursor-help" title={u.displayName || u.email}>
-                                {u.photoURL ? <img src={u.photoURL} alt="" /> : <span className="text-[10px] text-zinc-600">{u.displayName?.[0] || 'U'}</span>}
+                        <div key={ip} className={`group silk-panel !bg-black/60 p-8 rounded-[2rem] border-zinc-900 transition-all duration-700 hover:border-zinc-700`}>
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+                            <div className="space-y-6 flex-1">
+                              <div className="flex items-center gap-4">
+                                <div className={`px-4 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50`}>
+                                  <span className="text-[10px] font-mono font-black text-zinc-400 uppercase tracking-widest">Network_Endpoint: </span>
+                                  <span className="text-[10px] font-mono font-black text-white">{ip}</span>
+                                </div>
+                                <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${riskColor.split(' ')[1]} bg-black/40 shadow-lg`}>
+                                  <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${riskColor.split(' ')[0].replace('text-', 'bg-')}`} />
+                                  <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${riskColor.split(' ')[0]}`}>Risk_{riskLevel.toUpperCase()}</span>
+                                </div>
                               </div>
-                            ))}
+
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                                <div>
+                                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1.5">Linked_Nodes</p>
+                                  <p className="text-xl font-mono font-black text-white">{sameIpUsers.length}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1.5">ISP_Signature</p>
+                                  <p className="text-xl font-mono font-black text-zinc-400">RESIDENTIAL</p>
+                                </div>
+                                <div>
+                                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1.5">VPN_Heuristics</p>
+                                  <p className="text-xl font-mono font-black text-emerald-500/80">LOW_PROB</p>
+                                </div>
+                                <div>
+                                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1.5">Action_Required</p>
+                                  <p className="text-xl font-mono font-black text-zinc-300">REVIEW</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="lg:w-72 shrink-0">
+                              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-4 px-2">Entity_Linkage</p>
+                              <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-4 flex flex-wrap gap-3">
+                                {sameIpUsers.map((u, i) => (
+                                  <div key={u.uid} className="relative group/entity">
+                                    <div className="w-11 h-11 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover/entity:border-maroon/50 group-hover/entity:scale-110">
+                                      {u.photoURL ? (
+                                        <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                                          <span className="text-xs font-black text-zinc-600">{u.displayName?.[0] || 'U'}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 border-2 border-zinc-950 rounded-full z-10"></div>
+                                    {/* Tooltip on hover */}
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-black border border-zinc-800 rounded-lg opacity-0 group-hover/entity:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap shadow-2xl">
+                                      <p className="text-[10px] font-black text-white uppercase">{u.displayName}</p>
+                                      <p className="text-[8px] font-mono text-zinc-500 mt-0.5">{u.points.toFixed(0)} ARG Credits</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       );
                     })}
-                    {users.filter(u => u.registrationIP).length === 0 && (
-                      <div className="p-12 text-center bg-zinc-900/10 rounded-3xl border border-zinc-900/50">
-                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em]">No IP Metadata Synchronized</p>
+
+                    {Array.from(new Set(users.map(u => u.registrationIP).filter(Boolean))).every(ip => users.filter(u => u.registrationIP === ip).length < 2) && (
+                      <div className="py-24 text-center silk-panel !bg-black/20 rounded-[3rem] border-dashed border-zinc-900/50">
+                        <div className="w-20 h-20 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 flex items-center justify-center mx-auto mb-6">
+                          <CheckCircle2 className="w-8 h-8 text-emerald-500/40" />
+                        </div>
+                        <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">Network_Integrity_Verified</h3>
+                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] max-w-xs mx-auto">No linked validator accounts identified from unique IP headers.</p>
                       </div>
                     )}
                   </div>

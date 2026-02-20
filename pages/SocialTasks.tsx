@@ -187,9 +187,21 @@ const SocialTasks = () => {
       </header>
 
       {loading ? (
-        <div className="flex flex-col items-center py-20 gap-4">
-          <Loader2 className="w-8 h-8 text-zinc-800 animate-spin" />
-          <p className="label-meta text-zinc-600">Retrieving Protocol Directives...</p>
+        <div className="grid gap-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-32 bg-zinc-950 p-6 md:p-8 rounded-[2.5rem] border border-zinc-900 flex items-center gap-6">
+              <div className="skeleton w-16 h-16 rounded-2xl shrink-0" />
+              <div className="flex-1 space-y-3">
+                <div className="skeleton h-3 w-20" />
+                <div className="skeleton h-5 w-48" />
+                <div className="skeleton h-3 w-full max-w-sm" />
+              </div>
+              <div className="flex flex-col items-end gap-3">
+                <div className="skeleton h-3 w-12" />
+                <div className="skeleton h-10 w-32 rounded-xl" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="space-y-4">
