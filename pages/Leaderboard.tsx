@@ -36,10 +36,10 @@ const Leaderboard = () => {
           <Trophy className="w-3.5 h-3.5 text-maroon animate-pulse" />
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Network Topology Ranking</span>
         </div>
-        <h1 className="text-5xl md:text-7xl font-black text-white tracking-[-0.05em] uppercase leading-none">
+        <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">
           Protocol<br /><span className="text-zinc-800">Authority_Index</span>
         </h1>
-        <p className="text-zinc-500 text-sm md:text-lg max-w-2xl leading-relaxed italic">Global synchronization layer for verified node performance and network contribution credits.</p>
+        <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-sm md:text-lg max-w-2xl leading-relaxed italic">Global synchronization layer for verified node performance and network contribution credits.</p>
       </header>
 
       {/* Top 3 Cards (Desktop Only) */}

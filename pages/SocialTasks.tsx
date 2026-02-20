@@ -158,10 +158,16 @@ const SocialTasks = () => {
   if (!user) return null;
 
   return (
-    <div className="w-full space-y-10 animate-in fade-in duration-500">
-      <header className="space-y-3">
-        <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Protocol Tasks</h1>
-        <p className="text-zinc-500 text-sm font-medium border-l-2 border-maroon pl-4">Authenticate your identity by completing high-priority network directives to increase your allocation.</p>
+    <div className="w-full space-y-12 animate-in fade-in duration-500 will-change-premium">
+      <header className="space-y-6 border-b border-zinc-900 pb-12">
+        <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full group">
+          <ShieldCheck className="w-3.5 h-3.5 text-maroon animate-pulse" />
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Security Clearance Level: <span className="text-maroon">Alpha_One</span></span>
+        </div>
+        <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">
+          Protocol<br /><span className="text-zinc-800">Operational_Tasks</span>
+        </h1>
+        <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-sm md:text-lg max-w-2xl leading-relaxed italic">Authenticate your identity by completing high-priority network directives to increase your protocol authority and allocation credits.</p>
       </header>
 
       {loading ? (

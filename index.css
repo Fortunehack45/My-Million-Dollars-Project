@@ -243,14 +243,26 @@ body {
 }
 
 /* =============================================
-   GLOBAL TRANSITIONS (scoped to color only)
+   GLOBAL TRANSITIONS (Professional Weighting)
    ============================================= */
 
-/* Scoped to color transitions only — does NOT interfere with transform animations */
+/* Premium eased transitions with hardware acceleration hints */
 * {
-  transition-property: color, border-color, background-color, opacity;
-  transition-duration: 200ms;
+  transition-property: color, border-color, background-color, opacity, transform, filter, box-shadow;
+  transition-duration: 400ms;
   transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-premium {
+  will-change: transform, opacity, filter;
 }
 
 /* =============================================

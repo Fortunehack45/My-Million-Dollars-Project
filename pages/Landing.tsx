@@ -343,8 +343,8 @@ const Landing = () => {
             ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`;
             ctx.fillText(char, x, y);
 
-            if (y > canvas.height && Math.random() > 0.99) drops[i] = 0; // Slower drops
-            drops[i]++;
+            if (y > canvas.height && Math.random() > 0.995) drops[i] = 0; // Much slower reset
+            drops[i] += 0.5; // Half speed falling
          }
          requestRef.current = requestAnimationFrame(draw);
       };
@@ -391,7 +391,7 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[8rem] xl:text-[9rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s' }}>
+                        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[8rem] xl:text-[9rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0 will-change-premium" style={{ animationDelay: '0.2s' }}>
                            The Parallel<br />Protocol
                         </h1>
 
@@ -405,11 +405,11 @@ const Landing = () => {
                         <MobileStatusCard />
                      </div>
 
-                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-                        <button onClick={() => navigate('/login')} className="btn-premium-maroon text-[12px]">
+                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 animate-fade-in opacity-0 will-change-premium" style={{ animationDelay: '0.6s' }}>
+                        <button onClick={() => navigate('/login')} className="btn-premium-maroon text-[10px]">
                            <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                         </button>
-                        <Link to="/whitepaper" className="btn-premium text-[12px]">
+                        <Link to="/whitepaper" className="btn-premium text-[10px]">
                            {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
                         </Link>
                      </div>

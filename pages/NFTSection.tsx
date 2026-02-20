@@ -58,7 +58,7 @@ const NFTSection = () => {
    };
 
    return (
-      <div className="w-full min-h-[90vh] flex flex-col relative overflow-hidden pb-20 animate-in fade-in duration-1000">
+      <div className="w-full flex flex-col relative overflow-hidden animate-in fade-in duration-1000 will-change-premium">
 
          {/* Premium Dynamic Background */}
          <div className="absolute inset-0 pointer-events-none z-0">
@@ -67,21 +67,22 @@ const NFTSection = () => {
             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]"></div>
          </div>
 
-         <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+         <div className="relative z-10 w-full max-w-7xl mx-auto px-0">
 
             {/* Institutional Header */}
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 border-b border-zinc-900 pb-16 pt-12">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-zinc-900 pb-12">
                <div className="space-y-6">
-                  <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-zinc-900/50 backdrop-blur-md border border-zinc-800 rounded-full group">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full group">
                      <Timer className="w-3.5 h-3.5 text-maroon animate-pulse" />
-                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Synchronization Status: <span className="text-maroon">Awaiting_Mainnet_Bridge</span></span>
+                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Synchronization Status: <span className="text-maroon uppercase">Awaiting_Handshake</span></span>
                   </div>
-                  <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-[-0.05em] leading-[0.85]">
-                     Protocol<br /><span className="text-zinc-800 drop-shadow-[0_0_15px_rgba(255,255,255,0.05)]">Authority_Licenses</span>
+                  <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">
+                     Protocol<br /><span className="text-zinc-800">Authority_Licenses</span>
                   </h1>
+                  <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-sm md:text-lg max-w-2xl leading-relaxed italic">Verified institutional credentials for network authority nodes and high-priority operators.</p>
                </div>
 
-               <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] flex items-center gap-8 min-w-[340px] shadow-2xl relative group overflow-hidden transition-all duration-500 hover:border-maroon/20">
+               <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] flex items-center gap-8 min-w-[340px] shadow-2xl relative group overflow-hidden transition-all duration-500 hover:border-maroon/20 hover:bg-zinc-900/60">
                   <div className="absolute inset-0 bg-gradient-to-tr from-maroon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="w-16 h-16 bg-zinc-950 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-xl relative z-10">
                      <Fingerprint className="w-8 h-8 text-maroon drop-shadow-[0_0_10px_rgba(128,0,0,0.4)]" />
