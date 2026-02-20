@@ -363,6 +363,7 @@ const AdminPanel = () => {
                         <th className="pb-4 px-2">Node Entity</th>
                         <th className="pb-4 px-2 text-center">Status</th>
                         <th className="pb-4 px-2 text-right">Balance</th>
+                        <th className="pb-4 px-2 text-right hidden sm:table-cell">Refs</th>
                         <th className="pb-4 px-2 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -425,6 +426,52 @@ const AdminPanel = () => {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Security / IP Analysis Section */}
+                <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 mt-8">
+                  <div className="flex items-center gap-3 mb-8 border-b border-zinc-800 pb-6">
+                    <div className="p-2.5 bg-red-500/10 rounded-xl border border-red-500/20">
+                      <Shield className="w-5 h-5 text-red-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-tight">Security / IP Flags</h2>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Identify duplicate node accounts from same IP</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    {/* Group users by registrationIP and show duplicates */}
+                    {Array.from(new Set(users.map(u => u.registrationIP).filter(Boolean))).map(ip => {
+                      const sameIpUsers = users.filter(u => u.registrationIP === ip);
+                      if (sameIpUsers.length < 2) return null;
+                      return (
+                        <div key={ip} className="p-4 bg-zinc-950 border border-zinc-900 rounded-2xl flex items-center justify-between group hover:border-red-500/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors">
+                              <Activity className="w-5 h-5 text-red-500" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-white uppercase tracking-widest">{ip}</p>
+                              <p className="text-[10px] text-red-500 font-mono font-bold">{sameIpUsers.length} Flagged Accounts</p>
+                            </div>
+                          </div>
+                          <div className="flex -space-x-3">
+                            {sameIpUsers.map((u, i) => (
+                              <div key={u.uid} className="w-10 h-10 rounded-full border-4 border-zinc-950 bg-zinc-900 flex items-center justify-center overflow-hidden grayscale hover:grayscale-0 transition-all cursor-help" title={u.displayName || u.email}>
+                                {u.photoURL ? <img src={u.photoURL} alt="" /> : <span className="text-[10px] text-zinc-600">{u.displayName?.[0] || 'U'}</span>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {users.filter(u => u.registrationIP).length === 0 && (
+                      <div className="p-12 text-center bg-zinc-900/10 rounded-3xl border border-zinc-900/50">
+                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em]">No IP Metadata Synchronized</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

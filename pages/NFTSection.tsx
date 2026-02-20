@@ -1,13 +1,12 @@
 
-import React from 'react';
-import { useAuth } from '../context/AuthContext';
 
-// Add missing 'Globe' import from lucide-react.
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import {
    Lock, Shield, Cpu, Zap, Box,
    AlertTriangle, ScanLine, Fingerprint,
    Activity, ArrowUpRight, ShieldCheck,
-   ChevronRight, Timer, Globe
+   ChevronRight, Timer, Globe, Loader2, CheckCircle2
 } from 'lucide-react';
 
 const TierCard = ({ tier, points, required, status, icon: Icon }: any) => (
@@ -45,12 +44,19 @@ const TierCard = ({ tier, points, required, status, icon: Icon }: any) => (
 const NFTSection = () => {
    const { user } = useAuth();
    const points = user?.points || 0;
+   const [mintState, setMintState] = useState<'IDLE' | 'MINTING' | 'CONFIRMING' | 'SUCCESS'>('IDLE');
 
    const tiers = [
       { tier: 'Alpha Genesis', required: 10000, icon: ShieldCheck, status: points >= 10000 ? 'ELIGIBLE' : 'LOCKED' },
       { tier: 'Beta Operator', required: 5000, icon: Activity, status: points >= 5000 ? 'ELIGIBLE' : 'LOCKED' },
       { tier: 'Node Aspirant', required: 1000, icon: Cpu, status: points >= 1000 ? 'ELIGIBLE' : 'LOCKED' },
    ];
+
+   const handleMint = () => {
+      setMintState('MINTING');
+      setTimeout(() => setMintState('CONFIRMING'), 2000);
+      setTimeout(() => setMintState('SUCCESS'), 4000);
+   };
 
    return (
       <div className="w-full min-h-[90vh] flex flex-col relative overflow-hidden pb-20 animate-in fade-in duration-1000">
@@ -174,13 +180,21 @@ const NFTSection = () => {
 
                               <div className="text-center space-y-5 w-full">
                                  <div className="space-y-1">
-                                    <h3 className="text-5xl font-black text-white uppercase tracking-[-0.07em] leading-none group-hover:text-maroon transition-colors duration-700">Access_Denied</h3>
-                                    <p className="text-[8px] font-mono font-black text-zinc-600 uppercase tracking-[0.5em]">Security_Protocol_Active</p>
+                                    <h3 className="text-5xl font-black text-white uppercase tracking-[-0.07em] leading-none group-hover:text-maroon transition-colors duration-700">
+                                       {mintState === 'SUCCESS' ? 'License_Active' : 'Access_Denied'}
+                                    </h3>
+                                    <p className="text-[8px] font-mono font-black text-zinc-600 uppercase tracking-[0.5em]">
+                                       {mintState === 'SUCCESS' ? 'Authority_Verified' : 'Security_Protocol_Active'}
+                                    </p>
                                  </div>
 
-                                 <div className="inline-flex items-center gap-4 px-6 py-2.5 bg-red-950/20 backdrop-blur-3xl border border-red-500/30 rounded-xl shadow-2xl">
-                                    <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-                                    <span className="text-[11px] font-mono font-bold text-red-500 uppercase tracking-[0.3em]">Restricted_Epoch_0</span>
+                                 <div className={`inline-flex items-center gap-4 px-6 py-2.5 backdrop-blur-3xl border rounded-xl shadow-2xl transition-all duration-500 ${mintState === 'SUCCESS' ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-red-950/20 border-red-500/30'
+                                    }`}>
+                                    <div className={`w-2 h-2 rounded-full animate-ping ${mintState === 'SUCCESS' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                                    <span className={`text-[11px] font-mono font-bold uppercase tracking-[0.3em] ${mintState === 'SUCCESS' ? 'text-emerald-500' : 'text-red-500'
+                                       }`}>
+                                       {mintState === 'SUCCESS' ? 'Authorized_Identity' : 'Restricted_Epoch_0'}
+                                    </span>
                                  </div>
                               </div>
                            </div>
@@ -193,33 +207,22 @@ const NFTSection = () => {
                                        <div className="w-1.5 h-1.5 bg-zinc-700 rounded-full"></div>
                                        <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.3em]">Authority_Weight</p>
                                     </div>
-                                    <p className="text-3xl font-mono font-black text-zinc-500 tracking-tighter">0.00x</p>
+                                    <p className="text-3xl font-mono font-black text-zinc-500 tracking-tighter">
+                                       {mintState === 'SUCCESS' ? '1.24x' : '0.00x'}
+                                    </p>
                                  </div>
                                  <div className="text-right space-y-3">
                                     <div className="flex items-center justify-end gap-2">
                                        <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.3em]">Registry_Serial</p>
                                        <div className="w-1.5 h-1.5 bg-zinc-700 rounded-full"></div>
                                     </div>
-                                    <p className="text-3xl font-mono font-black text-zinc-500 tracking-tighter shadow-sm">#SECURE</p>
+                                    <p className="text-3xl font-mono font-black text-zinc-500 tracking-tighter shadow-sm">
+                                       {mintState === 'SUCCESS' ? '#VERIFIED' : '#SECURE'}
+                                    </p>
                                  </div>
                               </div>
                            </div>
 
-                        </div>
-                     </div>
-
-                     {/* Advanced Floating Metadata Labels */}
-                     <div className="absolute -left-12 top-1/2 -rotate-90 origin-center hidden 2xl:block opacity-30">
-                        <div className="flex items-center gap-4">
-                           <span className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.6em] whitespace-nowrap">ID_VERIFICATION_REQUIRED_V2.0</span>
-                           <div className="w-20 h-px bg-zinc-800"></div>
-                        </div>
-                     </div>
-
-                     <div className="absolute -right-12 top-1/2 rotate-90 origin-center hidden 2xl:block opacity-30">
-                        <div className="flex items-center gap-4">
-                           <div className="w-20 h-px bg-zinc-800"></div>
-                           <span className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.6em] whitespace-nowrap">CRYPTOGRAPHIC_ENCRYPTION_LAYER</span>
                         </div>
                      </div>
                   </div>
@@ -248,23 +251,46 @@ const NFTSection = () => {
 
                   <div className="pt-12">
                      <button
-                        disabled
-                        className="relative w-full py-7 bg-zinc-900/40 backdrop-blur-3xl border border-white/5 text-zinc-700 font-black uppercase tracking-[0.4em] text-[11px] rounded-[2rem] cursor-not-allowed group overflow-hidden shadow-2xl"
+                        onClick={handleMint}
+                        disabled={points < 1000 || mintState !== 'IDLE'}
+                        className={`relative w-full py-7 font-black uppercase tracking-[0.4em] text-[11px] rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 ${points >= 1000 && mintState === 'IDLE'
+                              ? 'bg-maroon text-white hover:bg-maroon/80 active:scale-95'
+                              : 'bg-zinc-900/40 backdrop-blur-3xl border border-white/5 text-zinc-700 cursor-not-allowed'
+                           }`}
                      >
                         <div className="relative z-10 flex items-center justify-center gap-5">
-                           <div className="relative">
-                              <ScanLine className="w-6 h-6 group-hover:text-zinc-500 transition-colors" />
-                              <div className="absolute inset-0 bg-maroon animate-ping opacity-0 group-hover:opacity-20 rounded-full"></div>
+                           {mintState === 'IDLE' ? (
+                              <>
+                                 <ScanLine className="w-6 h-6" />
+                                 {points >= 1000 ? 'Initialize Authority Mint' : 'Insufficient ARG Credits'}
+                              </>
+                           ) : mintState === 'MINTING' ? (
+                              <>
+                                 <Loader2 className="w-6 h-6 animate-spin" />
+                                 Uploading_Handshake...
+                              </>
+                           ) : mintState === 'CONFIRMING' ? (
+                              <>
+                                 <Activity className="w-6 h-6 animate-pulse" />
+                                 GhostDAG_Validation...
+                              </>
+                           ) : (
+                              <>
+                                 <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                                 License_Synchronized
+                              </>
+                           )}
+                        </div>
+                        {/* Progress bar overlay */}
+                        {(mintState === 'MINTING' || mintState === 'CONFIRMING') && (
+                           <div className="absolute inset-0 bg-maroon/20">
+                              <div className="h-full bg-maroon/40 animate-[loading_4s_linear_forwards]" style={{ width: '100%' }}></div>
                            </div>
-                           Handshaking_Security_Pipes
-                        </div>
-                        {/* Seamless Pulsing Loading Interface */}
-                        <div className="absolute inset-x-0 bottom-0 h-[3px] bg-zinc-900 overflow-hidden">
-                           <div className="w-[40%] h-full bg-gradient-to-r from-transparent via-maroon to-transparent animate-[loading_2.5s_infinite] shadow-[0_0_15px_rgba(128,0,0,0.6)]"></div>
-                        </div>
+                        )}
                      </button>
                      <div className="mt-8 flex flex-col items-center gap-3">
                         <p className="text-center text-[9px] text-zinc-700 font-black uppercase tracking-[0.3em] leading-relaxed">
+                           <span className="text-zinc-500">MINT COST: 1,000 ARG (≈ $4,200.00)</span><br />
                            Requires Identity_Vetting_Protocol v.0.12<br />
                            <span className="text-maroon/40 italic">Unauthorized access attempts are logged in GhostDAG</span>
                         </p>

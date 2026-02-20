@@ -26,6 +26,9 @@ export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => {
             aria-label="Argus Protocol Logo"
         >
             <defs>
+                <clipPath id="circle-clip">
+                    <circle cx="250" cy="250" r="250" />
+                </clipPath>
                 <filter id={filterId}>
                     <feColorMatrix
                         in="SourceGraphic"
@@ -47,7 +50,9 @@ export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => {
                     />
                 </mask>
             </defs>
-            <rect width="100%" height="100%" fill="currentColor" mask={`url(#${maskId})`} />
+            <g clipPath="url(#circle-clip)">
+                <rect width="100%" height="100%" fill="currentColor" mask={`url(#${maskId})`} />
+            </g>
         </svg>
     );
 };

@@ -144,7 +144,14 @@ const Terminal = () => {
    }, [logs, currentLine]);
 
    return (
-      <div className="relative w-full h-[400px] xl:h-[500px] bg-zinc-950 rounded-2xl border border-zinc-900 shadow-xl flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] group animate-fade-in-right hover:border-zinc-800 transition-all duration-500">
+      <div className="relative w-full h-[400px] xl:h-[500px] bg-zinc-950 rounded-2xl border border-zinc-900 shadow-2xl flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] group animate-fade-in-right hover:border-zinc-800 transition-all duration-500">
+
+         {/* SCANLINE OVERLAY */}
+         <div className="absolute inset-0 pointer-events-none z-30 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+         <div className="absolute inset-0 pointer-events-none z-30 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent animate-scanline h-[20%]" />
+
+         {/* CRT GLOW */}
+         <div className="absolute inset-0 pointer-events-none z-20 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.05)_0%,transparent_70%)]" />
 
          {/* Header - Refined */}
          <div className="flex items-center justify-between px-6 py-4 bg-zinc-900/40 border-b border-zinc-900">
@@ -384,7 +391,7 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-5xl sm:text-7xl md:text-9xl lg:text-[11rem] xl:text-[13rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.82] text-balance break-words animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s' }}>
+                        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[8rem] xl:text-[9rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s' }}>
                            The Parallel<br />Protocol
                         </h1>
 
