@@ -599,7 +599,7 @@ export const mintNFT = async (uid: string, cost: number): Promise<boolean> => {
       const userSnap = await transaction.get(userRef);
       if (!userSnap.exists()) throw new Error("Operator profile not found");
       const data = userSnap.data() as User;
-      if (data.points < cost) throw new Error("Insufficient NEX credits");
+      if (data.points < cost) throw new Error("Insufficient ARG credits");
       transaction.update(userRef, { points: increment(-cost), ownedNFT: true });
     });
     return true;
