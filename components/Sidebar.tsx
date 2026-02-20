@@ -26,17 +26,22 @@ const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: stri
   return (
     <Link
       to={to}
-      className={`relative flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-300 group overflow-hidden ${isActive
-        ? 'bg-zinc-900/80 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]'
+      className={`relative flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-500 group overflow-hidden ${isActive
+        ? 'bg-zinc-900/80 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] border border-white/5'
         : highlight
           ? 'text-maroon hover:bg-maroon/5'
           : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/40'
         }`}
     >
-      {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-maroon rounded-r-full shadow-[0_0_10px_#800000]"></div>}
+      {isActive && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-maroon rounded-r-full shadow-[0_0_15px_#800000] animate-in slide-in-from-left-full duration-500"></div>
+      )}
 
-      <Icon className={`w-4 h-4 relative z-10 transition-colors duration-300 ${isActive || highlight ? 'text-maroon' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
-      <span className="text-[10px] font-bold uppercase tracking-widest relative z-10">{label}</span>
+      <Icon className={`w-4 h-4 relative z-10 transition-all duration-500 ${isActive || highlight ? 'text-maroon scale-110' : 'text-zinc-600 group-hover:text-zinc-400 group-hover:scale-110'}`} />
+      <span className={`text-[10px] font-bold uppercase tracking-widest relative z-10 transition-all duration-500 ${isActive ? 'translate-x-1' : 'group-hover:translate-x-1'}`}>{label}</span>
+
+      {/* Background glow on hover */}
+      <div className={`absolute inset-0 bg-gradient-to-r from-maroon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isActive ? 'hidden' : ''}`}></div>
     </Link>
   );
 };
@@ -129,16 +134,16 @@ const Sidebar = () => {
       </div>
 
       {/* DESKTOP: Sidebar Navigation */}
-      <div className={`hidden md:block fixed inset-y-0 left-0 z-40 w-64 bg-zinc-950 border-r border-zinc-900`}>
+      <div className={`hidden md:block fixed inset-y-0 left-0 z-40 w-64 bg-zinc-950 border-r border-zinc-900/50 transition-all duration-500`}>
         <div className="flex flex-col h-full p-6">
           <div className="mb-10 px-4 pt-2">
-            <div className="flex items-center space-x-4">
-              <div className="w-11 h-11 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-lg">
-                <Logo className="w-7 h-7 text-maroon" />
+            <div className="flex items-center space-x-4 group/sidebar-logo">
+              <div className="w-11 h-11 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-lg group-hover/sidebar-logo:border-maroon/40 transition-all duration-500">
+                <Logo className="w-7 h-7 text-maroon drop-shadow-[0_0_8px_rgba(128,0,0,0.3)]" />
               </div>
               <div>
-                <span className="block font-bold text-lg text-white tracking-tight leading-none">Argus Protocol</span>
-                <span className="block text-[9px] font-bold text-zinc-600 uppercase tracking-[0.25em] mt-1.5">Infra_Layer_v2.8</span>
+                <span className="block font-black text-lg text-white tracking-tight leading-none uppercase group-hover/sidebar-logo:text-maroon transition-colors duration-500">Argus</span>
+                <span className="block text-[9px] font-bold text-zinc-600 uppercase tracking-[0.25em] mt-1.5">Infra_Layer_v2.8.4</span>
               </div>
             </div>
           </div>

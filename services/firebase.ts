@@ -212,7 +212,7 @@ export const DEFAULT_ABOUT_CONFIG: AboutConfig = {
   title: "Building the Foundation",
   subtitle: "Argus Labs is a decentralized collective of engineers, cryptographers, and system architects. We are obsessed with uptime.",
   mission: { title: "Our Mission", desc: "To eliminate the technical barrier to entry for blockchain participation through 'Zero-Touch' infrastructure." },
-  vision: { title: "Our Vision", desc: "A future where 'The Nexus' acts as the primary layer of trust for the internet, running on indestructible nodes." },
+  vision: { title: "Our Vision", desc: "A future where Argus Protocol acts as the primary layer of trust for the internet, running on indestructible nodes." },
   collective: { title: "The Collective", desc: "Distributed across 12 timezones. No headquarters. Governed by code and consensus." },
   partners: ['SEQUOIA_COMPUTE', 'ANDREESSEN_CLOUD', 'BINANCE_LABS', 'COINBASE_VENTURES', 'POLYCHAIN_CAPITAL']
 };

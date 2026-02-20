@@ -86,55 +86,63 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-maroon/30 selection:text-white font-sans scroll-smooth">
-      {/* Navbar - Redesigned Professional Glassmorphism */}
-      <nav className="sticky top-0 z-[100] transition-all duration-500">
-        <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-2xl border-b border-zinc-900/50 shadow-[0_4px_30px_rgba(0,0,0,0.1)]"></div>
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative z-10">
-          <Link to="/" className="flex items-center gap-4 group">
-            {/* Professional Logo Integration: SVG Mask Component */}
+      {/* Navbar - Slick Institutional Interface */}
+      <nav className="sticky top-0 z-[100] transition-all duration-500 group/nav">
+        <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-2xl border-b border-zinc-900/50 shadow-[0_4px_30px_rgba(0,0,0,0.4)]"></div>
+        <div className="max-w-7xl mx-auto px-8 h-24 flex items-center justify-between relative z-10">
+          <Link to="/" className="flex items-center gap-5 group/logo">
             <div className="relative">
-              <div className="absolute inset-0 bg-maroon/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
-                <Logo className="w-8 h-8 text-maroon" />
+              <div className="absolute -inset-2 bg-maroon/20 blur-2xl rounded-full opacity-0 group-hover/logo:opacity-100 transition-opacity duration-700"></div>
+              <div className="w-14 h-14 bg-zinc-900/50 backdrop-blur-md border border-zinc-800/80 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/40 group-hover:scale-105 transition-all duration-500 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-tr from-maroon/10 to-transparent"></div>
+                <Logo className="w-9 h-9 text-maroon relative z-10 drop-shadow-[0_0_8px_rgba(128,0,0,0.5)]" />
               </div>
             </div>
-            <div className="flex flex-col -space-y-0.5">
-              <span className="font-bold text-lg tracking-[-0.02em] text-white group-hover:text-maroon transition-colors duration-500">Argus Protocol</span>
-              <span className="text-[9px] font-mono font-bold text-zinc-500 tracking-[0.25em] uppercase pl-0.5">Infra_Layer_v2.8</span>
+            <div className="flex flex-col">
+              <span className="font-black text-xl tracking-tighter text-white group-hover/logo:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[8px] font-mono font-black text-maroon tracking-[0.3em] uppercase">Security_Layer</span>
+                <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+                <span className="text-[8px] font-mono font-bold text-zinc-500 tracking-[0.2em] uppercase">v2.8.4</span>
+              </div>
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-12">
+          <div className="hidden lg:flex items-center gap-10">
             {navLinks.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 relative py-2 group ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
+                className={`text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-300 relative py-2 group/link ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
               >
                 {item.label}
-                <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-maroon transition-transform duration-500 rounded-full scale-x-0 group-hover:scale-x-100 will-change-transform ${location.pathname === item.path ? 'scale-x-100' : ''}`}></span>
+                <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-maroon transition-transform duration-500 rounded-full scale-x-0 group-hover/link:scale-x-100 will-change-transform ${location.pathname === item.path ? 'scale-x-100 shadow-[0_0_12px_#800000]' : ''}`}></span>
               </Link>
             ))}
           </div>
 
           <div className="hidden md:flex items-center gap-6">
-            <button onClick={handleConsoleClick} className="relative group px-8 py-3.5 overflow-hidden rounded-xl active:scale-95 transition-all">
-              <div className="absolute inset-0 bg-white group-hover:bg-zinc-100 transition-colors"></div>
-              <div className="absolute inset-0 translate-y-full bg-maroon group-hover:translate-y-0 transition-transform duration-300"></div>
-              <span className="relative z-10 flex items-center gap-3 text-black group-hover:text-white text-[10px] font-black uppercase tracking-[0.25em] transition-colors">
+            <button
+              onClick={handleConsoleClick}
+              className="relative group/btn h-12 px-10 flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-maroon/30 hover:bg-zinc-800/50 transition-all duration-500 overflow-hidden shadow-lg hover:shadow-maroon/5"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-maroon/20 to-transparent translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
+              <span className="relative z-10 text-[10px] font-black text-white uppercase tracking-[0.25em]">
                 Initialize Console
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </span>
+              <div className="relative z-10 w-6 h-6 rounded-lg bg-maroon/10 flex items-center justify-center group-hover:bg-maroon transition-colors duration-500">
+                <ChevronRight className="w-3.5 h-3.5 text-maroon group-hover:text-white transition-all duration-500" />
+              </div>
             </button>
           </div>
 
           {/* Mobile Menu Toggle - Professional Minimalist */}
           <button
-            className="md:hidden relative z-[150] w-12 h-12 flex items-center justify-center bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/50 rounded-2xl text-white shadow-2xl hover:bg-zinc-800 transition-all duration-300 active:scale-90"
+            className="lg:hidden relative z-[150] w-14 h-14 flex items-center justify-center bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl text-white shadow-2xl hover:bg-zinc-800 transition-all duration-300 active:scale-95"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle Menu"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5 text-maroon" strokeWidth={2.5} /> : <Menu className="w-5 h-5" strokeWidth={2.5} />}
+            {isMobileMenuOpen ? <X className="w-6 h-6 text-maroon" strokeWidth={3} /> : <Menu className="w-6 h-6" strokeWidth={3} />}
           </button>
         </div>
 

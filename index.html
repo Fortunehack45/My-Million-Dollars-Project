@@ -6,8 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Favicon & Touch Icons -->
-  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/logo.png" />
+  <link rel="shortcut icon" href="/logo.png" />
   <link rel="apple-touch-icon" href="/logo.png" />
+  <meta name="apple-mobile-web-app-title" content="Argus Protocol" />
+  <meta name="application-name" content="Argus Protocol" />
 
   <!-- SEO: Primary Metadata -->
   <title>Argus Protocol | Decentralized Node Infrastructure Layer</title>
@@ -19,42 +23,51 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://argus-protocol.xyz/" />
 
-  <!-- SEO: Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://argus-protocol.xyz/" />
-  <meta property="og:title" content="Argus Protocol | The Global Truth Layer" />
-  <meta property="og:description"
-    content="Join the Argus Testnet. Deploy high-performance validator nodes and secure the future of decentralized infrastructure." />
-  <meta property="og:site_name" content="Argus Protocol" />
-
-  <!-- SEO: Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@ArgusProtocol" />
-  <meta name="twitter:title" content="Argus Protocol | Institutional IaaS" />
-  <meta name="twitter:description"
-    content="The high-speed rail for the multi-chain economy. Deploy zero-touch validator nodes today." />
-
   <!-- SEO: Structured Data (JSON-LD) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Argus Protocol",
-    "operatingSystem": "Decentralized Network",
-    "applicationCategory": "Blockchain Infrastructure",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "Institutional-grade infrastructure layer for the decentralized web.",
-    "url": "https://argus-protocol.xyz",
-    "publisher": {
-      "@type": "Organization",
-      "name": "Argus Labs"
-    }
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://argus-protocol.xyz/#website",
+        "url": "https://argus-protocol.xyz/",
+        "name": "Argus Protocol",
+        "alternateName": ["Argus", "Argus Network"],
+        "publisher": { "@id": "https://argus-protocol.xyz/#organization" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://argus-protocol.xyz/#organization",
+        "name": "Argus Protocol",
+        "url": "https://argus-protocol.xyz/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://argus-protocol.xyz/logo.png",
+          "width": "500",
+          "height": "500"
+        },
+        "sameAs": ["https://x.com/ArgusProtocol"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Argus Protocol",
+        "operatingSystem": "Decentralized Network",
+        "applicationCategory": "Blockchain Infrastructure",
+        "description": "Institutional-grade infrastructure layer for the decentralized web."
+      }
+    ]
   }
   </script>
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://argus-protocol.xyz/" />
+  <meta property="og:title" content="Argus Protocol | The Global Truth Layer" />
+  <meta property="og:description"
+    content="Deploy high-performance validator nodes and secure the future of decentralized infrastructure." />
+  <meta property="og:site_name" content="Argus Protocol" />
+  <meta name="twitter:card" content="summary_large_image" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
