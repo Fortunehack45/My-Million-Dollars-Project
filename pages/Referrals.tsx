@@ -62,15 +62,31 @@ const Referrals = () => {
       {/* Background Subtle Accents */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-maroon/5 blur-[150px] -z-10 animate-pulse-slow"></div>
 
-      <header className="space-y-6 relative border-b border-zinc-900 pb-12">
-        <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full">
-          <Users className="w-3.5 h-3.5 text-maroon animate-pulse" />
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Network Topology Expansion</span>
+      {/* Institutional Header - Resized to Dashboard Standards */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900 mb-10">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
+            <Users className="w-5 h-5 text-maroon animate-pulse" />
+          </div>
+          <div>
+            <h1 className="text-base font-black text-white uppercase tracking-tight">Authorization_Bridge</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Network expansion active · v2.8</p>
+            </div>
+          </div>
         </div>
-        <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">
-          Peer<br /><span className="text-zinc-800">Authorization_Bridge</span>
-        </h1>
-        <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-sm md:text-lg max-w-2xl leading-relaxed italic">Expand network topology by authorizing peer identities to earn speed boosts and direct credit allocation.</p>
+
+        <div className="flex items-center gap-5">
+          <div className="text-right">
+            <p className="label-meta mb-0.5">Authorized_Peers</p>
+            <p className="text-sm font-mono font-black text-white">{activeRefs} <span className="text-zinc-600 text-[10px]">SYNCED</span></p>
+          </div>
+          <div className="h-6 w-px bg-zinc-800" />
+          <div className="w-9 h-9 bg-zinc-950 border border-zinc-900 rounded-lg flex items-center justify-center">
+            <Share2 className="w-5 h-5 text-maroon/60" />
+          </div>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -87,9 +103,9 @@ const Referrals = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group/link">
+            <div className="bg-zinc-950 p-4 sm:p-6 rounded-2xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group/link">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/30 to-transparent opacity-0 group-hover/link:opacity-100 transition-opacity"></div>
-              <code className="text-maroon font-mono text-xs font-black tracking-tight bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/10 truncate w-full md:w-auto relative z-10">
+              <code className="text-maroon font-mono text-[10px] sm:text-xs font-black tracking-tight bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/10 truncate w-full relative z-10">
                 {window.location.origin}/#/?ref={user.referralCode}
               </code>
               <button onClick={copyToClipboard} className="btn-silk-inv !px-10 !py-4 w-full md:w-auto text-[10px] font-black uppercase tracking-widest relative z-10">

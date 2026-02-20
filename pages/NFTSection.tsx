@@ -69,27 +69,29 @@ const NFTSection = () => {
 
          <div className="relative z-10 w-full max-w-7xl mx-auto px-0">
 
-            {/* Institutional Header */}
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-zinc-900 pb-12">
-               <div className="space-y-6">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full group">
-                     <Timer className="w-3.5 h-3.5 text-maroon animate-pulse" />
-                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Synchronization Status: <span className="text-maroon uppercase">Awaiting_Handshake</span></span>
+            {/* Institutional Header - Resized to Dashboard Standards */}
+            <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900 mb-10">
+               <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
+                     <Timer className="w-5 h-5 text-maroon animate-pulse" />
                   </div>
-                  <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">
-                     Protocol<br /><span className="text-zinc-800">Authority_Licenses</span>
-                  </h1>
-                  <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-sm md:text-lg max-w-2xl leading-relaxed italic">Verified institutional credentials for network authority nodes and high-priority operators.</p>
+                  <div>
+                     <h1 className="text-base font-black text-white uppercase tracking-tight">Authority_Licenses</h1>
+                     <div className="flex items-center gap-2 mt-1">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Awaiting_Handshake · Protocol_v2.8</p>
+                     </div>
+                  </div>
                </div>
 
-               <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] flex items-center gap-8 min-w-[340px] shadow-2xl relative group overflow-hidden transition-all duration-500 hover:border-maroon/20 hover:bg-zinc-900/60">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-maroon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="w-16 h-16 bg-zinc-950 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-xl relative z-10">
-                     <Fingerprint className="w-8 h-8 text-maroon drop-shadow-[0_0_10px_rgba(128,0,0,0.4)]" />
+               <div className="flex items-center gap-5">
+                  <div className="text-right">
+                     <p className="label-meta mb-0.5">Authenticated_Operator</p>
+                     <p className="text-sm font-mono font-black text-white">{points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-zinc-600 text-[10px]">ARG</span></p>
                   </div>
-                  <div className="relative z-10">
-                     <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Authenticated_Operator</p>
-                     <p className="text-3xl font-mono font-black text-white tracking-tighter">{points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-sm text-zinc-600 font-bold ml-1">ARG</span></p>
+                  <div className="h-6 w-px bg-zinc-800" />
+                  <div className="w-9 h-9 bg-zinc-950 border border-zinc-900 rounded-lg flex items-center justify-center">
+                     <Fingerprint className="w-5 h-5 text-maroon/60" />
                   </div>
                </div>
             </header>
@@ -117,8 +119,8 @@ const NFTSection = () => {
                </div>
 
                {/* Center: Premium Holographic Artifact */}
-               <div className="lg:col-span-4 order-1 lg:order-2 px-4 md:px-0">
-                  <div className="relative group perspective-1000">
+               <div className="lg:col-span-4 order-1 lg:order-2 px-0">
+                  <div className="relative group perspective-1000 max-w-[320px] mx-auto sm:max-w-none">
                      {/* Intense Dynamic Glow */}
                      <div className="absolute -inset-12 bg-maroon/20 blur-[120px] rounded-full opacity-40 group-hover:opacity-70 transition-all duration-1000 animate-pulse"></div>
                      <div className="absolute -inset-4 bg-gradient-to-tr from-maroon/20 to-transparent blur-3xl rounded-[4rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
