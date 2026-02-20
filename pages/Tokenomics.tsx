@@ -59,7 +59,7 @@ const Tokenomics = () => {
       <div className="relative pt-24 pb-32 min-h-screen overflow-hidden">
         {/* Background Gradients */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"></div>
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-maroon/5 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"></div>
           <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] mix-blend-screen animate-float"></div>
         </div>
 
@@ -68,7 +68,7 @@ const Tokenomics = () => {
           {/* Header */}
           <div className={`text-center max-w-4xl mx-auto mb-20 transition-all duration-1000 ease-out-expo ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/80 border border-zinc-800 rounded-full mb-8 backdrop-blur-md shadow-lg shadow-black/20">
-                <PieChart className="w-4 h-4 text-primary" />
+                <PieChart className="w-4 h-4 text-maroon" />
                 <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Argus Economic Model v2.0</span>
              </div>
              <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-8 leading-[0.9] drop-shadow-2xl">{content.title}</h1>
@@ -85,18 +85,18 @@ const Tokenomics = () => {
                    </div>
                    <p className="text-4xl md:text-6xl font-mono font-black text-white tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">{content.totalSupply}</p>
                 </div>
-                <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner group-hover:shadow-primary/10 transition-shadow">
+                <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner group-hover:shadow-maroon/10 transition-shadow">
                    <div className="w-3 h-3 bg-zinc-700 rounded-full"></div>
                 </div>
              </div>
-             <div className={`glass-panel p-10 rounded-[2rem] flex items-center justify-between transition-all duration-1000 delay-300 border border-zinc-800 hover:border-primary/30 group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+             <div className={`glass-panel p-10 rounded-[2rem] flex items-center justify-between transition-all duration-1000 delay-300 border border-zinc-800 hover:border-maroon/30 group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                 <div>
                    <div className="flex items-center gap-2 mb-2">
-                      <Activity className="w-4 h-4 text-primary" />
+                      <Activity className="w-4 h-4 text-maroon" />
                       <div className="flex items-center gap-2">
                         <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Circulating Supply (Live)</p>
                         <Tooltip text="Sum of all ARG credits successfully mined by network participants." position="right">
-                           <Info className="w-3 h-3 text-zinc-700 hover:text-primary transition-colors cursor-help" />
+                           <Info className="w-3 h-3 text-zinc-700 hover:text-maroon transition-colors cursor-help" />
                         </Tooltip>
                       </div>
                    </div>
@@ -106,7 +106,7 @@ const Tokenomics = () => {
                    </p>
                 </div>
                 <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner">
-                   <div className="w-3 h-3 bg-primary rounded-full animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
+                   <div className="w-3 h-3 bg-maroon rounded-full animate-pulse shadow-[0_0_10px_#800000]"></div>
                 </div>
              </div>
           </div>
@@ -117,7 +117,7 @@ const Tokenomics = () => {
              <div className={`lg:col-span-5 relative flex items-center justify-center transition-all duration-1000 delay-500 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
                 <div className="relative w-full max-w-[500px] aspect-square">
                    {/* Background Glow - Rotates slowly */}
-                   <div className="absolute inset-0 bg-primary/5 blur-[80px] rounded-full animate-spin-slow"></div>
+                   <div className="absolute inset-0 bg-maroon/5 blur-[80px] rounded-full animate-spin-slow"></div>
                    
                    <svg viewBox="0 0 42 42" className="w-full h-full transform drop-shadow-2xl">
                       {/* Placeholder ring background */}
@@ -220,11 +220,11 @@ const Tokenomics = () => {
                 {content.utility.map((u, i) => {
                    const Icon = IconMap[u.icon] || Zap;
                    return (
-                      <div key={i} className={`surface p-10 rounded-[2.5rem] bg-zinc-900/10 border border-zinc-900 hover:border-primary/30 transition-all duration-700 group hover:-translate-y-2 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
+                      <div key={i} className={`surface p-10 rounded-[2.5rem] bg-zinc-900/10 border border-zinc-900 hover:border-maroon/30 transition-all duration-700 group hover:-translate-y-2 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
                          <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
-                            <Icon className="w-7 h-7 text-zinc-400 group-hover:text-primary transition-colors" />
+                            <Icon className="w-7 h-7 text-zinc-400 group-hover:text-maroon transition-colors" />
                          </div>
-                         <h3 className="text-xl font-bold text-white uppercase mb-4 group-hover:text-primary transition-colors">{u.title}</h3>
+                         <h3 className="text-xl font-bold text-white uppercase mb-4 group-hover:text-maroon transition-colors">{u.title}</h3>
                          <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400">{u.desc}</p>
                       </div>
                    )
@@ -256,12 +256,12 @@ const Tokenomics = () => {
                          {content.schedule.map((row, i) => (
                             <tr key={i} className="hover:bg-zinc-900/40 transition-colors group">
                                <td className="p-8 font-bold text-white flex items-center gap-3">
-                                  <div className="w-2 h-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></div>
+                                  <div className="w-2 h-2 rounded-full bg-maroon/50 group-hover:bg-maroon transition-colors"></div>
                                   {row.phase}
                                </td>
                                <td className="p-8 text-zinc-400 font-mono">{row.date}</td>
                                <td className="p-8">
-                                  <span className="inline-block px-3 py-1 bg-primary/10 border border-primary/20 rounded text-primary font-mono font-bold text-xs group-hover:bg-primary/20 transition-colors">
+                                  <span className="inline-block px-3 py-1 bg-maroon/10 border border-maroon/20 rounded text-maroon font-mono font-bold text-xs group-hover:bg-maroon/20 transition-colors">
                                      {row.allocation}
                                   </span>
                                </td>

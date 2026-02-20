@@ -40,7 +40,7 @@ const Login = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row relative selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row relative selection:bg-maroon selection:text-white">
       
       {/* Left Pane: Heavy Telemetry Dashboard */}
       <div className="hidden lg:flex lg:w-7/12 border-r border-zinc-900 flex-col p-12 relative overflow-hidden bg-zinc-950">
@@ -53,8 +53,8 @@ const Login = () => {
           {/* Header */}
           <div className="flex items-start justify-between mb-20">
             <div className="flex gap-4 items-center">
-              <div className="w-10 h-10 border border-primary flex items-center justify-center bg-primary/5">
-                <span className="font-gothic text-2xl text-primary leading-none mt-1">A</span>
+              <div className="w-10 h-10 border border-maroon flex items-center justify-center bg-maroon/5">
+                <span className="font-gothic text-2xl text-maroon leading-none mt-1">A</span>
               </div>
               <div>
                 <h1 className="text-2xl font-gothic text-white tracking-normal leading-none">Argus Protocol</h1>
@@ -63,7 +63,7 @@ const Login = () => {
             </div>
             <div className="text-right">
               <p className="label-meta">Region: AWS-EAST-1</p>
-              <p className="label-meta text-primary">Status: Secure_Protocol_v2</p>
+              <p className="label-meta text-maroon">Status: Secure_Protocol_v2</p>
             </div>
           </div>
 
@@ -72,7 +72,7 @@ const Login = () => {
             <div className="p-8 border-r border-zinc-900 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Activity className="w-3 h-3 text-primary" />
+                  <Activity className="w-3 h-3 text-maroon" />
                   <span className="label-meta">Epoch_Sync_Health</span>
                 </div>
                 <span className="text-[10px] font-mono text-zinc-600">L: 14ms</span>
@@ -81,7 +81,7 @@ const Login = () => {
                 {Array.from({ length: 40 }).map((_, i) => (
                   <div 
                     key={i} 
-                    className="flex-1 bg-primary/10 hover:bg-primary/40 transition-all cursor-crosshair" 
+                    className="flex-1 bg-maroon/10 hover:bg-maroon/40 transition-all cursor-crosshair" 
                     style={{ height: `${Math.random() * 80 + 20}%` }}
                   ></div>
                 ))}
@@ -97,7 +97,7 @@ const Login = () => {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {['NA_W', 'NA_E', 'EU_W', 'EU_C', 'AS_E', 'AU_S'].map((node) => (
-                  <div key={node} className="border border-zinc-800 p-3 flex flex-col items-center gap-2 bg-zinc-900/40 hover:border-primary/50 transition-colors">
+                  <div key={node} className="border border-zinc-800 p-3 flex flex-col items-center gap-2 bg-zinc-900/40 hover:border-maroon/50 transition-colors">
                     <span className="text-[8px] font-mono text-zinc-500">{node}</span>
                     <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_5px_#10b981]"></div>
                   </div>
@@ -118,12 +118,12 @@ const Login = () => {
             <div className="space-y-1 text-zinc-600">
               <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting Argus Kernel v2.4.0...</p>
               <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Initializing encrypted tunnel layers...</p>
-              <p><span className="text-primary mr-2">!!</span> {timestamp} Waiting for Operator Credentials</p>
+              <p><span className="text-maroon mr-2">!!</span> {timestamp} Waiting for Operator Credentials</p>
               <div className="pt-2 flex items-center gap-3">
                 <div className="h-[2px] bg-zinc-800 flex-1 overflow-hidden">
-                  <div className="h-full bg-primary" style={{ width: `${bootSequence}%` }}></div>
+                  <div className="h-full bg-maroon" style={{ width: `${bootSequence}%` }}></div>
                 </div>
-                <span className="text-primary font-bold">{bootSequence}%</span>
+                <span className="text-maroon font-bold">{bootSequence}%</span>
               </div>
             </div>
           </div>
@@ -146,13 +146,13 @@ const Login = () => {
             <div className="p-1 border border-zinc-900 bg-zinc-900/20 rounded-md">
               <button
                 onClick={login}
-                className="w-full bg-zinc-950 border border-zinc-800 hover:border-primary/50 py-5 flex items-center justify-between group px-8 transition-all relative overflow-hidden active:scale-[0.98]"
+                className="w-full bg-zinc-950 border border-zinc-800 hover:border-maroon/50 py-5 flex items-center justify-between group px-8 transition-all relative overflow-hidden active:scale-[0.98]"
               >
                 <div className="flex items-center gap-6 relative z-10">
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-5 h-5 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
                   <div className="text-left">
                     <span className="block text-[10px] font-black text-white uppercase tracking-widest">Connect Identity</span>
-                    <span className="block text-[8px] text-zinc-600 uppercase font-mono group-hover:text-primary">Via Google Auth Relay</span>
+                    <span className="block text-[8px] text-zinc-600 uppercase font-mono group-hover:text-maroon">Via Google Auth Relay</span>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />

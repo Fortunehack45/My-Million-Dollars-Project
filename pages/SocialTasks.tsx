@@ -79,7 +79,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
               </span>
               
               {timeLeft && !isCompleted && timeLeft !== 'EXPIRED' && (
-                <span className={`flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${timeLeft.includes('h') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/50' : 'text-primary border-primary/20 bg-primary/5 animate-pulse'}`}>
+                <span className={`flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${timeLeft.includes('h') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/50' : 'text-maroon border-maroon/20 bg-maroon/5 animate-pulse'}`}>
                   <Timer className="w-3 h-3" /> Ends in: {timeLeft}
                 </span>
               )}
@@ -97,7 +97,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
         <div className="flex items-center justify-between md:flex-col md:items-end md:gap-4 border-t md:border-t-0 border-zinc-800/50 pt-4 md:pt-0 mt-2 md:mt-0">
            <div className="md:text-right">
               <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-0.5">Reward</p>
-              <p className={`font-mono font-bold text-sm ${isCompleted ? 'text-zinc-500' : 'text-primary'}`}>+{task.points.toFixed(2)} ARG</p>
+              <p className={`font-mono font-bold text-sm ${isCompleted ? 'text-zinc-500' : 'text-maroon'}`}>+{task.points.toFixed(2)} ARG</p>
            </div>
            
            {isCompleted ? (
@@ -109,7 +109,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Closed</span>
              </div>
            ) : canClaim ? (
-             <button onClick={() => onComplete(task)} className="btn-primary flex items-center gap-2 !px-5 !py-2.5 animate-pulse shadow-[0_0_20px_rgba(244,63,94,0.4)]">
+             <button onClick={() => onComplete(task)} className="btn-primary flex items-center gap-2 !px-5 !py-2.5 animate-pulse shadow-[0_0_20px_rgba(128,0,0,0.4)]">
                Claim Reward <ArrowRight className="w-3 h-3" />
              </button>
            ) : isVerifying ? (
@@ -161,7 +161,7 @@ const SocialTasks = () => {
     <div className="w-full space-y-10 animate-in fade-in duration-500">
       <header className="space-y-3">
         <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">Protocol Tasks</h1>
-        <p className="text-zinc-500 text-sm font-medium border-l-2 border-primary pl-4">Authenticate your identity by completing high-priority network directives to increase your allocation.</p>
+        <p className="text-zinc-500 text-sm font-medium border-l-2 border-maroon pl-4">Authenticate your identity by completing high-priority network directives to increase your allocation.</p>
       </header>
 
       {loading ? (

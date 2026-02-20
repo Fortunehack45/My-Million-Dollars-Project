@@ -659,3 +659,40 @@ export const subscribeToContent = <T>(docId: string, defaultData: T, callback: (
 export const updateContent = async (docId: string, data: any) => {
   await setDoc(doc(db, 'site_content', docId), data, { merge: true });
 };
+
+// --- ADMINISTRATIVE USER ACTIONS ---
+
+export const deleteUserAction = async (uid: string, username: string) => {
+  const userRef = doc(db, 'users', uid);
+  const nameRef = doc(db, 'usernames', username.toLowerCase());
+  const statsRef = doc(db, 'global_stats', 'network');
+
+  await runTransaction(db, async (transaction) => {
+    const userSnap = await transaction.get(userRef);
+    if (!userSnap.exists()) return;
+    const userData = userSnap.data() as User;
+
+    transaction.delete(userRef);
+    transaction.delete(nameRef);
+    transaction.update(statsRef, {
+      totalUsers: increment(-1),
+      totalMined: increment(-userData.points),
+      activeNodes: userData.miningActive ? increment(-1) : increment(0)
+    });
+  });
+};
+
+export const updateUserRoleAction = async (uid: string, role: 'admin' | 'user') => {
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { role });
+};
+
+export const adjustUserPointsAction = async (uid: string, amount: number) => {
+  const userRef = doc(db, 'users', uid);
+  const statsRef = doc(db, 'global_stats', 'network');
+
+  await runTransaction(db, async (transaction) => {
+    transaction.update(userRef, { points: increment(amount) });
+    transaction.update(statsRef, { totalMined: increment(amount) });
+  });
+};

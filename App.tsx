@@ -28,7 +28,7 @@ const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   if (loading) return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
         <p className="label-meta animate-pulse">Synchronizing_State</p>
       </div>
     </div>

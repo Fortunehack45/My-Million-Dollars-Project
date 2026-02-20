@@ -11,7 +11,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="w-12 h-12 border-2 border-zinc-800 rounded-full"></div>
-            <div className="absolute inset-0 w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-12 h-12 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
           </div>
           <div className="flex flex-col items-center gap-2">
             <span className="text-[10px] font-black text-white uppercase tracking-[0.3em] animate-pulse">Authenticating Node</span>
@@ -23,7 +23,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
   
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-primary selection:text-white">
+    <div className="flex min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-maroon selection:text-white">
       <Sidebar />
       {/* 
         Layout Adjustment: 

@@ -81,7 +81,7 @@ const Leaderboard = () => {
                 </tr>
               ) : (
                 data.map((entry) => (
-                  <tr key={entry.uid} className={`hover:bg-zinc-900/40 transition-colors ${user?.uid === entry.uid ? 'bg-primary/5 border-l-2 border-primary' : ''}`}>
+                  <tr key={entry.uid} className={`hover:bg-zinc-900/40 transition-colors ${user?.uid === entry.uid ? 'bg-maroon/5 border-l-2 border-maroon' : ''}`}>
                     <td className="px-6 md:px-8 py-5">
                       <div className="flex items-center gap-3">
                          {getRankIcon(entry.rank)}
@@ -89,9 +89,9 @@ const Leaderboard = () => {
                     </td>
                     <td className="px-6 md:px-8 py-5">
                       <div className="flex items-center gap-3 md:gap-4">
-                        <div className={`w-2 h-2 rounded-full ${user?.uid === entry.uid ? 'bg-primary animate-pulse' : 'bg-zinc-800'}`}></div>
+                        <div className={`w-2 h-2 rounded-full ${user?.uid === entry.uid ? 'bg-maroon animate-pulse' : 'bg-zinc-800'}`}></div>
                         <div className="flex flex-col">
-                           <span className={`text-xs ${user?.uid === entry.uid ? 'text-primary font-black' : 'text-white font-bold'}`}>{entry.displayName}</span>
+                           <span className={`text-xs ${user?.uid === entry.uid ? 'text-maroon font-black' : 'text-white font-bold'}`}>{entry.displayName}</span>
                            <span className="text-[9px] font-mono text-zinc-600 font-medium lowercase hidden md:block">uid_{entry.uid.slice(0, 8)}...</span>
                         </div>
                       </div>

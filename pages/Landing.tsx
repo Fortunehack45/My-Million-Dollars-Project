@@ -175,20 +175,20 @@ const Terminal = () => {
                      <div className={`break-words ${log.type === 'error' ? 'text-red-400' :
                         log.type === 'warning' ? 'text-amber-400' :
                            log.type === 'success' ? 'text-emerald-400' :
-                              log.type === 'system' ? 'text-primary font-bold' :
+                              log.type === 'system' ? 'text-maroon font-bold' :
                                  'text-zinc-300'
                         }`}>
-                        {log.type === 'system' && <span className="text-primary mr-2">➜</span>}
+                        {log.type === 'system' && <span className="text-maroon mr-2">➜</span>}
                         {log.text}
                      </div>
                   </div>
                ))}
                <div className="flex gap-3 pt-1">
                   <span className="text-zinc-600 shrink-0 select-none w-14 text-right">[{getLocalTime().split('.')[0]}]</span>
-                  <div className="text-primary break-words leading-relaxed flex items-center">
+                  <div className="text-maroon break-words leading-relaxed flex items-center">
                      <span className="mr-2">➜</span>
                      {currentLine}
-                     <span className="w-2 h-4 bg-primary ml-1 animate-[pulse_1s_steps(2)_infinite]"></span>
+                     <span className="w-2 h-4 bg-maroon ml-1 animate-[pulse_1s_steps(2)_infinite]"></span>
                   </div>
                </div>
             </div>
@@ -214,7 +214,7 @@ const MobileStatusCard = () => (
    <div className="w-full bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 flex items-center justify-between mb-8 animate-fade-in-up">
       <div className="flex items-center gap-3">
          <div className="w-10 h-10 bg-zinc-950 rounded-lg flex items-center justify-center border border-zinc-800">
-            <Activity className="w-5 h-5 text-primary" />
+            <Activity className="w-5 h-5 text-maroon" />
          </div>
          <div>
             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Network Status</p>
@@ -293,7 +293,7 @@ const Landing = () => {
       let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
       const draw = () => {
-         ctx.fillStyle = "rgba(9, 9, 11, 0.15)";
+         ctx.fillStyle = "rgba(9, 9, 11, 0.05)";
          ctx.fillRect(0, 0, canvas.width, canvas.height);
          ctx.font = fontSize + "px 'JetBrains Mono', monospace";
 
@@ -337,14 +337,14 @@ const Landing = () => {
 
    if (!content) return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-         <Loader2 className="w-8 h-8 text-primary animate-spin" />
+         <Loader2 className="w-8 h-8 text-maroon animate-spin" />
       </div>
    );
 
    return (
       <PublicLayout>
          <div
-            className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-white"
+            className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white"
             onMouseMove={handleMouseMove}
          >
 
@@ -352,7 +352,7 @@ const Landing = () => {
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
                <canvas ref={canvasRef} className="absolute inset-0" />
                <div
-                  className="absolute w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out hidden md:block"
+                  className="absolute w-[600px] h-[600px] bg-maroon/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out hidden md:block"
                   style={{ transform: `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)` }}
                />
             </div>
@@ -383,7 +383,7 @@ const Landing = () => {
                      </div>
 
                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-                        <button onClick={() => navigate('/login')} className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-primary text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(244,63,94,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+                        <button onClick={() => navigate('/login')} className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-maroon text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(128,0,0,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
                            <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         </button>
@@ -424,9 +424,9 @@ const Landing = () => {
                      {content.features.items.map((item, i) => {
                         const Icon = IconMap[item.icon] || Globe;
                         return (
-                           <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-6 md:p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-primary/50 transition-all duration-700 group hover:-translate-y-2 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                              <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors">
-                                 <Icon className="w-6 h-6 text-zinc-500 group-hover:text-primary transition-colors" />
+                           <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-6 md:p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-maroon/50 transition-all duration-700 group hover:-translate-y-2 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                              <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-6 group-hover:bg-maroon/10 group-hover:border-maroon/20 transition-colors">
+                                 <Icon className="w-6 h-6 text-zinc-500 group-hover:text-maroon transition-colors" />
                               </div>
                               <h3 className="text-lg md:text-xl font-bold text-white mb-3 uppercase tracking-tight">{item.title}</h3>
                               <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">{item.desc}</p>
@@ -453,11 +453,11 @@ const Landing = () => {
                         <div className="space-y-6 md:space-y-8">
                            {content.architecture.layers.map((layer, i) => (
                               <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
-                                 <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-primary/50 transition-colors">
-                                    <Layers className="w-6 h-6 md:w-7 md:h-7 text-zinc-600 group-hover:text-primary transition-colors" />
+                                 <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-maroon/50 transition-colors">
+                                    <Layers className="w-6 h-6 md:w-7 md:h-7 text-zinc-600 group-hover:text-maroon transition-colors" />
                                  </div>
                                  <div>
-                                    <h4 className="text-lg md:text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{layer.title}</h4>
+                                    <h4 className="text-lg md:text-xl font-bold text-white mb-1 group-hover:text-maroon transition-colors">{layer.title}</h4>
                                     <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">{layer.desc}</p>
                                  </div>
                               </div>
@@ -465,10 +465,10 @@ const Landing = () => {
                         </div>
                      </div>
                      <div className={`relative animate-float hidden lg:block transition-all duration-1000 delay-300 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
-                        <div className="absolute inset-0 bg-primary/10 blur-[150px] rounded-full"></div>
+                        <div className="absolute inset-0 bg-maroon/10 blur-[150px] rounded-full"></div>
                         <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
-                           <div className="h-24 bg-primary/5 border border-primary/20 rounded-2xl flex items-center justify-center">
-                              <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em]">Compute_Sharding_Layer</span>
+                           <div className="h-24 bg-maroon/5 border border-maroon/20 rounded-2xl flex items-center justify-center">
+                              <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-[0.2em]">Compute_Sharding_Layer</span>
                            </div>
                            <div className="grid grid-cols-2 gap-6">
                               <div className="h-40 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col items-center justify-center gap-4 group hover:border-zinc-600 transition-colors">
@@ -490,12 +490,12 @@ const Landing = () => {
             {content.roadmap?.isVisible && (
                <section id="roadmap" className="py-24 md:py-32 relative z-10 overflow-hidden">
                   {/* Background decorative elements for roadmap */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-full bg-primary/5 blur-[100px] pointer-events-none"></div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-full bg-maroon/5 blur-[100px] pointer-events-none"></div>
 
                   <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
                      <div className={`text-center max-w-3xl mx-auto mb-20 md:mb-32 transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full mb-6 backdrop-blur-md">
-                           <Milestone className="w-3 h-3 text-primary" />
+                           <Milestone className="w-3 h-3 text-maroon" />
                            <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Execution Timeline</span>
                         </div>
                         <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 leading-[0.9]">{content.roadmap.title}</h2>
@@ -522,19 +522,19 @@ const Landing = () => {
                                  >
                                     {/* Desktop Connector Line - Grows outwards */}
                                     <div
-                                       className={`hidden md:block absolute top-12 ${isEven ? 'left-1/2' : 'right-1/2'} h-px bg-gradient-to-r from-primary/40 to-transparent transition-all duration-1000 ease-out`}
+                                       className={`hidden md:block absolute top-12 ${isEven ? 'left-1/2' : 'right-1/2'} h-px bg-gradient-to-r from-maroon/40 to-transparent transition-all duration-1000 ease-out`}
                                        style={{
                                           width: visibleSections.has('roadmap') ? '3rem' : '0',
                                           transitionDelay: `${i * 300 + 500}ms`
                                        }}
                                     >
-                                       <div className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_5px_#f43f5e] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                       <div className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-maroon rounded-full shadow-[0_0_5px_#800000] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     </div>
 
                                     {/* Central Node */}
                                     <div className="absolute left-[19px] md:left-1/2 -translate-x-1/2 top-0 md:top-8 z-10 flex flex-col items-center justify-center">
                                        <div
-                                          className={`w-3 h-3 md:w-4 md:h-4 bg-zinc-950 border-2 ${phase.status === 'LIVE' ? 'border-primary shadow-[0_0_15px_#f43f5e]' : 'border-zinc-700'} rotate-45 transition-all duration-500 group-hover:scale-125 group-hover:border-white z-20`}
+                                          className={`w-3 h-3 md:w-4 md:h-4 bg-zinc-950 border-2 ${phase.status === 'LIVE' ? 'border-maroon shadow-[0_0_15px_#800000]' : 'border-zinc-700'} rotate-45 transition-all duration-500 group-hover:scale-125 group-hover:border-white z-20`}
                                           style={{
                                              transitionDelay: `${i * 300}ms`,
                                              opacity: visibleSections.has('roadmap') ? 1 : 0,
@@ -555,7 +555,7 @@ const Landing = () => {
                                           transform: visibleSections.has('roadmap') ? 'translateX(0)' : `translateX(${isEven ? '50px' : '-50px'})`
                                        }}
                                     >
-                                       <div className="relative bg-zinc-950/80 backdrop-blur-sm border border-zinc-900 p-8 rounded-3xl overflow-hidden hover:border-zinc-700 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/5 hover:-translate-y-1">
+                                       <div className="relative bg-zinc-950/80 backdrop-blur-sm border border-zinc-900 p-8 rounded-3xl overflow-hidden hover:border-zinc-700 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-maroon/5 hover:-translate-y-1">
 
                                           {/* Large Background Watermark - High End Branding */}
                                           <div className="absolute -right-4 -top-6 font-bold text-[8rem] md:text-[10rem] text-white/[0.02] select-none pointer-events-none transition-transform duration-700 group-hover:scale-105 group-hover:text-white/[0.04]">
@@ -564,7 +564,7 @@ const Landing = () => {
 
                                           {/* Top Bar */}
                                           <div className="flex items-center justify-between mb-6 relative z-10">
-                                             <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest px-2 py-1 bg-primary/10 rounded border border-primary/20">
+                                             <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-widest px-2 py-1 bg-maroon/10 rounded border border-maroon/20">
                                                 Phase {phase.phase}
                                              </span>
                                              {phase.status === 'LIVE' && (
@@ -583,7 +583,7 @@ const Landing = () => {
 
                                           {/* Title & Desc */}
                                           <div className="relative z-10 mb-8">
-                                             <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors duration-300">{phase.title}</h3>
+                                             <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-maroon transition-colors duration-300">{phase.title}</h3>
                                              <p className="font-mono text-xs text-zinc-500 mb-4">{phase.period}</p>
                                              <p className="text-sm text-zinc-400 leading-relaxed">{phase.desc}</p>
                                           </div>
@@ -592,7 +592,7 @@ const Landing = () => {
                                           <div className="space-y-3 relative z-10 border-t border-zinc-900 pt-6">
                                              {phase.features.map((feat, idx) => (
                                                 <div key={idx} className="flex items-start gap-3 group/item">
-                                                   <div className={`mt-1 w-1.5 h-1.5 rounded-full ${phase.status === 'LIVE' ? 'bg-primary' : 'bg-zinc-700'} group-hover/item:scale-150 transition-transform`}></div>
+                                                   <div className={`mt-1 w-1.5 h-1.5 rounded-full ${phase.status === 'LIVE' ? 'bg-maroon' : 'bg-zinc-700'} group-hover/item:scale-150 transition-transform`}></div>
                                                    <span className="text-xs font-medium text-zinc-300 group-hover/item:text-white transition-colors">{feat}</span>
                                                 </div>
                                              ))}
@@ -647,7 +647,7 @@ const Landing = () => {
                   <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-12 md:space-y-16">
                      <div className="space-y-6 md:space-y-8">
                         <div className="inline-flex items-center gap-3 px-5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full">
-                           <Zap className="w-4 h-4 text-primary animate-pulse" />
+                           <Zap className="w-4 h-4 text-maroon animate-pulse" />
                            <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest font-mono">Status: Awaiting_Handshake</span>
                         </div>
 
@@ -661,7 +661,7 @@ const Landing = () => {
                      </div>
 
                      <div className="flex flex-col items-center gap-8 pt-6">
-                        <button onClick={() => navigate('/login')} className="h-14 md:h-24 px-8 md:px-20 bg-primary text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(244,63,94,0.4)] hover:shadow-[0_0_100px_rgba(244,63,94,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                        <button onClick={() => navigate('/login')} className="h-14 md:h-24 px-8 md:px-20 bg-maroon text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(128,0,0,0.4)] hover:shadow-[0_0_100px_rgba(128,0,0,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
                            {content.cta.buttonText}
                            <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-3 transition-transform duration-500" />
                         </button>

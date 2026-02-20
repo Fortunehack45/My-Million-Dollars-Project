@@ -12,9 +12,9 @@ const GhostDAGExplainer = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-32">
        <div className="space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
-             <Zap className="w-3 h-3 text-primary" />
-             <span className="text-[9px] font-black text-primary uppercase tracking-widest">Core_Protocol_Breakthrough</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-maroon/10 border border-maroon/20 rounded-full">
+             <Zap className="w-3 h-3 text-maroon" />
+             <span className="text-[9px] font-black text-maroon uppercase tracking-widest">Core_Protocol_Breakthrough</span>
           </div>
           <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-tight">GhostDAG: The Death of Orphans</h2>
           <p className="text-zinc-500 leading-relaxed text-lg">
@@ -27,14 +27,14 @@ const GhostDAGExplainer = () => {
                 <p className="text-[10px] text-zinc-500 leading-tight">Blocks originating from honest nodes with high connectivity.</p>
              </div>
              <div className="p-5 bg-zinc-900/50 border border-zinc-900 rounded-2xl space-y-2">
-                <Share2 className="w-4 h-4 text-primary" />
+                <Share2 className="w-4 h-4 text-maroon" />
                 <h4 className="text-xs font-black text-white uppercase">Red Set (Outliers)</h4>
                 <p className="text-[10px] text-zinc-500 leading-tight">Blocks with low connectivity or those attempting double-spends.</p>
              </div>
           </div>
        </div>
        <div className="surface p-12 rounded-[2.5rem] border border-zinc-900 bg-zinc-950/50 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+          <div className="absolute inset-0 bg-maroon/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
           <div className="relative space-y-8">
              <div className="h-64 border-2 border-dashed border-zinc-900 rounded-3xl flex items-center justify-center p-8">
                 <div className="w-full flex justify-around items-center">
@@ -43,7 +43,7 @@ const GhostDAGExplainer = () => {
                          <div className="w-12 h-12 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center relative">
                             {/* Added Box icon import fix */}
                             <Box className="w-6 h-6 text-zinc-600" />
-                            {i === 2 && <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-ping"></div>}
+                            {i === 2 && <div className="absolute -top-1 -right-1 w-3 h-3 bg-maroon rounded-full animate-ping"></div>}
                          </div>
                          <div className="h-20 w-px bg-zinc-900"></div>
                          <div className="w-12 h-12 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center">
@@ -86,11 +86,11 @@ const BenchmarkChart = () => {
                 {/* Argus */}
                 <div className="space-y-1">
                    <div className="flex justify-between text-[10px] font-bold uppercase">
-                      <span className="text-primary">Argus GhostDAG</span>
+                      <span className="text-maroon">Argus GhostDAG</span>
                       <span className="text-white">{metric.argus}</span>
                    </div>
                    <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary w-full shadow-[0_0_10px_#f43f5e]"></div>
+                      <div className="h-full bg-maroon w-full shadow-[0_0_10px_#800000]"></div>
                    </div>
                 </div>
                 
@@ -215,8 +215,8 @@ const Architecture = () => {
         {/* Background Animation System */}
         <div className="fixed inset-0 z-0 pointer-events-none">
            <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.15]" />
-           <div className="absolute inset-0 bg-[linear-gradient(rgba(244,63,94,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(244,63,94,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-primary/10 blur-[120px] rounded-full mix-blend-screen"></div>
+           <div className="absolute inset-0 bg-[linear-gradient(rgba(128,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(128,0,0,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-maroon/10 blur-[120px] rounded-full mix-blend-screen"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -227,7 +227,7 @@ const Architecture = () => {
               data-id="hero-badge" 
               className={`inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/80 border border-zinc-800 backdrop-blur-md rounded-full mb-8 transition-all duration-1000 ${isVisible('hero-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
-               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+               <span className="w-2 h-2 rounded-full bg-maroon animate-pulse"></span>
                <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">GhostDAG Stack V2.8 (PHANTOM)</span>
             </div>
             
@@ -281,7 +281,7 @@ const Architecture = () => {
                >
                   <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem]"></div>
                   <div className="bg-zinc-950 h-full rounded-[1.9rem] p-8 flex flex-col justify-between relative overflow-hidden border border-zinc-900 group-hover:border-zinc-700 transition-colors">
-                     <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                     <div className="absolute -right-12 -top-12 w-48 h-48 bg-maroon/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                      
                      <div className="space-y-6 relative z-10">
                         <div className="w-14 h-14 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
@@ -289,7 +289,7 @@ const Architecture = () => {
                         </div>
                         <div>
                            <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest block mb-2">Layer 0{i + 1}</span>
-                           <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors">{layer.title}</h3>
+                           <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-maroon transition-colors">{layer.title}</h3>
                            <p className="text-sm text-zinc-400 leading-relaxed font-medium">
                               {layer.desc}
                            </p>

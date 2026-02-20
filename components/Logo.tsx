@@ -9,7 +9,7 @@ import React from 'react';
  * - Red background (Low Green) -> Transparent.
  * - White letter (High Green) -> Opaque.
  * 
- * Usage: <Logo className="w-8 h-8 text-primary" />
+ * Usage: <Logo className="w-8 h-8 text-maroon" />
  */
 export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => {
     // Unique ID to prevent conflicts if multiple instances are mounted

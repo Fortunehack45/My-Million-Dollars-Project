@@ -85,7 +85,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-primary/30 selection:text-white font-sans scroll-smooth">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-maroon/30 selection:text-white font-sans scroll-smooth">
       {/* Navbar - Redesigned Professional Glassmorphism */}
       <nav className="sticky top-0 z-[100] transition-all duration-500">
         <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-2xl border-b border-zinc-900/50 shadow-[0_4px_30px_rgba(0,0,0,0.1)]"></div>
@@ -93,13 +93,13 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           <Link to="/" className="flex items-center gap-4 group">
             {/* Professional Logo Integration: SVG Mask Component */}
             <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-primary/40 transition-all duration-500 relative overflow-hidden">
-                <Logo className="w-8 h-8 text-primary" />
+              <div className="absolute inset-0 bg-maroon/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+              <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
+                <Logo className="w-8 h-8 text-maroon" />
               </div>
             </div>
             <div className="flex flex-col -space-y-0.5">
-              <span className="font-bold text-lg tracking-[-0.02em] text-white group-hover:text-primary transition-colors duration-500">Argus Protocol</span>
+              <span className="font-bold text-lg tracking-[-0.02em] text-white group-hover:text-maroon transition-colors duration-500">Argus Protocol</span>
               <span className="text-[9px] font-mono font-bold text-zinc-500 tracking-[0.25em] uppercase pl-0.5">Infra_Layer_v2.8</span>
             </div>
           </Link>
@@ -112,7 +112,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 relative py-2 group ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
               >
                 {item.label}
-                <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-primary transition-transform duration-500 rounded-full scale-x-0 group-hover:scale-x-100 will-change-transform ${location.pathname === item.path ? 'scale-x-100' : ''}`}></span>
+                <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-maroon transition-transform duration-500 rounded-full scale-x-0 group-hover:scale-x-100 will-change-transform ${location.pathname === item.path ? 'scale-x-100' : ''}`}></span>
               </Link>
             ))}
           </div>
@@ -120,7 +120,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           <div className="hidden md:flex items-center gap-6">
             <button onClick={handleConsoleClick} className="relative group px-8 py-3.5 overflow-hidden rounded-xl active:scale-95 transition-all">
               <div className="absolute inset-0 bg-white group-hover:bg-zinc-100 transition-colors"></div>
-              <div className="absolute inset-0 translate-y-full bg-primary group-hover:translate-y-0 transition-transform duration-300"></div>
+              <div className="absolute inset-0 translate-y-full bg-maroon group-hover:translate-y-0 transition-transform duration-300"></div>
               <span className="relative z-10 flex items-center gap-3 text-black group-hover:text-white text-[10px] font-black uppercase tracking-[0.25em] transition-colors">
                 Initialize Console
                 <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
@@ -134,7 +134,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle Menu"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5 text-primary" strokeWidth={2.5} /> : <Menu className="w-5 h-5" strokeWidth={2.5} />}
+            {isMobileMenuOpen ? <X className="w-5 h-5 text-maroon" strokeWidth={2.5} /> : <Menu className="w-5 h-5" strokeWidth={2.5} />}
           </button>
         </div>
 
@@ -151,7 +151,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 key={item.path}
                 to={item.path}
                 style={{ transitionDelay: `${index * 50 + 100}ms` }}
-                className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-primary transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-maroon transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
               >
                 {item.label}
               </Link>
@@ -160,7 +160,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             {/* Added Mobile Console Button */}
             <button
               onClick={handleMobileConsoleClick}
-              className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-primary hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
+              className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-maroon hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
               style={{ animationDelay: '300ms' }}
             >
               Launch Console <ChevronRight className="w-4 h-4" />
@@ -188,10 +188,10 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
             <div className="md:col-span-5 space-y-8">
               <div className="flex items-center gap-4 group">
-                <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-primary/40 transition-all duration-500 relative overflow-hidden">
-                  <Logo className="w-8 h-8 text-primary" />
+                <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
+                  <Logo className="w-8 h-8 text-maroon" />
                 </div>
-                <span className="font-bold text-xl text-white tracking-tight group-hover:text-primary transition-colors duration-500">{landingConfig.footer.title}</span>
+                <span className="font-bold text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500">{landingConfig.footer.title}</span>
               </div>
               <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
                 {landingConfig.footer.description}
@@ -205,24 +205,24 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
             <div className="md:col-span-2 space-y-4">
               <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Protocol</h4>
-              <Link to="/docs" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Documentation</Link>
-              <Link to="/architecture" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Architecture</Link>
-              <Link to="/tokenomics" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Tokenomics</Link>
-              <Link to="/whitepaper" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Whitepaper</Link>
+              <Link to="/docs" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Documentation</Link>
+              <Link to="/architecture" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Architecture</Link>
+              <Link to="/tokenomics" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Tokenomics</Link>
+              <Link to="/whitepaper" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Whitepaper</Link>
             </div>
 
             <div className="md:col-span-2 space-y-4">
               <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Organization</h4>
-              <Link to="/about" className="block text-zinc-500 hover:text-primary text-sm transition-colors">About Us</Link>
-              <Link to="/careers" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Careers</Link>
-              <Link to="/contact" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Contact</Link>
-              <a href="#" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Press Kit</a>
+              <Link to="/about" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">About Us</Link>
+              <Link to="/careers" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Careers</Link>
+              <Link to="/contact" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Contact</Link>
+              <a href="#" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Press Kit</a>
             </div>
 
             <div className="md:col-span-3 space-y-4">
               <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Legal</h4>
-              <Link to="/terms" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Terms of Service</Link>
-              <Link to="/privacy" className="block text-zinc-500 hover:text-primary text-sm transition-colors">Privacy Policy</Link>
+              <Link to="/terms" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Terms of Service</Link>
+              <Link to="/privacy" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Privacy Policy</Link>
             </div>
           </div>
 

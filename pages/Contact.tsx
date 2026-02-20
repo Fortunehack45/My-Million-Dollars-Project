@@ -25,19 +25,19 @@ const Contact = () => {
               </div>
 
               <div className="space-y-6">
-                 <div className="p-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl flex items-start gap-6 group hover:border-primary/30 transition-colors">
-                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 group-hover:border-primary/50 transition-colors">
-                       <Mail className="w-6 h-6 text-zinc-400 group-hover:text-primary" />
+                 <div className="p-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl flex items-start gap-6 group hover:border-maroon/30 transition-colors">
+                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 group-hover:border-maroon/50 transition-colors">
+                       <Mail className="w-6 h-6 text-zinc-400 group-hover:text-maroon" />
                     </div>
                     <div>
                        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Direct Uplink</h3>
-                       <a href={`mailto:${content.email}`} className="text-2xl font-bold text-white hover:text-primary transition-colors">{content.email}</a>
+                       <a href={`mailto:${content.email}`} className="text-2xl font-bold text-white hover:text-maroon transition-colors">{content.email}</a>
                     </div>
                  </div>
 
-                 <div className="p-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl flex items-start gap-6 group hover:border-primary/30 transition-colors">
-                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 group-hover:border-primary/50 transition-colors">
-                       <MapPin className="w-6 h-6 text-zinc-400 group-hover:text-primary" />
+                 <div className="p-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl flex items-start gap-6 group hover:border-maroon/30 transition-colors">
+                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 group-hover:border-maroon/50 transition-colors">
+                       <MapPin className="w-6 h-6 text-zinc-400 group-hover:text-maroon" />
                     </div>
                     <div>
                        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Physical Node</h3>
@@ -45,9 +45,9 @@ const Contact = () => {
                     </div>
                  </div>
 
-                 <div className="p-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl flex items-start gap-6 group hover:border-primary/30 transition-colors">
-                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 group-hover:border-primary/50 transition-colors">
-                       <Clock className="w-6 h-6 text-zinc-400 group-hover:text-primary" />
+                 <div className="p-8 bg-zinc-900/30 border border-zinc-800 rounded-3xl flex items-start gap-6 group hover:border-maroon/30 transition-colors">
+                    <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 group-hover:border-maroon/50 transition-colors">
+                       <Clock className="w-6 h-6 text-zinc-400 group-hover:text-maroon" />
                     </div>
                     <div>
                        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Support Window</h3>
@@ -59,26 +59,26 @@ const Contact = () => {
 
            {/* Visual Form Side */}
            <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-maroon/5 blur-[100px] rounded-full"></div>
               
               <div className="relative z-10 space-y-8">
                  <div className="flex items-center gap-3 mb-8">
-                    <MessageSquare className="w-5 h-5 text-primary" />
+                    <MessageSquare className="w-5 h-5 text-maroon" />
                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Encrypted Transmission</span>
                  </div>
 
                  <div className="space-y-6">
                     <div className="space-y-2">
                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Identity</label>
-                       <input type="text" placeholder="Your Name / Org" className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-primary/50 outline-none transition-colors" />
+                       <input type="text" placeholder="Your Name / Org" className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors" />
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Return Frequency</label>
-                       <input type="email" placeholder="email@domain.com" className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-primary/50 outline-none transition-colors" />
+                       <input type="email" placeholder="email@domain.com" className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors" />
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Payload</label>
-                       <textarea rows={4} placeholder="Message content..." className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-primary/50 outline-none transition-colors resize-none"></textarea>
+                       <textarea rows={4} placeholder="Message content..." className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors resize-none"></textarea>
                     </div>
                  </div>
 

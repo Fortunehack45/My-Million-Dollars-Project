@@ -82,7 +82,7 @@ const Endpoint = ({ method, path, description }: { method: 'GET' | 'POST' | 'WS'
 
 const SectionHeading = ({ id, children, icon: Icon }: { id: string; children: React.ReactNode; icon?: any }) => (
   <h2 id={id} className="group flex items-center gap-3 text-xl font-semibold text-white mt-12 mb-6 scroll-mt-32">
-    {Icon && <Icon className="w-5 h-5 text-zinc-500 group-hover:text-primary transition-colors" />}
+    {Icon && <Icon className="w-5 h-5 text-zinc-500 group-hover:text-maroon transition-colors" />}
     {children}
     <a href={`#${id}`} className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-zinc-400 transition-opacity">
       <Hash size={16} />
@@ -125,7 +125,7 @@ const Docs = () => {
       className={cn(
         "w-full text-left px-3 py-1.5 text-[13px] border-l transition-all duration-200",
         activeSection === id 
-          ? "border-primary text-primary font-medium" 
+          ? "border-maroon text-maroon font-medium" 
           : "border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600"
       )}
     >
@@ -158,13 +158,13 @@ const Docs = () => {
                   <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-3">Community</h4>
                   <a 
                     href="#" 
-                    className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-primary transition-colors mb-2"
+                    className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-maroon transition-colors mb-2"
                   >
                     GitHub Repository <ExternalLink size={12} />
                   </a>
                   <a 
                     href="#" 
-                    className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-primary transition-colors"
+                    className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-maroon transition-colors"
                   >
                     Discord Server <ExternalLink size={12} />
                   </a>
@@ -212,7 +212,7 @@ const Docs = () => {
 
                 <div className="p-6 bg-zinc-900/20 border border-zinc-800 rounded-lg">
                   <div className="flex gap-4">
-                    <div className="shrink-0 w-1 bg-primary rounded-full" />
+                    <div className="shrink-0 w-1 bg-maroon rounded-full" />
                     <div>
                       <h4 className="text-sm font-medium text-white mb-1">Core Philosophy</h4>
                       <p className="text-sm text-zinc-400 leading-relaxed italic">
@@ -280,7 +280,7 @@ const Docs = () => {
                       { name: 'argus_gateway', role: 'Zero-Ops FastAPI gateway for developers.' },
                     ].map((item, i) => (
                       <tr key={i} className="hover:bg-zinc-900/20 transition-colors">
-                        <td className="px-6 py-4 font-mono text-primary text-xs">{item.name}</td>
+                        <td className="px-6 py-4 font-mono text-maroon text-xs">{item.name}</td>
                         <td className="px-6 py-4 text-zinc-400">{item.role}</td>
                       </tr>
                     ))}
@@ -326,7 +326,7 @@ cargo build -p argus-cli --release`}
 
                 <div>
                   <h3 className="text-base font-medium text-white mb-3">2. Activate the CLI Node</h3>
-                  <p className="text-sm text-zinc-400 mb-4">The <code className="text-primary bg-primary/10 px-1 rounded">argus</code> binary is the primary entry point.</p>
+                  <p className="text-sm text-zinc-400 mb-4">The <code className="text-maroon bg-maroon/10 px-1 rounded">argus</code> binary is the primary entry point.</p>
                   <CodeBlock 
                     title="Terminal"
                     code={`# Check connectivity to your local kaspad node
@@ -425,7 +425,7 @@ uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`}
                   <div className="space-y-2">
                     <div className="flex items-start gap-3 text-sm text-zinc-300">
                       <span className="font-mono text-zinc-500">01.</span>
-                      <span>Sort by <code className="font-mono text-xs bg-zinc-800 px-1 py-0.5 rounded text-primary">BlueScore(B)</code> ascending.</span>
+                      <span>Sort by <code className="font-mono text-xs bg-zinc-800 px-1 py-0.5 rounded text-maroon">BlueScore(B)</code> ascending.</span>
                     </div>
                     <div className="flex items-start gap-3 text-sm text-zinc-300">
                       <span className="font-mono text-zinc-500">02.</span>
@@ -465,7 +465,7 @@ uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`}
                 <div className="text-xs text-zinc-600">
                   Last updated: <span className="text-zinc-400">February 18, 2026</span>
                 </div>
-                <a href="#" className="text-xs text-primary hover:underline">Edit this page on GitHub</a>
+                <a href="#" className="text-xs text-maroon hover:underline">Edit this page on GitHub</a>
               </div>
             </div>
           </div>

@@ -72,10 +72,10 @@ const Referrals = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Interaction Card */}
-        <div className="lg:col-span-7 surface p-10 rounded-3xl space-y-10 border-primary/10">
+        <div className="lg:col-span-7 surface p-10 rounded-3xl space-y-10 border-maroon/10">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
-              <Share2 className="w-5 h-5 text-primary" />
+            <div className="p-3 bg-maroon/10 rounded-xl border border-maroon/20">
+              <Share2 className="w-5 h-5 text-maroon" />
             </div>
             <div>
               <h3 className="label-meta text-white">Handshake Authorization Link</h3>
@@ -85,7 +85,7 @@ const Referrals = () => {
           
           <div className="space-y-6">
             <div className="bg-zinc-950 p-6 rounded-2xl border border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4">
-              <code className="text-primary font-mono text-xs font-black tracking-tight bg-zinc-900/50 px-3 py-1.5 rounded">{window.location.origin}/#/?ref={user.referralCode}</code>
+              <code className="text-maroon font-mono text-xs font-black tracking-tight bg-zinc-900/50 px-3 py-1.5 rounded">{window.location.origin}/#/?ref={user.referralCode}</code>
               <button onClick={copyToClipboard} className="btn-primary !px-6 !py-3 w-full md:w-auto text-[10px] font-black uppercase tracking-widest">
                 {copied ? 'COPIED_HASH' : 'COPY_LINK'}
               </button>
@@ -97,7 +97,7 @@ const Referrals = () => {
                  <p className="text-[11px] text-zinc-400 font-bold uppercase">Reward Protocol</p>
                  <p className="text-[10px] text-zinc-500 leading-relaxed font-medium italic">
                     Earn <span className="text-white">+{REFERRAL_BONUS_POINTS} ARG</span> instantly per peer. 
-                    Unlock <span className="text-primary">+{REFERRAL_BOOST} ARG/hr</span> permanent mining speed boost per active node. 
+                    Unlock <span className="text-maroon">+{REFERRAL_BOOST} ARG/hr</span> permanent mining speed boost per active node. 
                     <span className="text-zinc-600 block mt-1">Status: {activeRefs}/{MAX_REFERRALS} Peers Synced (Cap: 20)</span>
                  </p>
                </div>
@@ -122,8 +122,8 @@ const Referrals = () => {
 
           <div className="surface p-10 rounded-3xl space-y-8 bg-gradient-to-br from-zinc-950 to-zinc-900 border border-zinc-800">
              <div className="flex items-center justify-between">
-                <p className="label-meta text-primary">Mining Efficiency</p>
-                <Zap className="w-4 h-4 text-primary" />
+                <p className="label-meta text-maroon">Mining Efficiency</p>
+                <Zap className="w-4 h-4 text-maroon" />
              </div>
              <div className="space-y-3">
                 <div className="flex justify-between text-[10px] font-mono font-bold text-zinc-500 uppercase">
@@ -131,9 +131,9 @@ const Referrals = () => {
                    <span className="text-white">{activeRefs} / 20</span>
                 </div>
                 <div className="h-4 bg-zinc-950 border border-zinc-800 p-0.5 rounded-full overflow-hidden">
-                   <div className="h-full bg-primary shadow-[0_0_10px_#f43f5e] rounded-full transition-all duration-1000" style={{ width: `${(activeRefs/20)*100}%` }}></div>
+                   <div className="h-full bg-maroon shadow-[0_0_10px_#800000] rounded-full transition-all duration-1000" style={{ width: `${(activeRefs/20)*100}%` }}></div>
                 </div>
-                <p className="text-[9px] text-zinc-600 font-medium italic">Total Speed Boost: <span className="text-primary">+{ (activeRefs * REFERRAL_BOOST).toFixed(2) } ARG/hr</span></p>
+                <p className="text-[9px] text-zinc-600 font-medium italic">Total Speed Boost: <span className="text-maroon">+{ (activeRefs * REFERRAL_BOOST).toFixed(2) } ARG/hr</span></p>
              </div>
           </div>
         </div>
@@ -149,7 +149,7 @@ const Referrals = () => {
          <div className="min-h-[200px]">
            {isLoadingLogs ? (
               <div className="p-12 flex flex-col items-center justify-center gap-4">
-                 <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                 <Loader2 className="w-6 h-6 text-maroon animate-spin" />
                  <p className="label-meta text-zinc-600 animate-pulse">Syncing Network Logs...</p>
               </div>
            ) : referralLogs.length > 0 ? (
@@ -191,11 +191,11 @@ const Referrals = () => {
                            <div className="flex items-center gap-3">
                               <div className="text-right">
                                  <p className="text-[9px] text-zinc-500 font-bold uppercase">Speed Reward</p>
-                                 <p className={`text-xs font-mono font-bold ${isBoosted ? 'text-primary' : 'text-zinc-600'}`}>
+                                 <p className={`text-xs font-mono font-bold ${isBoosted ? 'text-maroon' : 'text-zinc-600'}`}>
                                    {isBoosted ? `+${REFERRAL_BOOST.toFixed(2)} /hr` : 'CAP REACHED'}
                                  </p>
                               </div>
-                              <Zap className={`w-4 h-4 ${isBoosted ? 'text-primary' : 'text-zinc-700'}`} />
+                              <Zap className={`w-4 h-4 ${isBoosted ? 'text-maroon' : 'text-zinc-700'}`} />
                            </div>
                         </div>
                      </div>

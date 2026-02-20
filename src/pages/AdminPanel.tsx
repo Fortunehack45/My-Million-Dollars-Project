@@ -41,7 +41,7 @@ import {
 
 // --- Helper Components ---
 
-const INPUT_STYLES = "w-full bg-zinc-950 border border-zinc-800 text-zinc-200 p-3 rounded-lg focus:border-primary/50 focus:bg-zinc-900 outline-none transition-all text-xs font-mono placeholder:text-zinc-700";
+const INPUT_STYLES = "w-full bg-zinc-950 border border-zinc-800 text-zinc-200 p-3 rounded-lg focus:border-maroon/50 focus:bg-zinc-900 outline-none transition-all text-xs font-mono placeholder:text-zinc-700";
 
 const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", className="" }: any) => (
   <div className={`space-y-2 w-full ${className}`}>
@@ -70,7 +70,7 @@ const Toggle = ({ label, checked, onChange }: any) => (
     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{label}</span>
     <button 
       type="button"
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-zinc-800'}`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-maroon' : 'bg-zinc-800'}`}
     >
       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
@@ -80,8 +80,8 @@ const Toggle = ({ label, checked, onChange }: any) => (
 const SectionHeader = ({ title, icon: Icon, description }: any) => (
   <div className="mb-8 border-b border-zinc-800 pb-6">
     <div className="flex items-center gap-3 mb-2">
-      <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
-        <Icon className="w-5 h-5 text-primary" />
+      <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
+        <Icon className="w-5 h-5 text-maroon" />
       </div>
       <h2 className="text-2xl font-black text-white uppercase tracking-tight">{title}</h2>
     </div>
@@ -95,7 +95,7 @@ const AccordionItem = ({ title, children, onDelete }: any) => {
     <div className="border border-zinc-800 rounded-xl bg-zinc-900/10 overflow-hidden mb-4 transition-all hover:border-zinc-700">
       <div className="flex items-center justify-between p-4 bg-zinc-900/40 cursor-pointer hover:bg-zinc-900/60 transition-colors" onClick={() => setIsOpen(!isOpen)}>
         <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide flex items-center gap-3">
-          {isOpen ? <ChevronDown className="w-4 h-4 text-primary" /> : <ChevronRight className="w-4 h-4 text-zinc-600" />}
+          {isOpen ? <ChevronDown className="w-4 h-4 text-maroon" /> : <ChevronRight className="w-4 h-4 text-zinc-600" />}
           {title}
         </span>
         <button 
@@ -300,7 +300,7 @@ const AdminPanel = () => {
       {/* Header - Z-Index 40 to stay above everything */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-950/90 p-6 rounded-3xl border border-zinc-900 backdrop-blur-xl sticky top-4 z-40 shadow-2xl">
         <div className="flex items-center gap-4">
-           <div className="w-12 h-12 bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800 shadow-inner shrink-0"><ShieldAlert className="w-6 h-6 text-primary" /></div>
+           <div className="w-12 h-12 bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800 shadow-inner shrink-0"><ShieldAlert className="w-6 h-6 text-maroon" /></div>
            <div className="min-w-0">
              <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic leading-none truncate">Command_Center</h1>
              <div className="flex items-center gap-2 mt-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span><p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest font-mono truncate max-w-[150px] md:max-w-full">{firebaseUser?.email}</p></div>
@@ -309,7 +309,7 @@ const AdminPanel = () => {
         <div className="flex items-center gap-4 shrink-0">
            <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800">
              <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-2 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}><Activity className="w-3 h-3" /> Live</button>
-             <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'cms' ? 'bg-primary text-white' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3 h-3" /> CMS</button>
+             <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'cms' ? 'bg-maroon text-white' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3 h-3" /> CMS</button>
            </div>
            {activeTab === 'cms' && (
              <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-emerald-500 text-black hover:bg-emerald-400' : 'bg-zinc-800 text-zinc-500'}`}><Save className="w-3 h-3" />{cmsStatus || (hasUnsavedChanges ? 'Save Changes' : 'Saved')}</button>
@@ -323,7 +323,7 @@ const AdminPanel = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { label: 'Nodes', val: users.length, sub: 'Registered', icon: Globe, color: 'text-zinc-400' },
-              { label: 'Miners', val: users.filter(u => u.miningActive).length, sub: 'Active', icon: Cpu, color: 'text-primary' },
+              { label: 'Miners', val: users.filter(u => u.miningActive).length, sub: 'Active', icon: Cpu, color: 'text-maroon' },
               { label: 'Presence', val: onlineUids.length, sub: 'WebSockets', icon: Radio, color: 'text-emerald-500' },
               { label: 'Circulation', val: Math.floor(netStats.totalMined).toLocaleString(), sub: 'ARG Credits', icon: Database, color: 'text-zinc-600' }
             ].map((s, i) => (
@@ -404,7 +404,7 @@ const AdminPanel = () => {
                     <div key={t.id} className={`flex justify-between items-center p-4 bg-zinc-950/40 rounded-xl border border-zinc-900 group ${isExpired ? 'opacity-50' : ''}`}>
                        <div>
                            <p className="text-white text-xs font-bold">{t.title}</p>
-                           <p className="text-primary text-[10px] font-mono">{t.points} ARG</p>
+                           <p className="text-maroon text-[10px] font-mono">{t.points} ARG</p>
                            {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1">EXPIRED</p>}
                        </div>
                        <button onClick={() => deleteTask(t.id)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
@@ -429,7 +429,7 @@ const AdminPanel = () => {
                   <button 
                     key={page}
                     onClick={() => setActiveCmsPage(page as any)} 
-                    className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeCmsPage === page ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
+                    className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeCmsPage === page ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
                   >
                     {page}
                   </button>
@@ -516,7 +516,7 @@ const AdminPanel = () => {
                             <button onClick={() => removeItem(setLandingConfig, ['partners', 'items'], idx)} className="text-red-500 hover:bg-red-500/10 p-2 rounded"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         ))}
-                        <button onClick={() => addItem(setLandingConfig, ['partners', 'items'], "NEW_PARTNER")} className="text-primary text-xs font-bold uppercase hover:underline">+ Add Partner</button>
+                        <button onClick={() => addItem(setLandingConfig, ['partners', 'items'], "NEW_PARTNER")} className="text-maroon text-xs font-bold uppercase hover:underline">+ Add Partner</button>
                       </div>
                     </div>
                   )}

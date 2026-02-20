@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&family=UnifrakturMaguntia&display=swap');
+
+:root {
+  --primary: #800000;
+  --primary-light: #991b1b;
+  --primary-dark: #450a0a;
+  --primary-glow: rgba(128, 0, 0, 0.4);
+  
+  --bg: #09090b;
+  --bg-soft: #18181b;
+  --border: rgba(255, 255, 255, 0.08);
+  --glass: rgba(9, 9, 11, 0.7);
+}
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-zinc-100 selection:bg-red-900/40 selection:text-white;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-zinc-950/70 backdrop-blur-xl border border-white/5 shadow-2xl;
+  }
+  
+  .glass-panel {
+    @apply bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50;
+  }
+
+  .btn-maroon {
+    @apply relative overflow-hidden bg-maroon text-white px-8 py-3.5 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-maroon/20 hover:shadow-maroon/40;
+  }
+
+  .chip-badge {
+    @apply px-2.5 py-1 bg-maroon/10 border border-maroon/20 rounded-md flex items-center gap-1.5;
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 20px -5px var(--primary-glow);
+  }
+
+  .text-maroon {
+    @apply text-red-700;
+  }
+}
+
+/* Custom Animations */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(1000%); }
+}
+
+.animate-scanline {
+  animation: scanline 8s linear infinite;
+}
+
+/* Global Transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-zinc-950;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-zinc-800 rounded-full hover:bg-zinc-700;
+}

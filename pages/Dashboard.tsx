@@ -110,7 +110,7 @@ const GhostDAGVisualizer = () => {
       nodes.forEach(node => {
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.type === 'red' ? 2.5 : 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = node.type === 'blue' ? '#10b981' : '#f43f5e';
+        ctx.fillStyle = node.type === 'blue' ? '#10b981' : '#800000';
         ctx.fill();
         ctx.stroke();
       });
@@ -290,7 +290,7 @@ const Dashboard = () => {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-zinc-900">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-zinc-950 border border-zinc-800 flex items-center justify-center">
-             <Activity className="w-6 h-6 text-primary" />
+             <Activity className="w-6 h-6 text-maroon" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-white uppercase tracking-tight leading-none">Network Operations</h1>
@@ -309,7 +309,7 @@ const Dashboard = () => {
            <div className="h-8 w-px bg-zinc-900"></div>
            <div className="text-right">
               <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Block Height</p>
-              <p className="text-sm font-mono font-bold text-primary">#{blockHeight.toLocaleString()}</p>
+              <p className="text-sm font-mono font-bold text-maroon">#{blockHeight.toLocaleString()}</p>
            </div>
         </div>
       </header>
@@ -374,7 +374,7 @@ const Dashboard = () => {
 
            {/* Mining Controller - Professional Hardware Look */}
            <div className="bg-zinc-950 border border-zinc-900 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] rounded-full pointer-events-none"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-[50px] rounded-full pointer-events-none"></div>
               
               <div className="flex-1 w-full">
                  <div className="flex justify-between items-end mb-6">
@@ -399,7 +399,7 @@ const Dashboard = () => {
                        ))}
                     </div>
                     <div 
-                       className={`h-full ${isSessionComplete ? 'bg-emerald-500' : 'bg-primary'} relative z-10 transition-all duration-1000`} 
+                       className={`h-full ${isSessionComplete ? 'bg-emerald-500' : 'bg-maroon'} relative z-10 transition-all duration-1000`} 
                        style={{ width: `${(miningTimer / MAX_SESSION_TIME) * 100}%` }}
                     ></div>
                  </div>
@@ -423,7 +423,7 @@ const Dashboard = () => {
                  ) : (
                     <button 
                        onClick={handleStartMining} 
-                       className="w-full md:w-48 h-14 bg-primary text-white font-black uppercase tracking-widest text-[10px] hover:bg-rose-600 transition-colors shadow-[0_0_20px_rgba(244,63,94,0.2)]"
+                       className="w-full md:w-48 h-14 bg-maroon text-white font-black uppercase tracking-widest text-[10px] hover:bg-rose-600 transition-colors shadow-[0_0_20px_rgba(128,0,0,0.2)]"
                     >
                        Initialize Node
                     </button>
@@ -457,12 +457,12 @@ const Dashboard = () => {
                  ].filter(Boolean).map((log: any, i) => (
                     <div key={i} className="flex gap-3 opacity-80 hover:opacity-100 transition-opacity">
                        <span className="text-zinc-600 shrink-0">{log.time}</span>
-                       <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-amber-500' : log.type === 'sys' ? 'text-primary' : 'text-zinc-400'}`}>
+                       <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-amber-500' : log.type === 'sys' ? 'text-maroon' : 'text-zinc-400'}`}>
                           {log.msg}
                        </span>
                     </div>
                  ))}
-                 <div className="animate-pulse text-primary font-bold">_</div>
+                 <div className="animate-pulse text-maroon font-bold">_</div>
               </div>
            </div>
 

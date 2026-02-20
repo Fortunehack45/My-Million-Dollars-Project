@@ -14,6 +14,9 @@ import {
   updateContent,
   updateNetworkCap,
   recalculateNetworkStats,
+  deleteUserAction,
+  updateUserRoleAction,
+  adjustUserPointsAction,
   DEFAULT_LANDING_CONFIG,
   DEFAULT_LEGAL_CONFIG,
   DEFAULT_ABOUT_CONFIG,
@@ -42,7 +45,7 @@ import Logo from '../components/Logo';
 
 // --- Helper Components ---
 
-const INPUT_STYLES = "w-full bg-zinc-950 border border-zinc-800 text-zinc-200 p-3 rounded-lg focus:border-primary/50 focus:bg-zinc-900 outline-none transition-all text-xs font-mono placeholder:text-zinc-700";
+const INPUT_STYLES = "w-full bg-zinc-950 border border-zinc-800 text-zinc-200 p-3 rounded-lg focus:border-maroon/50 focus:bg-zinc-900 outline-none transition-all text-xs font-mono placeholder:text-zinc-700";
 
 const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", className = "" }: any) => (
   <div className={`space-y-2 w-full ${className}`}>
@@ -71,7 +74,7 @@ const Toggle = ({ label, checked, onChange }: any) => (
     <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{label}</span>
     <button
       type="button"
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-zinc-800'}`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-maroon' : 'bg-zinc-800'}`}
     >
       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
@@ -81,8 +84,8 @@ const Toggle = ({ label, checked, onChange }: any) => (
 const SectionHeader = ({ title, icon: Icon, description }: any) => (
   <div className="mb-8 border-b border-zinc-800 pb-6">
     <div className="flex items-center gap-3 mb-2">
-      <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/20">
-        <Icon className="w-5 h-5 text-primary" />
+      <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
+        <Icon className="w-5 h-5 text-maroon" />
       </div>
       <h2 className="text-2xl font-black text-white uppercase tracking-tight">{title}</h2>
     </div>
@@ -96,7 +99,7 @@ const AccordionItem = ({ title, children, onDelete }: any) => {
     <div className="border border-zinc-800 rounded-xl bg-zinc-900/10 overflow-hidden mb-4 transition-all hover:border-zinc-700">
       <div className="flex items-center justify-between p-4 bg-zinc-900/40 cursor-pointer hover:bg-zinc-900/60 transition-colors" onClick={() => setIsOpen(!isOpen)}>
         <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide flex items-center gap-3">
-          {isOpen ? <ChevronDown className="w-4 h-4 text-primary" /> : <ChevronRight className="w-4 h-4 text-zinc-600" />}
+          {isOpen ? <ChevronDown className="w-4 h-4 text-maroon" /> : <ChevronRight className="w-4 h-4 text-zinc-600" />}
           {title}
         </span>
         <button
@@ -145,6 +148,10 @@ const AdminPanel = () => {
 
   const [capInput, setCapInput] = useState<number>(DEFAULT_MAX_USERS_CAP);
   const [capSaveStatus, setCapSaveStatus] = useState('');
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [adjPoints, setAdjPoints] = useState<{ [key: string]: number }>({});
+  const [isManaging, setIsManaging] = useState<{ [key: string]: boolean }>({});
 
   const isAuthorized = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() || user?.role === 'admin';
 
@@ -302,7 +309,7 @@ const AdminPanel = () => {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-950/80 p-8 rounded-[2rem] border border-zinc-900 backdrop-blur-md sticky top-4 z-40 shadow-2xl transition-all duration-300">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 bg-zinc-900 flex items-center justify-center rounded-2xl border border-zinc-800 shadow-sm shrink-0 transition-transform duration-300 hover:scale-105">
-            <Logo className="w-8 h-8 text-primary" />
+            <Logo className="w-8 h-8 text-maroon" />
           </div>
           <div className="min-w-0">
             <h1 className="text-3xl font-bold text-white tracking-tight leading-none truncate">System Control</h1>
@@ -315,7 +322,7 @@ const AdminPanel = () => {
         <div className="flex items-center gap-4 shrink-0">
           <div className="flex bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-900">
             <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><Activity className="w-3.5 h-3.5" /> Dashboard</button>
-            <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'cms' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3.5 h-3.5" /> Editor</button>
+            <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'cms' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3.5 h-3.5" /> Editor</button>
           </div>
           {activeTab === 'cms' && (
             <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02]' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}><Save className="w-4 h-4" />{cmsStatus || (hasUnsavedChanges ? 'Confirm Update' : 'Synchronized')}</button>
@@ -326,23 +333,97 @@ const AdminPanel = () => {
       {/* Dashboard View */}
       {activeTab === 'dashboard' && (
         <div className="space-y-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { label: 'Nodes', val: users.length, sub: 'Registered', icon: Globe, color: 'text-zinc-400' },
-              { label: 'Miners', val: users.filter(u => u.miningActive).length, sub: 'Active', icon: Cpu, color: 'text-primary' },
-              { label: 'Presence', val: onlineUids.length, sub: 'WebSockets', icon: Radio, color: 'text-emerald-500' },
-              { label: 'Circulation', val: Math.floor(netStats.totalMined).toLocaleString(), sub: 'ARG Credits', icon: Database, color: 'text-zinc-600' }
-            ].map((s, i) => (
-              <div key={i} className="surface p-6 rounded-2xl border border-zinc-800 bg-zinc-900/20">
-                <s.icon className={`w-4 h-4 ${s.color} mb-4`} />
-                <h3 className="text-3xl font-mono font-bold text-white mb-1">{s.val}</h3>
-                <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">{s.sub}</p>
-              </div>
-            ))}
-          </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 space-y-8">
+              {/* User Directory */}
+              <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900 overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
+                      <Users className="w-5 h-5 text-maroon" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">User Directory</h2>
+                  </div>
+                  <div className="relative max-w-xs w-full">
+                    <AlignLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                    <input
+                      type="text"
+                      placeholder="Search Users..."
+                      className={`${INPUT_STYLES} pl-10`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-[10px] font-black text-zinc-600 uppercase tracking-widest border-b border-zinc-900">
+                        <th className="pb-4 px-2">Node Entity</th>
+                        <th className="pb-4 px-2 text-center">Status</th>
+                        <th className="pb-4 px-2 text-right">Balance</th>
+                        <th className="pb-4 px-2 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-900/50">
+                      {users.filter(u => u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) || u.email?.toLowerCase().includes(searchQuery.toLowerCase())).map((u) => (
+                        <tr key={u.uid} className="group hover:bg-zinc-950/40 transition-colors">
+                          <td className="py-4 px-2">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center overflow-hidden">
+                                {u.photoURL ? <img src={u.photoURL} alt="" className="w-full h-full object-cover" /> : <Shield className="w-5 h-5 text-zinc-700" />}
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-white flex items-center gap-2">
+                                  {u.displayName}
+                                  {u.role === 'admin' && <span className="text-[8px] bg-maroon/20 text-maroon px-1.5 py-0.5 rounded border border-maroon/20">ADMIN</span>}
+                                </p>
+                                <p className="text-[9px] text-zinc-500 font-mono lower">{u.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-2 text-center">
+                            <div className="flex justify-center">
+                              {u.miningActive ? (
+                                <div className="flex items-center gap-1.5 px-2 py-1 bg-maroon/10 border border-maroon/20 rounded-md">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
+                                  <span className="text-[8px] font-black text-maroon uppercase">MINING</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
+                                  <span className="text-[8px] font-black text-zinc-600 uppercase">IDLE</span>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 px-2 text-right">
+                            <p className="text-xs font-mono font-bold text-white">{u.points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
+                          </td>
+                          <td className="py-4 px-2 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => setIsManaging({ ...isManaging, [u.uid]: !isManaging[u.uid] })}
+                                className="p-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
+                              >
+                                <Settings className={`w-3.5 h-3.5 ${isManaging[u.uid] ? 'text-maroon' : 'text-zinc-500'}`} />
+                              </button>
+                              <button
+                                onClick={() => deleteUserAction(u.uid, u.displayName || '')}
+                                className="p-2 bg-red-500/5 border border-red-500/10 rounded-lg hover:bg-red-500/20 hover:border-red-500/30 transition-all text-red-500/50 hover:text-red-500"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               {/* Protocol Config Section */}
               <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900">
                 <SectionHeader title="Network Protocol Config" icon={Settings} description="Global parameter adjustments" />
@@ -400,23 +481,81 @@ const AdminPanel = () => {
               </div>
             </div>
 
-            {/* Active Directives Sidebar */}
-            <div className="lg:col-span-2 surface rounded-3xl bg-zinc-900/20 border-zinc-900 overflow-hidden flex flex-col h-full max-h-[800px]">
-              <div className="p-4 bg-zinc-950/50 border-b border-zinc-800 flex justify-between items-center shrink-0"><span className="text-[10px] font-bold text-white uppercase tracking-widest">Active Directives</span></div>
-              <div className="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1">
-                {tasks.map(t => {
-                  const isExpired = t.expiresAt && t.expiresAt < Date.now();
-                  return (
-                    <div key={t.id} className={`flex justify-between items-center p-4 bg-zinc-950/40 rounded-xl border border-zinc-900 group ${isExpired ? 'opacity-50' : ''}`}>
-                      <div>
-                        <p className="text-white text-xs font-bold">{t.title}</p>
-                        <p className="text-primary text-[10px] font-mono">{t.points} ARG</p>
-                        {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1">EXPIRED</p>}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Management Popover */}
+              {users.filter(u => isManaging[u.uid]).map(u => (
+                <div key={`manage-${u.uid}`} className="surface p-6 rounded-2xl bg-zinc-950 border-maroon/30 animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-maroon/10 flex items-center justify-center border border-maroon/20">
+                        <Settings className="w-4 h-4 text-maroon" />
                       </div>
-                      <button onClick={() => deleteTask(t.id)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                      <div>
+                        <p className="text-[10px] font-black text-white uppercase tracking-tight">MANAGE: {u.displayName}</p>
+                        <p className="text-[9px] text-zinc-500 lowercase font-mono">{u.uid.slice(0, 12)}...</p>
+                      </div>
                     </div>
-                  )
-                })}
+                    <button onClick={() => setIsManaging({ ...isManaging, [u.uid]: false })} className="text-zinc-600 hover:text-white"><X className="w-4 h-4" /></button>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="p-4 bg-zinc-900/40 rounded-xl border border-zinc-900 space-y-4">
+                      <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Adjust Balance</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={adjPoints[u.uid] || 0}
+                          onChange={(e) => setAdjPoints({ ...adjPoints, [u.uid]: parseFloat(e.target.value) })}
+                          className={`${INPUT_STYLES} !p-2`}
+                        />
+                        <button
+                          onClick={() => {
+                            adjustUserPointsAction(u.uid, adjPoints[u.uid] || 0);
+                            setAdjPoints({ ...adjPoints, [u.uid]: 0 });
+                          }}
+                          className="px-4 py-2 bg-maroon text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:brightness-110 transition-all"
+                        >
+                          APPLY
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-zinc-900/40 rounded-xl border border-zinc-900">
+                      <div>
+                        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Privilege Level</p>
+                        <p className="text-[10px] text-white font-black uppercase mt-0.5">{u.role || 'user'}</p>
+                      </div>
+                      <button
+                        onClick={() => updateUserRoleAction(u.uid, u.role === 'admin' ? 'user' : 'admin')}
+                        className={`px-4 py-2 border rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${u.role === 'admin' ? 'border-red-500/20 text-red-500 hover:bg-red-500/10' : 'border-maroon/20 text-maroon hover:bg-maroon/10'}`}
+                      >
+                        {u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Active Directives Sidebar */}
+              <div className="surface rounded-3xl bg-zinc-900/20 border-zinc-900 overflow-hidden flex flex-col h-full max-h-[800px]">
+                <div className="p-4 bg-zinc-950/50 border-b border-zinc-800 flex justify-between items-center shrink-0">
+                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">Active Directives</span>
+                </div>
+                <div className="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1">
+                  {tasks.map(t => {
+                    const isExpired = t.expiresAt && t.expiresAt < Date.now();
+                    return (
+                      <div key={t.id} className={`flex justify-between items-center p-4 bg-zinc-950/40 rounded-xl border border-zinc-900 group ${isExpired ? 'opacity-50' : ''}`}>
+                        <div>
+                          <p className="text-white text-xs font-bold">{t.title}</p>
+                          <p className="text-maroon text-[10px] font-mono">{t.points} ARG</p>
+                          {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1">EXPIRED</p>}
+                        </div>
+                        <button onClick={() => deleteTask(t.id)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -436,7 +575,7 @@ const AdminPanel = () => {
                   <button
                     key={page}
                     onClick={() => setActiveCmsPage(page as any)}
-                    className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeCmsPage === page ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
+                    className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeCmsPage === page ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
                   >
                     {page}
                   </button>
@@ -523,7 +662,7 @@ const AdminPanel = () => {
                             <button onClick={() => removeItem(setLandingConfig, ['partners', 'items'], idx)} className="text-red-500 hover:bg-red-500/10 p-2 rounded"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         ))}
-                        <button onClick={() => addItem(setLandingConfig, ['partners', 'items'], "NEW_PARTNER")} className="text-primary text-xs font-bold uppercase hover:underline">+ Add Partner</button>
+                        <button onClick={() => addItem(setLandingConfig, ['partners', 'items'], "NEW_PARTNER")} className="text-maroon text-xs font-bold uppercase hover:underline">+ Add Partner</button>
                       </div>
                     </div>
                   )}
@@ -939,8 +1078,9 @@ const AdminPanel = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

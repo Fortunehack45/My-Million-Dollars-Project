@@ -15,7 +15,7 @@ const Whitepaper = () => {
     <PublicLayout>
       <div className="max-w-4xl mx-auto px-6 py-24">
          <div className="mb-16 border-b border-zinc-900 pb-8">
-            <p className="label-meta text-primary mb-4">Technical Paper {content.version}</p>
+            <p className="label-meta text-maroon mb-4">Technical Paper {content.version}</p>
             <h1 className="text-5xl font-black text-white uppercase tracking-tighter mb-6 whitespace-pre-line">{content.title}</h1>
             <p className="text-xl text-zinc-400 font-serif italic">{content.subtitle}</p>
          </div>
