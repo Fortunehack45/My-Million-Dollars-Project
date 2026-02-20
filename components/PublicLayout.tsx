@@ -181,7 +181,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
                   <Logo className="w-8 h-8 text-maroon" />
                 </div>
-                <span className="font-bold text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500">{landingConfig.footer.title}</span>
+                <span className="font-bold text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500">Argus Protocol</span>
               </div>
               <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
                 {landingConfig.footer.description}
