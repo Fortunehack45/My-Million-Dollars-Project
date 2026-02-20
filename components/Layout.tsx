@@ -21,7 +21,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </div>
     );
   }
-  
+
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-maroon selection:text-white">
       <Sidebar />
@@ -31,10 +31,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         - pt-20/pb-28 handles mobile header/footer spacing.
         - md:pt-0/md:pb-0 removes mobile spacing on desktop.
       */}
-      <main className="flex-1 overflow-y-auto h-screen w-full relative pt-20 pb-28 md:pt-0 md:pb-0 md:pl-64">
-        {/* Uniform Margin Container - adjusted for mobile app feel */}
-        <div className="max-w-7xl mx-auto w-full px-4 py-6 md:px-12 md:py-12">
-          {children}
+      {/* 
+        Layout Adjustment: 
+        - h-screen overflow-hidden on main wrapper for app feel.
+        - md:pl-64 adds space for the fixed sidebar on desktop.
+        - pt-20 handles mobile top header.
+        - pb-32 handles mobile bottom bar clearance.
+      */}
+      <main className="flex-1 h-screen overflow-hidden w-full relative">
+        <div className="h-full overflow-y-auto pt-16 pb-32 md:pt-0 md:pb-0 md:pl-64 custom-scrollbar">
+          {/* Uniform Margin Container */}
+          <div className="max-w-7xl mx-auto w-full px-4 py-6 md:px-12 md:py-12">
+            {children}
+          </div>
         </div>
       </main>
     </div>
