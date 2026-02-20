@@ -148,54 +148,55 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Mobile Nav Overlay - Institutional Fullscreen Slide */}
-          <div
-            className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-3xl z-[140] flex flex-col pt-32 pb-12 px-8 transition-all duration-700 ease-out-quint will-change-transform ${isMobileMenuOpen
-              ? 'translate-x-0 opacity-100'
-              : 'translate-x-[20px] opacity-0 pointer-events-none'
-              }`}
+        {/* Mobile Nav Overlay - Institutional Fullscreen Slide */}
+        <div
+          className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-3xl z-[140] flex flex-col pt-32 pb-12 px-8 transition-all duration-700 ease-out-quint will-change-transform ${isMobileMenuOpen
+            ? 'translate-x-0 opacity-100'
+            : 'translate-x-[20px] opacity-0 pointer-events-none'
+            }`}
+        >
+          <button
+            className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
-            <button
-              className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <X className="w-6 h-6 text-maroon" />
-            </button>
+            <X className="w-6 h-6 text-maroon" />
+          </button>
 
-            <div className="flex flex-col items-center gap-8 w-full">
-              {navLinks.map((item, index) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  style={{ transitionDelay: `${index * 50 + 100}ms` }}
-                  className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-maroon transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Added Mobile Console Button */}
-              <button
-                onClick={handleMobileConsoleClick}
-                className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-maroon hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
-                style={{ animationDelay: '300ms' }}
+          <div className="flex flex-col items-center gap-8 w-full">
+            {navLinks.map((item, index) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{ transitionDelay: `${index * 50 + 100}ms` }}
+                className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-maroon transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
               >
-                Launch Console <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+                {item.label}
+              </Link>
+            ))}
 
-            <div className="mt-auto flex flex-col items-center gap-6">
-              <div className="flex gap-8">
-                <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></a>
-                <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><DiscordIcon className="w-6 h-6" /></a>
-                <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><GithubIcon className="w-6 h-6" /></a>
-              </div>
-              <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Argus Protocol v2.8</p>
-            </div>
+            {/* Added Mobile Console Button */}
+            <button
+              onClick={handleMobileConsoleClick}
+              className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-maroon hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
+              style={{ animationDelay: '300ms' }}
+            >
+              Launch Console <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
-      </nav>
+
+          <div className="mt-auto flex flex-col items-center gap-6">
+            <div className="flex gap-8">
+              <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></a>
+              <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><DiscordIcon className="w-6 h-6" /></a>
+              <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><GithubIcon className="w-6 h-6" /></a>
+            </div>
+            <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Argus Protocol v2.8</p>
+          </div>
+        </div>
+      </nav >
 
       <main className="flex-grow w-full relative z-10">
         {children}
