@@ -87,163 +87,172 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-maroon/30 selection:text-white font-sans scroll-smooth">
       {/* Navbar - Slick Institutional Interface */}
-      <nav className="sticky top-0 z-[100] transition-all duration-500 group/nav">
-        <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-2xl border-b border-zinc-900/50 shadow-[0_4px_30px_rgba(0,0,0,0.4)]"></div>
-        <div className="max-w-7xl mx-auto px-8 h-24 flex items-center justify-between relative z-10">
-          <Link to="/" className="flex items-center gap-5 group/logo">
-            <div className="relative">
-              <div className="absolute -inset-2 bg-maroon/20 blur-2xl rounded-full opacity-0 group-hover/logo:opacity-100 transition-opacity duration-700"></div>
-              <div className="w-14 h-14 bg-zinc-900/50 backdrop-blur-md border border-zinc-800/80 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/40 group-hover:scale-105 transition-all duration-500 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-maroon/10 to-transparent"></div>
-                <Logo className="w-9 h-9 text-maroon relative z-10 drop-shadow-[0_0_8px_rgba(128,0,0,0.5)]" />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-black text-xl tracking-tighter text-white group-hover/logo:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
-              <div className="flex items-center gap-2">
-                <span className="text-[8px] font-mono font-black text-maroon tracking-[0.3em] uppercase">Security_Layer</span>
-                <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
-                <span className="text-[8px] font-mono font-bold text-zinc-500 tracking-[0.2em] uppercase">v2.8.4</span>
-              </div>
-            </div>
-          </Link>
+      <nav className="fixed top-6 inset-x-0 z-[100] px-6 pointer-events-none">
+        <div className="max-w-7xl mx-auto pointer-events-auto">
+          <div className="relative group/nav-island transition-all duration-700">
+            {/* Liquid Glass Body */}
+            <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 group-hover/nav-island:bg-zinc-950/50 group-hover/nav-island:border-white/15"></div>
 
-          <div className="hidden lg:flex items-center gap-10">
-            {navLinks.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-300 relative py-2 group/link ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
-              >
-                {item.label}
-                <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-maroon transition-transform duration-500 rounded-full scale-x-0 group-hover/link:scale-x-100 will-change-transform ${location.pathname === item.path ? 'scale-x-100 shadow-[0_0_12px_#800000]' : ''}`}></span>
+            {/* Inner Glow/Silk Effect */}
+            <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none"></div>
+
+            <div className="relative z-10 px-10 h-20 flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-4 group/logo">
+                <div className="relative w-11 h-11 bg-zinc-900/50 backdrop-blur-md border border-white/5 flex items-center justify-center rounded-xl shadow-2xl group-hover:border-maroon/40 group-hover:scale-105 transition-all duration-500">
+                  <Logo className="w-7 h-7 text-maroon drop-shadow-[0_0_8px_rgba(128,0,0,0.5)]" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-black text-sm tracking-tighter text-white group-hover/logo:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
+                  <span className="text-[7px] font-mono font-black text-maroon tracking-[0.4em] uppercase">Liquid_Interface</span>
+                </div>
               </Link>
-            ))}
-          </div>
 
-          <div className="hidden md:flex items-center gap-6">
-            <button
-              onClick={handleConsoleClick}
-              className="relative group/btn h-12 px-10 flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-maroon/30 hover:bg-zinc-800/50 transition-all duration-500 overflow-hidden shadow-lg hover:shadow-maroon/5"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-maroon/20 to-transparent translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
-              <span className="relative z-10 text-[10px] font-black text-white uppercase tracking-[0.25em]">
-                Initialize Console
-              </span>
-              <div className="relative z-10 w-6 h-6 rounded-lg bg-maroon/10 flex items-center justify-center group-hover:bg-maroon transition-colors duration-500">
-                <ChevronRight className="w-3.5 h-3.5 text-maroon group-hover:text-white transition-all duration-500" />
+              <div className="hidden lg:flex items-center gap-12">
+                {navLinks.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-300 relative py-2 group/link ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
+                  >
+                    {item.label}
+                    <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-maroon transition-all duration-500 rounded-full scale-x-0 group-hover/link:scale-x-100 ${location.pathname === item.path ? 'scale-x-100 shadow-[0_0_15px_#800000]' : ''}`}></span>
+                  </Link>
+                ))}
               </div>
-            </button>
-          </div>
 
-          {/* Mobile Menu Toggle - Professional Minimalist */}
-          <button
-            className="lg:hidden relative z-[150] w-14 h-14 flex items-center justify-center bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl text-white shadow-2xl hover:bg-zinc-800 transition-all duration-300 active:scale-95"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle Menu"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6 text-maroon" strokeWidth={3} /> : <Menu className="w-6 h-6" strokeWidth={3} />}
-          </button>
-        </div>
+              <div className="flex items-center gap-6">
+                <button
+                  onClick={handleConsoleClick}
+                  className="hidden md:flex relative group/btn h-11 px-8 items-center gap-3 bg-white/5 border border-white/10 rounded-xl hover:border-maroon/40 transition-all duration-500 overflow-hidden shadow-lg"
+                >
+                  <span className="relative z-10 text-[9px] font-black text-white uppercase tracking-[0.25em]">
+                    Console
+                  </span>
+                  <div className="relative z-10 w-5 h-5 rounded-lg bg-maroon/20 flex items-center justify-center group-hover:bg-maroon transition-all duration-500">
+                    <ChevronRight className="w-3 h-3 text-maroon group-hover:text-white" />
+                  </div>
+                </button>
 
-        {/* Mobile Nav Overlay - Institutional Fullscreen Slide */}
-        <div
-          className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-3xl z-[140] flex flex-col pt-32 pb-12 px-8 transition-all duration-700 ease-out-quint will-change-transform ${isMobileMenuOpen
-            ? 'translate-x-0 opacity-100'
-            : 'translate-x-[20px] opacity-0 pointer-events-none'
-            }`}
-        >
-          <div className="flex flex-col items-center gap-8 w-full">
-            {navLinks.map((item, index) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                style={{ transitionDelay: `${index * 50 + 100}ms` }}
-                className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-maroon transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-              >
-                {item.label}
-              </Link>
-            ))}
-
-            {/* Added Mobile Console Button */}
-            <button
-              onClick={handleMobileConsoleClick}
-              className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-maroon hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
-              style={{ animationDelay: '300ms' }}
-            >
-              Launch Console <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="mt-auto flex flex-col items-center gap-6">
-            <div className="flex gap-8">
-              <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></a>
-              <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><DiscordIcon className="w-6 h-6" /></a>
-              <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><GithubIcon className="w-6 h-6" /></a>
+                <button
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="lg:hidden p-3 bg-white/5 border border-white/10 rounded-xl text-zinc-400"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Argus Protocol v2.8</p>
           </div>
         </div>
       </nav>
 
-      <main className="flex-grow w-full relative z-10">
-        {children}
-      </main>
-
-      {/* Footer - Professional Refinement */}
-      <footer id="main-footer" className="bg-zinc-950 border-t border-zinc-900 pt-24 pb-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
-            <div className="md:col-span-5 space-y-8">
-              <div className="flex items-center gap-4 group">
-                <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
-                  <Logo className="w-8 h-8 text-maroon" />
-                </div>
-                <span className="font-bold text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500">{landingConfig.footer.title}</span>
-              </div>
-              <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
-                {landingConfig.footer.description}
-              </p>
-              <div className="flex gap-4">
-                <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><XIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white transition-all"><DiscordIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><GithubIcon className="w-4 h-4" /></a>
-              </div>
-            </div>
-
-            <div className="md:col-span-2 space-y-4">
-              <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Protocol</h4>
-              <Link to="/docs" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Documentation</Link>
-              <Link to="/architecture" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Architecture</Link>
-              <Link to="/tokenomics" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Tokenomics</Link>
-              <Link to="/whitepaper" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Whitepaper</Link>
-            </div>
-
-            <div className="md:col-span-2 space-y-4">
-              <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Organization</h4>
-              <Link to="/about" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">About Us</Link>
-              <Link to="/careers" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Careers</Link>
-              <Link to="/contact" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Contact</Link>
-              <a href="#" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Press Kit</a>
-            </div>
-
-            <div className="md:col-span-3 space-y-4">
-              <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Legal</h4>
-              <Link to="/terms" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Terms of Service</Link>
-              <Link to="/privacy" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Privacy Policy</Link>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-zinc-600 text-xs">{landingConfig.footer.copyright}</p>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">All Systems Operational</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Mobile Menu Toggle - Professional Minimalist */}
+      <button
+        className="lg:hidden relative z-[150] w-14 h-14 flex items-center justify-center bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl text-white shadow-2xl hover:bg-zinc-800 transition-all duration-300 active:scale-95"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        aria-label="Toggle Menu"
+      >
+        {isMobileMenuOpen ? <X className="w-6 h-6 text-maroon" strokeWidth={3} /> : <Menu className="w-6 h-6" strokeWidth={3} />}
+      </button>
     </div>
+
+        {/* Mobile Nav Overlay - Institutional Fullscreen Slide */ }
+  <div
+    className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-3xl z-[140] flex flex-col pt-32 pb-12 px-8 transition-all duration-700 ease-out-quint will-change-transform ${isMobileMenuOpen
+      ? 'translate-x-0 opacity-100'
+      : 'translate-x-[20px] opacity-0 pointer-events-none'
+      }`}
+  >
+    <div className="flex flex-col items-center gap-8 w-full">
+      {navLinks.map((item, index) => (
+        <Link
+          key={item.path}
+          to={item.path}
+          style={{ transitionDelay: `${index * 50 + 100}ms` }}
+          className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-maroon transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+        >
+          {item.label}
+        </Link>
+      ))}
+
+      {/* Added Mobile Console Button */}
+      <button
+        onClick={handleMobileConsoleClick}
+        className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-maroon hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
+        style={{ animationDelay: '300ms' }}
+      >
+        Launch Console <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+
+    <div className="mt-auto flex flex-col items-center gap-6">
+      <div className="flex gap-8">
+        <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><XIcon className="w-6 h-6" /></a>
+        <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><DiscordIcon className="w-6 h-6" /></a>
+        <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="text-zinc-500 hover:text-white transition-colors"><GithubIcon className="w-6 h-6" /></a>
+      </div>
+      <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Argus Protocol v2.8</p>
+    </div>
+  </div>
+      </nav >
+
+  <main className="flex-grow w-full relative z-10">
+    {children}
+  </main>
+
+{/* Footer - Professional Refinement */ }
+<footer id="main-footer" className="bg-zinc-950 border-t border-zinc-900 pt-24 pb-12 relative z-10">
+  <div className="max-w-7xl mx-auto px-6">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
+      <div className="md:col-span-5 space-y-8">
+        <div className="flex items-center gap-4 group">
+          <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
+            <Logo className="w-8 h-8 text-maroon" />
+          </div>
+          <span className="font-bold text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500">{landingConfig.footer.title}</span>
+        </div>
+        <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
+          {landingConfig.footer.description}
+        </p>
+        <div className="flex gap-4">
+          <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><XIcon className="w-4 h-4" /></a>
+          <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white transition-all"><DiscordIcon className="w-4 h-4" /></a>
+          <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><GithubIcon className="w-4 h-4" /></a>
+        </div>
+      </div>
+
+      <div className="md:col-span-2 space-y-4">
+        <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Protocol</h4>
+        <Link to="/docs" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Documentation</Link>
+        <Link to="/architecture" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Architecture</Link>
+        <Link to="/tokenomics" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Tokenomics</Link>
+        <Link to="/whitepaper" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Whitepaper</Link>
+      </div>
+
+      <div className="md:col-span-2 space-y-4">
+        <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Organization</h4>
+        <Link to="/about" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">About Us</Link>
+        <Link to="/careers" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Careers</Link>
+        <Link to="/contact" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Contact</Link>
+        <a href="#" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Press Kit</a>
+      </div>
+
+      <div className="md:col-span-3 space-y-4">
+        <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Legal</h4>
+        <Link to="/terms" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Terms of Service</Link>
+        <Link to="/privacy" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Privacy Policy</Link>
+      </div>
+    </div>
+
+    <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p className="text-zinc-600 text-xs">{landingConfig.footer.copyright}</p>
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">All Systems Operational</span>
+      </div>
+    </div>
+  </div>
+</footer>
+    </div >
   );
 };
 
