@@ -1,0 +1,21 @@
+{
+    "name": "Argus Protocol",
+    "short_name": "Argus",
+    "description": "The institutional-grade infrastructure layer for the decentralized web.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#09090B",
+    "theme_color": "#800000",
+    "icons": [
+        {
+            "src": "/logo.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

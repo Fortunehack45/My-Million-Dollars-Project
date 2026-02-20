@@ -6,68 +6,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Favicon & Touch Icons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/logo.png" />
-  <link rel="shortcut icon" href="/logo.png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="alternate icon" type="image/png" href="/logo.png" />
+  <link rel="shortcut icon" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-title" content="Argus Protocol" />
   <meta name="application-name" content="Argus Protocol" />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="msapplication-TileColor" content="#09090b" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- SEO: Primary Metadata -->
-  <title>Argus Protocol | Decentralized Node Infrastructure Layer</title>
+  <title>Argus Protocol</title>
+  <meta name="title" content="Argus Protocol" />
   <meta name="description"
-    content="Argus Protocol is the institutional-grade compute layer for the decentralized web. Deploy zero-touch validator nodes, mine ARG credits, and power the multi-chain economy." />
+    content="The institutional-grade infrastructure layer for the decentralized web. Deploy zero-touch validator nodes and power the multi-chain economy." />
   <meta name="keywords"
     content="Argus Protocol, Argus Network, Node Infrastructure, DePIN, Decentralized Compute, Web3 Mining, Validator Node, Blockchain Testnet" />
   <meta name="author" content="Argus Labs" />
   <meta name="robots" content="index, follow" />
+  <meta name="google-site-verification" content="" />
   <link rel="canonical" href="https://argus-protocol.xyz/" />
 
   <!-- SEO: Structured Data (JSON-LD) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebSite",
-        "@id": "https://argus-protocol.xyz/#website",
-        "url": "https://argus-protocol.xyz/",
-        "name": "Argus Protocol",
-        "alternateName": ["Argus", "Argus Network"],
-        "publisher": { "@id": "https://argus-protocol.xyz/#organization" }
-      },
-      {
-        "@type": "Organization",
-        "@id": "https://argus-protocol.xyz/#organization",
-        "name": "Argus Protocol",
-        "url": "https://argus-protocol.xyz/",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://argus-protocol.xyz/logo.png",
-          "width": "500",
-          "height": "500"
-        },
-        "sameAs": ["https://x.com/ArgusProtocol"]
-      },
-      {
-        "@type": "SoftwareApplication",
-        "name": "Argus Protocol",
-        "operatingSystem": "Decentralized Network",
-        "applicationCategory": "Blockchain Infrastructure",
-        "description": "Institutional-grade infrastructure layer for the decentralized web."
-      }
-    ]
+    "@type": "WebSite",
+    "name": "Argus Protocol",
+    "alternateName": ["Argus", "Argus Network"],
+    "url": "https://argus-protocol.xyz/"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Argus Protocol",
+    "url": "https://argus-protocol.xyz/",
+    "logo": "https://argus-protocol.xyz/favicon.svg",
+    "sameAs": ["https://x.com/ArgusProtocol"]
   }
   </script>
 
   <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://argus-protocol.xyz/" />
-  <meta property="og:title" content="Argus Protocol | The Global Truth Layer" />
-  <meta property="og:description"
-    content="Deploy high-performance validator nodes and secure the future of decentralized infrastructure." />
+  <meta property="og:title" content="Argus Protocol" />
   <meta property="og:site_name" content="Argus Protocol" />
+  <meta property="og:description"
+    content="The institutional-grade infrastructure layer for the decentralized web. Deploy high-performance validator nodes and secure the multi-chain economy." />
+  <meta property="og:image" content="https://argus-protocol.xyz/logo.png" />
+
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://argus-protocol.xyz/" />
+  <meta name="twitter:title" content="Argus Protocol" />
+  <meta name="twitter:description"
+    content="The institutional-grade infrastructure layer for the decentralized web. Deploy high-performance validator nodes and secure the multi-chain economy." />
+  <meta name="twitter:image" content="https://argus-protocol.xyz/logo.png" />
+  <meta name="twitter:site" content="@ArgusProtocol" />
+  <meta name="twitter:creator" content="@ArgusProtocol" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>

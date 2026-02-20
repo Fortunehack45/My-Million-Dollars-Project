@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
-import { 
-  Terminal, 
-  Cpu, 
-  Network, 
-  Shield, 
-  Zap, 
-  GitBranch, 
-  Box, 
-  Activity, 
-  Server, 
-  Copy, 
+import {
+  Terminal,
+  Cpu,
+  Network,
+  Shield,
+  Zap,
+  GitBranch,
+  Box,
+  Activity,
+  Server,
+  Copy,
   Check,
   ExternalLink,
   ChevronRight,
@@ -35,24 +35,29 @@ const CodeBlock = ({ code, language = 'bash', title }: { code: string; language?
   };
 
   return (
-    <div className="my-6 rounded-lg overflow-hidden border border-zinc-800 bg-[#0D0D0D]">
+    <div className="my-8 rounded-2xl overflow-hidden border border-zinc-800/50 bg-[#070707] shadow-2xl group/code">
       {(title || language) && (
-        <div className="flex items-center justify-between px-4 py-2 bg-zinc-900/30 border-b border-zinc-800/50">
-          <div className="flex items-center gap-2">
-            {title && <span className="text-xs font-medium text-zinc-400">{title}</span>}
-            {!title && <span className="text-xs font-mono text-zinc-600">{language}</span>}
+        <div className="flex items-center justify-between px-6 py-3 bg-zinc-900/20 border-b border-zinc-800/30">
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1.5 backdrop-blur-md">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/10"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/10"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/10"></div>
+            </div>
+            {title && <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">{title}</span>}
+            {!title && <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">{language}</span>}
           </div>
-          <button 
+          <button
             onClick={handleCopy}
-            className="p-1 hover:bg-zinc-800 rounded transition-colors text-zinc-500 hover:text-zinc-300"
-            aria-label="Copy code"
+            className="flex items-center gap-2 px-3 py-1 hover:bg-zinc-800/50 rounded-lg transition-all text-zinc-500 hover:text-white"
           >
-            {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+            <span className="text-[9px] font-bold uppercase tracking-widest">{copied ? 'Copied' : 'Copy'}</span>
+            {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
           </button>
         </div>
       )}
-      <div className="p-4 overflow-x-auto custom-scrollbar">
-        <pre className="text-[13px] font-mono text-zinc-300 leading-relaxed">
+      <div className="p-6 overflow-x-auto custom-scrollbar">
+        <pre className="text-[13px] font-mono text-zinc-300 leading-relaxed selection:bg-maroon/20">
           {code}
         </pre>
       </div>
@@ -124,8 +129,8 @@ const Docs = () => {
       onClick={() => scrollTo(id)}
       className={cn(
         "w-full text-left px-3 py-1.5 text-[13px] border-l transition-all duration-200",
-        activeSection === id 
-          ? "border-maroon text-maroon font-medium" 
+        activeSection === id
+          ? "border-maroon text-maroon font-medium"
           : "border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600"
       )}
     >
@@ -138,7 +143,7 @@ const Docs = () => {
       <div className="min-h-screen bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col lg:flex-row gap-16">
-            
+
             {/* Sidebar Navigation */}
             <div className="hidden lg:block w-56 shrink-0">
               <div className="sticky top-28">
@@ -156,14 +161,14 @@ const Docs = () => {
 
                 <div className="mt-10 pl-3">
                   <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-3">Community</h4>
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-maroon transition-colors mb-2"
                   >
                     GitHub Repository <ExternalLink size={12} />
                   </a>
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-maroon transition-colors"
                   >
                     Discord Server <ExternalLink size={12} />
@@ -174,7 +179,7 @@ const Docs = () => {
 
             {/* Main Content */}
             <div className="flex-1 min-w-0 max-w-3xl">
-              
+
               {/* Hero Section */}
               <section id="overview" className="mb-16 scroll-mt-32">
                 <div className="flex items-center gap-2 mb-6 text-sm text-zinc-500">
@@ -182,40 +187,41 @@ const Docs = () => {
                   <ChevronRight size={14} />
                   <span className="text-zinc-300">Introduction</span>
                 </div>
-                
+
                 <h1 className="text-4xl font-bold text-white tracking-tight mb-4">
                   Argus Protocol
                 </h1>
-                
+
                 <p className="text-xl text-zinc-400 leading-relaxed mb-8 font-light">
                   A zero-ops orchestration layer for GhostDAG nodes. Argus linearizes the 3D block-DAG into deterministic streams for GNNs and autonomously optimizes network parameters using reinforcement learning.
                 </p>
 
-                <div className="flex gap-4 mb-12">
-                  <button 
+                <div className="flex gap-6 mb-16">
+                  <button
                     onClick={() => scrollTo('quick-start')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-md text-sm font-medium hover:bg-zinc-200 transition-colors"
+                    className="h-12 px-8 bg-white text-black rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] flex items-center gap-3 active:scale-95"
                   >
-                    Start Building
+                    Start_Building
                     <ArrowRight size={16} />
                   </button>
-                  <a 
-                    href="https://github.com/ArgusProtocol/Argus-Synapse.git" 
-                    target="_blank" 
+                  <a
+                    href="https://github.com/ArgusProtocol/Argus-Synapse.git"
+                    target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white rounded-md text-sm font-medium hover:bg-zinc-800 border border-zinc-800 transition-colors"
+                    className="h-12 px-8 bg-zinc-900/50 text-white rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-3 backdrop-blur-md"
                   >
-                    <GitBranch size={16} />
-                    View Source
+                    <GitBranch size={16} className="text-zinc-500" />
+                    Source_Core
                   </a>
                 </div>
 
-                <div className="p-6 bg-zinc-900/20 border border-zinc-800 rounded-lg">
-                  <div className="flex gap-4">
-                    <div className="shrink-0 w-1 bg-maroon rounded-full" />
+                <div className="p-8 bg-zinc-900/20 border border-zinc-800/50 rounded-[2rem] relative overflow-hidden group hover:border-maroon/20 transition-all duration-700">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-3xl rounded-full"></div>
+                  <div className="flex gap-6 relative z-10">
+                    <div className="shrink-0 w-1.5 h-16 bg-maroon rounded-full blur-[1px]" />
                     <div>
-                      <h4 className="text-sm font-medium text-white mb-1">Core Philosophy</h4>
-                      <p className="text-sm text-zinc-400 leading-relaxed italic">
+                      <h4 className="text-[10px] font-black text-maroon uppercase tracking-[0.3em] mb-2">Core Philosophy</h4>
+                      <p className="text-xl text-zinc-300 font-light leading-relaxed italic tracking-tight">
                         "From Tangled DAGs to Deterministic Streams."
                       </p>
                     </div>
@@ -229,10 +235,10 @@ const Docs = () => {
               <p className="text-zinc-400 leading-7 mb-6">
                 Argus sits between the raw GhostDAG node and your application layer. It acts as a linearization engine, flattening the complex 3D graph structure into a consumable edge stream.
               </p>
-              
+
               <div className="bg-[#0D0D0D] border border-zinc-800 rounded-lg p-6 overflow-x-auto shadow-inner">
                 <pre className="font-mono text-xs md:text-[13px] text-zinc-400 leading-tight">
-{`┌─────────────────────────────────────────────────────────────────┐
+                  {`┌─────────────────────────────────────────────────────────────────┐
 │                     Frontend / GNN Client                        │
 │       REST (JSON)  +  WebSocket (JSON stream)                    │
 └────────────────────────┬────────────────────────────────────────┘
@@ -309,69 +315,69 @@ const Docs = () => {
               </div>
 
               <SectionHeading id="quick-start" icon={Zap}>Quick Start</SectionHeading>
-              
+
               <div className="space-y-8">
                 <div>
                   <h3 className="text-base font-medium text-white mb-3">1. Build and Initialize</h3>
                   <p className="text-sm text-zinc-400 mb-4">Clone the repository and build the unified CLI binary using Cargo.</p>
-                  <CodeBlock 
+                  <CodeBlock
                     title="Terminal"
                     code={`git clone https://github.com/ArgusProtocol/Argus-Synapse.git
 cd Argus-Synapse
 
 # Build the unified CLI binary
-cargo build -p argus-cli --release`} 
+cargo build -p argus-cli --release`}
                   />
                 </div>
 
                 <div>
                   <h3 className="text-base font-medium text-white mb-3">2. Activate the CLI Node</h3>
                   <p className="text-sm text-zinc-400 mb-4">The <code className="text-maroon bg-maroon/10 px-1 rounded">argus</code> binary is the primary entry point.</p>
-                  <CodeBlock 
+                  <CodeBlock
                     title="Terminal"
                     code={`# Check connectivity to your local kaspad node
 ./target/release/argus check --endpoint http://localhost:9293
 
 # Start the Argus Orchestration Layer
-./target/release/argus start --rpc-port 9293 --ws-port 9292 --k 3`} 
+./target/release/argus start --rpc-port 9293 --ws-port 9292 --k 3`}
                   />
                 </div>
 
                 <div>
                   <h3 className="text-base font-medium text-white mb-3">3. Setup Orchestrator</h3>
                   <p className="text-sm text-zinc-400 mb-4">Initialize the Python gateway for the RL agent.</p>
-                  <CodeBlock 
+                  <CodeBlock
                     title="Terminal"
                     code={`cd python
 pip install -r requirements.txt
-uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`} 
+uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`}
                   />
                 </div>
               </div>
 
               <SectionHeading id="api" icon={Server}>API Reference</SectionHeading>
               <div className="space-y-2">
-                <Endpoint 
-                  method="GET" 
-                  path="/agent/health" 
-                  description="Returns the primary operational dashboard for the agent, including sync status and RL confidence." 
+                <Endpoint
+                  method="GET"
+                  path="/agent/health"
+                  description="Returns the primary operational dashboard for the agent, including sync status and RL confidence."
                 />
-                <Endpoint 
-                  method="GET" 
-                  path="/dag/snapshot?n=100" 
-                  description="Returns the recent sub-graph formatted for Graph Neural Networks (GNNs)." 
+                <Endpoint
+                  method="GET"
+                  path="/dag/snapshot?n=100"
+                  description="Returns the recent sub-graph formatted for Graph Neural Networks (GNNs)."
                 />
-                <Endpoint 
-                  method="POST" 
-                  path="/tx/submit-smart" 
-                  description="Guarantees the fastest inclusion by pointing new transactions to the 3-5 'Bluest' tips autonomously." 
+                <Endpoint
+                  method="POST"
+                  path="/tx/submit-smart"
+                  description="Guarantees the fastest inclusion by pointing new transactions to the 3-5 'Bluest' tips autonomously."
                 />
               </div>
-              
+
               <div className="mt-6">
                 <h4 className="text-sm font-medium text-white mb-3">Example Response</h4>
-                <CodeBlock 
-                  language="json" 
+                <CodeBlock
+                  language="json"
                   title="Response Body"
                   code={`{
   "status": "SYNCED",
@@ -381,7 +387,7 @@ uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`}
   "local_blue_score": 81204931,
   "network_blue_score": 81204931,
   "version": "0.1.0"
-}`} 
+}`}
                 />
               </div>
 

@@ -153,7 +153,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         {/* Mobile Nav Overlay - Institutional Fullscreen Slide */}
         <div
           className={`fixed inset-0 bg-zinc-950/95 backdrop-blur-3xl z-[140] flex flex-col pt-32 pb-12 px-8 transition-all duration-700 ease-out-quint will-change-transform ${isMobileMenuOpen
-            ? 'translate-x-0 opacity-100'
+            ? 'translate-x-0 opacity-100 pointer-events-auto'
             : 'translate-x-[20px] opacity-0 pointer-events-none'
             }`}
         >

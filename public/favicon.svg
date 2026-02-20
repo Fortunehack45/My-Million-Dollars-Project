@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <clipPath id="circleView">
+      <circle cx="256" cy="256" r="256" />
+    </clipPath>
+  </defs>
+  <!-- Background Circle to ensure no transparency gaps -->
+  <circle cx="256" cy="256" r="256" fill="#09090b" />
+  <!-- The User Logo clipped to a circle -->
+  <image 
+    href="argus_logo_raw.png" 
+    width="512" 
+    height="512" 
+    clip-path="url(#circleView)" 
+    preserveAspectRatio="xMidYMid slice" 
+  />
+  <!-- Subtle border to make the circle pop -->
+  <circle cx="256" cy="256" r="254" fill="none" stroke="#800000" stroke-width="4" opacity="0.3" />
+</svg>
