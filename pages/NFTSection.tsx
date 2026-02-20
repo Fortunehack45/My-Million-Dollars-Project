@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -157,11 +156,11 @@ const NFTSection = () => {
                                     <div className="absolute inset-4 border-[2px] border-t-maroon/40 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin-reverse z-20 pointer-events-none"></div>
                                     <div className="absolute inset-6 border border-maroon/20 rounded-full z-20 pointer-events-none"></div>
 
-                                    {/* User Provided License Image */}
+                                    {/* User Provided License Image - New Branding */}
                                     <img
-                                       src="/argus_license.png"
+                                       src="/logo.png"
                                        alt="Argus Authority License"
-                                       className="relative z-10 w-full h-full object-cover filter grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-1000 scale-110 group-hover:scale-100"
+                                       className="relative z-10 w-full h-full object-contain p-8 filter drop-shadow-[0_0_20px_rgba(128,0,0,0.4)] group-hover:drop-shadow-[0_0_30px_rgba(128,0,0,0.6)] transition-all duration-1000 scale-110 group-hover:scale-125"
                                     />
 
                                     {/* Holographic Scanline Overlay on Image */}
@@ -235,16 +234,19 @@ const NFTSection = () => {
                      <h3 className="text-[11px] font-black text-white uppercase tracking-[0.4em]">Protocol_Specifications</h3>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-5">
+                  <div className="grid grid-cols-2 gap-5">
                      {[
-                        { label: 'Core Infrastructure', val: 'Argus_GhostDAG v2.0' },
-                        { label: 'Security Class', val: 'Institutional_Alpha' },
-                        { label: 'Resource Yield', val: '2.4x Multiplier' },
-                        { label: 'Network Rights', val: 'Root_Authorization' },
+                        { label: 'Computational Load', val: '64_CORES_ZEN4', icon: Cpu },
+                        { label: 'Memory Allocation', val: '256GB_ECC_L5', icon: Box },
+                        { label: 'Network Throughput', val: '40GBPS_OPTIC', icon: Globe },
+                        { label: 'Registry Status', val: 'PROVISIONED', icon: ShieldCheck },
                      ].map((meta, i) => (
-                        <div key={i} className="flex justify-between items-center p-6 bg-zinc-900/10 backdrop-blur-md border border-white/5 rounded-[1.5rem] hover:border-maroon/30 hover:bg-zinc-900/30 transition-all duration-700 group cursor-default">
-                           <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.25em] group-hover:text-zinc-400 transition-colors">{meta.label}</span>
-                           <span className="text-[11px] font-mono font-black text-white group-hover:text-maroon transition-colors uppercase tracking-tight">{meta.val}</span>
+                        <div key={i} className="flex flex-col p-6 bg-zinc-900/10 backdrop-blur-md border border-white/5 rounded-[1.5rem] hover:border-maroon/30 hover:bg-zinc-900/30 transition-all duration-700 group cursor-default relative overflow-hidden text-left">
+                           <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-30 transition-opacity">
+                              <meta.icon className="w-8 h-8 text-maroon" />
+                           </div>
+                           <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.25em] group-hover:text-zinc-400 transition-colors mb-2">{meta.label}</span>
+                           <span className="text-sm font-mono font-black text-white group-hover:text-maroon transition-colors uppercase tracking-tight">{meta.val}</span>
                         </div>
                      ))}
                   </div>
@@ -254,8 +256,8 @@ const NFTSection = () => {
                         onClick={handleMint}
                         disabled={points < 1000 || mintState !== 'IDLE'}
                         className={`relative w-full py-7 font-black uppercase tracking-[0.4em] text-[11px] rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 ${points >= 1000 && mintState === 'IDLE'
-                              ? 'bg-maroon text-white hover:bg-maroon/80 active:scale-95'
-                              : 'bg-zinc-900/40 backdrop-blur-3xl border border-white/5 text-zinc-700 cursor-not-allowed'
+                           ? 'bg-maroon text-white hover:bg-maroon/80 active:scale-95'
+                           : 'bg-zinc-900/40 backdrop-blur-3xl border border-white/5 text-zinc-700 cursor-not-allowed'
                            }`}
                      >
                         <div className="relative z-10 flex items-center justify-center gap-5">

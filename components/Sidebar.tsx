@@ -144,7 +144,7 @@ const Sidebar = () => {
                 <Logo className="relative z-10 w-7 h-7 text-maroon drop-shadow-[0_0_10px_rgba(128,0,0,0.4)]" />
               </div>
               <div className="flex flex-col">
-                <span className="block font-black text-xl text-white tracking-[-0.03em] leading-none uppercase group-hover/sidebar-logo:text-maroon transition-colors duration-500">Argus</span>
+                <span className="block font-black text-xl text-white tracking-[-0.03em] leading-none uppercase group-hover/sidebar-logo:text-maroon transition-colors duration-500">Argus Protocol</span>
                 <div className="flex items-center gap-1.5 mt-2">
                   <div className="w-1 h-1 bg-maroon rounded-full animate-pulse"></div>
                   <span className="block text-[8px] font-bold text-maroon/70 uppercase tracking-[0.4em]">Protocol_v2.8</span>

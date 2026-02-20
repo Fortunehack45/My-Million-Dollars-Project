@@ -81,7 +81,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             <div className="relative z-10 px-8 h-16 flex items-center justify-between">
               <Link to="/" className="flex items-center gap-4 group/logo">
                 <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110" />
-                <span className="font-black text-xs tracking-[0.2em] text-white uppercase">Argus</span>
+                <span className="font-black text-xs tracking-[0.2em] text-white uppercase">Argus Protocol</span>
               </Link>
 
               <div className="hidden lg:flex items-center gap-10">
