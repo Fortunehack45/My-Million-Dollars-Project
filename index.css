@@ -5,7 +5,7 @@
   --primary-light: #991b1b;
   --primary-dark: #450a0a;
   --primary-glow: rgba(128, 0, 0, 0.4);
-  
+
   --bg: #09090b;
   --bg-soft: #18181b;
   --border: rgba(255, 255, 255, 0.08);
@@ -22,7 +22,7 @@
   .glass-card {
     @apply bg-zinc-950/70 backdrop-blur-xl border border-white/5 shadow-2xl;
   }
-  
+
   .glass-panel {
     @apply bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50;
   }
@@ -44,10 +44,21 @@
   }
 }
 
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Custom Animations */
 @keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(1000%); }
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(1000%);
+  }
 }
 
 .animate-scanline {

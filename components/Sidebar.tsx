@@ -93,19 +93,7 @@ const Sidebar = () => {
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-xl z-50 flex items-center justify-between px-6 border-b border-zinc-900/80">
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center">
-            <div
-              className="w-6 h-6 bg-maroon"
-              style={{
-                maskImage: "url('/logo.png')",
-                maskSize: "contain",
-                maskRepeat: "no-repeat",
-                maskPosition: "center",
-                WebkitMaskImage: "url('/logo.png')",
-                WebkitMaskSize: "contain",
-                WebkitMaskRepeat: "no-repeat",
-                WebkitMaskPosition: "center"
-              }}
-            />
+            <Logo className="w-6 h-6 text-maroon" />
           </div>
           <span className="font-bold text-lg text-white tracking-tight">Argus Protocol</span>
         </div>
