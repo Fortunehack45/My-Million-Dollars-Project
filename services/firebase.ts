@@ -696,3 +696,26 @@ export const adjustUserPointsAction = async (uid: string, amount: number) => {
     transaction.update(statsRef, { totalMined: increment(amount) });
   });
 };
+
+// --- IP CAPTURE FOR ANTI-FRAUD ---
+// Fetches the user's public IP and saves it to their Firestore profile.
+// Used by AdminPanel to detect duplicate accounts / VPN registrations.
+export const saveUserRegistrationIP = async (uid: string): Promise<void> => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const { ip } = await response.json();
+    if (!ip) return;
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, { registrationIP: ip });
+  } catch (e) {
+    // Silently fail — IP capture is best-effort only
+    console.warn('IP capture skipped:', e);
+  }
+};
+
+// Subscribe to live validator count (online users via RTDB presence)
+export const subscribeToLiveValidators = (callback: (count: number) => void) => {
+  return subscribeToOnlineUsers((uids) => {
+    callback(Math.max(1, uids.length));
+  });
+};

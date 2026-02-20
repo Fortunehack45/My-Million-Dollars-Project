@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { subscribeToLandingConfig } from '../services/firebase';
+import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services/firebase';
 import { LandingConfig } from '../types';
 import PublicLayout from '../components/PublicLayout';
 import Logo from '../components/Logo';
@@ -246,11 +246,17 @@ const Landing = () => {
    const [openFaq, setOpenFaq] = useState<number | null>(null);
    const [content, setContent] = useState<LandingConfig | null>(null);
    const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+   const [liveValidators, setLiveValidators] = useState(1);
 
    useEffect(() => {
       const unsubscribe = subscribeToLandingConfig((newConfig) => {
          setContent(newConfig);
       });
+      return () => unsubscribe();
+   }, []);
+
+   useEffect(() => {
+      const unsubscribe = subscribeToLiveValidators(setLiveValidators);
       return () => unsubscribe();
    }, []);
 
@@ -403,31 +409,14 @@ const Landing = () => {
                   </div>
 
 
-                  {/* Hero Graphic - Professional Institutional Minimalist */}
-                  <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:flex flex-col items-center justify-center h-full" style={{ animationDelay: '0.4s' }}>
-                     <div className="relative w-full aspect-square max-w-md">
-                        <div className="absolute inset-0 bg-maroon/5 blur-[120px] rounded-full"></div>
-                        <div className="absolute inset-0 border border-white/[0.03] rounded-[3rem] bg-zinc-950/20 backdrop-blur-3xl overflow-hidden group/hero-art">
-                           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent"></div>
-                           <div className="p-12 h-full flex flex-col justify-between">
-                              <div className="space-y-6">
-                                 <div className="w-12 h-12 bg-zinc-900 border border-white/5 rounded-2xl flex items-center justify-center">
-                                    <Logo className="w-6 h-6 text-maroon" />
-                                 </div>
-                                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Architecting the<br />Future of Value</h3>
-                              </div>
-                              <div className="space-y-4">
-                                 <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
-                                    <div className="h-full bg-maroon w-2/3 shadow-[0_0_10px_rgba(128,0,0,0.5)]"></div>
-                                 </div>
-                                 <div className="flex justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest">
-                                    <span>Topological_Security</span>
-                                    <span>High_Bandwidth</span>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
+                  {/* Hero Right — Terminal UI */}
+                  <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block" style={{ animationDelay: '0.4s' }}>
+                     {/* Live validator badge */}
+                     <div className="absolute -top-5 -right-2 z-20 flex items-center gap-2 px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-full shadow-lg">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse"></span>
+                        <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">{liveValidators.toLocaleString()} Live Validators</span>
                      </div>
+                     <Terminal />
                   </div>
                </div>
             </section>

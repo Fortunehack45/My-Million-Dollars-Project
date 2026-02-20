@@ -12,8 +12,9 @@ export interface User {
   referralCount: number;
   completedTasks: string[];
   ownedNFT: boolean;
-  role?: 'admin' | 'user'; // Admin role support
+  role?: 'admin' | 'user';
   createdAt?: number;
+  registrationIP?: string;  // For admin duplicate/VPN detection
 }
 
 export interface Task {
@@ -57,10 +58,10 @@ export interface LandingConfig {
   hero: LandingSection & { ctaPrimary: string; ctaSecondary: string };
   socials: { twitter: string; discord: string; github: string };
   partners: LandingSection & { items: string[] };
-  architecture: LandingSection & { layers: Array<{title: string, desc: string}> };
-  features: LandingSection & { items: Array<{title: string, desc: string, icon: string}> };
-  roadmap: LandingSection & { phases: Array<{phase: string, title: string, period: string, status: string, desc: string, features: string[]}> };
-  faq: LandingSection & { items: Array<{q: string, a: string}> };
+  architecture: LandingSection & { layers: Array<{ title: string, desc: string }> };
+  features: LandingSection & { items: Array<{ title: string, desc: string, icon: string }> };
+  roadmap: LandingSection & { phases: Array<{ phase: string, title: string, period: string, status: string, desc: string, features: string[] }> };
+  faq: LandingSection & { items: Array<{ q: string, a: string }> };
   cta: LandingSection & { buttonText: string };
   footer: LandingSection & { copyright: string, links: any };
 }
