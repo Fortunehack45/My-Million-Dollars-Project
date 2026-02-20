@@ -136,8 +136,8 @@ const ProfileSetup = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,60,60,0.1),rgba(0,0,0,0))]" />
 
         <div className="relative z-10 max-w-md w-full text-center space-y-8 p-10 glass-panel rounded-3xl animate-scale-in">
-          <div className="w-16 h-16 bg-zinc-900/50 rounded-2xl flex items-center justify-center mx-auto border border-zinc-800 shadow-xl">
-            <Lock className="w-6 h-6 text-zinc-400" />
+          <div className="w-20 h-20 silk-panel rounded-2xl flex items-center justify-center mx-auto border border-white/5 shadow-2xl group animate-pulse">
+            <Lock className="w-8 h-8 text-maroon" />
           </div>
           <div className="space-y-3">
             <h1 className="text-2xl font-bold text-white tracking-tight">Access Prohibited</h1>
@@ -172,7 +172,8 @@ const ProfileSetup = () => {
           <p className="text-zinc-500 text-sm">Configure your operator identity to begin.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="glass-panel p-8 rounded-3xl space-y-6 shadow-2xl">
+        <form onSubmit={handleSubmit} className="silk-panel p-10 rounded-[2.5rem] space-y-8 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-[60px] rounded-full group-hover:bg-maroon/10 transition-silk"></div>
 
           {/* Username Input */}
           <div className="space-y-2">
@@ -233,18 +234,14 @@ const ProfileSetup = () => {
           {/* Submit Button */}
           <button
             disabled={isSubmitting || !username || isNameTaken !== false || username.length < 3}
-            className={`w-full h-12 bg-white text-black text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 transform
-              ${isSubmitting || !username || isNameTaken !== false || username.length < 3
-                ? 'opacity-50 cursor-not-allowed contrast-50'
-                : 'hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-[0.98]'
-              }`}
+            className="btn-premium w-full h-14"
           >
             {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                <span>Initialize</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Initialize_Node</span>
+                <ArrowRight className="w-5 h-5" />
               </>
             )}
           </button>

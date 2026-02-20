@@ -168,26 +168,26 @@ const GhostDAGVisualizer = () => {
 };
 
 const StatCard = ({ label, value, subValue, icon: Icon, trend, tooltip }: any) => (
-  <div className="bg-zinc-950 border border-zinc-900 p-5 flex flex-col justify-between h-full group hover:border-zinc-800 transition-colors">
-    <div className="flex justify-between items-start mb-4">
-      <div className="p-2 bg-zinc-900/50 rounded-lg border border-zinc-800 group-hover:border-zinc-700 transition-colors">
-        <Icon className="w-4 h-4 text-zinc-400 group-hover:text-white" />
+  <div className="silk-panel p-6 flex flex-col justify-between h-full group">
+    <div className="flex justify-between items-start mb-6">
+      <div className="p-2.5 bg-zinc-900 rounded-xl border border-white/5 group-hover:border-maroon/20 group-hover:bg-maroon/5 transition-silk">
+        <Icon className="w-4 h-4 text-zinc-400 group-hover:text-maroon transition-silk" />
       </div>
       {trend && (
-        <span className="text-[10px] font-mono text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+        <span className="text-[10px] font-mono font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20">
           {trend}
         </span>
       )}
     </div>
     <div>
-      <div className="flex items-center gap-1.5 mb-1">
-        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{label}</p>
+      <div className="flex items-center gap-2 mb-2">
+        <p className="label-meta">{label}</p>
         <Tooltip text={tooltip} position="right">
-          <Info className="w-2.5 h-2.5 text-zinc-700 hover:text-zinc-400 transition-colors cursor-help" />
+          <Info className="w-3 h-3 text-zinc-700 hover:text-maroon transition-silk cursor-help" />
         </Tooltip>
       </div>
-      <p className="text-xl font-mono font-bold text-white tracking-tight">{value}</p>
-      {subValue && <p className="text-[10px] text-zinc-600 mt-1 font-medium">{subValue}</p>}
+      <p className="text-2xl font-mono font-bold text-white tracking-tight group-hover:text-maroon transition-silk">{value}</p>
+      {subValue && <p className="text-[10px] text-zinc-500 mt-2 font-medium italic opacity-60">{subValue}</p>}
     </div>
   </div>
 );
@@ -385,17 +385,17 @@ const Dashboard = () => {
         {/* LEFT: MAIN VISUALIZER & MINING CONTROLLER */}
         <div className="lg:col-span-8 space-y-6">
           {/* Visualizer Panel */}
-          <div className="bg-zinc-950 border border-zinc-900 h-[300px] relative overflow-hidden flex flex-col group">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(24,24,27,0.5),rgba(9,9,11,1))]" />
+          <div className="silk-panel h-[400px] relative overflow-hidden flex flex-col group rounded-[2.5rem]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(24,24,27,0.3),rgba(9,9,11,1))]" />
 
             {/* Overlay Header */}
-            <div className="relative z-10 px-4 py-3 border-b border-zinc-900/50 flex justify-between items-center bg-zinc-950/80 backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <GitMerge className="w-3 h-3 text-emerald-500" />
-                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">GhostDAG_Topology_Live</span>
+            <div className="relative z-10 px-6 py-4 border-b border-white/5 flex justify-between items-center bg-zinc-950/40 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <GitMerge className="w-4 h-4 text-emerald-500 animate-pulse" />
+                <span className="label-meta text-zinc-300">GhostDAG_Topology_Live</span>
               </div>
-              <div className="flex gap-3">
-                <span className="text-[9px] font-mono text-zinc-600">LATENCY: 12ms</span>
+              <div className="flex gap-4">
+                <span className="label-meta opacity-50">LATENCY: 12ms</span>
               </div>
             </div>
 
@@ -406,42 +406,37 @@ const Dashboard = () => {
           </div>
 
           {/* Mining Controller - Professional Hardware Look */}
-          <div className="bg-zinc-950 border border-zinc-900 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-[50px] rounded-full pointer-events-none"></div>
+          <div className="silk-panel p-8 md:p-10 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden rounded-[2.5rem]">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-maroon/5 blur-[80px] rounded-full pointer-events-none"></div>
 
             <div className="flex-1 w-full">
-              <div className="flex justify-between items-end mb-6">
+              <div className="flex justify-between items-end mb-8">
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Consensus Engine</h3>
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
-                    <span className={`w-2 h-2 rounded-full ${user.miningActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
-                    {user.miningActive ? 'RUNNING :: SHA-256-GHOST' : 'STANDBY :: IDLE'}
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">Consensus Engine</h3>
+                  <div className="flex items-center gap-3">
+                    <div className={`status-glow ${user.miningActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div>
+                    <span className="label-meta">{user.miningActive ? 'RUNNING :: SHA-256-GHOST' : 'STANDBY :: IDLE'}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Session Yield</p>
-                  <p className="text-2xl font-mono font-bold text-white">{pendingPoints.toFixed(4)} <span className="text-sm text-zinc-600">ARG</span></p>
+                  <p className="label-meta mb-2">Session Yield</p>
+                  <p className="text-3xl font-mono font-bold text-white">{pendingPoints.toFixed(4)} <span className="text-xs text-zinc-600">ARG</span></p>
                 </div>
               </div>
 
               {/* Progress Bar styled as hardware meter */}
-              <div className="h-2 bg-zinc-900 w-full mb-6 relative overflow-hidden">
-                <div className="absolute inset-0 flex">
-                  {Array.from({ length: 50 }).map((_, i) => (
-                    <div key={i} className="w-px bg-zinc-950 h-full flex-1"></div>
-                  ))}
-                </div>
+              <div className="h-3 bg-zinc-950 w-full mb-8 relative rounded-full overflow-hidden border border-white/5">
                 <div
-                  className={`h-full ${isSessionComplete ? 'bg-emerald-500' : 'bg-maroon'} relative z-10 transition-all duration-1000`}
+                  className={`h-full ${isSessionComplete ? 'bg-emerald-500' : 'bg-maroon'} relative z-10 transition-silk shadow-[0_0_20px_rgba(128,0,0,0.4)]`}
                   style={{ width: `${(miningTimer / MAX_SESSION_TIME) * 100}%` }}
                 ></div>
               </div>
 
-              <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500 uppercase">
+              <div className="flex justify-between items-center">
                 <Tooltip text="Composite mining speed calculated as [Base 0.06] + [Referral Boosts]" position="top">
-                  <span className="cursor-help hover:text-zinc-300 transition-colors">Rate: {currentHourlyRate.toFixed(2)} ARG/h</span>
+                  <span className="label-meta cursor-help hover:text-zinc-300 transition-silk">Rate: {currentHourlyRate.toFixed(2)} ARG/h</span>
                 </Tooltip>
-                <span>T-Minus: {formatTime(miningTimer)}</span>
+                <span className="label-meta">T-Minus: {formatTime(miningTimer)}</span>
               </div>
             </div>
 
@@ -449,14 +444,14 @@ const Dashboard = () => {
               {user.miningActive ? (
                 <button
                   onClick={handleClaim}
-                  className={`w-full md:w-48 h-14 font-black uppercase tracking-widest text-[10px] border transition-all flex items-center justify-center gap-2 ${isSessionComplete ? 'bg-emerald-500 border-emerald-500 text-black hover:bg-emerald-400' : 'bg-transparent border-zinc-700 text-white hover:border-zinc-500 hover:bg-zinc-900'}`}
+                  className={`w-full md:w-56 h-16 font-black uppercase tracking-[0.2em] text-[10px] border transition-silk flex items-center justify-center gap-3 rounded-2xl ${isSessionComplete ? 'bg-emerald-500 border-emerald-500 text-black hover:bg-emerald-400' : 'bg-transparent border-white/10 text-white hover:border-white/20 hover:bg-white/5'}`}
                 >
                   {isSessionComplete ? 'Secure Block' : 'Terminate & Claim'}
                 </button>
               ) : (
                 <button
                   onClick={handleStartMining}
-                  className="w-full md:w-48 h-14 bg-maroon text-white font-black uppercase tracking-widest text-[10px] hover:bg-rose-600 transition-colors shadow-[0_0_20px_rgba(128,0,0,0.2)]"
+                  className="btn-premium-maroon w-full md:w-56 h-16 text-[10px]"
                 >
                   Initialize Node
                 </button>

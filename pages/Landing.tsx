@@ -368,7 +368,7 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-[-0.03em] uppercase leading-[0.95] md:leading-[0.88] text-balance break-words animate-fade-in opacity-0 will-change-transform" style={{ animationDelay: '0.3s' }}>
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-[-0.04em] uppercase leading-[0.9] md:leading-[0.85] text-balance break-words animate-fade-in opacity-0 will-change-transform" style={{ animationDelay: '0.3s' }}>
                            {content.hero.title}
                         </h1>
 
@@ -382,12 +382,11 @@ const Landing = () => {
                         <MobileStatusCard />
                      </div>
 
-                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
-                        <button onClick={() => navigate('/login')} className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-maroon text-white text-[12px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(128,0,0,0.3)] flex items-center justify-center gap-3 rounded-xl group relative overflow-hidden">
+                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 animate-fade-in opacity-0" style={{ animationDelay: '0.6s' }}>
+                        <button onClick={() => navigate('/login')} className="btn-premium-maroon text-[12px]">
                            <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
-                           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         </button>
-                        <Link to="/whitepaper" className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 text-[12px] font-black text-white uppercase tracking-[0.2em] hover:border-zinc-600 transition-all flex items-center justify-center gap-3 rounded-xl group">
+                        <Link to="/whitepaper" className="btn-premium text-[12px]">
                            {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
                         </Link>
                      </div>
@@ -424,12 +423,12 @@ const Landing = () => {
                      {content.features.items.map((item, i) => {
                         const Icon = IconMap[item.icon] || Globe;
                         return (
-                           <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-6 md:p-8 rounded-3xl bg-zinc-900/20 border border-zinc-900 hover:border-maroon/50 transition-all duration-700 group hover:-translate-y-2 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                              <div className="w-12 h-12 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-6 group-hover:bg-maroon/10 group-hover:border-maroon/20 transition-colors">
-                                 <Icon className="w-6 h-6 text-zinc-500 group-hover:text-maroon transition-colors" />
+                           <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-10 md:p-12 rounded-[2.5rem] silk-panel hover:-translate-y-2 group ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                              <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-maroon/10 group-hover:border-maroon/20 transition- silk-transition">
+                                 <Icon className="w-8 h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
                               </div>
-                              <h3 className="text-lg md:text-xl font-bold text-white mb-3 uppercase tracking-tight">{item.title}</h3>
-                              <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">{item.desc}</p>
+                              <h3 className="text-xl md:text-2xl font-black text-white mb-4 uppercase tracking-tight">{item.title}</h3>
+                              <p className="text-sm md:text-base text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-silk">{item.desc}</p>
                            </div>
                         )
                      })}

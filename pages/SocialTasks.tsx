@@ -12,7 +12,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
   const isCompleted = user.completedTasks.includes(task.id);
   const timerRef = useRef<number | null>(null);
   const countdownIntervalRef = useRef<number | null>(null);
-  
+
   // Use the admin defined verification wait time, default to 3s if not set
   const waitTime = task.verificationWaitTime || 3;
 
@@ -55,72 +55,72 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
   const handleStart = () => {
     window.open(task.link, '_blank');
     setIsVerifying(true);
-    
+
     // Hidden verification timer
     timerRef.current = window.setTimeout(() => {
-        setIsVerifying(false);
-        setCanClaim(true);
+      setIsVerifying(false);
+      setCanClaim(true);
     }, waitTime * 1000);
   };
 
   return (
-    <div className={`group relative overflow-hidden rounded-2xl border transition-all duration-500 ${isCompleted ? 'bg-zinc-950/50 border-zinc-900 opacity-60' : 'bg-zinc-900/20 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40'}`}>
-      
+    <div className={`group relative overflow-hidden rounded-[2.5rem] silk-panel transition-silk ${isCompleted ? 'opacity-40 grayscale pointer-events-none' : 'hover:-translate-y-1'}`}>
+
       <div className="flex flex-col md:flex-row p-6 md:p-8 gap-6 md:items-center relative z-10">
         {/* Status Icon */}
-        <div className={`hidden md:flex w-12 h-12 rounded-xl border flex-items-center justify-center items-center shrink-0 ${isCompleted ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-zinc-900 border-zinc-800 text-zinc-500 group-hover:text-white transition-colors'}`}>
-           {isCompleted ? <ShieldCheck className="w-5 h-5" /> : (task.icon === 'twitter' ? <Twitter className="w-5 h-5" /> : task.icon === 'telegram' ? <Send className="w-5 h-5" /> : <Globe className="w-5 h-5" />)}
+        <div className={`hidden md:flex w-16 h-16 rounded-2xl border flex items-center justify-center shrink-0 transition-silk ${isCompleted ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-zinc-950 border-white/5 text-zinc-500 group-hover:text-maroon group-hover:border-maroon/20 group-hover:bg-maroon/5'}`}>
+          {isCompleted ? <ShieldCheck className="w-7 h-7" /> : (task.icon === 'twitter' ? <Twitter className="w-7 h-7" /> : task.icon === 'telegram' ? <Send className="w-7 h-7" /> : <Globe className="w-7 h-7" />)}
         </div>
 
         <div className="flex-1 space-y-2">
-           <div className="flex flex-wrap items-center gap-3 mb-1">
-              <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest bg-zinc-950 px-2 py-0.5 rounded border border-zinc-900">
-                DIR-{task.id.slice(0, 4)}
-              </span>
-              
-              {timeLeft && !isCompleted && timeLeft !== 'EXPIRED' && (
-                <span className={`flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${timeLeft.includes('h') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/50' : 'text-maroon border-maroon/20 bg-maroon/5 animate-pulse'}`}>
-                  <Timer className="w-3 h-3" /> Ends in: {timeLeft}
-                </span>
-              )}
+          <div className="flex flex-wrap items-center gap-3 mb-3">
+            <span className="label-meta text-zinc-500 bg-zinc-950 px-2 py-0.5 rounded border border-white/5">
+              DIR-{task.id.slice(0, 4)}
+            </span>
 
-              {isVerifying && (
-                <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-500 uppercase bg-amber-500/10 px-2 py-0.5 rounded animate-pulse">
-                  <Clock className="w-3 h-3" /> Verifying Protocol...
-                </span>
-              )}
-           </div>
-           <h3 className={`text-lg font-bold text-white ${isCompleted ? 'line-through decoration-zinc-700' : ''}`}>{task.title}</h3>
-           <p className="text-zinc-500 text-xs leading-relaxed max-w-xl">{task.description}</p>
+            {timeLeft && !isCompleted && timeLeft !== 'EXPIRED' && (
+              <span className={`flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${timeLeft.includes('h') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/50' : 'text-maroon border-maroon/20 bg-maroon/5 animate-pulse'}`}>
+                <Timer className="w-3 h-3" /> Ends in: {timeLeft}
+              </span>
+            )}
+
+            {isVerifying && (
+              <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-500 uppercase bg-amber-500/10 px-2 py-0.5 rounded animate-pulse">
+                <Clock className="w-3 h-3" /> Verifying Protocol...
+              </span>
+            )}
+          </div>
+          <h3 className={`text-lg font-bold text-white ${isCompleted ? 'line-through decoration-zinc-700' : ''}`}>{task.title}</h3>
+          <p className="text-zinc-500 text-xs leading-relaxed max-w-xl">{task.description}</p>
         </div>
 
         <div className="flex items-center justify-between md:flex-col md:items-end md:gap-4 border-t md:border-t-0 border-zinc-800/50 pt-4 md:pt-0 mt-2 md:mt-0">
-           <div className="md:text-right">
-              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-0.5">Reward</p>
-              <p className={`font-mono font-bold text-sm ${isCompleted ? 'text-zinc-500' : 'text-maroon'}`}>+{task.points.toFixed(2)} ARG</p>
-           </div>
-           
-           {isCompleted ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Validated</span>
-              </div>
-           ) : timeLeft === 'EXPIRED' ? (
-             <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-lg border border-zinc-800 opacity-50">
-               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Closed</span>
-             </div>
-           ) : canClaim ? (
-             <button onClick={() => onComplete(task)} className="btn-primary flex items-center gap-2 !px-5 !py-2.5 animate-pulse shadow-[0_0_20px_rgba(128,0,0,0.4)]">
-               Claim Reward <ArrowRight className="w-3 h-3" />
-             </button>
-           ) : isVerifying ? (
-             <button disabled className="bg-zinc-900 text-zinc-500 border border-zinc-800 rounded-lg px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 cursor-wait">
-               <Loader2 className="w-3 h-3 animate-spin" /> Verifying...
-             </button>
-           ) : (
-             <button onClick={handleStart} className="bg-white text-black hover:bg-zinc-200 border border-transparent rounded-lg px-5 py-2.5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors">
-               Start Task <ExternalLink className="w-3 h-3" />
-             </button>
-           )}
+          <div className="md:text-right">
+            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-0.5">Reward</p>
+            <p className={`font-mono font-bold text-sm ${isCompleted ? 'text-zinc-500' : 'text-maroon'}`}>+{task.points.toFixed(2)} ARG</p>
+          </div>
+
+          {isCompleted ? (
+            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Validated</span>
+            </div>
+          ) : timeLeft === 'EXPIRED' ? (
+            <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-lg border border-zinc-800 opacity-50">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Closed</span>
+            </div>
+          ) : canClaim ? (
+            <button onClick={() => onComplete(task)} className="btn-premium-maroon !px-8 !py-3 animate-pulse">
+              Claim Reward <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : isVerifying ? (
+            <button disabled className="bg-zinc-900 text-zinc-500 border border-zinc-800 rounded-lg px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 cursor-wait">
+              <Loader2 className="w-3 h-3 animate-spin" /> Verifying...
+            </button>
+          ) : (
+            <button onClick={handleStart} className="bg-white text-black hover:bg-zinc-200 border border-transparent rounded-lg px-5 py-2.5 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-colors">
+              Start Task <ExternalLink className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -150,8 +150,8 @@ const SocialTasks = () => {
         points: user.points + task.points,
         completedTasks: [...user.completedTasks, task.id]
       });
-    } catch (err) { 
-      console.error("Handshake validation failed:", err); 
+    } catch (err) {
+      console.error("Handshake validation failed:", err);
     }
   };
 
@@ -172,14 +172,14 @@ const SocialTasks = () => {
       ) : (
         <div className="space-y-4">
           {tasks.length === 0 && (
-             <div className="surface p-12 text-center rounded-3xl border-dashed border-zinc-800 opacity-50">
-               <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                 <ShieldCheck className="w-6 h-6 text-zinc-700" />
-               </div>
-               <p className="label-meta text-zinc-600">No active directives found.</p>
-             </div>
+            <div className="silk-panel p-20 text-center rounded-[2.5rem] border-dashed opacity-40">
+              <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShieldCheck className="w-6 h-6 text-zinc-700" />
+              </div>
+              <p className="label-meta text-zinc-600">No active directives found.</p>
+            </div>
           )}
-          
+
           <div className="grid gap-4">
             {tasks.map((task) => (
               <TaskItem key={task.id} task={task} user={user} onComplete={handleComplete} />
@@ -188,10 +188,10 @@ const SocialTasks = () => {
 
           {tasks.length > 0 && (
             <div className="mt-8 p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl flex items-start gap-3">
-               <AlertCircle className="w-4 h-4 text-amber-500/60 mt-0.5 shrink-0" />
-               <p className="text-[10px] text-amber-500/60 font-medium leading-relaxed uppercase tracking-wide">
-                 Note: Verification protocols run asynchronously. Do not close browser tabs during active timers to prevent validation errors.
-               </p>
+              <AlertCircle className="w-4 h-4 text-amber-500/60 mt-0.5 shrink-0" />
+              <p className="text-[10px] text-amber-500/60 font-medium leading-relaxed uppercase tracking-wide">
+                Note: Verification protocols run asynchronously. Do not close browser tabs during active timers to prevent validation errors.
+              </p>
             </div>
           )}
         </div>

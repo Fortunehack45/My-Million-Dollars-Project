@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Hexagon, 
-  ArrowRight, 
-  ShieldCheck, 
-  Activity, 
-  Globe, 
-  Cpu, 
+import {
+  Hexagon,
+  ArrowRight,
+  ShieldCheck,
+  Activity,
+  Globe,
+  Cpu,
   Lock,
   Terminal as TerminalIcon,
   Server
@@ -15,7 +15,7 @@ import {
 
 const Login = () => {
   const { login } = useAuth();
-  
+
   const getLocalTime = () => {
     const now = new Date();
     const h = String(now.getHours()).padStart(2, '0');
@@ -41,12 +41,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row relative selection:bg-maroon selection:text-white">
-      
+
       {/* Left Pane: Heavy Telemetry Dashboard */}
       <div className="hidden lg:flex lg:w-7/12 border-r border-zinc-900 flex-col p-12 relative overflow-hidden bg-zinc-950">
         {/* Fine Grid Pattern */}
-        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
-             style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
         </div>
 
         <div className="relative z-10 flex flex-col h-full">
@@ -79,9 +79,9 @@ const Login = () => {
               </div>
               <div className="h-32 flex items-end gap-[2px]">
                 {Array.from({ length: 40 }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="flex-1 bg-maroon/10 hover:bg-maroon/40 transition-all cursor-crosshair" 
+                  <div
+                    key={i}
+                    className="flex-1 bg-maroon/10 hover:bg-maroon/40 transition-all cursor-crosshair"
                     style={{ height: `${Math.random() * 80 + 20}%` }}
                   ></div>
                 ))}
@@ -109,11 +109,11 @@ const Login = () => {
           {/* Console Feed */}
           <div className="mt-auto border border-zinc-900 bg-zinc-950 p-6 space-y-4 font-mono text-[10px]">
             <div className="flex justify-between items-center border-b border-zinc-900 pb-3 mb-3">
-               <div className="flex items-center gap-2">
-                 <TerminalIcon className="w-3 h-3 text-zinc-600" />
-                 <span className="label-meta text-zinc-400">Handshake_Sequence</span>
-               </div>
-               <span className="text-zinc-700">PID: 8042</span>
+              <div className="flex items-center gap-2">
+                <TerminalIcon className="w-3 h-3 text-zinc-600" />
+                <span className="label-meta text-zinc-400">Handshake_Sequence</span>
+              </div>
+              <span className="text-zinc-700">PID: 8042</span>
             </div>
             <div className="space-y-1 text-zinc-600">
               <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting Argus Kernel v2.4.0...</p>
@@ -143,19 +143,22 @@ const Login = () => {
           </header>
 
           <div className="space-y-10">
-            <div className="p-1 border border-zinc-900 bg-zinc-900/20 rounded-md">
+            <div className="p-1.5 silk-panel rounded-2xl overflow-hidden group/btn">
               <button
                 onClick={login}
-                className="w-full bg-zinc-950 border border-zinc-800 hover:border-maroon/50 py-5 flex items-center justify-between group px-8 transition-all relative overflow-hidden active:scale-[0.98]"
+                className="w-full bg-zinc-950 border border-white/5 hover:border-maroon/40 py-6 flex items-center justify-between px-10 transition-silk relative overflow-hidden active:scale-[0.98]"
               >
-                <div className="flex items-center gap-6 relative z-10">
-                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-5 h-5 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                <div className="absolute inset-0 bg-gradient-to-r from-maroon/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-silk"></div>
+                <div className="flex items-center gap-8 relative z-10">
+                  <div className="p-3 bg-zinc-900 rounded-xl border border-white/5 group-hover/btn:border-maroon/30 transition-silk">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-6 h-6 grayscale opacity-40 group-hover/btn:grayscale-0 group-hover/btn:opacity-100 transition-all duration-700" />
+                  </div>
                   <div className="text-left">
-                    <span className="block text-[10px] font-black text-white uppercase tracking-widest">Connect Identity</span>
-                    <span className="block text-[8px] text-zinc-600 uppercase font-mono group-hover:text-maroon">Via Google Auth Relay</span>
+                    <span className="block text-xs font-black text-white uppercase tracking-[0.2em] group-hover/btn:text-maroon transition-silk">Initiate_Auth_Handshake</span>
+                    <span className="block label-meta mt-1 opacity-40">Secured via Google_Trust_Layer</span>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-5 h-5 text-zinc-700 group-hover/btn:text-maroon group-hover/btn:translate-x-2 transition-silk" />
               </button>
             </div>
 

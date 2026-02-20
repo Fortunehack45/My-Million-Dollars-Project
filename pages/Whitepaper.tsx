@@ -28,7 +28,7 @@ const Whitepaper = () => {
                      <div className="h-px flex-grow bg-zinc-900"></div>
                   </div>
 
-                  <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter mb-10 leading-[0.85] whitespace-pre-line select-none">
+                  <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-[-0.05em] mb-10 leading-[0.85] whitespace-pre-line select-none group-hover:text-maroon transition-silk">
                      {content.title}
                   </h1>
 
@@ -73,8 +73,8 @@ const Whitepaper = () => {
                            className="group scroll-mt-32"
                         >
                            <div className="flex items-center gap-4 mb-10">
-                              <span className="text-xs font-mono font-black text-maroon/40 group-hover:text-maroon transition-colors duration-700">0{idx + 1}_</span>
-                              <h3 className="text-3xl font-black text-white uppercase tracking-tight group-hover:translate-x-2 transition-all duration-700">{section.title}</h3>
+                              <span className="text-xs font-mono font-black text-maroon/40 group-hover:text-maroon transition-silk duration-700">0{idx + 1}_</span>
+                              <h3 className="text-4xl font-black text-white uppercase tracking-[-0.03em] group-hover:translate-x-3 transition-silk duration-700">{section.title}</h3>
                            </div>
 
                            <div className="relative">

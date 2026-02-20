@@ -215,13 +215,13 @@ const Docs = () => {
                   </a>
                 </div>
 
-                <div className="p-8 bg-zinc-900/20 border border-zinc-800/50 rounded-[2rem] relative overflow-hidden group hover:border-maroon/20 transition-all duration-700">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-3xl rounded-full"></div>
+                <div className="silk-panel p-10 rounded-[2.5rem] relative overflow-hidden group hover:border-maroon/30 transition-silk duration-700">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-3xl rounded-full group-hover:bg-maroon/10 transition-silk"></div>
                   <div className="flex gap-6 relative z-10">
-                    <div className="shrink-0 w-1.5 h-16 bg-maroon rounded-full blur-[1px]" />
+                    <div className="shrink-0 w-1.5 h-16 bg-maroon rounded-full blur-[1px] animate-pulse" />
                     <div>
-                      <h4 className="text-[10px] font-black text-maroon uppercase tracking-[0.3em] mb-2">Core Philosophy</h4>
-                      <p className="text-xl text-zinc-300 font-light leading-relaxed italic tracking-tight">
+                      <h4 className="label-meta text-maroon mb-2">Core Philosophy</h4>
+                      <p className="text-xl text-zinc-300 font-light leading-relaxed italic tracking-tight group-hover:text-white transition-silk">
                         "From Tangled DAGs to Deterministic Streams."
                       </p>
                     </div>

@@ -118,7 +118,7 @@ const NFTSection = () => {
                      <div className="absolute -inset-4 bg-gradient-to-tr from-maroon/20 to-transparent blur-3xl rounded-[4rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                      {/* The Main License Frame */}
-                     <div className="relative aspect-[3/4.4] bg-[#020202] rounded-[3.5rem] border border-white/10 p-5 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-1000 group-hover:scale-[1.04] group-hover:border-maroon/30 group-hover:shadow-[0_60px_120px_-20px_rgba(128,0,0,0.2)]">
+                     <div className="relative aspect-[3/4.4] bg-black rounded-[3.5rem] border border-white/10 p-5 shadow-[0_50px_100px_-20px_rgba(0,0,0,1),inset_0_1px_2px_rgba(255,255,255,0.1)] overflow-hidden transition-silk group-hover:scale-[1.04] group-hover:border-maroon/40 group-hover:shadow-[0_60px_120px_-20px_rgba(128,0,0,0.3)]">
 
                         {/* High-Impact Glass Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-transparent to-transparent z-30 pointer-events-none"></div>
@@ -144,7 +144,7 @@ const NFTSection = () => {
                                  <div className="absolute -inset-12 bg-maroon/30 blur-3xl rounded-full animate-pulse-slow"></div>
                                  <div className="absolute -inset-4 bg-maroon/10 blur-2xl rounded-full animate-pulse"></div>
 
-                                 <div className="relative w-44 h-44 bg-[#010101] border-[3px] border-white/5 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(0,0,0,0.8)] transition-all duration-1000 group-hover:border-maroon/50 group-hover:shadow-[0_0_80px_rgba(128,0,0,0.4)] overflow-hidden">
+                                 <div className="relative w-44 h-44 bg-black border-[3px] border-white/10 rounded-full flex items-center justify-center shadow-[0_0_80px_rgba(0,0,0,1)] transition-silk group-hover:border-maroon/60 group-hover:shadow-[0_0_100px_rgba(128,0,0,0.5)] overflow-hidden">
 
                                     {/* Rotating Mechanical Rings */}
                                     <div className="absolute inset-1 border-[1.5px] border-dashed border-white/[0.05] rounded-full animate-spin-slow z-20 pointer-events-none"></div>
