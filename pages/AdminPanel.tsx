@@ -468,7 +468,7 @@ const AdminPanel = () => {
                           </td>
                           <td className="py-4 px-2 text-right">
                             <p className="text-xs font-mono font-black text-white">{u.points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
-                            <p className="text-[8px] text-zinc-600 font-mono">≈ ${(u.points * 4.20).toFixed(2)}</p>
+                            <p className="text-[8px] text-zinc-600 font-mono">≈ ${(u.points * 0.5).toFixed(2)} USD</p>
                           </td>
                           <td className="py-4 px-2 text-right hidden sm:table-cell">
                             <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-emerald-400' : 'text-zinc-600'}`}>{u.referralCount || 0}</span>
