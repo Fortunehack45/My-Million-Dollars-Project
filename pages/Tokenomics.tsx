@@ -77,7 +77,7 @@ const Tokenomics = () => {
 
                {/* Supply Cards - Premium Institutional Aesthetic */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-32">
-                  <div className={`silk-panel p-10 rounded-[2.5rem] flex items-center justify-between transition-silk duration-1000 delay-150 border-zinc-900 hover:border-maroon/30 group shadow-2xl relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className={`bg-zinc-950/40 backdrop-blur-3xl p-10 rounded-[2.5rem] flex items-center justify-between transition-all duration-1000 delay-150 border border-white/5 hover:border-maroon/30 group shadow-[0_0_40px_rgba(0,0,0,0.3)] hover:shadow-[0_0_60px_rgba(185,28,28,0.1)] relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent -translate-y-full animate-scanline opacity-20"></div>
                      <div>
                         <div className="flex items-center gap-3 mb-4">
@@ -93,7 +93,7 @@ const Tokenomics = () => {
                         <Lock className="w-8 h-8 text-zinc-700 group-hover:text-maroon transition-colors" />
                      </div>
                   </div>
-                  <div className={`silk-panel p-10 rounded-[2.5rem] flex items-center justify-between transition-silk duration-1000 delay-300 border-zinc-900 hover:border-maroon/30 group shadow-2xl relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className={`bg-zinc-950/40 backdrop-blur-3xl p-10 rounded-[2.5rem] flex items-center justify-between transition-all duration-1000 delay-300 border border-white/5 hover:border-maroon/30 group shadow-[0_0_40px_rgba(0,0,0,0.3)] hover:shadow-[0_0_60px_rgba(185,28,28,0.1)] relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent -translate-y-full animate-scanline opacity-20 pointer-events-none"></div>
                      <div>
                         <div className="flex items-center gap-3 mb-4">
@@ -163,7 +163,7 @@ const Tokenomics = () => {
 
                         {/* Center Content */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                           <div className="bg-zinc-950/90 backdrop-blur-xl rounded-full w-[55%] h-[55%] flex flex-col items-center justify-center border border-zinc-800 shadow-2xl p-4 transition-all duration-300 z-10">
+                           <div className="bg-zinc-950/80 backdrop-blur-2xl rounded-full w-[55%] h-[55%] flex flex-col items-center justify-center border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-4 transition-all duration-500 z-10">
                               {activeItem ? (
                                  <div className="animate-in fade-in zoom-in-95 duration-200">
                                     <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center">{activeItem.label}</p>
@@ -192,9 +192,9 @@ const Tokenomics = () => {
                            onMouseEnter={() => setActiveIndex(i)}
                            onMouseLeave={() => setActiveIndex(null)}
                            className={`
-                         silk-panel p-6 rounded-2xl flex items-center justify-between cursor-pointer border
-                         transition-silk duration-500 group relative overflow-hidden
-                         ${activeIndex === i ? 'bg-zinc-900/60 border-maroon/40 translate-x-2' : 'border-transparent hover:bg-zinc-900/40'}
+                         bg-zinc-950/40 backdrop-blur-xl p-6 rounded-2xl flex items-center justify-between cursor-pointer border
+                         transition-all duration-500 group relative overflow-hidden
+                         ${activeIndex === i ? 'bg-zinc-900/80 border-maroon/40 translate-x-2 shadow-[0_0_30px_rgba(185,28,28,0.1)]' : 'border-white/5 hover:bg-zinc-900/60 hover:border-white/10'}
                          ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}
                        `}
                            style={{ transitionDelay: `${600 + (i * 100)}ms` }}
@@ -228,7 +228,7 @@ const Tokenomics = () => {
                      {content.utility.map((u, i) => {
                         const Icon = IconMap[u.icon] || Zap;
                         return (
-                           <div key={i} className={`silk-panel p-10 rounded-[2.5rem] border border-zinc-900 hover:border-maroon/30 transition-silk duration-700 group hover:-translate-y-2 relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
+                           <div key={i} className={`bg-zinc-950/40 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white/5 hover:border-maroon/30 transition-all duration-700 group hover:-translate-y-2 hover:shadow-[0_20px_50px_-20px_rgba(185,28,28,0.2)] relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
                               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent -translate-y-full animate-scanline opacity-10 pointer-events-none"></div>
                               <div className="relative z-10">
                                  <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
@@ -244,9 +244,9 @@ const Tokenomics = () => {
                </div>
 
                {/* Release Schedule */}
-               <div className={`glass-panel p-1 rounded-[2.5rem] overflow-hidden transition-all duration-1000 delay-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                  <div className="bg-zinc-950 rounded-[2.4rem] overflow-hidden border border-zinc-900">
-                     <div className="p-10 border-b border-zinc-900 bg-zinc-900/30 flex justify-between items-center group/card">
+               <div className={`p-[1px] rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-white/10 via-zinc-900/50 to-white/5 transition-all duration-1000 delay-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className="bg-zinc-950/80 backdrop-blur-3xl rounded-[2.4rem] overflow-hidden">
+                     <div className="p-10 border-b border-white/5 bg-zinc-900/20 flex justify-between items-center group/card relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-scanline opacity-10 pointer-events-none"></div>
                         <div className="relative z-10">
                            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Vesting Schedule</h3>
@@ -254,19 +254,19 @@ const Tokenomics = () => {
                         </div>
                         <Info className="w-5 h-5 text-zinc-600 hidden md:block group-hover/card:text-maroon transition-colors" />
                      </div>
-                     <div className="overflow-x-auto relative z-10">
-                        <table className="w-full text-left text-sm">
+                     <div className="overflow-x-auto relative z-10 w-full">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
                            <thead>
-                              <tr className="border-b border-zinc-900 text-zinc-500 font-mono text-[10px] uppercase tracking-widest bg-zinc-900/10">
-                                 <th className="p-8 font-bold">Phase Protocol</th>
-                                 <th className="p-8 font-bold">Activation Date</th>
-                                 <th className="p-8 font-bold">Liquidity Event</th>
-                                 <th className="p-8 font-bold">Mechanism</th>
+                              <tr className="border-b border-white/5 text-zinc-500 font-mono text-[10px] uppercase tracking-widest bg-zinc-900/30">
+                                 <th className="p-8 font-bold text-zinc-400">Phase Protocol</th>
+                                 <th className="p-8 font-bold text-zinc-400">Activation Date</th>
+                                 <th className="p-8 font-bold text-zinc-400">Liquidity Event</th>
+                                 <th className="p-8 font-bold text-zinc-400">Mechanism</th>
                               </tr>
                            </thead>
-                           <tbody className="divide-y divide-zinc-900">
+                           <tbody className="divide-y divide-white/5">
                               {content.schedule.map((row, i) => (
-                                 <tr key={i} className="hover:bg-zinc-900/40 transition-colors group">
+                                 <tr key={i} className="hover:bg-zinc-900/50 transition-colors group">
                                     <td className="p-10 font-black text-white flex items-center gap-4">
                                        <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-maroon animate-ping' : 'bg-zinc-800'}`}></div>
                                        <div className="flex flex-col">

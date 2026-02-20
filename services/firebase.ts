@@ -183,7 +183,33 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
     title: "Argus Protocol",
     description: "Powering the uptime of the global digital economy.",
     copyright: "© 2026 ARGUS LABS.",
-    links: {}
+    statusText: "All Systems Operational",
+    columns: [
+      {
+        title: "Protocol",
+        links: [
+          { label: "Documentation", url: "/docs" },
+          { label: "Architecture", url: "/architecture" },
+          { label: "Tokenomics", url: "/tokenomics" },
+          { label: "Whitepaper", url: "/whitepaper" }
+        ]
+      },
+      {
+        title: "Organization",
+        links: [
+          { label: "About Us", url: "/about" },
+          { label: "Careers", url: "/careers" },
+          { label: "Contact", url: "/contact" }
+        ]
+      },
+      {
+        title: "Legal",
+        links: [
+          { label: "Terms of Service", url: "/terms" },
+          { label: "Privacy Policy", url: "/privacy" }
+        ]
+      }
+    ]
   }
 };
 

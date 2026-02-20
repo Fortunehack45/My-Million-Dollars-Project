@@ -809,8 +809,9 @@ const AdminPanel = () => {
                           <p className="text-[10px] text-zinc-500 font-mono"><a href={`mailto:${msg.email}`} className="hover:text-maroon transition-colors">{msg.email}</a></p>
                         </td>
                         <td className="py-4 px-2 max-w-sm">
-                          <p className="text-xs text-zinc-400 truncate group-hover:block hidden whitespace-normal overflow-visible absolute bg-zinc-900 p-4 rounded-xl border border-zinc-700 shadow-2xl z-50 -ml-2 w-80">{msg.payload}</p>
-                          <p className="text-xs text-zinc-400 truncate group-hover:opacity-0 transition-opacity">{msg.payload}</p>
+                          <div className="bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/50">
+                            <p className="text-[11px] text-zinc-400 whitespace-pre-wrap break-words leading-relaxed max-h-32 overflow-y-auto custom-scrollbar pr-2">{msg.payload}</p>
+                          </div>
                         </td>
                         <td className="py-4 px-2 text-center">
                           <div className="flex justify-center">
@@ -1083,6 +1084,50 @@ const AdminPanel = () => {
                       <InputGroup label="Brand Name" value={landingConfig.footer.title} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'title'], v)} />
                       <InputGroup label="Description" type="textarea" value={landingConfig.footer.description} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'description'], v)} />
                       <InputGroup label="Copyright Text" value={landingConfig.footer.copyright} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'copyright'], v)} />
+                      <InputGroup label="Status Text" value={landingConfig.footer.statusText || ''} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'statusText'], v)} />
+
+                      <div className="space-y-4 pt-6">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Footer Columns</span>
+                        {landingConfig.footer.columns?.map((col, cIdx) => (
+                          <AccordionItem key={cIdx} title={`Column: ${col.title}`} onDelete={() => removeItem(setLandingConfig, ['footer', 'columns'], cIdx)}>
+                            <InputGroup label="Column Title" value={col.title} onChange={(v: string) => {
+                              const newCols = [...landingConfig.footer.columns];
+                              newCols[cIdx].title = v;
+                              updateState(setLandingConfig, ['footer', 'columns'], newCols);
+                            }} />
+
+                            <div className="mt-4 space-y-3">
+                              <span className="text-[10px] font-bold text-zinc-500 uppercase">Links</span>
+                              {col.links?.map((link, lIdx) => (
+                                <div key={lIdx} className="grid grid-cols-2 gap-4 items-center bg-zinc-900/50 p-3 rounded-xl border border-zinc-800/50 relative">
+                                  <InputGroup label="Label" value={link.label} onChange={(v: string) => {
+                                    const newCols = [...landingConfig.footer.columns];
+                                    newCols[cIdx].links[lIdx].label = v;
+                                    updateState(setLandingConfig, ['footer', 'columns'], newCols);
+                                  }} />
+                                  <InputGroup label="URL" value={link.url} onChange={(v: string) => {
+                                    const newCols = [...landingConfig.footer.columns];
+                                    newCols[cIdx].links[lIdx].url = v;
+                                    updateState(setLandingConfig, ['footer', 'columns'], newCols);
+                                  }} />
+                                  <button onClick={() => {
+                                    const newCols = [...landingConfig.footer.columns];
+                                    newCols[cIdx].links = newCols[cIdx].links.filter((_, i) => i !== lIdx);
+                                    updateState(setLandingConfig, ['footer', 'columns'], newCols);
+                                  }} className="absolute -top-2 -right-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white p-1 rounded-full transition-colors"><Trash2 className="w-3 h-3" /></button>
+                                </div>
+                              ))}
+                              <button onClick={() => {
+                                const newCols = [...landingConfig.footer.columns];
+                                if (!newCols[cIdx].links) newCols[cIdx].links = [];
+                                newCols[cIdx].links = [...newCols[cIdx].links, { label: 'New Link', url: '/' }];
+                                updateState(setLandingConfig, ['footer', 'columns'], newCols);
+                              }} className="text-[10px] text-maroon font-bold uppercase hover:underline">+ Add Link</button>
+                            </div>
+                          </AccordionItem>
+                        ))}
+                        <button onClick={() => addItem(setLandingConfig, ['footer', 'columns'], { title: "New Column", links: [] })} className="btn-primary w-full py-3">+ Add Column</button>
+                      </div>
                     </div>
                   )}
                 </>

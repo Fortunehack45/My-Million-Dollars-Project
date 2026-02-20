@@ -64,6 +64,18 @@ export interface LandingSection {
   [key: string]: any;
 }
 
+export interface FooterColumn {
+  title: string;
+  links: Array<{ label: string; url: string }>;
+}
+
+export interface FooterConfig extends LandingSection {
+  description: string;
+  copyright: string;
+  statusText: string;
+  columns: FooterColumn[];
+}
+
 export interface LandingConfig {
   hero: LandingSection & { ctaPrimary: string; ctaSecondary: string };
   socials: { twitter: string; discord: string; github: string };
@@ -73,7 +85,7 @@ export interface LandingConfig {
   roadmap: LandingSection & { phases: Array<{ phase: string, title: string, period: string, status: string, desc: string, features: string[] }> };
   faq: LandingSection & { items: Array<{ q: string, a: string }> };
   cta: LandingSection & { buttonText: string };
-  footer: LandingSection & { copyright: string, links: any };
+  footer: FooterConfig;
 }
 
 export interface LegalConfig {

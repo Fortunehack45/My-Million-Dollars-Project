@@ -193,34 +193,24 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               </div>
             </div>
 
-            <div className="md:col-span-2 space-y-4">
-              <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Protocol</h4>
-              <Link to="/docs" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Documentation</Link>
-              <Link to="/architecture" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Architecture</Link>
-              <Link to="/tokenomics" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Tokenomics</Link>
-              <Link to="/whitepaper" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Whitepaper</Link>
-            </div>
-
-            <div className="md:col-span-2 space-y-4">
-              <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Organization</h4>
-              <Link to="/about" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">About Us</Link>
-              <Link to="/careers" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Careers</Link>
-              <Link to="/contact" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Contact</Link>
-            </div>
-
-            <div className="md:col-span-3 space-y-4">
-              <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">Legal</h4>
-              <Link to="/terms" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Terms of Service</Link>
-              <Link to="/privacy" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Privacy Policy</Link>
-            </div>
+            {landingConfig.footer.columns?.map((col, idx) => (
+              <div key={idx} className={`space-y-4 ${idx === 2 ? 'md:col-span-3' : 'md:col-span-2'}`}>
+                <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">{col.title}</h4>
+                {col.links?.map((link, lIdx) => (
+                  <Link key={lIdx} to={link.url} className="block text-zinc-500 hover:text-maroon text-sm transition-colors">{link.label}</Link>
+                ))}
+              </div>
+            ))}
           </div>
 
           <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-zinc-600 text-xs">{landingConfig.footer.copyright}</p>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">All Systems Operational</span>
-            </div>
+            {landingConfig.footer.statusText && (
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">{landingConfig.footer.statusText}</span>
+              </div>
+            )}
           </div>
         </div>
       </footer>
