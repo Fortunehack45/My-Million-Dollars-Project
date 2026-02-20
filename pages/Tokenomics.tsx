@@ -77,7 +77,7 @@ const Tokenomics = () => {
 
                {/* Supply Cards - Premium Institutional Aesthetic */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-32">
-                  <div className={`bg-zinc-950/40 backdrop-blur-xl p-10 rounded-[2.5rem] flex items-center justify-between transition-all duration-1000 delay-150 border border-zinc-900 hover:border-zinc-800 group shadow-2xl ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className={`silk-panel p-10 rounded-[2.5rem] flex items-center justify-between transition-silk duration-1000 delay-150 border-zinc-900 hover:border-maroon/30 group shadow-2xl ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                      <div>
                         <div className="flex items-center gap-3 mb-4">
                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
@@ -92,7 +92,7 @@ const Tokenomics = () => {
                         <Lock className="w-8 h-8 text-zinc-700 group-hover:text-maroon transition-colors" />
                      </div>
                   </div>
-                  <div className={`bg-zinc-950/40 backdrop-blur-xl p-10 rounded-[2.5rem] flex items-center justify-between transition-all duration-1000 delay-300 border border-zinc-900 hover:border-maroon/20 group shadow-2xl ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className={`silk-panel p-10 rounded-[2.5rem] flex items-center justify-between transition-silk duration-1000 delay-300 border-zinc-900 hover:border-maroon/30 group shadow-2xl ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                      <div>
                         <div className="flex items-center gap-3 mb-4">
                            <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
@@ -190,11 +190,11 @@ const Tokenomics = () => {
                            onMouseEnter={() => setActiveIndex(i)}
                            onMouseLeave={() => setActiveIndex(null)}
                            className={`
-                         glass-panel p-5 rounded-2xl flex items-center justify-between cursor-pointer border
-                         transition-all duration-500 group
-                         ${activeIndex === i ? 'bg-zinc-900 border-zinc-700 translate-x-2' : 'border-transparent hover:bg-zinc-900/40 hover:border-zinc-800'}
+                         silk-panel p-6 rounded-2xl flex items-center justify-between cursor-pointer border
+                         transition-silk duration-500 group
+                         ${activeIndex === i ? 'bg-zinc-900/60 border-maroon/40 translate-x-2' : 'border-transparent hover:bg-zinc-900/40'}
                          ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}
-                      `}
+                       `}
                            style={{ transitionDelay: `${600 + (i * 100)}ms` }}
                         >
                            <div className="flex items-center gap-5">
@@ -225,7 +225,7 @@ const Tokenomics = () => {
                      {content.utility.map((u, i) => {
                         const Icon = IconMap[u.icon] || Zap;
                         return (
-                           <div key={i} className={`surface p-10 rounded-[2.5rem] bg-zinc-900/10 border border-zinc-900 hover:border-maroon/30 transition-all duration-700 group hover:-translate-y-2 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
+                           <div key={i} className={`silk-panel p-10 rounded-[2.5rem] border border-zinc-900 hover:border-maroon/30 transition-silk duration-700 group hover:-translate-y-2 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
                               <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
                                  <Icon className="w-7 h-7 text-zinc-400 group-hover:text-maroon transition-colors" />
                               </div>

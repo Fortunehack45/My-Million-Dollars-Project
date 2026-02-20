@@ -28,7 +28,7 @@ const GhostDAGExplainer = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-               <div className="p-6 bg-zinc-950 border border-zinc-900 rounded-[2rem] space-y-4 hover:border-emerald-500/20 transition-all group/node">
+               <div className="p-6 silk-panel rounded-[2rem] space-y-4 hover:border-emerald-500/20 transition-silk group/node">
                   <div className="w-10 h-10 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex items-center justify-center group-hover/node:bg-emerald-500/10 transition-colors">
                      <GitBranch className="w-5 h-5 text-emerald-500" />
                   </div>
@@ -37,7 +37,7 @@ const GhostDAGExplainer = () => {
                      <p className="text-xs text-zinc-500 leading-relaxed">High-connectivity nodes forming the canonical chain path.</p>
                   </div>
                </div>
-               <div className="p-6 bg-zinc-950 border border-zinc-900 rounded-[2rem] space-y-4 hover:border-maroon/20 transition-all group/node">
+               <div className="p-6 silk-panel rounded-[2rem] space-y-4 hover:border-maroon/20 transition-silk group/node">
                   <div className="w-10 h-10 bg-maroon/5 rounded-xl border border-maroon/10 flex items-center justify-center group-hover/node:bg-maroon/10 transition-colors">
                      <Share2 className="w-5 h-5 text-maroon" />
                   </div>
@@ -52,7 +52,7 @@ const GhostDAGExplainer = () => {
          <div className="relative group">
             {/* Schematic Frame */}
             <div className="absolute -inset-4 border border-zinc-900 rounded-[3rem] opacity-50 pointer-events-none"></div>
-            <div className="surface p-1 rounded-[3rem] border border-zinc-900/50 bg-[#050505] shadow-2xl relative overflow-hidden">
+            <div className="silk-panel p-1.5 rounded-[3rem] border-zinc-900/50 shadow-2xl relative overflow-hidden">
                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(128,0,0,0.05),transparent)]"></div>
 
                <div className="relative p-10 space-y-10">
@@ -104,7 +104,7 @@ const BenchmarkChart = () => {
             { label: 'Time to Finality', argus: '400ms', eth: '12m', sol: '12.8s', unit: 'Time' },
             { label: 'Validator Reqs', argus: 'GhostDAG', eth: '32 ETH', sol: 'High-End', unit: 'Logic' },
          ].map((metric, i) => (
-            <div key={i} className="surface p-6 rounded-2xl space-y-4 border border-zinc-900">
+            <div key={i} className="silk-panel p-6 rounded-2xl space-y-4 border-zinc-900 transition-silk">
                <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">{metric.label}</h4>
 
                <div className="space-y-3">
@@ -301,7 +301,7 @@ const Architecture = () => {
                         <div
                            key={i}
                            data-id={`card-${i}`}
-                           className={`surface p-1 rounded-[2rem] relative group transition-all duration-1000 ease-out z-10 ${isVisible(`card-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}
+                           className={`silk-panel p-1 rounded-[2rem] relative group transition-silk duration-1000 ease-out z-10 ${isVisible(`card-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}
                            style={{ transitionDelay: `${i * 150}ms` }}
                         >
                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem]"></div>
@@ -346,7 +346,7 @@ const Architecture = () => {
                         <div
                            key={i}
                            data-id={`sec-${i}`}
-                           className={`p-8 rounded-2xl bg-zinc-900/20 border border-zinc-900 hover:bg-zinc-900/40 transition-all duration-700 ${isVisible(`sec-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                           className={`p-8 rounded-2xl silk-panel border-zinc-900 hover:bg-zinc-900/40 transition-silk duration-700 ${isVisible(`sec-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                            style={{ transitionDelay: `${i * 150}ms` }}
                         >
                            <Icon className="w-8 h-8 text-zinc-600 mb-4" />

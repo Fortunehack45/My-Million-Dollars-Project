@@ -18,7 +18,7 @@ const Skeleton: React.FC<SkeletonProps> = ({ className = "", variant = 'rect' })
     return (
         <div className={`${baseClasses} ${variantClasses[variant]} ${className}`}>
             {/* Shimmer effect overlay */}
-            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/[0.03] to-transparent"></div>
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-maroon/5 to-transparent"></div>
         </div>
     );
 };

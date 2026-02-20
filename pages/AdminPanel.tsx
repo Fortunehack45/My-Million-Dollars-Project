@@ -306,7 +306,7 @@ const AdminPanel = () => {
     <div className="w-full space-y-8 pb-20 animate-fade-in-up relative will-change-transform">
 
       {/* Header - Z-Index 40 to stay above everything */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-950/80 p-8 rounded-[2rem] border border-zinc-900 backdrop-blur-md sticky top-4 z-40 shadow-2xl transition-all duration-300">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 silk-panel p-8 rounded-[2.5rem] border-zinc-900 sticky top-4 z-40 shadow-2xl transition-silk duration-300">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 bg-zinc-900 flex items-center justify-center rounded-2xl border border-zinc-800 shadow-sm shrink-0 transition-transform duration-300 hover:scale-105">
             <Logo className="w-8 h-8 text-maroon" />
@@ -325,7 +325,7 @@ const AdminPanel = () => {
             <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'cms' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3.5 h-3.5" /> Editor</button>
           </div>
           {activeTab === 'cms' && (
-            <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02]' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}><Save className="w-4 h-4" />{cmsStatus || (hasUnsavedChanges ? 'Confirm Update' : 'Synchronized')}</button>
+            <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-silk shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02]' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}><Save className="w-4 h-4" />{cmsStatus || (hasUnsavedChanges ? 'Confirm Update' : 'Synchronized')}</button>
           )}
         </div>
       </header>
@@ -336,7 +336,7 @@ const AdminPanel = () => {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 space-y-8">
               {/* User Directory */}
-              <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900 overflow-hidden">
+              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
@@ -411,7 +411,7 @@ const AdminPanel = () => {
                               </button>
                               <button
                                 onClick={() => deleteUserAction(u.uid, u.displayName || '')}
-                                className="p-2 bg-red-500/5 border border-red-500/10 rounded-lg hover:bg-red-500/20 hover:border-red-500/30 transition-all text-red-500/50 hover:text-red-500"
+                                className="p-2 bg-red-500/5 border border-red-500/10 rounded-lg hover:bg-red-500/20 hover:border-red-500 transition-silk text-red-500/50 hover:text-red-500"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -425,7 +425,7 @@ const AdminPanel = () => {
               </div>
 
               {/* Protocol Config Section */}
-              <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900">
+              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900">
                 <SectionHeader title="Network Protocol Config" icon={Settings} description="Global parameter adjustments" />
 
                 <div className="space-y-6">
@@ -463,7 +463,7 @@ const AdminPanel = () => {
               </div>
 
               {/* Task Injection */}
-              <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900">
+              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900">
                 <SectionHeader title="Inject Directive" icon={PlusCircle} description="Create new social task for validators" />
                 <form onSubmit={handleCreateTask} className="space-y-6">
                   <InputGroup label="Task Title" value={newTask.title} onChange={(v: string) => setNewTask({ ...newTask, title: v })} />
@@ -537,7 +537,7 @@ const AdminPanel = () => {
               ))}
 
               {/* Active Directives Sidebar */}
-              <div className="surface rounded-3xl bg-zinc-900/20 border-zinc-900 overflow-hidden flex flex-col h-full max-h-[800px]">
+              <div className="silk-panel rounded-[2.5rem] border-zinc-900 overflow-hidden flex flex-col h-full max-h-[800px]">
                 <div className="p-4 bg-zinc-950/50 border-b border-zinc-800 flex justify-between items-center shrink-0">
                   <span className="text-[10px] font-bold text-white uppercase tracking-widest">Active Directives</span>
                 </div>
@@ -602,7 +602,7 @@ const AdminPanel = () => {
           </div>
 
           <div className="md:col-span-9 space-y-8">
-            <div className="surface p-8 rounded-3xl bg-zinc-900/20 border-zinc-900 min-h-[500px]">
+            <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 min-h-[500px]">
 
               {/* LANDING PAGE CONFIG */}
               {activeCmsPage === 'landing' && (
@@ -623,7 +623,7 @@ const AdminPanel = () => {
 
                   {activeLandingSection === 'socials' && (
                     <div className="space-y-8">
-                      <div className="p-6 bg-zinc-950/50 border border-zinc-800 rounded-2xl space-y-6">
+                      <div className="p-8 silk-panel border-zinc-900 rounded-[2rem] space-y-6">
                         <InputGroup
                           label="Twitter / X URL"
                           value={landingConfig.socials.twitter}
@@ -858,7 +858,7 @@ const AdminPanel = () => {
                   <InputGroup label="Subtitle" type="textarea" value={aboutConfig.subtitle} onChange={(v: string) => updateState(setAboutConfig, ['subtitle'], v)} />
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="p-4 border border-zinc-800 rounded-xl space-y-4 bg-zinc-950/50">
+                    <div className="p-6 silk-panel border-zinc-800 rounded-2xl space-y-4">
                       <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Target className="w-4 h-4" /> Mission</span>
                       <InputGroup label="Title" value={aboutConfig.mission.title} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'title'], v)} />
                       <InputGroup label="Desc" type="textarea" value={aboutConfig.mission.desc} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'desc'], v)} />
