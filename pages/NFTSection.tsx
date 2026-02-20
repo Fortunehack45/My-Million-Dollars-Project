@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import Logo from '../components/Logo';
+
 // Add missing 'Globe' import from lucide-react.
 import {
    Lock, Shield, Cpu, Zap, Box,
@@ -112,62 +112,95 @@ const NFTSection = () => {
 
                {/* Center: Premium Holographic Artifact */}
                <div className="lg:col-span-4 order-1 lg:order-2 px-4 md:px-0">
-                  <div className="relative group">
-                     {/* Intense Card Outer Glow */}
-                     <div className="absolute -inset-10 bg-maroon/10 blur-[80px] rounded-full opacity-30 group-hover:opacity-60 transition-opacity duration-1000"></div>
+                  <div className="relative group perspective-1000">
+                     {/* Intense Dynamic Glow */}
+                     <div className="absolute -inset-12 bg-maroon/20 blur-[120px] rounded-full opacity-40 group-hover:opacity-70 transition-all duration-1000 animate-pulse"></div>
+                     <div className="absolute -inset-4 bg-gradient-to-tr from-maroon/20 to-transparent blur-3xl rounded-[4rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-                     {/* The Core Artifact Frame */}
-                     <div className="relative aspect-[3/4.2] bg-[#050505] rounded-[3rem] border border-white/10 p-4 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-700 group-hover:scale-[1.03] group-hover:border-white/20">
+                     {/* The Main License Frame */}
+                     <div className="relative aspect-[3/4.4] bg-[#020202] rounded-[3.5rem] border border-white/10 p-5 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-1000 group-hover:scale-[1.04] group-hover:border-maroon/30 group-hover:shadow-[0_60px_120px_-20px_rgba(128,0,0,0.2)]">
 
-                        {/* Interior High-Tech Design */}
-                        <div className="h-full w-full bg-[#0a0a0a] rounded-[2.5rem] border border-zinc-900 flex flex-col items-center justify-center relative overflow-hidden group/hologram">
+                        {/* High-Impact Glass Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-transparent to-transparent z-30 pointer-events-none"></div>
 
-                           {/* Multiple Scanning Lines & Glitch Effects */}
+                        {/* Interior High-Tech Foundation */}
+                        <div className="h-full w-full bg-[#050505] rounded-[2.8rem] border border-zinc-900 flex flex-col items-center justify-center relative overflow-hidden group/hologram">
+
+                           {/* Adaptive Background Grid */}
+                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.05)_0%,transparent_70%)] opacity-50"></div>
+                           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+
+                           {/* Multiple Dynamic Scanning Lines */}
                            <div className="absolute inset-0 pointer-events-none z-20">
-                              <div className="w-full h-px bg-maroon/40 absolute top-0 animate-[scanline_4s_linear_infinite shadow-[0_0_15px_rgba(128,0,0,0.8)]"></div>
-                              <div className="w-full h-[30%] bg-gradient-to-b from-transparent via-maroon/5 to-transparent absolute top-0 animate-[scanline_8s_linear_infinite] delay-1000"></div>
-                              {/* Noise Texture */}
-                              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
+                              <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-maroon to-transparent absolute top-0 animate-[scanline_3s_linear_infinite] opacity-50 shadow-[0_0_20px_rgba(128,0,0,0.8)]"></div>
+                              <div className="w-full h-[150px] bg-gradient-to-b from-maroon/10 to-transparent absolute top-0 animate-[scanline_6s_linear_infinite] delay-700 opacity-30"></div>
+                              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
                            </div>
 
-                           {/* Central Authority Core */}
-                           <div className="relative z-10 flex flex-col items-center">
-                              <div className="relative mb-16 px-8">
-                                 {/* Floating Elements */}
-                                 <div className="absolute -inset-8 bg-maroon/20 blur-3xl rounded-full animate-pulse"></div>
+                           {/* Central Identity Core */}
+                           <div className="relative z-10 flex flex-col items-center w-full px-8">
+                              <div className="relative mb-14">
+                                 {/* Multi-layered Orb Glow */}
+                                 <div className="absolute -inset-12 bg-maroon/30 blur-3xl rounded-full animate-pulse-slow"></div>
+                                 <div className="absolute -inset-4 bg-maroon/10 blur-2xl rounded-full animate-pulse"></div>
 
-                                 <div className="relative w-36 h-36 bg-[#030303] border-2 border-white/5 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.5)] transition-all duration-700 group-hover:border-maroon/30 group-hover:shadow-[0_0_50px_rgba(128,0,0,0.3)]">
-                                    <Logo className="w-16 h-16 text-white group-hover:text-maroon transition-all duration-700 drop-shadow-[0_0_15px_#800000]" />
+                                 <div className="relative w-44 h-44 bg-[#010101] border-[3px] border-white/5 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(0,0,0,0.8)] transition-all duration-1000 group-hover:border-maroon/50 group-hover:shadow-[0_0_80px_rgba(128,0,0,0.4)] overflow-hidden">
 
-                                    {/* Orbiting Rings */}
-                                    <div className="absolute inset-2 border border-white/[0.03] rounded-full animate-spin-slow"></div>
-                                    <div className="absolute inset-4 border-t border-maroon/30 rounded-full animate-spin-slow"></div>
+                                    {/* Rotating Mechanical Rings */}
+                                    <div className="absolute inset-1 border-[1.5px] border-dashed border-white/[0.05] rounded-full animate-spin-slow z-20 pointer-events-none"></div>
+                                    <div className="absolute inset-4 border-[2px] border-t-maroon/40 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin-reverse z-20 pointer-events-none"></div>
+                                    <div className="absolute inset-6 border border-maroon/20 rounded-full z-20 pointer-events-none"></div>
+
+                                    {/* User Provided License Image */}
+                                    <img
+                                       src="/argus_license.png"
+                                       alt="Argus Authority License"
+                                       className="relative z-10 w-full h-full object-cover filter grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-1000 scale-110 group-hover:scale-100"
+                                    />
+
+                                    {/* Holographic Scanline Overlay on Image */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-maroon/20 to-transparent opacity-0 group-hover:opacity-40 z-15 transition-opacity duration-700 pointer-events-none"></div>
+
+                                    {/* Digital Micro-Labels */}
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-zinc-950 px-3 py-1 border border-white/10 rounded-full shadow-2xl z-30">
+                                       <span className="text-[7px] font-mono font-black text-zinc-500 uppercase tracking-[0.4em]">Core_Handshake</span>
+                                    </div>
                                  </div>
 
-                                 {/* Outer Tech Accents */}
-                                 <div className="absolute -top-4 -left-4 w-8 h-8 border-t-2 border-l-2 border-maroon/40 rounded-tl-xl transition-all duration-500 group-hover:-translate-x-2 group-hover:-translate-y-2"></div>
-                                 <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-maroon/40 rounded-br-xl transition-all duration-500 group-hover:translate-x-2 group-hover:translate-y-2"></div>
+                                 {/* Corner Brackets - Refined */}
+                                 <div className="absolute -top-6 -left-6 w-10 h-10 border-t-[3px] border-l-[3px] border-maroon/50 rounded-tl-2xl transition-all duration-700 group-hover:-translate-x-3 group-hover:-translate-y-3"></div>
+                                 <div className="absolute -bottom-6 -right-6 w-10 h-10 border-b-[3px] border-r-[3px] border-maroon/50 rounded-br-2xl transition-all duration-700 group-hover:translate-x-3 group-hover:translate-y-3"></div>
                               </div>
 
-                              <div className="text-center space-y-4">
-                                 <h3 className="text-4xl font-black text-white uppercase tracking-[-0.05em] leading-none mb-2">Vault_Locked</h3>
-                                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-red-950/30 backdrop-blur-md border border-red-900/40 rounded-lg">
-                                    <AlertTriangle className="w-3.5 h-3.5 text-red-500 animate-pulse" />
-                                    <span className="text-[10px] font-mono font-black text-red-500 uppercase tracking-[0.2em]">EPOCH_0_RESTRICTION</span>
+                              <div className="text-center space-y-5 w-full">
+                                 <div className="space-y-1">
+                                    <h3 className="text-5xl font-black text-white uppercase tracking-[-0.07em] leading-none group-hover:text-maroon transition-colors duration-700">Access_Denied</h3>
+                                    <p className="text-[8px] font-mono font-black text-zinc-600 uppercase tracking-[0.5em]">Security_Protocol_Active</p>
+                                 </div>
+
+                                 <div className="inline-flex items-center gap-4 px-6 py-2.5 bg-red-950/20 backdrop-blur-3xl border border-red-500/30 rounded-xl shadow-2xl">
+                                    <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                                    <span className="text-[11px] font-mono font-bold text-red-500 uppercase tracking-[0.3em]">Restricted_Epoch_0</span>
                                  </div>
                               </div>
                            </div>
 
-                           {/* Bottom Status Grid */}
-                           <div className="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-black to-transparent pt-32">
-                              <div className="grid grid-cols-2 gap-8 border-t border-white/5 pt-8">
-                                 <div className="space-y-2">
-                                    <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.2em]">Authority_Weight</p>
-                                    <p className="text-2xl font-mono font-black text-zinc-400 tracking-tighter">0.00x</p>
+                           {/* Institutional Bottom Status Console */}
+                           <div className="absolute bottom-0 left-0 right-0 p-12 bg-gradient-to-t from-black via-black/90 to-transparent pt-32 z-20">
+                              <div className="grid grid-cols-2 gap-10 border-t border-white/10 pt-10">
+                                 <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                       <div className="w-1.5 h-1.5 bg-zinc-700 rounded-full"></div>
+                                       <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.3em]">Authority_Weight</p>
+                                    </div>
+                                    <p className="text-3xl font-mono font-black text-zinc-500 tracking-tighter">0.00x</p>
                                  </div>
-                                 <div className="text-right space-y-2">
-                                    <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.2em]">Registry_Serial</p>
-                                    <p className="text-2xl font-mono font-black text-zinc-400 tracking-tighter">#---</p>
+                                 <div className="text-right space-y-3">
+                                    <div className="flex items-center justify-end gap-2">
+                                       <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.3em]">Registry_Serial</p>
+                                       <div className="w-1.5 h-1.5 bg-zinc-700 rounded-full"></div>
+                                    </div>
+                                    <p className="text-3xl font-mono font-black text-zinc-500 tracking-tighter shadow-sm">#SECURE</p>
                                  </div>
                               </div>
                            </div>
@@ -175,51 +208,67 @@ const NFTSection = () => {
                         </div>
                      </div>
 
-                     {/* Premium Floating Metadata Label */}
-                     <div className="absolute -right-6 top-1/4 translate-x-1/2 rotate-90 hidden xl:block">
-                        <span className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] whitespace-nowrap">AUTHENTIC_ARTIFACT_ID_4021</span>
+                     {/* Advanced Floating Metadata Labels */}
+                     <div className="absolute -left-12 top-1/2 -rotate-90 origin-center hidden 2xl:block opacity-30">
+                        <div className="flex items-center gap-4">
+                           <span className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.6em] whitespace-nowrap">ID_VERIFICATION_REQUIRED_V2.0</span>
+                           <div className="w-20 h-px bg-zinc-800"></div>
+                        </div>
+                     </div>
+
+                     <div className="absolute -right-12 top-1/2 rotate-90 origin-center hidden 2xl:block opacity-30">
+                        <div className="flex items-center gap-4">
+                           <div className="w-20 h-px bg-zinc-800"></div>
+                           <span className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.6em] whitespace-nowrap">CRYPTOGRAPHIC_ENCRYPTION_LAYER</span>
+                        </div>
                      </div>
                   </div>
                </div>
 
                {/* Right: Technical Protocol Specs */}
                <div className="lg:col-span-4 space-y-8 order-3">
-                  <div className="flex items-center gap-3 mb-6">
-                     <div className="w-1 h-4 bg-maroon rounded-full"></div>
-                     <h3 className="text-xs font-black text-white uppercase tracking-[0.3em]">Protocol_Technical_Stack</h3>
+                  <div className="flex items-center gap-4 mb-8">
+                     <div className="w-1.5 h-5 bg-maroon rounded-full shadow-[0_0_10px_rgba(128,0,0,0.8)]"></div>
+                     <h3 className="text-[11px] font-black text-white uppercase tracking-[0.4em]">Protocol_Specifications</h3>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-5">
                      {[
-                        { label: 'Infrastructure', val: 'Argus_GhostDAG' },
-                        { label: 'Security Layer', val: 'Proof-of-Authority_Alpha' },
-                        { label: 'Royalties', val: 'Institutional Standard' },
-                        { label: 'Governance', val: '2x Weighted Access' },
+                        { label: 'Core Infrastructure', val: 'Argus_GhostDAG v2.0' },
+                        { label: 'Security Class', val: 'Institutional_Alpha' },
+                        { label: 'Resource Yield', val: '2.4x Multiplier' },
+                        { label: 'Network Rights', val: 'Root_Authorization' },
                      ].map((meta, i) => (
-                        <div key={i} className="flex justify-between items-center p-5 bg-zinc-900/10 backdrop-blur-sm border border-white/5 rounded-2xl hover:border-maroon/20 hover:bg-zinc-900/30 transition-all duration-500 group">
-                           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] group-hover:text-zinc-400 transition-colors">{meta.label}</span>
-                           <span className="text-xs font-mono font-black text-white group-hover:text-maroon transition-colors uppercase">{meta.val}</span>
+                        <div key={i} className="flex justify-between items-center p-6 bg-zinc-900/10 backdrop-blur-md border border-white/5 rounded-[1.5rem] hover:border-maroon/30 hover:bg-zinc-900/30 transition-all duration-700 group cursor-default">
+                           <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.25em] group-hover:text-zinc-400 transition-colors">{meta.label}</span>
+                           <span className="text-[11px] font-mono font-black text-white group-hover:text-maroon transition-colors uppercase tracking-tight">{meta.val}</span>
                         </div>
                      ))}
                   </div>
 
-                  <div className="pt-10">
+                  <div className="pt-12">
                      <button
                         disabled
-                        className="relative w-full py-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 text-zinc-600 font-black uppercase tracking-[0.3em] text-[11px] rounded-[1.5rem] cursor-not-allowed group overflow-hidden"
+                        className="relative w-full py-7 bg-zinc-900/40 backdrop-blur-3xl border border-white/5 text-zinc-700 font-black uppercase tracking-[0.4em] text-[11px] rounded-[2rem] cursor-not-allowed group overflow-hidden shadow-2xl"
                      >
-                        <div className="relative z-10 flex items-center justify-center gap-4">
-                           <ScanLine className="w-5 h-5 group-hover:text-zinc-400 transition-colors" />
-                           Establishing Secure Connection
+                        <div className="relative z-10 flex items-center justify-center gap-5">
+                           <div className="relative">
+                              <ScanLine className="w-6 h-6 group-hover:text-zinc-500 transition-colors" />
+                              <div className="absolute inset-0 bg-maroon animate-ping opacity-0 group-hover:opacity-20 rounded-full"></div>
+                           </div>
+                           Handshaking_Security_Pipes
                         </div>
-                        {/* Pulsing Loading Line */}
-                        <div className="absolute inset-x-0 bottom-0 h-0.5 bg-maroon/20 overflow-hidden">
-                           <div className="w-1/3 h-full bg-maroon animate-[loading_2s_infinite]"></div>
+                        {/* Seamless Pulsing Loading Interface */}
+                        <div className="absolute inset-x-0 bottom-0 h-[3px] bg-zinc-900 overflow-hidden">
+                           <div className="w-[40%] h-full bg-gradient-to-r from-transparent via-maroon to-transparent animate-[loading_2.5s_infinite] shadow-[0_0_15px_rgba(128,0,0,0.6)]"></div>
                         </div>
                      </button>
-                     <p className="text-center text-[10px] text-zinc-700 font-black uppercase tracking-[0.2em] mt-6 leading-relaxed">
-                        Identity handshake protocol v2.8 required<br />for mainnet authorization
-                     </p>
+                     <div className="mt-8 flex flex-col items-center gap-3">
+                        <p className="text-center text-[9px] text-zinc-700 font-black uppercase tracking-[0.3em] leading-relaxed">
+                           Requires Identity_Vetting_Protocol v.0.12<br />
+                           <span className="text-maroon/40 italic">Unauthorized access attempts are logged in GhostDAG</span>
+                        </p>
+                     </div>
                   </div>
 
                   {/* Utility Feature Icons */}

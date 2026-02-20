@@ -136,14 +136,19 @@ const Sidebar = () => {
       {/* DESKTOP: Sidebar Navigation */}
       <div className={`hidden md:block fixed inset-y-0 left-0 z-40 w-64 bg-zinc-950 border-r border-zinc-900/50 transition-all duration-500`}>
         <div className="flex flex-col h-full p-6">
-          <div className="mb-10 px-4 pt-2">
-            <div className="flex items-center space-x-4 group/sidebar-logo">
-              <div className="w-11 h-11 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center shadow-lg group-hover/sidebar-logo:border-maroon/40 transition-all duration-500">
-                <Logo className="w-7 h-7 text-maroon drop-shadow-[0_0_8px_rgba(128,0,0,0.3)]" />
+          <div className="mb-12 px-4 pt-4">
+            <div className="flex items-center space-x-5 group/sidebar-logo">
+              <div className="relative w-12 h-12 bg-zinc-900 border border-white/5 flex items-center justify-center rounded-2xl shadow-2xl group-hover/sidebar-logo:border-maroon/50 group-hover/sidebar-logo:scale-110 transition-all duration-700 ease-out-expo">
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-maroon/10 blur-xl opacity-0 group-hover/sidebar-logo:opacity-100 transition-opacity duration-700"></div>
+                <Logo className="relative z-10 w-7 h-7 text-maroon drop-shadow-[0_0_10px_rgba(128,0,0,0.4)]" />
               </div>
-              <div>
-                <span className="block font-black text-lg text-white tracking-tight leading-none uppercase group-hover/sidebar-logo:text-maroon transition-colors duration-500">Argus</span>
-                <span className="block text-[9px] font-bold text-zinc-600 uppercase tracking-[0.25em] mt-1.5">Infra_Layer_v2.8.4</span>
+              <div className="flex flex-col">
+                <span className="block font-black text-xl text-white tracking-[-0.03em] leading-none uppercase group-hover/sidebar-logo:text-maroon transition-colors duration-500">Argus</span>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <div className="w-1 h-1 bg-maroon rounded-full animate-pulse"></div>
+                  <span className="block text-[8px] font-bold text-maroon/70 uppercase tracking-[0.4em]">Protocol_v2.8</span>
+                </div>
               </div>
             </div>
           </div>
