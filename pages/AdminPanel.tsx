@@ -232,6 +232,18 @@ const AdminPanel = () => {
 
   // Initial Subscriptions
   useEffect(() => {
+if (!isAuthorized) return;
+
+const unsubUsers = subscribeToUsers(setUsers);
+
+const unsubStats = subscribeToNetworkStats((stats) => {
+  setNetStats(stats);
+  if (stats.maxUsersCap) setCapInput(stats.maxUsersCap);
+});
+
+const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
+
+const unsubTasks = subscribeToTasks(setTasks);
     const unsubLanding = subscribeToLandingConfig(setLandingConfig);
     const unsubAbout = subscribeToContent('about', DEFAULT_ABOUT_CONFIG, setAboutConfig);
     const unsubArch = subscribeToContent('architecture_page', DEFAULT_ARCHITECTURE_CONFIG, setArchConfig);
