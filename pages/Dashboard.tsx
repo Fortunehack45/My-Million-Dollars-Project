@@ -296,7 +296,15 @@ const Dashboard = () => {
 
       {/* STATS GRID */}
       <div className="grid grid-cols-2 lg:grid-cols-4 border border-zinc-900 overflow-hidden rounded-2xl">
-        <StatCard label="Node Balance" value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`} icon={Database} trend="+2.4%" trendUp={true} tooltip="Total accumulated ARG credits for this validator identity." />
+        <StatCard
+          label="Node Balance"
+          value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
+          subValue={`≈ $${(user.points * 0.5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
+          icon={Database}
+          trend="+2.4%"
+          trendUp={true}
+          tooltip="Total accumulated ARG credits and their current USD market valuation."
+        />
         <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
         <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />
         <StatCard label="Live Validators" value={livePeers.toLocaleString()} subValue={`Shards: ${Math.max(1, Math.floor(livePeers / 50))}`} icon={Server} tooltip="Count of verified peer nodes currently securing the GhostDAG." />
@@ -351,6 +359,9 @@ const Dashboard = () => {
                     <p className="label-meta mb-1">Session Yield</p>
                     <p className="text-2xl md:text-3xl font-mono font-black text-white tabular-nums">
                       {pendingPoints.toFixed(4)} <span className="text-xs text-zinc-600">ARG</span>
+                    </p>
+                    <p className="text-[10px] font-mono text-emerald-500/80 mt-1 uppercase tracking-wider">
+                      ≈ ${(pendingPoints * 0.5).toFixed(4)} USD
                     </p>
                   </div>
                 </div>

@@ -201,9 +201,9 @@ const ProfileSetup = () => {
               </div>
             </div>
             {/* Status Message */}
-            <div className="h-4 pl-1">
-              {!checkingName && isNameTaken === true && <span className="text-[10px] text-red-500 font-medium animate-fade-in">Handle unavailable</span>}
-              {!checkingName && isNameTaken === false && <span className="text-[10px] text-emerald-500 font-medium animate-fade-in">Handle available</span>}
+            <div className="h-4 pl-1 will-change-opacity">
+              {!checkingName && isNameTaken === true && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest animate-fade-in">Handle_Denied</span>}
+              {!checkingName && isNameTaken === false && <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest animate-fade-in">Handle_Authorized</span>}
             </div>
           </div>
 

@@ -139,7 +139,10 @@ const Terminal = () => {
 
    useEffect(() => {
       if (scrollRef.current) {
-         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+         scrollRef.current.scrollTo({
+            top: scrollRef.current.scrollHeight,
+            behavior: 'smooth'
+         });
       }
    }, [logs, currentLine]);
 
@@ -315,7 +318,17 @@ const Landing = () => {
       let columns = Math.floor(canvas.width / fontSize);
       let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
 
-      const draw = () => {
+      let lastTime = 0;
+      const fps = 30; // Stabilized framerate
+      const interval = 1000 / fps;
+
+      const draw = (timestamp: number) => {
+         requestRef.current = requestAnimationFrame(draw);
+
+         const delta = timestamp - lastTime;
+         if (delta < interval) return;
+         lastTime = timestamp - (delta % interval);
+
          ctx.fillStyle = "rgba(9, 9, 11, 0.05)";
          ctx.fillRect(0, 0, canvas.width, canvas.height);
          ctx.font = fontSize + "px 'JetBrains Mono', monospace";
@@ -346,7 +359,6 @@ const Landing = () => {
             if (y > canvas.height && Math.random() > 0.995) drops[i] = 0; // Much slower reset
             drops[i] += 0.5; // Half speed falling
          }
-         requestRef.current = requestAnimationFrame(draw);
       };
 
       requestRef.current = requestAnimationFrame(draw);

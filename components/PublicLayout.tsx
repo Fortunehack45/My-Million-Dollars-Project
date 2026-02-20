@@ -45,11 +45,14 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [isMobileMenuOpen]);
 
@@ -74,13 +77,13 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       <nav className="fixed top-8 inset-x-0 z-[100] px-6 pointer-events-none">
         <div className="max-w-7xl mx-auto pointer-events-auto">
           {/* Liquid Glass Island - Refined Minimalist */}
-          <div className="relative group/nav-island">
+          <div className="relative group/nav-island will-change-transform">
             {/* Ultra-High-Fidelity Glass */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl border border-white/[0.04] rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-1000 group-hover/nav-island:bg-black/50 group-hover/nav-island:border-white/[0.08]"></div>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl border border-white/[0.04] rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)] transition-all duration-1000 group-hover/nav-island:bg-black/50 group-hover/nav-island:border-white/[0.08] group-hover/nav-island:shadow-[0_45px_100px_-20px_rgba(0,0,0,0.8)]"></div>
 
             <div className="relative z-10 px-8 h-16 flex items-center justify-between">
               <Link to="/" className="flex items-center gap-4 group/logo">
-                <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110" />
+                <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110 will-change-transform" />
                 <span className="font-black text-xs tracking-[0.2em] text-white uppercase">Argus Protocol</span>
               </Link>
 

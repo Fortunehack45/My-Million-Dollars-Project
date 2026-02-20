@@ -25,7 +25,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
       }
 
       const now = Date.now();
-      const diff = task.expiresAt - now;
+      const diff = Math.max(0, task.expiresAt - now);
 
       if (diff <= 0) {
         setTimeLeft('EXPIRED');
@@ -36,7 +36,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
       const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-      const hStr = h > 0 ? `${h}h ` : '';
+      const hStr = h > 0 ? `${h}H ` : '';
       const mStr = m.toString().padStart(2, '0');
       const sStr = s.toString().padStart(2, '0');
 

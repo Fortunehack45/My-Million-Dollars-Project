@@ -117,7 +117,7 @@ const AccordionItem = ({ title, children, onDelete }: any) => {
 // --- Main Component ---
 
 const RiskAnalysisModal = ({ ip, users, onClose }: { ip: string, users: User[], onClose: () => void }) => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
     <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
     <div className="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-[3rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
       <div className="absolute inset-0 bg-gradient-to-b from-maroon/10 via-transparent to-transparent pointer-events-none"></div>
