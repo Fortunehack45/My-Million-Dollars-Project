@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
@@ -27,28 +26,14 @@ const DiscordIcon = ({ className }: { className?: string }) => (
 );
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const [footerVisible, setFooterVisible] = useState(false);
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
 
   useEffect(() => {
     const unsub = subscribeToLandingConfig(setLandingConfig);
     return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) setFooterVisible(true);
-      });
-    }, { threshold: 0.1 });
-
-    const footer = document.getElementById('main-footer');
-    if (footer) observer.observe(footer);
-    return () => observer.disconnect();
   }, []);
 
   // Close mobile menu on route change
@@ -89,6 +74,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       {/* Navbar - Slick Institutional Interface */}
       <nav className="fixed top-6 inset-x-0 z-[100] px-6 pointer-events-none">
         <div className="max-w-7xl mx-auto pointer-events-auto">
+          {/* Liquid Glass Island */}
           <div className="relative group/nav-island transition-all duration-700">
             {/* Liquid Glass Body */}
             <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-700 group-hover/nav-island:bg-zinc-950/70 group-hover/nav-island:border-white/20 group-hover/nav-island:shadow-[0_30px_70px_rgba(0,0,0,0.7)]"></div>
@@ -99,7 +85,6 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             <div className="relative z-10 px-10 h-20 flex items-center justify-between">
               <Link to="/" className="flex items-center gap-5 group/logo">
                 <div className="relative w-12 h-12 bg-zinc-900 border border-white/5 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/50 group-hover:scale-110 transition-all duration-700 ease-out-expo">
-                  {/* Logo Glow */}
                   <div className="absolute inset-0 bg-maroon/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                   <Logo className="relative z-10 w-7 h-7 text-maroon drop-shadow-[0_0_12px_rgba(128,0,0,0.6)]" />
                 </div>
@@ -177,7 +162,6 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               </Link>
             ))}
 
-            {/* Added Mobile Console Button */}
             <button
               onClick={handleMobileConsoleClick}
               className="mt-4 px-8 py-4 bg-white text-black font-black uppercase tracking-widest text-sm rounded-xl hover:bg-maroon hover:text-white transition-all w-full max-w-xs flex items-center justify-center gap-3 animate-fade-in-up"
@@ -196,7 +180,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Argus Protocol v2.8</p>
           </div>
         </div>
-      </nav >
+      </nav>
 
       <main className="flex-grow w-full relative z-10">
         {children}
@@ -255,7 +239,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           </div>
         </div>
       </footer>
-    </div >
+    </div>
   );
 };
 
