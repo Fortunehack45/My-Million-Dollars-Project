@@ -150,8 +150,8 @@ const Login = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-maroon/5 to-transparent opacity-0 group-hover/btn:opacity-100 transition-silk"></div>
                 <div className="flex items-center gap-8 relative z-10">
-                  <div className="p-3 bg-zinc-900 rounded-xl border border-white/5 group-hover/btn:border-maroon/30 transition-silk">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-6 h-6 grayscale opacity-40 group-hover/btn:grayscale-0 group-hover/btn:opacity-100 transition-all duration-700" />
+                  <div className="p-3 bg-white rounded-xl border border-white group-hover/btn:border-maroon/30 transition-silk">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-6 h-6 transition-all duration-700" />
                   </div>
                   <div className="text-left">
                     <span className="block text-xs font-black text-white uppercase tracking-[0.2em] group-hover/btn:text-maroon transition-silk">Initiate_Auth_Handshake</span>

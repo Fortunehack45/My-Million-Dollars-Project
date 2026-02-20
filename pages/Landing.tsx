@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router';
 import { subscribeToLandingConfig } from '../services/firebase';
 import { LandingConfig } from '../types';
 import PublicLayout from '../components/PublicLayout';
+import Logo from '../components/Logo';
 import {
    ArrowRight,
    Code2,
@@ -193,23 +194,32 @@ const Terminal = () => {
                </div>
             </div>
          </div>
-
-         {/* Footer Status Bar - The Fix for "Lower Part Gap" */}
-         <div className="px-4 py-2 bg-zinc-900 border-t border-zinc-800 flex justify-between items-center">
-            <div className="flex gap-4 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
-               <span className="flex items-center gap-1.5"><Activity className="w-3 h-3" /> CPU: 12%</span>
-               <span>MEM: 4.2GB</span>
-               <span className="text-emerald-500">PEERS: 842</span>
-            </div>
-            <div className="text-[9px] font-mono text-zinc-600">
-               PID: 8042
-            </div>
-         </div>
       </div>
    );
 };
 
-// Simplified Mobile Status Card
+// Simplified Network Activity Indicator
+const NetworkStatus = () => (
+   <div className="flex items-center gap-6 px-6 py-3 bg-zinc-950/50 border border-white/[0.03] backdrop-blur-xl rounded-2xl">
+      <div className="flex -space-x-2">
+         {[1, 2, 3].map(i => (
+            <div key={i} className="w-6 h-6 rounded-full border border-black bg-zinc-800 flex items-center justify-center overflow-hidden">
+               <div className="w-full h-full bg-gradient-to-tr from-zinc-800 to-zinc-700"></div>
+            </div>
+         ))}
+      </div>
+      <div className="h-4 w-px bg-zinc-800"></div>
+      <div className="flex items-center gap-2">
+         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Mainnet_Operational</span>
+      </div>
+      <div className="hidden md:flex items-center gap-4 ml-4">
+         <span className="text-[10px] font-mono text-zinc-600">v2.8.4</span>
+         <span className="text-[10px] font-mono text-zinc-600">402k_TPS</span>
+      </div>
+   </div>
+);
+
 const MobileStatusCard = () => (
    <div className="w-full bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 flex items-center justify-between mb-8 animate-fade-in-up">
       <div className="flex items-center gap-3">
@@ -368,8 +378,8 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-[-0.04em] uppercase leading-[0.9] md:leading-[0.85] text-balance break-words animate-fade-in opacity-0 will-change-transform" style={{ animationDelay: '0.3s' }}>
-                           {content.hero.title}
+                        <h1 className="text-5xl sm:text-7xl md:text-9xl lg:text-[11rem] xl:text-[13rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.82] text-balance break-words animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s' }}>
+                           The Parallel<br />Protocol
                         </h1>
 
                         <p className="text-zinc-400 text-sm md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0 text-pretty" style={{ animationDelay: '0.4s' }}>
@@ -392,9 +402,32 @@ const Landing = () => {
                      </div>
                   </div>
 
-                  {/* Terminal UI - Hidden on small mobile, visible on lg */}
-                  <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block z-10 pl-4 lg:pl-0" style={{ animationDelay: '0.5s' }}>
-                     <Terminal />
+
+                  {/* Hero Graphic - Professional Institutional Minimalist */}
+                  <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:flex flex-col items-center justify-center h-full" style={{ animationDelay: '0.4s' }}>
+                     <div className="relative w-full aspect-square max-w-md">
+                        <div className="absolute inset-0 bg-maroon/5 blur-[120px] rounded-full"></div>
+                        <div className="absolute inset-0 border border-white/[0.03] rounded-[3rem] bg-zinc-950/20 backdrop-blur-3xl overflow-hidden group/hero-art">
+                           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent"></div>
+                           <div className="p-12 h-full flex flex-col justify-between">
+                              <div className="space-y-6">
+                                 <div className="w-12 h-12 bg-zinc-900 border border-white/5 rounded-2xl flex items-center justify-center">
+                                    <Logo className="w-6 h-6 text-maroon" />
+                                 </div>
+                                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Architecting the<br />Future of Value</h3>
+                              </div>
+                              <div className="space-y-4">
+                                 <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+                                    <div className="h-full bg-maroon w-2/3 shadow-[0_0_10px_rgba(128,0,0,0.5)]"></div>
+                                 </div>
+                                 <div className="flex justify-between text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+                                    <span>Topological_Security</span>
+                                    <span>High_Bandwidth</span>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
                   </div>
                </div>
             </section>

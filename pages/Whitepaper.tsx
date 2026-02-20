@@ -5,11 +5,42 @@ import { WhitepaperConfig } from '../types';
 
 const Whitepaper = () => {
    const [content, setContent] = useState<WhitepaperConfig>(DEFAULT_WHITEPAPER_CONFIG);
+   const [activeSection, setActiveSection] = useState<number>(0);
 
    useEffect(() => {
       const unsubscribe = subscribeToContent('whitepaper', DEFAULT_WHITEPAPER_CONFIG, setContent);
       return () => unsubscribe();
    }, []);
+
+   useEffect(() => {
+      const observer = new IntersectionObserver(
+         (entries) => {
+            entries.forEach((entry) => {
+               if (entry.isIntersecting) {
+                  const id = entry.target.getAttribute('id');
+                  if (id?.startsWith('section-')) {
+                     setActiveSection(parseInt(id.split('-')[1]));
+                  }
+               }
+            });
+         },
+         { threshold: 0.5, rootMargin: '-20% 0px -60% 0px' }
+      );
+
+      document.querySelectorAll('section[id^="section-"]').forEach((section) => {
+         observer.observe(section);
+      });
+
+      return () => observer.disconnect();
+   }, [content]);
+
+   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, idx: number) => {
+      e.preventDefault();
+      const element = document.getElementById(`section-${idx}`);
+      if (element) {
+         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+   };
 
    return (
       <PublicLayout>
@@ -54,10 +85,11 @@ const Whitepaper = () => {
                               <a
                                  key={idx}
                                  href={`#section-${idx}`}
-                                 className="group flex items-center gap-3 text-[10px] font-black text-zinc-600 hover:text-white uppercase tracking-widest transition-all"
+                                 onClick={(e) => scrollToSection(e, idx)}
+                                 className={`group flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${activeSection === idx ? 'text-maroon translate-x-2' : 'text-zinc-600 hover:text-white'}`}
                               >
-                                 <span className="text-maroon group-hover:translate-x-1 transition-transform">0{idx + 1}</span>
-                                 {section.title.split(' ')[0]}
+                                 <span className={`transition-silk ${activeSection === idx ? 'text-maroon scale-125' : 'text-zinc-800'}`}>0{idx + 1}</span>
+                                 <span className="truncate">{section.title}</span>
                               </a>
                            ))}
                         </nav>

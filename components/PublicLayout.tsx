@@ -71,62 +71,45 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-maroon/30 selection:text-white font-sans scroll-smooth">
-      {/* Navbar - Slick Institutional Interface */}
-      <nav className="fixed top-6 inset-x-0 z-[100] px-6 pointer-events-none">
+      <nav className="fixed top-8 inset-x-0 z-[100] px-6 pointer-events-none">
         <div className="max-w-7xl mx-auto pointer-events-auto">
-          {/* Liquid Glass Island */}
-          <div className="relative group/nav-island transition-all duration-700">
-            {/* Liquid Glass Body */}
-            <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-700 group-hover/nav-island:bg-zinc-950/70 group-hover/nav-island:border-white/20 group-hover/nav-island:shadow-[0_30px_70px_rgba(0,0,0,0.7)]"></div>
+          {/* Liquid Glass Island - Refined Minimalist */}
+          <div className="relative group/nav-island">
+            {/* Ultra-High-Fidelity Glass */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl border border-white/[0.04] rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-1000 group-hover/nav-island:bg-black/50 group-hover/nav-island:border-white/[0.08]"></div>
 
-            {/* Inner Glow/Silk Effect */}
-            <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none"></div>
-
-            <div className="relative z-10 px-10 h-20 flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-5 group/logo">
-                <div className="relative w-12 h-12 bg-zinc-900 border border-white/5 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/50 group-hover:scale-110 transition-all duration-700 ease-out-expo">
-                  <div className="absolute inset-0 bg-maroon/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  <Logo className="relative z-10 w-7 h-7 text-maroon drop-shadow-[0_0_12px_rgba(128,0,0,0.6)]" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-black text-base tracking-[-0.03em] text-white group-hover/logo:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-1 bg-maroon rounded-full animate-pulse"></div>
-                    <span className="text-[7px] font-mono font-black text-maroon/80 tracking-[0.5em] uppercase">Status:_Optimized</span>
-                  </div>
-                </div>
+            <div className="relative z-10 px-8 h-16 flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-4 group/logo">
+                <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110" />
+                <span className="font-black text-xs tracking-[0.2em] text-white uppercase">Argus</span>
               </Link>
 
-              <div className="hidden lg:flex items-center gap-14">
+              <div className="hidden lg:flex items-center gap-10">
                 {navLinks.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`text-[10px] font-black uppercase tracking-[0.35em] transition-all duration-500 relative py-2 group/link ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-zinc-200'}`}
+                    className={`text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-700 relative py-1 ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
                   >
                     {item.label}
-                    <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-maroon transition-all duration-700 rounded-full origin-left ${location.pathname === item.path ? 'scale-x-100 shadow-[0_0_15px_rgba(128,0,0,0.8)]' : 'scale-x-0 group-hover:scale-x-100'}`}></span>
+                    {location.pathname === item.path && (
+                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-maroon rounded-full shadow-[0_0_8px_#800000]"></span>
+                    )}
                   </Link>
                 ))}
               </div>
 
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-6">
                 <button
                   onClick={handleConsoleClick}
-                  className="hidden md:flex relative group/btn h-12 px-10 items-center gap-4 bg-zinc-900/50 border border-white/10 rounded-2xl hover:border-maroon/50 hover:bg-zinc-900 transition-all duration-700 overflow-hidden shadow-2xl"
+                  className="hidden md:flex h-10 px-6 items-center bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-maroon hover:text-white transition-all duration-700 active:scale-95 shadow-xl"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-tr from-maroon/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700"></div>
-                  <span className="relative z-10 text-[10px] font-black text-white uppercase tracking-[0.3em]">
-                    Initialize_Console
-                  </span>
-                  <div className="relative z-10 w-6 h-6 rounded-lg bg-zinc-950 flex items-center justify-center border border-white/5 group-hover:bg-maroon group-hover:border-maroon transition-all duration-700 shadow-lg">
-                    <ChevronRight className="w-3.5 h-3.5 text-maroon group-hover:text-white transition-colors" />
-                  </div>
+                  Access_Terminal
                 </button>
 
                 <button
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className="lg:hidden p-3 bg-white/5 border border-white/10 rounded-xl text-zinc-400"
+                  className="lg:hidden p-2 text-zinc-400 hover:text-white transition-colors"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
@@ -182,7 +165,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         </div>
       </nav>
 
-      <main className="flex-grow w-full relative z-10 pt-32 md:pt-40">
+      <main className="flex-grow w-full relative z-10 pt-24 md:pt-32">
         {children}
       </main>
 
@@ -220,7 +203,6 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               <Link to="/about" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">About Us</Link>
               <Link to="/careers" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Careers</Link>
               <Link to="/contact" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Contact</Link>
-              <a href="#" className="block text-zinc-500 hover:text-maroon text-sm transition-colors">Press Kit</a>
             </div>
 
             <div className="md:col-span-3 space-y-4">
