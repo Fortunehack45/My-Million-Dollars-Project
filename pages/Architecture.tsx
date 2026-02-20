@@ -21,8 +21,8 @@ const GhostDAGExplainer = () => {
             </div>
 
             <div className="space-y-6">
-               <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">GhostDAG: The Death of Orphans</h2>
-               <p className="text-zinc-400 leading-relaxed text-lg font-medium">
+               <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">GhostDAG: The Death of Orphans</h2>
+               <p className="text-zinc-400 leading-relaxed text-base md:text-lg font-medium">
                   Traditional serial blockchains discard parallel blocks as <span className="text-white italic underline decoration-maroon/50 underline-offset-4">orphans</span>. GhostDAG integrates them into a unified directed acyclic graph.
                </p>
             </div>
@@ -258,14 +258,14 @@ const Architecture = () => {
 
                   <h1
                      data-id="hero-title"
-                     className={`text-6xl md:text-[9rem] font-black text-white uppercase tracking-tighter mb-12 leading-[0.8] transition-all duration-1000 delay-100 ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                     className={`text-5xl md:text-[9rem] font-black text-white uppercase tracking-tighter mb-10 md:mb-12 leading-[0.8] transition-all duration-1000 delay-100 ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                   >
                      The Parallel Economy
                   </h1>
 
                   <p
                      data-id="hero-desc"
-                     className={`text-xl md:text-2xl text-zinc-500 leading-relaxed max-w-2xl mx-auto transition-all duration-1000 delay-200 font-medium ${isVisible('hero-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                     className={`text-lg md:text-2xl text-zinc-500 leading-relaxed max-w-2xl mx-auto transition-all duration-1000 delay-200 font-medium ${isVisible('hero-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                   >
                      Argus Protocol utilizes a novel <span className="text-zinc-200">GhostDAG topology</span> to decouple consensus from throughput. We solve the trilemma through topological finality.
                   </p>

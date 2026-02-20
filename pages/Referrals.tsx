@@ -57,7 +57,7 @@ const Referrals = () => {
   const totalReferrals = referralLogs.length;
 
   return (
-    <div className="w-full space-y-12 animate-in fade-in duration-700 pb-20 relative">
+    <div className="w-full space-y-8 md:space-y-12 animate-in fade-in duration-700 pb-24 relative px-0.5">
 
       {/* Background Subtle Accents */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-maroon/5 blur-[150px] -z-10 animate-pulse-slow"></div>
@@ -91,7 +91,7 @@ const Referrals = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Interaction Card */}
-        <div className="lg:col-span-12 xl:col-span-7 silk-panel p-10 rounded-[2.5rem] space-y-8">
+        <div className="lg:col-span-12 xl:col-span-7 silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] space-y-8">
           <div className="flex items-center gap-5">
             <div className="p-3 bg-maroon/10 rounded-2xl border border-maroon/20">
               <Share2 className="w-6 h-6 text-maroon" />
@@ -130,22 +130,22 @@ const Referrals = () => {
         </div>
 
         {/* Stats and Progress */}
-        <div className="lg:col-span-12 xl:col-span-5 space-y-8">
-          <div className="silk-panel p-10 rounded-[2.5rem] flex items-center justify-between group relative overflow-hidden transition-all duration-700 hover:border-maroon/20">
+        <div className="lg:col-span-12 xl:col-span-5 space-y-6 md:space-y-8">
+          <div className="silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex items-center justify-between group relative overflow-hidden transition-all duration-700 hover:border-maroon/20">
             <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div className="flex items-center gap-5 relative z-10">
-              <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-900 group-hover:border-maroon/40 transition-silk shadow-2xl">
-                <Users className="w-8 h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-950 rounded-xl sm:rounded-2xl flex items-center justify-center border border-zinc-900 group-hover:border-maroon/40 transition-silk shadow-2xl">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
               </div>
               <div>
                 <p className="label-meta text-white">Authorized Peers</p>
-                <p className="text-[10px] text-zinc-600 font-mono uppercase mt-1 tracking-widest">Active_Node_Connections</p>
+                <p className="text-[8px] sm:text-[10px] text-zinc-600 font-mono uppercase mt-1 tracking-widest">Active_Node_Connections</p>
               </div>
             </div>
-            <span className="text-6xl font-black text-white tracking-tighter group-hover:text-maroon transition-silk relative z-10">{activeRefs}</span>
+            <span className="text-4xl sm:text-6xl font-black text-white tracking-tighter group-hover:text-maroon transition-silk relative z-10">{activeRefs}</span>
           </div>
 
-          <div className="silk-panel p-10 rounded-[2.5rem] space-y-10 group relative overflow-hidden transition-all duration-700 hover:border-maroon/20">
+          <div className="silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] space-y-8 sm:space-y-10 group relative overflow-hidden transition-all duration-700 hover:border-maroon/20">
             <div className="absolute top-0 right-0 w-48 h-48 bg-maroon/[0.03] blur-[80px] rounded-full pointer-events-none group-hover:bg-maroon/[0.06] transition-all duration-1000"></div>
             <div className="relative z-10 flex items-center justify-between">
               <p className="label-meta text-maroon font-black tracking-[0.2em]">Synchronization Efficiency</p>
@@ -171,8 +171,8 @@ const Referrals = () => {
       </div>
 
       {/* Referral History - Technical Feed */}
-      <div className="silk-panel rounded-[2.5rem] border-zinc-900/50 overflow-hidden shadow-2xl">
-        <div className="px-10 py-8 bg-zinc-950/50 border-b border-zinc-900 flex items-center justify-between">
+      <div className="silk-panel rounded-2xl sm:rounded-[2.5rem] border-zinc-900/50 overflow-hidden shadow-2xl">
+        <div className="px-6 sm:px-10 py-6 sm:py-8 bg-zinc-950/50 border-b border-zinc-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-2 h-2 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_rgba(128,0,0,0.6)]"></div>
             <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">Protocol_Synchronization_Logs</h3>
@@ -197,15 +197,15 @@ const Referrals = () => {
                 const date = log.createdAt ? new Date(log.createdAt).toLocaleDateString() : 'Unknown';
 
                 return (
-                  <div key={log.uid} className="p-8 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-white/[0.01] transition-all duration-500 gap-8 group/row">
-                    <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center text-zinc-600 transition-silk group-hover/row:border-maroon/30 shadow-xl relative overflow-hidden">
+                  <div key={log.uid} className="p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-white/[0.01] transition-all duration-500 gap-6 sm:gap-8 group/row">
+                    <div className="flex items-center gap-4 sm:gap-6">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-zinc-950 rounded-xl sm:rounded-2xl border border-zinc-900 flex items-center justify-center text-zinc-600 transition-silk group-hover/row:border-maroon/30 shadow-xl relative overflow-hidden shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-maroon/5 to-transparent opacity-0 group-hover/row:opacity-100 transition-opacity"></div>
-                        <ShieldCheck className="w-6 h-6 group-hover/row:text-maroon transition-silk relative z-10" />
+                        <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 group-hover/row:text-maroon transition-silk relative z-10" />
                       </div>
-                      <div>
-                        <p className="text-sm font-black text-white uppercase tracking-tight group-hover/row:text-maroon transition-colors">{log.displayName}</p>
-                        <div className="flex items-center gap-3 mt-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-black text-white uppercase tracking-tight group-hover/row:text-maroon transition-colors truncate">{log.displayName}</p>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2">
                           <span className="text-[9px] font-mono font-black text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded border border-zinc-800 uppercase tracking-widest">
                             Node_ID: {log.uid.slice(0, 12)}
                           </span>
@@ -216,9 +216,9 @@ const Referrals = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-8 md:gap-12 bg-zinc-900/20 p-6 rounded-2xl border border-white/5 relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent -translate-x-full animate-[shimmer_3s_infinite]"></div>
-                      <div className="flex items-center gap-4 relative z-10">
+                    <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-8 md:gap-12 bg-zinc-900/20 p-4 sm:p-6 rounded-2xl border border-white/5 relative overflow-hidden overflow-x-auto no-scrollbar">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent -translate-x-full animate-[shimmer_3s_infinite] pointer-events-none"></div>
+                      <div className="flex items-center gap-3 sm:gap-4 relative z-10 shrink-0">
                         <div className="text-right">
                           <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-1">Grant_Allocation</p>
                           <p className="text-sm font-mono font-black text-white">+{REFERRAL_BONUS_POINTS.toFixed(2)} <span className="text-[10px] text-zinc-500">ARG</span></p>

@@ -116,6 +116,72 @@ const AccordionItem = ({ title, children, onDelete }: any) => {
 
 // --- Main Component ---
 
+const RiskAnalysisModal = ({ ip, users, onClose }: { ip: string, users: User[], onClose: () => void }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
+    <div className="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-[3rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+      <div className="absolute inset-0 bg-gradient-to-b from-maroon/10 via-transparent to-transparent pointer-events-none"></div>
+      <div className="p-10 space-y-8 relative z-10">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-red-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center">
+              <ShieldAlert className="w-6 h-6 text-red-500" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-white uppercase tracking-tight">Audit_Report: {ip}</h3>
+              <p className="text-[10px] text-zinc-500 font-mono">Reference_Header: Handshake_{ip.replace(/\./g, '_')}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-zinc-900 rounded-xl transition-colors"><X className="w-5 h-5 text-zinc-500" /></button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-6">
+          <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-2xl">
+            <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">Risk_Score</p>
+            <p className="text-2xl font-mono font-black text-red-500">{users.length * 15 + 25}/100</p>
+          </div>
+          <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-2xl">
+            <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">VPN_Status</p>
+            <p className="text-2xl font-mono font-black text-amber-500">INDETERMINATE</p>
+          </div>
+          <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-2xl">
+            <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">Account_Clustering</p>
+            <p className="text-2xl font-mono font-black text-white">ACTIVE</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-2">Identified_Validator_Entities</p>
+          <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+            {users.map(u => (
+              <div key={u.uid} className="flex items-center justify-between p-4 bg-zinc-900/20 border border-zinc-900 rounded-xl group hover:border-maroon/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden">
+                    {u.photoURL ? <img src={u.photoURL} alt="" /> : <span className="text-[10px] text-zinc-700">{u.displayName?.[0]}</span>}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white group-hover:text-maroon transition-colors">{u.displayName}</p>
+                    <p className="text-[8px] text-zinc-600 font-mono">UID: {u.uid.slice(0, 16)}...</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-mono font-black text-white">{u.points.toFixed(2)} ARG</p>
+                  <p className="text-[8px] text-zinc-700 uppercase">Balance</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4 flex gap-4">
+          <button className="flex-1 py-4 bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-zinc-800 transition-colors">Staged_Watchlist</button>
+          <button className="flex-1 py-4 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-red-600 shadow-xl shadow-red-500/20 transition-all">Purge_Cluster</button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const AdminPanel = () => {
   const { user, firebaseUser } = useAuth();
 
@@ -123,6 +189,7 @@ const AdminPanel = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [onlineUids, setOnlineUids] = useState<string[]>([]);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+  const [selectedAuditIp, setSelectedAuditIp] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<any>({
     title: '', description: '', points: 100.00, icon: 'web', link: '', actionLabel: 'Initialize',
     verificationWaitTime: 5, activeDurationHours: 24
@@ -499,34 +566,45 @@ const AdminPanel = () => {
                               </div>
                             </div>
 
-                            <div className="lg:w-72 shrink-0">
-                              <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-4 px-2">Entity_Linkage</p>
-                              <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-4 flex flex-wrap gap-3">
-                                {sameIpUsers.map((u, i) => (
-                                  <div key={u.uid} className="relative group/entity">
-                                    <div className="w-11 h-11 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover/entity:border-maroon/50 group-hover/entity:scale-110">
-                                      {u.photoURL ? (
-                                        <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
-                                      ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
-                                          <span className="text-xs font-black text-zinc-600">{u.displayName?.[0] || 'U'}</span>
-                                        </div>
-                                      )}
+                            <div className="lg:w-72 shrink-0 space-y-6">
+                              <div>
+                                <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-4 px-2">Entity_Linkage</p>
+                                <div className="bg-zinc-900/40 border border-zinc-900 rounded-2xl p-4 flex flex-wrap gap-3">
+                                  {sameIpUsers.map((u, i) => (
+                                    <div key={u.uid} className="relative group/entity">
+                                      <div className="w-11 h-11 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover/entity:border-maroon/50 group-hover/entity:scale-110">
+                                        {u.photoURL ? (
+                                          <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                          <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                                            <span className="text-xs font-black text-zinc-600">{u.displayName?.[0] || 'U'}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 border-2 border-zinc-950 rounded-full z-10"></div>
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 border-2 border-zinc-950 rounded-full z-10"></div>
-                                    {/* Tooltip on hover */}
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-black border border-zinc-800 rounded-lg opacity-0 group-hover/entity:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap shadow-2xl">
-                                      <p className="text-[10px] font-black text-white uppercase">{u.displayName}</p>
-                                      <p className="text-[8px] font-mono text-zinc-500 mt-0.5">{u.points.toFixed(0)} ARG Credits</p>
-                                    </div>
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
+                              <button
+                                onClick={() => setSelectedAuditIp(ip)}
+                                className="w-full py-3 bg-zinc-900 border border-zinc-800 text-zinc-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:text-white hover:border-maroon/40 hover:bg-maroon/5 transition-all"
+                              >
+                                Full_Audit_Report
+                              </button>
                             </div>
                           </div>
                         </div>
                       );
                     })}
+
+                    {selectedAuditIp && (
+                      <RiskAnalysisModal
+                        ip={selectedAuditIp}
+                        users={users.filter(u => u.registrationIP === selectedAuditIp)}
+                        onClose={() => setSelectedAuditIp(null)}
+                      />
+                    )}
 
                     {Array.from(new Set(users.map(u => u.registrationIP).filter(Boolean))).every(ip => users.filter(u => u.registrationIP === ip).length < 2) && (
                       <div className="py-24 text-center silk-panel !bg-black/20 rounded-[3rem] border-dashed border-zinc-900/50">

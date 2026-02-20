@@ -164,16 +164,16 @@ const ProfileSetup = () => {
       <div className="w-full max-w-[420px] relative z-10 animate-fade-in-up">
 
         {/* Header Section */}
-        <div className="text-center mb-10 space-y-3">
+        <div className="text-center mb-10 space-y-3 px-4">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-4 shadow-xl shadow-black/50">
             <CodeIcon className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Initialize Node</h1>
-          <p className="text-zinc-500 text-sm">Configure your operator identity to begin.</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase italic leading-tight">Initialize Node</h1>
+          <p className="text-zinc-500 text-xs sm:text-sm">Configure your operator identity to begin.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="silk-panel p-10 rounded-[2.5rem] space-y-8 shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-[60px] rounded-full group-hover:bg-maroon/10 transition-silk"></div>
+        <form onSubmit={handleSubmit} className="silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] space-y-8 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-[60px] rounded-full group-hover:bg-maroon/10 transition-silk pointer-events-none"></div>
 
           {/* Username Input */}
           <div className="space-y-2">

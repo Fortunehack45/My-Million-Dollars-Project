@@ -71,8 +71,8 @@ const Tokenomics = () => {
                      <PieChart className="w-3.5 h-3.5 text-maroon animate-pulse" />
                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">System_Economics_Model v2.0</span>
                   </div>
-                  <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter mb-8 leading-none drop-shadow-2xl">{content.title}</h1>
-                  <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-sm md:text-xl max-w-2xl mx-auto leading-relaxed italic text-center">{content.subtitle}</p>
+                  <h1 className="text-4xl md:text-8xl font-black text-white uppercase tracking-tighter mb-8 leading-none drop-shadow-2xl">{content.title}</h1>
+                  <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-base md:text-xl max-w-2xl mx-auto leading-relaxed italic text-center">{content.subtitle}</p>
                </div>
 
                {/* Supply Cards - Premium Institutional Aesthetic */}
