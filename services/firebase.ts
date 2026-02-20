@@ -622,6 +622,33 @@ export const logout = async () => {
   await firebaseSignOut(auth);
 };
 
+// --- CONTACT MESSAGES ---
+export const submitContactMessage = async (message: Omit<import('../types').ContactMessage, 'id' | 'createdAt' | 'status'>) => {
+  const msgRef = doc(collection(db, 'contact_messages'));
+  await setDoc(msgRef, {
+    ...message,
+    id: msgRef.id,
+    createdAt: Date.now(),
+    status: 'pending'
+  });
+};
+
+export const subscribeToContactMessages = (callback: (messages: import('../types').ContactMessage[]) => void) => {
+  const q = query(collection(db, 'contact_messages'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    const msgs = snapshot.docs.map(doc => doc.data() as import('../types').ContactMessage);
+    callback(msgs);
+  }, (error) => {
+    console.warn("Contact Messages Subscription Error:", error);
+    callback([]);
+  });
+};
+
+export const updateMessageStatusAction = async (id: string, status: 'pending' | 'resolved') => {
+  const msgRef = doc(db, 'contact_messages', id);
+  await updateDoc(msgRef, { status });
+};
+
 // --- CMS SERVICES ---
 
 export const subscribeToLandingConfig = (callback: (config: LandingConfig) => void) => {

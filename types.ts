@@ -30,6 +30,16 @@ export interface Task {
   expiresAt?: number; // Timestamp when task disappears
 }
 
+export interface ContactMessage {
+  id: string;
+  uid?: string | null; // Null if submitted anonymously
+  name: string;
+  email: string;
+  payload: string;
+  createdAt: number;
+  status: 'pending' | 'resolved';
+}
+
 export interface NetworkStats {
   totalMined: number;
   totalUsers: number;

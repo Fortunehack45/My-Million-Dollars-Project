@@ -25,12 +25,16 @@ import {
   DEFAULT_TOKENOMICS_CONFIG,
   DEFAULT_CAREERS_CONFIG,
   DEFAULT_CONTACT_CONFIG,
+  updateTermsConfig,
+  updatePrivacyConfig,
+  subscribeToContactMessages,
+  updateMessageStatusAction,
   ADMIN_EMAIL,
   DEFAULT_MAX_USERS_CAP
 } from '../services/firebase';
 import {
   User, Task, NetworkStats, LandingConfig,
-  LegalConfig, AboutConfig, WhitepaperConfig, ArchitecturePageConfig, TokenomicsConfig, CareersConfig, ContactConfig
+  LegalConfig, AboutConfig, WhitepaperConfig, ArchitecturePageConfig, TokenomicsConfig, CareersConfig, ContactConfig, ContactMessage
 } from '../types';
 import {
   Users, PlusCircle, Database, ShieldAlert, Cpu,
@@ -39,7 +43,7 @@ import {
   Layers, AlignLeft, CheckCircle2, Shield, MapPin,
   Briefcase, Phone, HelpCircle, Share2, PieChart,
   ListPlus, ChevronDown, ChevronRight, Settings,
-  Target, RefreshCw
+  Target, RefreshCw, MessageSquare
 } from 'lucide-react';
 import Logo from '../components/Logo';
 
@@ -202,7 +206,11 @@ const AdminPanel = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Config States
+  // Messages State
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [msgSearchQuery, setMsgSearchQuery] = useState('');
+
+  // CMS State
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
   const [aboutConfig, setAboutConfig] = useState<AboutConfig>(DEFAULT_ABOUT_CONFIG);
   const [archConfig, setArchConfig] = useState<ArchitecturePageConfig>(DEFAULT_ARCHITECTURE_CONFIG);
@@ -222,16 +230,8 @@ const AdminPanel = () => {
 
   const isAuthorized = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() || user?.role === 'admin';
 
+  // Initial Subscriptions
   useEffect(() => {
-    if (!isAuthorized) return;
-    const unsubUsers = subscribeToUsers(setUsers);
-    const unsubStats = subscribeToNetworkStats((stats) => {
-      setNetStats(stats);
-      if (stats.maxUsersCap) setCapInput(stats.maxUsersCap);
-    });
-    const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
-    const unsubTasks = subscribeToTasks(setTasks);
-
     const unsubLanding = subscribeToLandingConfig(setLandingConfig);
     const unsubAbout = subscribeToContent('about', DEFAULT_ABOUT_CONFIG, setAboutConfig);
     const unsubArch = subscribeToContent('architecture_page', DEFAULT_ARCHITECTURE_CONFIG, setArchConfig);
@@ -389,6 +389,7 @@ const AdminPanel = () => {
         <div className="flex items-center gap-4 shrink-0">
           <div className="flex bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-900">
             <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><Activity className="w-3.5 h-3.5" /> Dashboard</button>
+            <button onClick={() => setActiveTab('messages')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'messages' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><MessageSquare className="w-3.5 h-3.5" /> Messages</button>
             <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'cms' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3.5 h-3.5" /> Editor</button>
           </div>
           {activeTab === 'cms' && (
@@ -752,6 +753,100 @@ const AdminPanel = () => {
                   })}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Inbox View */}
+      {activeTab === 'messages' && (
+        <div className="space-y-8 relative z-10 animate-fade-in-up">
+          <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                  <MessageSquare className="w-5 h-5 text-blue-500" />
+                </div>
+                <h2 className="text-2xl font-black text-white uppercase tracking-tight">Comms Intercept</h2>
+              </div>
+              <div className="relative max-w-xs w-full">
+                <AlignLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                <input
+                  type="text"
+                  placeholder="Query Transmissions..."
+                  className={`${INPUT_STYLES} pl-10`}
+                  value={msgSearchQuery}
+                  onChange={(e) => setMsgSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-[10px] font-black text-zinc-600 uppercase tracking-widest border-b border-zinc-900">
+                    <th className="pb-4 px-2">Timestamp</th>
+                    <th className="pb-4 px-2">Entity ID</th>
+                    <th className="pb-4 px-2">Payload Fragment</th>
+                    <th className="pb-4 px-2 text-center">Status</th>
+                    <th className="pb-4 px-2 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-900/50">
+                  {messages
+                    .filter(m => m.name.toLowerCase().includes(msgSearchQuery.toLowerCase()) || m.email.toLowerCase().includes(msgSearchQuery.toLowerCase()) || m.payload.toLowerCase().includes(msgSearchQuery.toLowerCase()))
+                    .map(msg => (
+                      <tr key={msg.id} className="group hover:bg-zinc-950/40 transition-colors">
+                        <td className="py-4 px-2">
+                          <p className="text-xs font-mono font-bold text-white">{new Date(msg.createdAt).toLocaleDateString()}</p>
+                          <p className="text-[9px] text-zinc-500 font-mono">{new Date(msg.createdAt).toLocaleTimeString()}</p>
+                        </td>
+                        <td className="py-4 px-2">
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-bold text-zinc-300">{msg.name}</p>
+                            {msg.uid && <span className="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-[8px] font-mono text-emerald-400">AUTH</span>}
+                          </div>
+                          <p className="text-[10px] text-zinc-500 font-mono"><a href={`mailto:${msg.email}`} className="hover:text-maroon transition-colors">{msg.email}</a></p>
+                        </td>
+                        <td className="py-4 px-2 max-w-sm">
+                          <p className="text-xs text-zinc-400 truncate group-hover:block hidden whitespace-normal overflow-visible absolute bg-zinc-900 p-4 rounded-xl border border-zinc-700 shadow-2xl z-50 -ml-2 w-80">{msg.payload}</p>
+                          <p className="text-xs text-zinc-400 truncate group-hover:opacity-0 transition-opacity">{msg.payload}</p>
+                        </td>
+                        <td className="py-4 px-2 text-center">
+                          <div className="flex justify-center">
+                            <span className={`px-2 py-1 text-[8px] font-black uppercase rounded-md border ${msg.status === 'resolved' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-amber-500/10 border-amber-500/20 text-amber-500'}`}>
+                              {msg.status}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-2 text-right">
+                          {msg.status === 'pending' ? (
+                            <button
+                              onClick={() => updateMessageStatusAction(msg.id, 'resolved')}
+                              className="p-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg hover:bg-emerald-500/20 hover:border-emerald-500 transition-silk text-emerald-500/50 hover:text-emerald-500"
+                              title="Mark Resolved"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => updateMessageStatusAction(msg.id, 'pending')}
+                              className="p-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors text-zinc-500"
+                              title="Re-open"
+                            >
+                              <Activity className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  {messages.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center text-sm font-mono text-zinc-600 uppercase tracking-widest">No Transmissions Logged</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

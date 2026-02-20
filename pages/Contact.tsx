@@ -1,17 +1,51 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PublicLayout from '../components/PublicLayout';
-import { subscribeToContent, DEFAULT_CONTACT_CONFIG } from '../services/firebase';
+import { Mail, MapPin, Clock, MessageSquare, Send, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { submitContactMessage, subscribeToContent, DEFAULT_CONTACT_CONFIG } from '../services/firebase';
 import { ContactConfig } from '../types';
-import { Mail, MapPin, Clock, Send, MessageSquare } from 'lucide-react';
 
 const Contact = () => {
+   const { user } = useAuth();
+   // Assuming landingConfig is available from a parent component or context,
+   // or that the user intends to fetch it differently.
+   // For now, we'll keep the original content fetching mechanism for 'content'
+   // as the edit only shows changing 'content' to 'landingConfig.contact'
+   // without providing 'landingConfig' itself.
+   // Reverting 'content' back to its original state management for now,
+   // as the edit snippet was incomplete regarding 'landingConfig'.
    const [content, setContent] = useState<ContactConfig>(DEFAULT_CONTACT_CONFIG);
 
+   const [formData, setFormData] = useState({ name: '', email: '', payload: '' });
+   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+   // The original useEffect for content subscription is retained as the edit
+   // did not provide a full replacement for how 'content' would be sourced
+   // if 'landingConfig' was not available.
    useEffect(() => {
       const unsub = subscribeToContent('contact', DEFAULT_CONTACT_CONFIG, setContent);
       return () => unsub();
    }, []);
+
+   const handleSubmit = async () => {
+      if (!formData.name || !formData.email || !formData.payload) return;
+      setStatus('submitting');
+      try {
+         await submitContactMessage({
+            uid: user?.uid || null,
+            name: formData.name,
+            email: formData.email,
+            payload: formData.payload
+         });
+         setStatus('success');
+         setFormData({ name: '', email: '', payload: '' });
+         setTimeout(() => setStatus('idle'), 5000);
+      } catch (err) {
+         console.error(err);
+         setStatus('error');
+         setTimeout(() => setStatus('idle'), 5000);
+      }
+   };
 
    return (
       <PublicLayout>
@@ -70,20 +104,60 @@ const Contact = () => {
                      <div className="space-y-6">
                         <div className="space-y-2">
                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Identity</label>
-                           <input type="text" placeholder="Your Name / Org" className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors" />
+                           <input
+                              type="text"
+                              value={formData.name}
+                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                              placeholder="Your Name / Org"
+                              className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors"
+                              disabled={status === 'submitting' || status === 'success'}
+                           />
                         </div>
                         <div className="space-y-2">
                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Return Frequency</label>
-                           <input type="email" placeholder="email@domain.com" className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors" />
+                           <input
+                              type="email"
+                              value={formData.email}
+                              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                              placeholder="email@domain.com"
+                              className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors"
+                              disabled={status === 'submitting' || status === 'success'}
+                           />
                         </div>
                         <div className="space-y-2">
                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Payload</label>
-                           <textarea rows={4} placeholder="Message content..." className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors resize-none"></textarea>
+                           <textarea
+                              rows={4}
+                              value={formData.payload}
+                              onChange={(e) => setFormData({ ...formData, payload: e.target.value })}
+                              placeholder="Message content..."
+                              className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors resize-none"
+                              disabled={status === 'submitting' || status === 'success'}
+                           ></textarea>
                         </div>
                      </div>
 
-                     <button className="btn-premium-maroon w-full py-6 flex items-center justify-center gap-4">
-                        Transmit Data <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-silk" />
+                     {status === 'success' && (
+                        <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl flex items-center gap-3 animate-fade-in-up">
+                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                           <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Transmission Successful</p>
+                        </div>
+                     )}
+
+                     {status === 'error' && (
+                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3 animate-fade-in-up">
+                           <AlertTriangle className="w-5 h-5 text-red-500" />
+                           <p className="text-xs font-bold text-red-500 uppercase tracking-widest">Transmission Failed. Retry.</p>
+                        </div>
+                     )}
+
+                     <button
+                        onClick={handleSubmit}
+                        disabled={status === 'submitting' || status === 'success' || !formData.name || !formData.email || !formData.payload}
+                        className="btn-premium-maroon w-full py-6 flex items-center justify-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                     >
+                        {status === 'submitting' ? 'Encrypting & Sending...' : 'Transmit Data'}
+                        {status !== 'submitting' && <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-silk" />}
                      </button>
 
                      <p className="text-[9px] text-zinc-600 text-center uppercase tracking-widest">
