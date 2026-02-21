@@ -165,7 +165,7 @@ const Terminal = () => {
                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700"></div>
             </div>
             <div className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[8px] flex items-center gap-2 opacity-60">
-               <TerminalIcon className="w-3 h-3" /> Core_Sytem_Interface
+               <TerminalIcon className="w-3 h-3" /> Argus_Core_Interface
             </div>
             <div className="flex items-center gap-2">
                <div className="w-1 h-1 bg-emerald-500/50 rounded-full animate-pulse"></div>
@@ -397,13 +397,13 @@ const Landing = () => {
                      <div className="space-y-10 group/hero-text">
                         <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full shadow-2xl">
                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-gentle"></div>
-                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Handshake_Protocol_Status: v2.8.4_Operational</span>
+                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Protocol_Handshake_Status: v2.8_Operational</span>
                         </div>
 
                         <div className="space-y-6">
-                           <h1 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.8] transition-all duration-1000 group-hover/hero-text:tracking-[-0.04em] perspective-1000">
-                              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '200ms' }}>Absolute</span><br />
-                              <span className="text-maroon inline-block animate-fade-in-up" style={{ animationDelay: '400ms' }}>Autonomy.</span>
+                           <h1 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.8] transition-all duration-[1500ms] group-hover/hero-text:tracking-[-0.02em] perspective-1000">
+                              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '200ms' }}>Argus</span><br />
+                              <span className="text-maroon inline-block animate-fade-in-up" style={{ animationDelay: '400ms' }}>Protocol.</span>
                            </h1>
                         </div>
 
@@ -562,9 +562,10 @@ const Landing = () => {
                         {content.roadmap.phases.map((phase, i) => (
                            <div
                               key={i}
-                              className={`relative group bg-zinc-950/40 border border-white/[0.03] p-10 rounded-[2.5rem] hover:border-maroon/30 transition-all duration-700 hover:-translate-y-2 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                              className={`relative group bg-zinc-950/40 border border-white/[0.03] p-10 rounded-[2.5rem] hover:border-maroon/30 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(185,28,28,0.15)] group hover:bg-zinc-900/40 overflow-hidden ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                               style={{ transitionDelay: `${i * 150}ms` }}
                            >
+                              <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                               <div className="flex items-center justify-between mb-12">
                                  <span className="text-[10px] font-mono font-black text-maroon uppercase tracking-[0.3em] px-3 py-1 bg-maroon/5 rounded-full border border-maroon/10">
                                     Phase 0{phase.phase}
@@ -577,14 +578,14 @@ const Landing = () => {
                                  )}
                               </div>
 
-                              <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4 group-hover:text-maroon transition-colors">{phase.title}</h3>
-                              <p className="text-xs font-bold text-zinc-600 uppercase tracking-[0.2em] mb-10 font-mono italic">{phase.period}</p>
+                              <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4 group-hover:text-maroon transition-all duration-500 group-hover:translate-x-2">{phase.title}</h3>
+                              <p className="text-xs font-bold text-zinc-600 uppercase tracking-[0.2em] mb-10 font-mono italic opacity-60 group-hover:opacity-100 transition-opacity">{phase.period}</p>
 
                               <div className="space-y-4 mb-12">
                                  {phase.features.slice(0, 3).map((feat, idx) => (
-                                    <div key={idx} className="flex items-center gap-3">
-                                       <div className="w-1 h-1 rounded-full bg-zinc-800"></div>
-                                       <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wide group-hover:text-zinc-400 transition-colors">{feat}</span>
+                                    <div key={idx} className="flex items-center gap-3 group/feat">
+                                       <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 group-hover/feat:bg-maroon transition-colors"></div>
+                                       <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wide group-hover:text-zinc-300 transition-colors">{feat}</span>
                                     </div>
                                  ))}
                               </div>

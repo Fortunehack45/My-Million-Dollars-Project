@@ -275,9 +275,9 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="relative min-h-[calc(100vh-2rem)] flex flex-col p-4 md:p-8 overflow-hidden rounded-[2.5rem] bg-zinc-950 border border-zinc-900 shadow-2xl">
+      <div className="relative flex flex-col p-4 md:p-8 overflow-hidden rounded-[2.5rem] bg-zinc-950 border border-zinc-900 shadow-2xl">
         {/* Matrix Rain Background */}
-        <MatrixBackground color="rgba(128, 0, 0, 0.08)" opacity={0.3} />
+        <MatrixBackground color="rgba(185, 28, 28, 0.12)" opacity={0.45} />
 
         {/* Global Terminal Scanning Line */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.015] to-transparent -translate-y-full animate-scanline pointer-events-none z-10"></div>
@@ -293,7 +293,7 @@ const Dashboard = () => {
                 <Activity className="w-8 h-8 text-maroon animate-pulse" />
               </div>
               <div className="space-y-3">
-                <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Network Operations</h1>
+                <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Argus Protocol</h1>
                 <div className="flex items-center gap-5">
                   <div className="flex items-center gap-2.5">
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />

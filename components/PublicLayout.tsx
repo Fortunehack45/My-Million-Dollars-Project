@@ -84,8 +84,8 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                   <Logo className="w-5 h-5 text-maroon transition-all duration-700" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-black text-[10px] tracking-[0.3em] text-white uppercase leading-none group-hover/logo:text-maroon transition-colors duration-500">Argus</span>
-                  <span className="text-[6px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-0.5 italic">Institutional</span>
+                  <span className="font-black text-[10px] tracking-[0.3em] text-white uppercase leading-none group-hover/logo:text-maroon transition-colors duration-500">Argus Protocol</span>
+                  <span className="text-[6px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-0.5 italic text-center">Institutional Intelligence</span>
                 </div>
               </Link>
 
@@ -188,7 +188,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 </div>
                 <div className="flex flex-col">
                   <span className="font-black text-2xl text-white tracking-tight leading-none uppercase">Argus Protocol</span>
-                  <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-1.5 font-mono italic">Institutional_Grade_DEX</span>
+                  <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-1.5 font-mono italic">Institutional_Infrastructure</span>
                 </div>
               </Link>
 

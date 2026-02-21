@@ -112,7 +112,7 @@ const BenchmarkChart = () => {
                   {/* Argus */}
                   <div className="space-y-1">
                      <div className="flex justify-between text-[10px] font-bold uppercase">
-                        <span className="text-maroon">Argus GhostDAG</span>
+                        <span className="text-maroon">Argus Protocol GhostDAG</span>
                         <span className="text-white">{metric.argus}</span>
                      </div>
                      <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
