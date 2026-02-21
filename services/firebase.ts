@@ -562,6 +562,19 @@ export const subscribeToUsers = (callback: (users: User[]) => void) => {
   });
 };
 
+// Live count of users currently running a mining session.
+// This is the authoritative source — same data the Admin Panel uses —
+// so the Dashboard will always report the same number.
+export const subscribeToActiveMinerCount = (callback: (count: number) => void) => {
+  const q = query(collection(db, 'users'), where('miningActive', '==', true));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.size);
+  }, (error) => {
+    console.warn("Active Miner Count Error:", error);
+    callback(0);
+  });
+};
+
 export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void) => {
   return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
     if (snapshot.exists()) {
