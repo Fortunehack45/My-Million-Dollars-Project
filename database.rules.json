@@ -1,9 +1,21 @@
 {
   "rules": {
+    // Default deny everything not explicitly permitted
     ".read": false,
     ".write": false,
+    // ─────────────────────────────────────────────────────────────────
+    //  PRESENCE / ONLINE STATUS
+    //  Path: /status/{uid}
+    //
+    //  Used by setupPresence() and subscribeToOnlineUsers() in firebase.ts
+    //  to track which users are currently online via the onDisconnect hook.
+    //
+    //  Read:   Any authenticated user (so the admin panel can display
+    //          live online counts and the dashboard can show peer counts)
+    //  Write:  Only the user themselves (each user owns their own status node)
+    // ─────────────────────────────────────────────────────────────────
     "status": {
-      ".read": true,
+      ".read": "auth != null",
       "$uid": {
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['state', 'last_changed', 'uid'])",
@@ -11,10 +23,13 @@
           ".validate": "newData.val() === 'online' || newData.val() === 'offline'"
         },
         "last_changed": {
-          ".validate": "newData.isNumber()"
+          ".validate": "newData.isNumber() || newData.val() === 'SERVER_TIMESTAMP'"
         },
         "uid": {
           ".validate": "newData.val() === $uid"
+        },
+        "$other": {
+          ".validate": false
         }
       }
     }
