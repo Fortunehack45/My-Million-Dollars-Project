@@ -275,7 +275,7 @@ const Dashboard = () => {
             <h1 className="text-base font-black text-white uppercase tracking-tight">Network Operations</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {netStats.activeNodes.toLocaleString()} Active Miners</p>
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {(netStats.activeNodes || 0).toLocaleString()} Active Miners</p>
             </div>
           </div>
         </div>
@@ -305,7 +305,7 @@ const Dashboard = () => {
         />
         <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
         <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />
-        <StatCard label="Active Miners" value={netStats.activeNodes.toLocaleString()} subValue={`Network Nodes: ${netStats.activeNodes.toLocaleString()} · Shards: ${Math.max(1, Math.floor(netStats.activeNodes / 50))}`} icon={Server} tooltip="Count of verified peer nodes currently securing the GhostDAG and mining ARG." />
+        <StatCard label="Active Miners" value={(netStats.activeNodes || 0).toLocaleString()} subValue={`Network Nodes: ${(netStats.activeNodes || 0).toLocaleString()} · Shards: ${Math.max(1, Math.floor((netStats.activeNodes || 0) / 50))}`} icon={Server} tooltip="Count of verified peer nodes currently securing the GhostDAG and mining ARG." />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -418,7 +418,7 @@ const Dashboard = () => {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2 font-mono text-[9px] bg-black/30">
               {[
                 { type: 'sys', msg: 'Mounting /ghost_dag volume...', time: '00:00:01' },
-                { type: 'ok', msg: `Miners connected: ${netStats.activeNodes} [OK]`, time: '00:00:02' },
+                { type: 'ok', msg: `Miners connected: ${netStats.activeNodes || 0} [OK]`, time: '00:00:02' },
                 { type: 'info', msg: `Syncing block: #${blockHeight.toLocaleString()}`, time: '00:00:05' },
                 { type: 'warn', msg: 'Mempool pressure: Shard 4 elevated', time: '00:00:12' },
                 { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },

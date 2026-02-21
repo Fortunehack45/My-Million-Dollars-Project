@@ -566,12 +566,14 @@ export const subscribeToNetworkStats = (callback: (stats: NetworkStats) => void)
   return onSnapshot(doc(db, 'global_stats', 'network'), (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.data();
+      // Safety defaults + ensure numbers
       callback({
-        maxUsersCap: DEFAULT_MAX_USERS_CAP,
-        ...data
-      } as NetworkStats);
+        totalMined: Number(data.totalMined || 0),
+        totalUsers: Number(data.totalUsers || 0),
+        activeNodes: Number(data.activeNodes || 0),
+        maxUsersCap: Number(data.maxUsersCap || DEFAULT_MAX_USERS_CAP)
+      });
     } else {
-      // Return actual initial state if DB is fresh
       callback({ totalMined: 0, totalUsers: 0, activeNodes: 0, maxUsersCap: DEFAULT_MAX_USERS_CAP });
     }
   }, (error) => {
@@ -674,7 +676,21 @@ export const submitContactMessage = async (message: Omit<import('../types').Cont
 export const subscribeToContactMessages = (callback: (messages: import('../types').ContactMessage[]) => void) => {
   const q = query(collection(db, 'contact_messages'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
-    const msgs = snapshot.docs.map(doc => doc.data() as import('../types').ContactMessage);
+    const msgs = snapshot.docs.map(doc => {
+      const data = doc.data();
+      // Handle potential Timestamp objects
+      let createdAt = data.createdAt;
+      if (createdAt && typeof createdAt === 'object' && 'toMillis' in createdAt) {
+        createdAt = createdAt.toMillis();
+      } else if (createdAt && typeof createdAt === 'object' && 'seconds' in createdAt) {
+        createdAt = createdAt.seconds * 1000;
+      }
+      return {
+        ...data,
+        id: doc.id,
+        createdAt: createdAt || Date.now()
+      } as import('../types').ContactMessage;
+    });
     callback(msgs);
   }, (error) => {
     console.warn("Contact Messages Subscription Error:", error);
