@@ -307,7 +307,7 @@ const Dashboard = () => {
         />
         <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
         <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />
-        <StatCard label="Live Validators" value={livePeers.toLocaleString()} subValue={`Shards: ${Math.max(1, Math.floor(livePeers / 50))}`} icon={Server} tooltip="Count of verified peer nodes currently securing the GhostDAG." />
+        <StatCard label="Live Validators" value={livePeers.toLocaleString()} subValue={`Active Miners: ${netStats.activeNodes.toLocaleString()} · Shards: ${Math.max(1, Math.floor(livePeers / 50))}`} icon={Server} tooltip="Count of verified peer nodes currently securing the GhostDAG." />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">

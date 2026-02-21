@@ -25,8 +25,6 @@ import {
   DEFAULT_TOKENOMICS_CONFIG,
   DEFAULT_CAREERS_CONFIG,
   DEFAULT_CONTACT_CONFIG,
-  updateTermsConfig,
-  updatePrivacyConfig,
   subscribeToContactMessages,
   updateMessageStatusAction,
   ADMIN_EMAIL,
@@ -232,18 +230,18 @@ const AdminPanel = () => {
 
   // Initial Subscriptions
   useEffect(() => {
-if (!isAuthorized) return;
+    if (!isAuthorized) return;
 
-const unsubUsers = subscribeToUsers(setUsers);
+    const unsubUsers = subscribeToUsers(setUsers);
 
-const unsubStats = subscribeToNetworkStats((stats) => {
-  setNetStats(stats);
-  if (stats.maxUsersCap) setCapInput(stats.maxUsersCap);
-});
+    const unsubStats = subscribeToNetworkStats((stats) => {
+      setNetStats(stats);
+      if (stats.maxUsersCap) setCapInput(stats.maxUsersCap);
+    });
 
-const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
+    const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
 
-const unsubTasks = subscribeToTasks(setTasks);
+    const unsubTasks = subscribeToTasks(setTasks);
     const unsubLanding = subscribeToLandingConfig(setLandingConfig);
     const unsubAbout = subscribeToContent('about', DEFAULT_ABOUT_CONFIG, setAboutConfig);
     const unsubArch = subscribeToContent('architecture_page', DEFAULT_ARCHITECTURE_CONFIG, setArchConfig);
@@ -415,6 +413,30 @@ const unsubTasks = subscribeToTasks(setTasks);
         <div className="space-y-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 space-y-8">
+
+              {/* Metrics Overview */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Users</p>
+                  <p className="text-3xl font-black text-white group-hover:scale-105 transition-transform origin-left">{users.length.toLocaleString()}</p>
+                </div>
+                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Miners</p>
+                  <p className="text-3xl font-black text-emerald-400 group-hover:scale-105 transition-transform origin-left">{users.filter(u => u.miningActive).length.toLocaleString()}</p>
+                </div>
+                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">NFT Minters</p>
+                  <p className="text-3xl font-black text-purple-400 group-hover:scale-105 transition-transform origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+                </div>
+                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors pointer-events-none"></div>
+                  <p className="text-[10px] text-amber-500/70 font-bold uppercase tracking-widest mb-1">Spots Left</p>
+                  <p className="text-3xl font-black text-amber-500 group-hover:scale-105 transition-transform origin-left">{Math.max(0, capInput - users.length).toLocaleString()}</p>
+                  <p className="text-[9px] text-zinc-600 mt-1 uppercase font-mono tracking-widest">Cap: {capInput.toLocaleString()}</p>
+                </div>
+              </div>
+
               {/* User Directory */}
               <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
