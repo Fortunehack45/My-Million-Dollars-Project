@@ -3,47 +3,47 @@ import React, { useState, useEffect, useRef } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import {
    GitMerge, Database, Cpu, Shield, Zap,
-   Lock, Globe, Activity, Hash, Clock, Layers, GitBranch, Share2, Box
+   Lock, Globe, Activity, Hash, Clock, Layers, GitBranch, Share2, Box, TrendingUp
 } from 'lucide-react';
 import { subscribeToContent, DEFAULT_ARCHITECTURE_CONFIG } from '../services/firebase';
 import { ArchitecturePageConfig } from '../types';
 
 const GhostDAGExplainer = () => {
    return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24 items-center mb-40 relative">
-         {/* Background Blueprint Grid Detail */}
-         <div className="absolute -left-24 top-0 w-96 h-96 bg-maroon/[0.02] border border-maroon/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center mb-64 relative">
+         {/* Subtle Institutional Detail */}
+         <div className="absolute -left-32 top-0 w-[500px] h-[500px] bg-maroon/[0.03] rounded-full blur-[150px] pointer-events-none"></div>
 
-         <div className="space-y-10 relative z-10">
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-900/50 border border-zinc-800 backdrop-blur-md rounded-xl">
-               <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse shadow-[0_0_8px_#800000]"></div>
-               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">Core_Protocol_Schema_v2</span>
+         <div className="space-y-12 relative z-10">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full shadow-2xl">
+               <div className="w-2 h-2 rounded-full bg-maroon animate-pulse-gentle"></div>
+               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Topology_Protocol_Ref: GhostDAG_v2.8</span>
             </div>
 
-            <div className="space-y-6">
-               <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">GhostDAG: The Death of Orphans</h2>
-               <p className="text-zinc-400 leading-relaxed text-base md:text-lg font-medium">
-                  Traditional serial blockchains discard parallel blocks as <span className="text-white italic underline decoration-maroon/50 underline-offset-4">orphans</span>. GhostDAG integrates them into a unified directed acyclic graph.
+            <div className="space-y-8">
+               <h2 className="text-4xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.85]">GhostDAG: The Death of Orphans</h2>
+               <p className="text-zinc-500 leading-relaxed text-lg md:text-xl font-medium border-l-2 border-maroon pl-8">
+                  Traditional serial blockchains discard parallel blocks as <span className="text-white italic underline underline-offset-8 decoration-maroon/30">orphans</span>. GhostDAG integrates them into a unified directed acyclic graph, ensuring zero-waste security.
                </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-               <div className="p-6 silk-panel rounded-[2rem] space-y-4 hover:border-emerald-500/20 transition-silk group/node">
-                  <div className="w-10 h-10 bg-emerald-500/5 rounded-xl border border-emerald-500/10 flex items-center justify-center group-hover/node:bg-emerald-500/10 transition-colors">
-                     <GitBranch className="w-5 h-5 text-emerald-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+               <div className="p-10 silk-panel rounded-[2.5rem] space-y-6 hover:border-emerald-500/20 group/node">
+                  <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center group-hover/node:bg-emerald-500 transition-all duration-700">
+                     <GitBranch className="w-7 h-7 text-emerald-500 group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                     <h4 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">Blue Set (Honest)</h4>
-                     <p className="text-xs text-zinc-500 leading-relaxed">High-connectivity nodes forming the canonical chain path.</p>
+                     <h4 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-2 font-mono">Blue_Set_Canonical</h4>
+                     <p className="text-sm text-zinc-500 leading-relaxed font-medium">High-connectivity nodes forming the high-integrity topological path.</p>
                   </div>
                </div>
-               <div className="p-6 silk-panel rounded-[2rem] space-y-4 hover:border-maroon/20 transition-silk group/node">
-                  <div className="w-10 h-10 bg-maroon/5 rounded-xl border border-maroon/10 flex items-center justify-center group-hover/node:bg-maroon/10 transition-colors">
-                     <Share2 className="w-5 h-5 text-maroon" />
+               <div className="p-10 silk-panel rounded-[2.5rem] space-y-6 hover:border-maroon/20 group/node">
+                  <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center group-hover/node:bg-maroon transition-all duration-700">
+                     <Share2 className="w-7 h-7 text-maroon group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                     <h4 className="text-[11px] font-black text-white uppercase tracking-widest mb-1">Red Set (Outliers)</h4>
-                     <p className="text-xs text-zinc-500 leading-relaxed">Isolated or conflicting blocks pruned from the blue topology.</p>
+                     <h4 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-2 font-mono">Red_Set_Outliers</h4>
+                     <p className="text-sm text-zinc-500 leading-relaxed font-medium">Isolated or malicious blocks logically pruned from the active topology.</p>
                   </div>
                </div>
             </div>
@@ -51,41 +51,41 @@ const GhostDAGExplainer = () => {
 
          <div className="relative group">
             {/* Schematic Frame */}
-            <div className="absolute -inset-4 border border-zinc-900 rounded-[3rem] opacity-50 pointer-events-none"></div>
-            <div className="silk-panel p-1.5 rounded-[3rem] border-zinc-900/50 shadow-2xl relative overflow-hidden">
-               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(128,0,0,0.05),transparent)]"></div>
+            <div className="absolute -inset-8 border border-white/[0.02] rounded-[4rem] opacity-50 pointer-events-none"></div>
+            <div className="silk-panel p-2 rounded-[3.5rem] border-white/[0.05] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] relative overflow-hidden">
+               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(128,0,0,0.06),transparent)]"></div>
 
-               <div className="relative p-10 space-y-10">
-                  <div className="h-72 border border-zinc-800/50 bg-black/40 rounded-[2rem] flex items-center justify-center p-10 relative overflow-hidden">
+               <div className="relative p-12 space-y-12">
+                  <div className="h-96 border border-white/[0.03] bg-black/40 rounded-[2.5rem] flex items-center justify-center p-12 relative overflow-hidden">
                      {/* Scanning Detail */}
-                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.03] to-transparent h-1/2 w-full animate-scanline pointer-events-none"></div>
+                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.04] to-transparent h-1/2 w-full animate-scanline pointer-events-none"></div>
 
-                     <div className="w-full flex justify-around items-center gap-4 relative z-10">
+                     <div className="w-full flex justify-around items-center gap-6 relative z-10">
                         {[1, 2, 3].map(i => (
-                           <div key={i} className="flex flex-col items-center gap-8">
-                              <div className="w-14 h-14 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl relative shadow-2xl group-hover:border-maroon/30 transition-all duration-500">
-                                 <Box className="w-6 h-6 text-zinc-500 group-hover:text-white transition-colors" />
-                                 {i === 2 && <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>}
+                           <div key={i} className="flex flex-col items-center gap-10">
+                              <div className="w-20 h-20 bg-zinc-950 border border-zinc-900 flex items-center justify-center rounded-3xl relative shadow-2xl group-hover:border-maroon/50 transition-all duration-1000">
+                                 <Box className="w-8 h-8 text-zinc-700 group-hover:text-white transition-colors" />
+                                 {i === 2 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.6)]"></div>}
                               </div>
-                              <div className="h-24 w-px bg-gradient-to-b from-zinc-800 to-transparent"></div>
-                              <div className="w-14 h-14 bg-zinc-900/50 border border-zinc-800/30 flex items-center justify-center rounded-2xl">
-                                 <Box className="w-6 h-6 text-zinc-700" />
+                              <div className="h-32 w-px bg-gradient-to-b from-zinc-800 via-maroon/20 to-transparent"></div>
+                              <div className="w-16 h-16 bg-zinc-950/40 border border-white/[0.02] flex items-center justify-center rounded-2xl">
+                                 <Box className="w-6 h-6 text-zinc-800" />
                               </div>
                            </div>
                         ))}
                      </div>
                   </div>
 
-                  <div className="flex justify-between items-end border-t border-zinc-900 pt-8 px-2">
-                     <div className="space-y-2">
-                        <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.25em]">Topological_State</p>
-                        <h4 className="text-2xl font-black text-white uppercase tracking-tighter italic">Linearized_DAG</h4>
+                  <div className="flex justify-between items-end border-t border-white/[0.03] pt-10">
+                     <div className="space-y-3">
+                        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] font-mono italic">Topology_Vector_State</p>
+                        <h4 className="text-3xl font-black text-white uppercase tracking-tighter">PHANTOM_LINEARIZATION</h4>
                      </div>
-                     <div className="flex flex-col items-end gap-2">
-                        <div className="flex gap-1">
-                           {[1, 2, 3, 4, 5].map(j => <div key={j} className="w-1 h-3 bg-emerald-500/20 rounded-full"></div>)}
+                     <div className="flex flex-col items-end gap-3 pb-1">
+                        <div className="flex gap-1.5">
+                           {[1, 2, 3, 4, 5].map(j => <div key={j} className="w-1.5 h-4 bg-emerald-500/20 rounded-full animate-pulse" style={{ animationDelay: `${j * 100}ms` }}></div>)}
                         </div>
-                        <span className="text-[10px] font-mono font-bold text-emerald-500 uppercase tracking-widest">Optimal_Sync</span>
+                        <span className="text-[10px] font-mono font-black text-emerald-500 uppercase tracking-[0.3em]">Network_Sync_Optimal</span>
                      </div>
                   </div>
                </div>
@@ -246,54 +246,55 @@ const Architecture = () => {
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
 
-               {/* Header */}
-               <div className="text-center max-w-4xl mx-auto mb-20">
+               {/* Header - Institutional Command */}
+               <div className="max-w-6xl mb-32 group/arch-header">
                   <div
                      data-id="hero-badge"
-                     className={`inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/80 border border-zinc-800 backdrop-blur-md rounded-full mb-8 transition-all duration-1000 ${isVisible('hero-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                     className={`inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full mb-10 transition-all duration-1000 ${isVisible('hero-badge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                   >
-                     <span className="w-2 h-2 rounded-full bg-maroon animate-pulse"></span>
-                     <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">GhostDAG Stack V2.8 (PHANTOM)</span>
+                     <div className="w-2 h-2 rounded-full bg-maroon animate-pulse-gentle"></div>
+                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Topology_Stack: GhostDAG_v2.8_PHANTOM</span>
                   </div>
 
                   <h1
                      data-id="hero-title"
-                     className={`text-5xl md:text-[9rem] font-black text-white uppercase tracking-tighter mb-10 md:mb-12 leading-[0.8] transition-all duration-1000 delay-100 ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                     className={`text-5xl md:text-[11rem] font-black text-white uppercase tracking-tighter mb-12 md:mb-16 leading-[0.8] transition-all duration-1000 delay-100 group-hover/arch-header:tracking-[-0.03em] ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                   >
-                     The Parallel Economy
+                     The Parallel<br />
+                     <span className="text-maroon">Economy.</span>
                   </h1>
 
                   <p
                      data-id="hero-desc"
-                     className={`text-lg md:text-2xl text-zinc-500 leading-relaxed max-w-2xl mx-auto transition-all duration-1000 delay-200 font-medium ${isVisible('hero-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                     className={`text-xl md:text-3xl text-zinc-500 leading-relaxed max-w-3xl transition-all duration-1000 delay-200 font-medium border-l-2 border-zinc-900 pl-10 ${isVisible('hero-desc') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                   >
-                     Argus Protocol utilizes a novel <span className="text-zinc-200">GhostDAG topology</span> to decouple consensus from throughput. We solve the trilemma through topological finality.
+                     Argus Protocol utilizes a novel <span className="text-white italic underline underline-offset-8 decoration-maroon/30">GhostDAG topology</span> to decouple consensus from throughput, reaching topological finality in sub-second intervals.
                   </p>
                </div>
 
-               {/* New Live Metrics Strip */}
-               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-32 border-y border-zinc-900/50 py-8">
+               {/* New Live Metrics Strip - Argus High Fidelity */}
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-48 border-y border-white/[0.03] py-16">
                   {[
                      { label: 'BlockDAG Height', val: '14,021,992', icon: Hash },
-                     { label: 'Ghost Time', val: '400ms', icon: Clock },
-                     { label: 'DAG Density', val: '98.2%', icon: Activity },
-                     { label: 'Active Clusters', val: '128', icon: Layers },
+                     { label: 'Finality Latency', val: '400ms', icon: Clock },
+                     { label: 'Topological Density', val: '98.2%', icon: Activity },
+                     { label: 'Parallel Chains', val: '128', icon: Layers },
                   ].map((stat, i) => (
-                     <div key={i} className="text-center md:text-left border-r last:border-0 border-zinc-900 px-4">
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-2 text-zinc-500">
-                           <stat.icon className="w-3 h-3" />
-                           <span className="text-[10px] font-bold uppercase tracking-widest">{stat.label}</span>
+                     <div key={i} className="space-y-4 group/stat">
+                        <div className="flex items-center gap-3 text-zinc-600 group-hover/stat:text-maroon transition-colors duration-500">
+                           <stat.icon className="w-4 h-4" />
+                           <span className="text-[10px] font-black uppercase tracking-[0.3em] font-mono">{stat.label}</span>
                         </div>
-                        <p className="text-xl font-mono font-bold text-white">{stat.val}</p>
+                        <p className="text-3xl md:text-5xl font-black text-white group-hover/stat:translate-x-2 transition-transform duration-700">{stat.val}</p>
                      </div>
                   ))}
                </div>
 
                <GhostDAGExplainer />
 
-               {/* Core Layers Diagram */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-40 relative">
-                  <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent -translate-y-1/2 z-0"></div>
+               {/* Core Layers Diagram - Vertical Integration */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-64 relative">
+                  <div className="hidden lg:block absolute top-[60px] left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-maroon/20 to-transparent z-0"></div>
 
                   {content.layers.map((layer, i) => {
                      const Icon = layerIcons[i] || Layers;
@@ -301,29 +302,28 @@ const Architecture = () => {
                         <div
                            key={i}
                            data-id={`card-${i}`}
-                           className={`silk-panel p-1 rounded-[2rem] relative group transition-silk duration-1000 ease-out z-10 ${isVisible(`card-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}
+                           className={`p-1.5 rounded-[3rem] silk-panel relative group transition-all duration-1000 ease-out z-10 ${isVisible(`card-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}
                            style={{ transitionDelay: `${i * 150}ms` }}
                         >
-                           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem]"></div>
-                           <div className="bg-zinc-950 h-full rounded-[1.9rem] p-8 flex flex-col justify-between relative overflow-hidden border border-zinc-900 group-hover:border-zinc-700 transition-colors">
-                              <div className="absolute -right-12 -top-12 w-48 h-48 bg-maroon/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                           <div className="bg-zinc-950 h-full rounded-[2.8rem] p-12 flex flex-col justify-between relative overflow-hidden border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
+                              <div className="absolute -right-16 -top-16 w-64 h-64 bg-maroon/[0.04] blur-[80px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
 
-                              <div className="space-y-6 relative z-10">
-                                 <div className="w-14 h-14 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                    <Icon className={`w-7 h-7 text-white`} />
+                              <div className="space-y-10 relative z-10">
+                                 <div className="w-20 h-20 bg-zinc-950 rounded-3xl border border-zinc-900 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all duration-700 group-hover:bg-maroon">
+                                    <Icon className={`w-9 h-9 text-zinc-500 group-hover:text-white transition-colors duration-700`} />
                                  </div>
-                                 <div>
-                                    <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest block mb-2">Layer 0{i + 1}</span>
-                                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-maroon transition-colors">{layer.title}</h3>
-                                    <p className="text-sm text-zinc-400 leading-relaxed font-medium">
+                                 <div className="space-y-4">
+                                    <span className="text-[10px] font-mono font-black text-zinc-600 uppercase tracking-[0.4em] block font-mono">Infrastructure_Layer_0{i + 1}</span>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight group-hover:text-maroon transition-colors duration-500">{layer.title}</h3>
+                                    <p className="text-base text-zinc-500 leading-relaxed font-medium group-hover:text-zinc-400 transition-colors duration-500">
                                        {layer.desc}
                                     </p>
                                  </div>
                               </div>
 
-                              <div className="mt-8 pt-6 border-t border-zinc-900/80 flex justify-between items-center relative z-10">
-                                 <span className="text-[10px] font-mono font-bold text-zinc-600 uppercase">Throughput</span>
-                                 <span className="text-xs font-mono font-bold text-white bg-zinc-900 px-3 py-1 rounded border border-zinc-800">{layer.stat}</span>
+                              <div className="mt-12 pt-8 border-t border-white/[0.03] flex justify-between items-center relative z-10">
+                                 <span className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-widest">Efficiency_Metric</span>
+                                 <span className="text-xs font-mono font-black text-maroon bg-maroon/5 px-4 py-2 rounded-xl border border-maroon/10 shadow-lg">{layer.stat}</span>
                               </div>
                            </div>
                         </div>
@@ -331,27 +331,33 @@ const Architecture = () => {
                   })}
                </div>
 
-               <div className="mb-32">
-                  <div className="text-center mb-12">
-                     <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Topology Benchmarks</h3>
-                     <p className="text-zinc-500">GhostDAG parallel block ordering compared to legacy serial chains.</p>
+               <div className="mb-64">
+                  <div className="space-y-6 mb-20">
+                     <div className="flex items-center gap-3 text-maroon">
+                        <TrendingUp className="w-5 h-5" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.5em] font-mono">Metric_Comparisons</span>
+                     </div>
+                     <h3 className="text-3xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">Topological Benchmarks</h3>
+                     <p className="text-zinc-500 text-lg md:text-xl font-medium border-l-2 border-zinc-900 pl-8 max-w-2xl">GhostDAG parallel block ordering establishes a new standard for throughput compared to legacy serial chains.</p>
                   </div>
                   <BenchmarkChart />
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {content.features.map((feat, i) => {
                      const Icon = featureIcons[i] || Shield;
                      return (
                         <div
                            key={i}
                            data-id={`sec-${i}`}
-                           className={`p-8 rounded-2xl silk-panel border-zinc-900 hover:bg-zinc-900/40 transition-silk duration-700 ${isVisible(`sec-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                           className={`p-12 rounded-[2.5rem] silk-panel border-white/[0.03] hover:border-maroon/20 hover:bg-black/50 transition-all duration-1000 ${isVisible(`sec-${i}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                            style={{ transitionDelay: `${i * 150}ms` }}
                         >
-                           <Icon className="w-8 h-8 text-zinc-600 mb-4" />
-                           <h4 className="text-white font-bold mb-2">{feat.title}</h4>
-                           <p className="text-xs text-zinc-500 leading-relaxed">{feat.desc}</p>
+                           <div className="bg-zinc-950 w-16 h-16 rounded-2xl flex items-center justify-center border border-zinc-900 mb-10 group hover:border-maroon/30 transition-all duration-700">
+                              <Icon className="w-8 h-8 text-zinc-600 group-hover:text-maroon transition-colors" />
+                           </div>
+                           <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">{feat.title}</h4>
+                           <p className="text-sm text-zinc-500 leading-relaxed font-medium">{feat.desc}</p>
                         </div>
                      )
                   })}

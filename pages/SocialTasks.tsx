@@ -158,78 +158,108 @@ const SocialTasks = () => {
   if (!user) return null;
 
   return (
-    <div className="w-full space-y-12 animate-in fade-in duration-500 will-change-premium">
-      {/* Institutional Header - Resized to Dashboard Standards */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900 mb-10">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
-            <ShieldCheck className="w-5 h-5 text-maroon animate-pulse" />
+    <div className="w-full space-y-16 animate-in fade-in duration-700 pb-32 relative">
+
+      {/* Background Dramatic Atmospherics */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-maroon/[0.03] blur-[200px] -z-10 pointer-events-none" />
+
+      {/* HEADER - Institutional Operations Interface */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-10 pb-12 border-b border-zinc-900/50 relative overflow-hidden">
+        <div className="absolute -left-20 top-0 w-64 h-64 bg-maroon/[0.05] blur-[100px] rounded-full pointer-events-none" />
+        <div className="flex items-start gap-8 relative z-10">
+          <div className="w-16 h-16 bg-zinc-950 border border-zinc-900 flex items-center justify-center rounded-[1.5rem] shadow-2xl relative group overflow-hidden">
+            <div className="absolute inset-0 bg-maroon/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <ShieldCheck className="w-8 h-8 text-maroon animate-pulse" />
           </div>
-          <div>
-            <h1 className="text-base font-black text-white uppercase tracking-tight">Operational_Tasks</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Security_Clearance: Alpha_One · v2.8</p>
+          <div className="space-y-3">
+            <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Operational Directives</h1>
+            <div className="flex items-center gap-5">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
+                <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest leading-none font-bold">Clearance: ALPHA_PROTOCOL</p>
+              </div>
+              <div className="h-1 w-1 rounded-full bg-zinc-800" />
+              <p className="text-[11px] font-mono text-maroon font-black uppercase tracking-widest leading-none italic">
+                Argus_Taskmaster_v4.2
+              </p>
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-5">
-          <div className="text-right">
-            <p className="label-meta mb-0.5">Directive_Status</p>
-            <p className="text-sm font-mono font-black text-white">{tasks.filter(t => user.completedTasks.includes(t.id)).length}/{tasks.length} <span className="text-zinc-600 text-[10px]">SYNCED</span></p>
+        <div className="flex items-center gap-10 relative z-10 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-2xl">
+          <div className="text-right space-y-1">
+            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] font-mono">Directive_Progress</p>
+            <div className="flex items-center justify-end gap-3">
+              <p className="text-2xl font-mono font-black text-white tracking-widest">{tasks.filter(t => user.completedTasks.includes(t.id)).length}</p>
+              <span className="text-[10px] text-zinc-700 font-black uppercase tracking-widest font-mono">/ {tasks.length}</span>
+            </div>
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
-          <div className="w-9 h-9 bg-zinc-950 border border-zinc-900 rounded-lg flex items-center justify-center">
-            <Timer className="w-5 h-5 text-maroon/60" />
+          <div className="h-10 w-px bg-zinc-900" />
+          <div className="text-right space-y-1">
+            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] font-mono">Deployment_Vector</p>
+            <p className="text-2xl font-mono font-black text-maroon tracking-widest">ACTIVE</p>
           </div>
         </div>
       </header>
 
       {loading ? (
-        <div className="grid gap-4">
+        <div className="grid gap-10">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-32 bg-zinc-950 p-6 md:p-8 rounded-[2.5rem] border border-zinc-900 flex items-center gap-6">
-              <div className="skeleton w-16 h-16 rounded-2xl shrink-0" />
-              <div className="flex-1 space-y-3">
-                <div className="skeleton h-3 w-20" />
-                <div className="skeleton h-5 w-48" />
-                <div className="skeleton h-3 w-full max-w-sm" />
+            <div key={i} className="h-48 bg-zinc-950 p-12 rounded-[3.5rem] silk-panel flex items-center gap-10">
+              <div className="skeleton w-20 h-20 rounded-2xl shrink-0" />
+              <div className="flex-1 space-y-4">
+                <div className="skeleton h-3 w-24" />
+                <div className="skeleton h-8 w-64" />
+                <div className="skeleton h-4 w-full max-w-lg" />
               </div>
-              <div className="flex flex-col items-end gap-3">
-                <div className="skeleton h-3 w-12" />
-                <div className="skeleton h-10 w-32 rounded-xl" />
+              <div className="flex flex-col items-end gap-4">
+                <div className="skeleton h-4 w-16" />
+                <div className="skeleton h-14 w-48 rounded-2xl" />
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-10">
           {tasks.length === 0 && (
-            <div className="silk-panel p-20 text-center rounded-[2.5rem] border-dashed opacity-40">
-              <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="w-6 h-6 text-zinc-700" />
+            <div className="silk-panel p-32 text-center rounded-[3.5rem] border-dashed border-zinc-800/50 bg-zinc-950/50 group hover:border-maroon/20 transition-all duration-700">
+              <div className="w-24 h-24 bg-zinc-900/50 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-zinc-800 group-hover:border-maroon/40 transition-all">
+                <ShieldCheck className="w-10 h-10 text-zinc-700 group-hover:text-maroon transition-all" />
               </div>
-              <p className="label-meta text-zinc-600">No active directives found.</p>
+              <div className="space-y-4">
+                <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.8em] font-mono italic">Zero_Directives_Found</p>
+                <p className="text-zinc-700 text-lg font-medium italic max-w-xl mx-auto">Topology continuum currently stable. Monitor relay for future operational mandates.</p>
+              </div>
             </div>
           )}
 
-          <div className="grid gap-4">
+          <div className="grid gap-8">
             {tasks.map((task) => (
               <TaskItem key={task.id} task={task} user={user} onComplete={handleComplete} />
             ))}
           </div>
 
           {tasks.length > 0 && (
-            <div className="mt-8 p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl flex items-start gap-3">
-              <AlertCircle className="w-4 h-4 text-amber-500/60 mt-0.5 shrink-0" />
-              <p className="text-[10px] text-amber-500/60 font-medium leading-relaxed uppercase tracking-wide">
-                Note: Verification protocols run asynchronously. Do not close browser tabs during active timers to prevent validation errors.
-              </p>
+            <div className="mt-16 bg-zinc-900/30 p-10 rounded-[2.5rem] border border-white/5 flex flex-col md:flex-row items-center gap-10 group/alert hover:border-maroon/20 transition-all">
+              <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800 group-hover/alert:border-maroon/40 transition-all shadow-2xl relative">
+                <AlertCircle className="w-6 h-6 text-maroon animate-pulse" />
+              </div>
+              <div className="flex-1 space-y-3 text-center md:text-left">
+                <p className="text-[10px] font-black text-maroon uppercase tracking-[0.4em] font-mono">Verification Protocol Alert</p>
+                <p className="text-zinc-500 text-sm md:text-lg leading-relaxed italic font-medium">
+                  Verification processes run on <span className="text-white font-bold">Asynchronous Sub-Routines</span>.
+                  Do not disrupt the synchronization cycles to ensure proper grant allocation.
+                </p>
+              </div>
             </div>
           )}
         </div>
       )}
+
+      <div className="flex justify-between items-center opacity-40 px-12">
+        <p className="text-[9px] font-mono font-black uppercase tracking-[0.4em] text-zinc-700">Argus_Mission_Control // SECURE_SYNC</p>
+        <p className="text-[9px] font-mono font-black uppercase tracking-[0.4em] text-zinc-700 italic">Auth_Task_Cycle_4923</p>
+      </div>
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-maroon/10 to-transparent"></div>
     </div>
   );
 };

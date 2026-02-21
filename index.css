@@ -8,13 +8,23 @@
 
   --bg: #050505;
   --bg-soft: #0c0c0e;
-  --border: rgba(255, 255, 255, 0.04);
-  /* Institutional Silk Border */
-  --glass: rgba(5, 5, 5, 0.7);
-  --glass-edge: rgba(255, 255, 255, 0.08);
+  --bg-card: rgba(9, 9, 11, 0.4);
 
-  /* Precise Spacing System */
-  --space-unit: 4px;
+  --border: rgba(255, 255, 255, 0.04);
+  --border-strong: rgba(255, 255, 255, 0.08);
+
+  --glass: rgba(5, 5, 5, 0.6);
+  --glass-edge: rgba(255, 255, 255, 0.06);
+
+  /* Argus Precision Scale (4px units) */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s8: 32px;
+  --s12: 48px;
+  --s16: 64px;
 }
 
 /* Base body styles */
@@ -49,34 +59,25 @@ body {
 
 /* Silk Edge Institutional Panel - Human Precision */
 .silk-panel {
-  background-color: rgba(9, 9, 11, 0.4);
-  backdrop-filter: blur(64px);
-  -webkit-backdrop-filter: blur(64px);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
-  transition: all 1000ms cubic-bezier(0.19, 1, 0.22, 1);
+  background-color: var(--bg-card);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
+  transition: all 800ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .silk-panel:hover {
-  border-color: rgba(128, 0, 0, 0.2);
-  background-color: rgba(9, 9, 11, 0.6);
-  transform: translateY(-2px);
-  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-}
-
-.glass-card {
-  background-color: rgba(9, 9, 11, 0.7);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-.glass-panel {
-  background-color: rgba(24, 24, 27, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(63, 63, 70, 0.5);
+  border-color: rgba(128, 0, 0, 0.15);
+  background-color: rgba(9, 9, 11, 0.55);
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 10px 10px -5px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 /* Professional Human Button - Primary */
@@ -84,61 +85,55 @@ body {
   position: relative;
   overflow: hidden;
   background-color: #000;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-strong);
   color: white;
-  padding: 18px 36px;
-  border-radius: 0.875rem;
-  font-weight: 900;
+  padding: 16px 32px;
+  border-radius: 1rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.25em;
   font-size: 10px;
-  transition: all 500ms cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  transition: all 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   backface-visibility: hidden;
-  will-change: transform, box-shadow, border-color;
 }
 
 .btn-premium:hover {
-  border-color: rgba(128, 0, 0, 0.4);
+  border-color: rgba(128, 0, 0, 0.3);
   background-color: #050505;
-  transform: translateY(-2px);
-  box-shadow: 0 25px 50px rgba(128, 0, 0, 0.15);
-}
-
-.btn-premium:active {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(128, 0, 0, 0.12);
 }
 
 /* Professional Human Button - Maroon CTA */
 .btn-premium-maroon {
   position: relative;
   overflow: hidden;
-  background-color: #800000;
+  background-color: var(--primary);
   color: white;
-  padding: 18px 36px;
-  border-radius: 0.875rem;
+  padding: 18px 40px;
+  border-radius: 1.25rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.3em;
-  font-size: 10px;
-  transition: all 500ms cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 15px 35px rgba(128, 0, 0, 0.25);
+  font-size: 11px;
+  transition: all 700ms cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0 20px 40px rgba(128, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
   backface-visibility: hidden;
-  will-change: transform, box-shadow;
 }
 
 .btn-premium-maroon:hover {
-  background-color: #991b1b;
-  transform: translateY(-2px);
-  box-shadow: 0 25px 60px rgba(128, 0, 0, 0.4);
+  background-color: var(--primary-light);
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px rgba(128, 0, 0, 0.35);
 }
 
 .btn-premium-maroon:active {

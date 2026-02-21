@@ -91,7 +91,11 @@ export interface LandingConfig {
 export interface LegalConfig {
   title: string;
   lastUpdated: string;
-  sections: Array<{ heading: string; content: string }>;
+  sections: Array<{
+    heading: string;
+    content: string; // rich text/html
+    subsections?: Array<{ heading: string; content: string }>;
+  }>;
 }
 
 export interface AboutConfig {
@@ -107,7 +111,11 @@ export interface WhitepaperConfig {
   title: string;
   subtitle: string;
   version: string;
-  sections: Array<{ title: string; content: string }>;
+  sections: Array<{
+    title: string;
+    content: string; // rich text/html
+    subsections?: Array<{ title: string; content: string }>;
+  }>;
 }
 
 export interface ArchitecturePageConfig {
@@ -132,6 +140,7 @@ export interface TokenomicsConfig {
   distribution: TokenomicsItem[];
   utility: Array<{ title: string; desc: string; icon: string }>;
   schedule: Array<{ phase: string; date: string; allocation: string; action: string }>;
+  sections?: Array<{ title: string; content: string }>;
 }
 
 export interface JobPosition {

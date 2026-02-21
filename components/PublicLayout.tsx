@@ -74,30 +74,32 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-maroon/30 selection:text-white font-sans scroll-smooth">
-      <nav className="fixed top-8 inset-x-0 z-[100] px-6 pointer-events-none">
+      <nav className="fixed top-6 md:top-10 inset-x-0 z-[100] px-6 pointer-events-none">
         <div className="max-w-7xl mx-auto pointer-events-auto">
-          {/* Liquid Glass Island - Refined Minimalist */}
-          <div className="relative group/nav-island will-change-transform">
-            {/* Ultra-High-Fidelity Glass */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl border border-white/[0.04] rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)] transition-all duration-1000 group-hover/nav-island:bg-black/50 group-hover/nav-island:border-white/[0.08] group-hover/nav-island:shadow-[0_45px_100px_-20px_rgba(0,0,0,0.8)]"></div>
+          {/* Argus Onyx Nav-Island */}
+          <div className="relative group/nav-island">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-2xl border border-white/[0.05] rounded-3xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover/nav-island:bg-black/70 group-hover/nav-island:border-white/[0.1] group-hover/nav-island:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)]"></div>
 
-            <div className="relative z-10 px-8 h-16 flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-4 group/logo">
-                <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110 will-change-transform" />
-                <span className="font-black text-xs tracking-[0.2em] text-white uppercase">Argus Protocol</span>
+            <div className="relative z-10 px-8 h-18 py-3 flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-5 group/logo">
+                <div className="w-10 h-10 bg-zinc-950 border border-zinc-900 rounded-xl flex items-center justify-center transition-all duration-700 group-hover/logo:border-maroon/30 group-hover/logo:bg-zinc-900">
+                  <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-black text-[11px] tracking-[0.3em] text-white uppercase leading-none">Argus</span>
+                  <span className="text-[7px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-1 italic">Parallel Protocol</span>
+                </div>
               </Link>
 
-              <div className="hidden lg:flex items-center gap-10">
+              <div className="hidden lg:flex items-center gap-12">
                 {navLinks.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-700 relative py-1 ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
+                    className={`text-[10px] font-bold uppercase tracking-[0.25em] transition-all duration-500 relative py-2 px-1 group/item ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
                   >
                     {item.label}
-                    {location.pathname === item.path && (
-                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-maroon rounded-full shadow-[0_0_8px_#800000]"></span>
-                    )}
+                    <span className={`absolute bottom-0 left-0 h-[2px] bg-maroon transition-all duration-500 ${location.pathname === item.path ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></span>
                   </Link>
                 ))}
               </div>
@@ -105,14 +107,14 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               <div className="flex items-center gap-6">
                 <button
                   onClick={handleConsoleClick}
-                  className="hidden md:flex h-10 px-6 items-center bg-white text-black text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-maroon hover:text-white transition-all duration-700 active:scale-95 shadow-xl"
+                  className="hidden md:flex h-11 px-8 items-center bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-maroon hover:text-white transition-all duration-500 active:scale-95 shadow-2xl"
                 >
-                  Access_Terminal
+                  Access_Vault
                 </button>
 
                 <button
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className="lg:hidden p-2 text-zinc-400 hover:text-white transition-colors"
+                  className="lg:hidden p-3 text-zinc-400 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/5"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
@@ -173,38 +175,48 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       </main>
 
       {/* Footer - Professional Refinement */}
-      <footer id="main-footer" className="bg-zinc-950 border-t border-zinc-900 pt-24 pb-12 relative z-10 overflow-hidden">
-        {/* Ambient background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-maroon/5 blur-[120px] pointer-events-none"></div>
+      <footer id="main-footer" className="bg-zinc-950 border-t border-white/[0.02] pt-32 pb-16 relative z-10 overflow-hidden">
+        {/* Deep Field Ambient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-maroon/50 to-transparent"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-64 bg-maroon/[0.03] blur-[120px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20 lg:gap-8">
-            <div className="md:col-span-5 lg:col-span-4 space-y-8">
-              <Link to="/" className="inline-flex items-center gap-4 group">
-                <div className="w-12 h-12 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 group-hover:bg-zinc-900 transition-all duration-500 relative overflow-hidden">
-                  <Logo className="w-8 h-8 text-maroon" />
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 lg:gap-24 mb-32">
+            <div className="md:col-span-12 lg:col-span-4 space-y-10">
+              <Link to="/" className="inline-flex items-center gap-5 group">
+                <div className="w-14 h-14 bg-zinc-950 border border-zinc-900 flex items-center justify-center rounded-2xl shadow-2xl group-hover:border-maroon/30 transition-all duration-700 relative overflow-hidden">
+                  <Logo className="w-9 h-9 text-maroon" />
+                  <div className="absolute inset-0 bg-maroon/0 group-hover:bg-maroon/[0.02] transition-colors"></div>
                 </div>
-                <span className="font-black text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
+                <div className="flex flex-col">
+                  <span className="font-black text-2xl text-white tracking-tight leading-none uppercase">Argus Protocol</span>
+                  <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-1.5 font-mono italic">Institutional_Grade_DEX</span>
+                </div>
               </Link>
-              <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
+
+              <p className="text-zinc-500 text-[13px] leading-relaxed max-w-sm font-medium opacity-80">
                 {landingConfig.footer?.description || DEFAULT_LANDING_CONFIG.footer.description}
               </p>
+
               <div className="flex gap-4">
-                <a href={landingConfig.socials?.twitter || DEFAULT_LANDING_CONFIG.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><XIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials?.discord || DEFAULT_LANDING_CONFIG.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] hover:scale-110 transition-all duration-300"><DiscordIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials?.github || DEFAULT_LANDING_CONFIG.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><GithubIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials?.twitter || DEFAULT_LANDING_CONFIG.socials.twitter} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"><XIcon className="w-5 h-5" /></a>
+                <a href={landingConfig.socials?.discord || DEFAULT_LANDING_CONFIG.socials.discord} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-500 shadow-lg"><DiscordIcon className="w-5 h-5" /></a>
+                <a href={landingConfig.socials?.github || DEFAULT_LANDING_CONFIG.socials.github} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"><GithubIcon className="w-5 h-5" /></a>
               </div>
             </div>
 
-            <div className="md:col-span-7 lg:col-span-8 flex flex-wrap gap-12 sm:gap-16 justify-start md:justify-end">
+            <div className="md:col-span-12 lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-12 lg:gap-16">
               {(landingConfig.footer?.columns || DEFAULT_LANDING_CONFIG.footer.columns)?.map((col, idx) => (
-                <div key={idx} className="space-y-6 min-w-[140px]">
-                  <h4 className="text-white font-black uppercase text-xs tracking-[0.2em] mb-4">{col.title}</h4>
-                  <ul className="space-y-4">
+                <div key={idx} className="space-y-8">
+                  <h4 className="text-white font-black uppercase text-[10px] tracking-[0.3em] mb-6 flex items-center gap-3">
+                    <span className="w-1 h-3 bg-maroon rounded-full"></span>
+                    {col.title}
+                  </h4>
+                  <ul className="space-y-5">
                     {col.links?.map((link, lIdx) => (
                       <li key={lIdx}>
-                        <Link to={link.url} className="text-zinc-500 hover:text-maroon text-sm transition-colors duration-300 flex items-center gap-2 group/link">
-                          <span className="w-0 h-px bg-maroon transition-all duration-300 group-hover/link:w-2"></span>
+                        <Link to={link.url} className="text-zinc-500 hover:text-white text-[13px] font-medium transition-all duration-300 flex items-center gap-3 group/link">
+                          <ArrowUpRight className="w-3.5 h-3.5 text-zinc-700 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 group-hover/link:text-maroon transition-all" />
                           {link.label}
                         </Link>
                       </li>
@@ -215,12 +227,17 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             </div>
           </div>
 
-          <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">{landingConfig.footer?.copyright || DEFAULT_LANDING_CONFIG.footer.copyright}</p>
+          <div className="pt-12 border-t border-white/[0.03] flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+              <p className="text-zinc-600 text-[10px] font-mono uppercase tracking-[0.2em]">{landingConfig.footer?.copyright || DEFAULT_LANDING_CONFIG.footer.copyright}</p>
+              <div className="hidden md:block w-1 h-1 bg-zinc-800 rounded-full"></div>
+              <p className="text-zinc-700 text-[9px] font-bold uppercase tracking-[0.15em]">Institutional Infrastructure Access</p>
+            </div>
+
             {(landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText) && (
-              <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-full cursor-default">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                <span className="text-[10px] font-mono font-bold text-emerald-500/80 uppercase tracking-[0.2em]">{landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText}</span>
+              <div className="flex items-center gap-4 px-6 py-2.5 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-full cursor-default shadow-sm backdrop-blur-sm">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.4)]"></div>
+                <span className="text-[10px] font-mono font-black text-emerald-500/90 uppercase tracking-[0.25em]">{landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText}</span>
               </div>
             )}
           </div>

@@ -5,6 +5,7 @@ import { subscribeToContent, subscribeToNetworkStats, DEFAULT_TOKENOMICS_CONFIG 
 import { TokenomicsConfig, NetworkStats } from '../types';
 import { PieChart, Zap, ShieldCheck, Lock, Activity, Layers, ArrowRight, TrendingUp, Info } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
+import { ContentRenderer } from '../components/ContentRenderer';
 
 const IconMap: any = { Zap, ShieldCheck, Lock, Activity, Layers, TrendingUp };
 
@@ -65,70 +66,83 @@ const Tokenomics = () => {
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
 
-               {/* Header */}
-               <div className={`text-center max-w-4xl mx-auto mb-20 transition-all duration-1000 ease-out-expo ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full mb-8">
-                     <PieChart className="w-3.5 h-3.5 text-maroon animate-pulse" />
-                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">System_Economics_Model v2.0</span>
+               {/* Header - Institutional Economic Model */}
+               <div className={`max-w-6xl mb-32 transition-all duration-[1500ms] ease-out-expo ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full mb-10 shadow-2xl">
+                     <PieChart className="w-4 h-4 text-maroon animate-pulse-gentle" />
+                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Economic_Protocol_Ref: ARG_TOKEN_v2.0</span>
                   </div>
-                  <h1 className="text-4xl md:text-8xl font-black text-white uppercase tracking-tighter mb-8 leading-none drop-shadow-2xl">{content.title}</h1>
-                  <p className="border-l-2 border-maroon pl-4 text-zinc-500 text-base md:text-xl max-w-2xl mx-auto leading-relaxed italic text-center">{content.subtitle}</p>
+                  <h1 className="text-5xl md:text-[11rem] font-black text-white uppercase tracking-tighter mb-12 leading-[0.8] drop-shadow-2xl">
+                     {content.title}
+                  </h1>
+                  <p className="border-l-2 border-maroon pl-10 text-zinc-500 text-lg md:text-2xl max-w-3xl leading-relaxed font-medium">
+                     {content.subtitle}
+                  </p>
                </div>
 
-               {/* Supply Cards - Premium Institutional Aesthetic */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-32">
-                  <div className={`bg-zinc-950/40 backdrop-blur-3xl p-10 rounded-[2.5rem] flex items-center justify-between transition-all duration-1000 delay-150 border border-white/5 hover:border-maroon/30 group shadow-[0_0_40px_rgba(0,0,0,0.3)] hover:shadow-[0_0_60px_rgba(185,28,28,0.1)] relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent -translate-y-full animate-scanline opacity-20"></div>
-                     <div>
-                        <div className="flex items-center gap-3 mb-4">
-                           <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.25em]">Maximum Supply Protocol</p>
-                        </div>
-                        <div className="space-y-1">
-                           <p className="text-5xl md:text-7xl font-black text-white tracking-tighter group-hover:text-maroon transition-colors duration-500 select-none">{content.totalSupply}</p>
-                           <p className="text-[10px] font-mono text-zinc-700 font-black uppercase tracking-[0.4em] ml-1">Hard_Cap_Genesis</p>
-                        </div>
-                     </div>
-                     <div className="w-20 h-20 bg-zinc-900/50 rounded-3xl flex items-center justify-center border border-white/5 shadow-inner group-hover:border-maroon/20 transition-all duration-700">
-                        <Lock className="w-8 h-8 text-zinc-700 group-hover:text-maroon transition-colors" />
-                     </div>
-                  </div>
-                  <div className={`bg-zinc-950/40 backdrop-blur-3xl p-10 rounded-[2.5rem] flex items-center justify-between transition-all duration-1000 delay-300 border border-white/5 hover:border-maroon/30 group shadow-[0_0_40px_rgba(0,0,0,0.3)] hover:shadow-[0_0_60px_rgba(185,28,28,0.1)] relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent -translate-y-full animate-scanline opacity-20 pointer-events-none"></div>
-                     <div>
-                        <div className="flex items-center gap-3 mb-4">
-                           <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
-                           <div className="flex items-center gap-2">
-                              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.25em]">Market Circulation</p>
-                              <Tooltip text="Sum of all ARG credits successfully mined by network participants." position="right">
-                                 <Info className="w-3 h-3 text-zinc-800 hover:text-maroon transition-colors cursor-help" />
-                              </Tooltip>
+               {/* Supply Cards - Argus High Fidelity */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-48">
+                  <div className={`silk-panel p-1.5 rounded-[3rem] transition-all duration-[1200ms] delay-150 relative overflow-hidden group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                     <div className="bg-zinc-950 h-full rounded-[2.8rem] p-12 flex items-center justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent -translate-y-full animate-scanline opacity-20 pointer-events-none"></div>
+                        <div className="space-y-6">
+                           <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
+                              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] font-mono">Maximum_Supply_Cap</p>
+                           </div>
+                           <div className="space-y-4">
+                              <p className="text-5xl md:text-8xl font-black text-white tracking-tighter group-hover:text-maroon transition-colors duration-700 select-none leading-none">
+                                 {content.totalSupply}
+                              </p>
+                              <p className="text-[10px] font-mono text-zinc-600 font-black uppercase tracking-[0.4em] ml-1">Hard_Coded_Genesis_Constraint</p>
                            </div>
                         </div>
-                        <div className="space-y-1">
-                           <p className="text-5xl md:text-7xl font-black text-white tracking-tighter group-hover:scale-[1.02] transition-transform origin-left duration-500">
-                              {circulatingSupplyDisplay} <span className="text-xl text-zinc-600 font-mono tracking-normal">ARG</span>
-                           </p>
-                           <p className="text-[10px] font-mono text-maroon font-black uppercase tracking-[0.4em] ml-1">Verified_Uptime_Mint</p>
+                        <div className="w-24 h-24 bg-zinc-950 rounded-3xl flex items-center justify-center border border-zinc-900 shadow-2xl group-hover:bg-maroon transition-all duration-700">
+                           <Lock className="w-10 h-10 text-zinc-700 group-hover:text-white transition-colors" />
                         </div>
                      </div>
-                     <div className="w-20 h-20 bg-zinc-900/50 rounded-3xl flex items-center justify-center border border-white/5 shadow-inner">
-                        <Activity className="w-8 h-8 text-maroon animate-pulse-slow" />
+                  </div>
+
+                  <div className={`silk-panel p-1.5 rounded-[3rem] transition-all duration-[1200ms] delay-300 relative overflow-hidden group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                     <div className="bg-zinc-950 h-full rounded-[2.8rem] p-12 flex items-center justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent -translate-y-full animate-scanline opacity-20 pointer-events-none"></div>
+                        <div className="space-y-6">
+                           <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 rounded-full bg-maroon animate-pulse-gentle shadow-[0_0_10px_#800000]"></div>
+                              <div className="flex items-center gap-3">
+                                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] font-mono">Verified_In_Circulation</p>
+                                 <Tooltip text="Sum of all ARG credits successfully mined by network participants." position="right">
+                                    <Info className="w-4 h-4 text-zinc-800 hover:text-maroon transition-colors cursor-help" />
+                                 </Tooltip>
+                              </div>
+                           </div>
+                           <div className="space-y-4">
+                              <p className="text-5xl md:text-8xl font-black text-white tracking-tighter group-hover:translate-x-2 transition-transform duration-700 leading-none">
+                                 {circulatingSupplyDisplay} <span className="text-2xl text-zinc-700 font-mono tracking-normal ml-2">ARG</span>
+                              </p>
+                              <p className="text-[10px] font-mono text-maroon font-black uppercase tracking-[0.4em] ml-1">Algorithmically_Minted_Uptime</p>
+                           </div>
+                        </div>
+                        <div className="w-24 h-24 bg-zinc-950 rounded-3xl flex items-center justify-center border border-zinc-900 shadow-2xl">
+                           <Activity className="w-10 h-10 text-maroon animate-pulse" />
+                        </div>
                      </div>
                   </div>
                </div>
 
-               {/* Interactive Distribution Section */}
-               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mb-32">
+               {/* Interactive Distribution Section - High Fidelity */}
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-32 items-center mb-64">
                   {/* Chart Visualization */}
-                  <div className={`lg:col-span-5 relative flex items-center justify-center transition-all duration-1000 delay-500 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-                     <div className="relative w-full max-w-[500px] aspect-square">
-                        {/* Background Glow - Rotates slowly */}
-                        <div className="absolute inset-0 bg-maroon/5 blur-[80px] rounded-full animate-spin-slow"></div>
+                  <div className={`lg:col-span-5 relative flex items-center justify-center transition-all duration-[1200ms] delay-500 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+                     <div className="relative w-full max-w-[600px] aspect-square">
+                        {/* Complex Background Glow System */}
+                        <div className="absolute inset-0 bg-maroon/[0.03] blur-[120px] rounded-full animate-pulse-slow"></div>
+                        <div className="absolute inset-[15%] bg-maroon/[0.02] border border-maroon/5 rounded-full animate-spin-slow"></div>
 
-                        <svg viewBox="0 0 42 42" className="w-full h-full transform drop-shadow-2xl">
-                           {/* Placeholder ring background */}
-                           <circle cx="21" cy="21" r={RADIUS} fill="transparent" stroke="#18181b" strokeWidth="5" />
+                        <svg viewBox="0 0 42 42" className="w-full h-full transform drop-shadow-[0_0_35px_rgba(0,0,0,0.5)] transition-all duration-700">
+                           {/* Structural ring background */}
+                           <circle cx="21" cy="21" r={RADIUS} fill="transparent" stroke="#09090b" strokeWidth="6" />
+                           <circle cx="21" cy="21" r={RADIUS} fill="transparent" stroke="#18181b" strokeWidth="5.5" />
 
                            {chartData.map((item, i) => {
                               const isActive = activeIndex === i;
@@ -140,19 +154,19 @@ const Tokenomics = () => {
                                     r={RADIUS}
                                     fill="transparent"
                                     stroke="currentColor"
-                                    strokeWidth={isActive ? 6 : 5}
+                                    strokeWidth={isActive ? 6.5 : 5.5}
                                     strokeDasharray={item.strokeDasharray}
                                     strokeDashoffset={item.strokeDashoffset}
                                     className={`
-                                  ${item.color.includes('bg-') ? item.color.replace('bg-', 'text-') : 'text-zinc-500'} 
-                                  transition-all duration-500 ease-out cursor-pointer origin-center
-                                  ${isActive ? 'brightness-125 scale-105' : 'hover:brightness-110'}
-                                  ${visible ? 'opacity-100' : 'opacity-0'}
-                               `}
+                                   ${item.color.includes('bg-') ? item.color.replace('bg-', 'text-') : 'text-zinc-600'} 
+                                   transition-all duration-700 ease-out-expo cursor-pointer origin-center
+                                   ${isActive ? 'brightness-125 scale-[1.03] drop-shadow-[0_0_10px_currentColor]' : 'hover:brightness-110'}
+                                   ${visible ? 'opacity-100' : 'opacity-0'}
+                                `}
                                     style={{
                                        color: !item.color.startsWith('bg-') ? item.color : undefined,
                                        transformOrigin: 'center',
-                                       transitionDelay: `${i * 100}ms` // Staggered entry for segments
+                                       transitionDelay: `${i * 150}ms`
                                     }}
                                     onMouseEnter={() => setActiveIndex(i)}
                                     onMouseLeave={() => setActiveIndex(null)}
@@ -161,22 +175,24 @@ const Tokenomics = () => {
                            })}
                         </svg>
 
-                        {/* Center Content */}
+                        {/* High Fidelity Center Status */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                           <div className="bg-zinc-950/80 backdrop-blur-2xl rounded-full w-[55%] h-[55%] flex flex-col items-center justify-center border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-4 transition-all duration-500 z-10">
+                           <div className="bg-zinc-950/90 backdrop-blur-3xl rounded-full w-[60%] h-[60%] flex flex-col items-center justify-center border border-white/[0.05] shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] p-12 transition-all duration-700 z-10 group-hover:scale-[1.05]">
                               {activeItem ? (
-                                 <div className="animate-in fade-in zoom-in-95 duration-200">
-                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center">{activeItem.label}</p>
-                                    <p className={`text-4xl md:text-5xl font-black text-center transition-colors ${activeItem.color.replace('bg-', 'text-')}`}>
-                                       {activeItem.percentage}%
+                                 <div className="animate-in fade-in zoom-in-95 duration-500 text-center space-y-4">
+                                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] font-mono italic">{activeItem.label}</p>
+                                    <p className={`text-5xl md:text-7xl font-black transition-all duration-500 tracking-tighter ${activeItem.color.replace('bg-', 'text-')}`}>
+                                       {activeItem.percentage}<span className="text-xl md:text-2xl ml-1">%</span>
                                     </p>
-                                    <p className="text-xs font-mono text-zinc-400 mt-1 font-bold text-center">{activeItem.value}</p>
+                                    <div className="h-0.5 w-12 bg-white/5 mx-auto"></div>
+                                    <p className="text-xs font-mono text-zinc-400 font-black tracking-widest">{activeItem.value}</p>
                                  </div>
                               ) : (
-                                 <div className="animate-in fade-in zoom-in-95 duration-200">
-                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center">Total Allocation</p>
-                                    <p className="text-4xl md:text-5xl font-black text-white text-center">100%</p>
-                                    <p className="text-xs font-mono text-zinc-600 mt-1 font-bold text-center">1B TOKENS</p>
+                                 <div className="animate-in fade-in zoom-in-95 duration-500 text-center space-y-4">
+                                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] font-mono">Topological_Grant</p>
+                                    <p className="text-5xl md:text-7xl font-black text-white tracking-tighter">100<span className="text-2xl ml-1">%</span></p>
+                                    <div className="h-0.5 w-12 bg-white/5 mx-auto"></div>
+                                    <p className="text-xs font-mono text-zinc-700 font-black tracking-widest uppercase">1B_ARG_UNITS</p>
                                  </div>
                               )}
                            </div>
@@ -184,58 +200,68 @@ const Tokenomics = () => {
                      </div>
                   </div>
 
-                  {/* Interactive Legend */}
-                  <div className="lg:col-span-7 space-y-4">
+                  {/* Interactive Legend - High End Grid */}
+                  <div className="lg:col-span-7 space-y-6">
                      {content.distribution.map((item, i) => (
                         <div
                            key={i}
                            onMouseEnter={() => setActiveIndex(i)}
                            onMouseLeave={() => setActiveIndex(null)}
                            className={`
-                         bg-zinc-950/40 backdrop-blur-xl p-6 rounded-2xl flex items-center justify-between cursor-pointer border
-                         transition-all duration-500 group relative overflow-hidden
-                         ${activeIndex === i ? 'bg-zinc-900/80 border-maroon/40 translate-x-2 shadow-[0_0_30px_rgba(185,28,28,0.1)]' : 'border-white/5 hover:bg-zinc-900/60 hover:border-white/10'}
-                         ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}
-                       `}
-                           style={{ transitionDelay: `${600 + (i * 100)}ms` }}
+                          silk-panel p-8 rounded-[2rem] flex items-center justify-between cursor-pointer border
+                          transition-all duration-700 group relative overflow-hidden
+                          ${activeIndex === i ? 'border-maroon/40 translate-x-4 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)]' : 'border-white/[0.02] hover:bg-zinc-950'}
+                          ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}
+                        `}
+                           style={{ transitionDelay: `${600 + (i * 150)}ms` }}
                         >
-                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent -translate-x-full animate-scanline opacity-10 pointer-events-none"></div>
-                           <div className="flex items-center gap-5 relative z-10">
-                              <div className={`w-4 h-4 rounded-full ${item.color} shadow-[0_0_12px_currentColor] transition-transform duration-300 ${activeIndex === i ? 'scale-125' : ''}`}></div>
-                              <div>
-                                 <p className={`text-sm font-bold uppercase transition-colors ${activeIndex === i ? 'text-white' : 'text-zinc-300'}`}>{item.label}</p>
-                                 <p className="text-[10px] text-zinc-600 font-mono mt-0.5 uppercase tracking-widest">Protocol_Allocation_ID: {item.value.split(' ')[0]}</p>
+                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-maroon/[0.02] to-transparent -translate-x-full animate-scanline opacity-10 pointer-events-none"></div>
+                           <div className="flex items-center gap-8 relative z-10">
+                              <div className={`w-6 h-6 rounded-2xl ${item.color} shadow-[0_0_20px_currentColor] transition-all duration-500 ${activeIndex === i ? 'scale-125 rotate-45' : ''}`}></div>
+                              <div className="space-y-1">
+                                 <p className={`text-lg font-black uppercase tracking-tight transition-colors duration-500 ${activeIndex === i ? 'text-maroon' : 'text-white'}`}>{item.label}</p>
+                                 <p className="text-[10px] text-zinc-600 font-mono font-black uppercase tracking-[0.3em]">Protocol_Grant_Ref: {item.value.split(' ')[0]}</p>
                               </div>
                            </div>
-                           <div className="text-right">
-                              <p className={`text-2xl font-black transition-colors ${activeIndex === i ? 'text-white' : 'text-zinc-500'}`}>{item.percentage}%</p>
+                           <div className="text-right space-y-1">
+                              <p className={`text-4xl font-black transition-all duration-500 ${activeIndex === i ? 'text-white scale-110' : 'text-zinc-700'}`}>{item.percentage}%</p>
+                              <p className="text-[9px] font-mono text-zinc-800 font-black uppercase tracking-widest">Reserved_Allocation</p>
                            </div>
                         </div>
                      ))}
                   </div>
                </div>
 
-               {/* Utility Grid */}
-               <div className="mb-32">
-                  <div className={`text-center mb-16 transition-all duration-1000 delay-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                     <div className="inline-flex items-center gap-2 mb-4">
-                        <Zap className="w-4 h-4 text-zinc-500" />
-                        <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Network Utility</h2>
+               {/* Utility Grid - Institutional Integration */}
+               <div className="mb-48 px-2">
+                  <div className={`space-y-6 mb-24 transition-all duration-1000 delay-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                     <div className="flex items-center gap-3 text-maroon">
+                        <Zap className="w-5 h-5" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.5em] font-mono">Network_Utility_Vector</span>
                      </div>
-                     <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter">Token Functions</h3>
+                     <h3 className="text-3xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none">Token Functions</h3>
+                     <p className="text-zinc-500 text-lg md:text-xl font-medium border-l-2 border-zinc-900 pl-8 max-w-2xl">Argus credits empower every layer of the topological ecosystem, from consensus to compute sharding.</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                      {content.utility.map((u, i) => {
                         const Icon = IconMap[u.icon] || Zap;
                         return (
-                           <div key={i} className={`bg-zinc-950/40 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white/5 hover:border-maroon/30 transition-all duration-700 group hover:-translate-y-2 hover:shadow-[0_20px_50px_-20px_rgba(185,28,28,0.2)] relative overflow-hidden ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
-                              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent -translate-y-full animate-scanline opacity-10 pointer-events-none"></div>
-                              <div className="relative z-10">
-                                 <div className="w-14 h-14 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-800 mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
-                                    <Icon className="w-7 h-7 text-zinc-400 group-hover:text-maroon transition-colors" />
+                           <div key={i} className={`p-1.5 rounded-[3rem] silk-panel relative overflow-hidden transition-all duration-1000 group hover:-translate-y-4 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${800 + (i * 150)}ms` }}>
+                              <div className="bg-zinc-950 h-full rounded-[2.8rem] p-12 flex flex-col justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
+                                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent -translate-y-full animate-scanline opacity-10 pointer-events-none"></div>
+                                 <div className="relative z-10 space-y-12">
+                                    <div className="w-20 h-20 bg-zinc-950 rounded-3xl flex items-center justify-center border border-zinc-900 group-hover:bg-maroon transition-all duration-700 shadow-2xl">
+                                       <Icon className="w-9 h-9 text-zinc-700 group-hover:text-white transition-colors duration-700" />
+                                    </div>
+                                    <div className="space-y-4">
+                                       <h3 className="text-3xl font-black text-white uppercase tracking-tight group-hover:text-maroon transition-colors duration-500">{u.title}</h3>
+                                       <p className="text-base text-zinc-500 leading-relaxed font-medium group-hover:text-zinc-400 transition-all duration-500">{u.desc}</p>
+                                    </div>
                                  </div>
-                                 <h3 className="text-xl font-bold text-white uppercase mb-4 group-hover:text-maroon transition-colors">{u.title}</h3>
-                                 <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400">{u.desc}</p>
+                                 <div className="mt-12 pt-8 border-t border-white/[0.03] flex justify-between items-center group/more cursor-pointer relative z-10">
+                                    <span className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-widest group-hover/more:text-maroon transition-colors italic">Documentation_Ref_TX</span>
+                                    <ArrowRight className="w-5 h-5 text-zinc-800 group-hover/more:text-maroon group-hover/more:translate-x-3 transition-all" />
+                                 </div>
                               </div>
                            </div>
                         )
@@ -243,45 +269,58 @@ const Tokenomics = () => {
                   </div>
                </div>
 
-               {/* Release Schedule */}
-               <div className={`p-[1px] rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-white/10 via-zinc-900/50 to-white/5 transition-all duration-1000 delay-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                  <div className="bg-zinc-950/80 backdrop-blur-3xl rounded-[2.4rem] overflow-hidden">
-                     <div className="p-10 border-b border-white/5 bg-zinc-900/20 flex justify-between items-center group/card relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-scanline opacity-10 pointer-events-none"></div>
-                        <div className="relative z-10">
-                           <h3 className="text-2xl font-black text-white uppercase tracking-tight">Vesting Schedule</h3>
-                           <p className="text-zinc-500 text-sm mt-1">Emission timeline for Genesis participants.</p>
+               {/* Release Schedule - Institutional Ledger Aesthetic */}
+               <div className={`p-1 rounded-[3.5rem] silk-panel overflow-hidden transition-all duration-[1500ms] delay-700 relative z-10 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                  <div className="bg-zinc-950/80 backdrop-blur-3xl rounded-[3.4rem] overflow-hidden border border-white/[0.05]">
+                     <div className="p-16 border-b border-white/[0.03] bg-black/40 flex flex-col md:flex-row justify-between items-center group/card gap-8 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-maroon/[0.02] to-transparent -translate-x-full animate-scanline opacity-10 pointer-events-none"></div>
+                        <div className="relative z-10 text-center md:text-left space-y-3">
+                           <div className="flex items-center justify-center md:justify-start gap-4">
+                              <Layers className="w-6 h-6 text-maroon" />
+                              <h3 className="text-4xl font-black text-white uppercase tracking-tighter">Emission_Matrix</h3>
+                           </div>
+                           <p className="text-zinc-500 text-lg font-medium">Algorithmic distribution schedule for institutional participants.</p>
                         </div>
-                        <Info className="w-5 h-5 text-zinc-600 hidden md:block group-hover/card:text-maroon transition-colors" />
+                        <div className="bg-maroon text-white font-mono font-black text-[11px] px-8 py-4 rounded-full uppercase tracking-[0.3em] shadow-2xl hover:bg-white hover:text-black transition-all cursor-pointer">
+                           Download_CSV_Audit
+                        </div>
                      </div>
-                     <div className="overflow-x-auto relative z-10 w-full">
+                     <div className="overflow-x-auto relative z-10 w-full px-8 pb-8">
                         <table className="w-full text-left text-sm whitespace-nowrap">
                            <thead>
-                              <tr className="border-b border-white/5 text-zinc-500 font-mono text-[10px] uppercase tracking-widest bg-zinc-900/30">
-                                 <th className="p-8 font-bold text-zinc-400">Phase Protocol</th>
-                                 <th className="p-8 font-bold text-zinc-400">Activation Date</th>
-                                 <th className="p-8 font-bold text-zinc-400">Liquidity Event</th>
-                                 <th className="p-8 font-bold text-zinc-400">Mechanism</th>
+                              <tr className="text-zinc-600 font-mono text-[10px] uppercase tracking-[0.4em] border-b border-white/[0.02]">
+                                 <th className="p-10 font-bold">Phase Protocol</th>
+                                 <th className="p-10 font-bold">Activation Date</th>
+                                 <th className="p-10 font-bold">Liquidity Event</th>
+                                 <th className="p-10 font-bold">Deployment Mechanism</th>
                               </tr>
                            </thead>
-                           <tbody className="divide-y divide-white/5">
+                           <tbody className="divide-y divide-white/[0.02]">
                               {content.schedule.map((row, i) => (
-                                 <tr key={i} className="hover:bg-zinc-900/50 transition-colors group">
-                                    <td className="p-10 font-black text-white flex items-center gap-4">
-                                       <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-maroon animate-ping' : 'bg-zinc-800'}`}></div>
-                                       <div className="flex flex-col">
-                                          <span className="text-base tracking-tighter">{row.phase}</span>
-                                          <span className="text-[10px] font-mono text-zinc-700 uppercase tracking-widest">{i === 0 ? 'Protocol_Active' : 'Awaiting_Activation'}</span>
+                                 <tr key={i} className="hover:bg-white/[0.01] transition-all duration-500 group">
+                                    <td className="p-12 font-black text-white">
+                                       <div className="flex items-center gap-6">
+                                          <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-maroon animate-pulse shadow-[0_0_15px_#800000]' : 'bg-zinc-900 border border-zinc-800'}`}></div>
+                                          <div className="flex flex-col gap-1">
+                                             <span className="text-2xl tracking-tighter group-hover:text-maroon transition-colors">{row.phase}</span>
+                                             <span className="text-[10px] font-mono text-zinc-700 uppercase tracking-widest font-black italic">{i === 0 ? 'STATUS: ACTIVE_NODE' : 'STATUS: QUEUED'}</span>
+                                          </div>
                                        </div>
                                     </td>
-                                    <td className="p-10 text-zinc-400 font-mono text-xs">{row.date}</td>
-                                    <td className="p-10">
-                                       <span className="inline-block px-5 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-maroon font-mono font-black text-xs group-hover:border-maroon/30 transition-all">
-                                          {row.allocation}
-                                       </span>
+                                    <td className="p-12 text-zinc-500 font-mono font-black text-xs uppercase tracking-widest">{row.date}</td>
+                                    <td className="p-12">
+                                       <div className="flex items-center gap-4">
+                                          <span className="text-sm font-black text-white group-hover:translate-x-2 transition-transform duration-500">{row.allocation}</span>
+                                          <div className={`h-1.5 w-16 bg-zinc-900 rounded-full overflow-hidden ${i === 0 ? 'opacity-100' : 'opacity-30'}`}>
+                                             <div className="h-full bg-maroon w-full"></div>
+                                          </div>
+                                       </div>
                                     </td>
-                                    <td className="p-10 text-zinc-500 font-black text-xs flex items-center gap-3 uppercase tracking-widest">
-                                       {row.action} <ArrowRight className="w-4 h-4 text-zinc-800 group-hover:text-maroon transition-all group-hover:translate-x-2" />
+                                    <td className="p-12">
+                                       <div className="flex items-center justify-between group-hover:bg-maroon transition-all px-6 py-4 rounded-2xl border border-white/[0.03]">
+                                          <span className="text-[11px] font-black text-zinc-500 group-hover:text-white uppercase tracking-widest transition-colors">{row.action}</span>
+                                          <ArrowRight className="w-4 h-4 text-zinc-800 group-hover:text-white transition-all group-hover:translate-x-2" />
+                                       </div>
                                     </td>
                                  </tr>
                               ))}

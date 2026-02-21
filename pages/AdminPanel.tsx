@@ -45,6 +45,8 @@ import {
   Target, RefreshCw, MessageSquare
 } from 'lucide-react';
 import Logo from '../components/Logo';
+import { AdvancedEditor } from '../components/AdvancedEditor';
+import { ContentRenderer } from '../components/ContentRenderer';
 
 // --- Helper Components ---
 
@@ -205,6 +207,7 @@ const AdminPanel = () => {
   const [cmsStatus, setCmsStatus] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   // Messages State
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -435,13 +438,22 @@ const AdminPanel = () => {
             </button>
           </div>
           {activeTab === 'cms' && (
-            <button
-              onClick={handleSaveCMS}
-              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02] shadow-[0_0_25px_rgba(16,185,129,0.3)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'}`}
-            >
-              <Save className="w-4 h-4" />
-              {cmsStatus || (hasUnsavedChanges ? 'Commit' : 'Synced')}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsPreviewMode(!isPreviewMode)}
+                className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest border transition-all ${isPreviewMode ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white'}`}
+              >
+                {isPreviewMode ? <Activity className="w-3.5 h-3.5" /> : <Layers className="w-3.5 h-3.5" />}
+                {isPreviewMode ? 'Back to Editor' : 'Live Preview'}
+              </button>
+              <button
+                onClick={handleSaveCMS}
+                className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02] shadow-[0_0_25px_rgba(16,185,129,0.3)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'}`}
+              >
+                <Save className="w-4 h-4" />
+                {cmsStatus || (hasUnsavedChanges ? 'Commit' : 'Synced')}
+              </button>
+            </div>
           )}
         </div>
       </header>
@@ -1354,6 +1366,31 @@ const AdminPanel = () => {
                       </div>
                     ))}
                   </div>
+
+                  <div className="space-y-4">
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Economic Analysis Sections</span>
+                    {(tokenomicsConfig.sections || []).map((sec, idx) => (
+                      <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setTokenomicsConfig, ['sections'], idx)}>
+                        <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
+                          const newSecs = [...(tokenomicsConfig.sections || [])];
+                          newSecs[idx].title = v;
+                          updateState(setTokenomicsConfig, ['sections'], newSecs);
+                        }} />
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich content</label>
+                          <AdvancedEditor
+                            content={sec.content}
+                            onChange={(html) => {
+                              const newSecs = [...(tokenomicsConfig.sections || [])];
+                              newSecs[idx].content = html;
+                              updateState(setTokenomicsConfig, ['sections'], newSecs);
+                            }}
+                          />
+                        </div>
+                      </AccordionItem>
+                    ))}
+                    <button onClick={() => addItem(setTokenomicsConfig, ['sections'], { title: "New Analysis Section", content: "" })} className="btn-primary w-full py-3">+ Add Analysis Section</button>
+                  </div>
                 </div>
               )}
 
@@ -1361,27 +1398,111 @@ const AdminPanel = () => {
               {activeCmsPage === 'whitepaper' && (
                 <div className="space-y-8">
                   <SectionHeader title="Whitepaper Config" icon={FileText} />
-                  <InputGroup label="Title" value={whitepaperConfig.title} onChange={(v: string) => updateState(setWhitepaperConfig, ['title'], v)} />
-                  <InputGroup label="Subtitle" value={whitepaperConfig.subtitle} onChange={(v: string) => updateState(setWhitepaperConfig, ['subtitle'], v)} />
-                  <InputGroup label="Version" value={whitepaperConfig.version} onChange={(v: string) => updateState(setWhitepaperConfig, ['version'], v)} />
+                  {isPreviewMode ? (
+                    <div className="silk-panel p-10 rounded-[3rem] border-zinc-900 bg-zinc-950 space-y-12">
+                      <div className="space-y-4 border-b border-zinc-900 pb-10">
+                        <p className="text-maroon font-mono font-black text-xs uppercase tracking-widest">{whitepaperConfig.version}</p>
+                        <h1 className="text-5xl font-black text-white uppercase tracking-tighter">{whitepaperConfig.title}</h1>
+                        <p className="text-zinc-500 text-lg italic">{whitepaperConfig.subtitle}</p>
+                      </div>
+                      <div className="space-y-16">
+                        {whitepaperConfig.sections.map((sec, idx) => (
+                          <div key={idx} className="space-y-6">
+                            <h2 className="text-3xl font-black text-white flex items-center gap-4">
+                              <span className="text-sm font-mono text-maroon">[{String(idx + 1).padStart(2, '0')}]</span>
+                              {sec.title}
+                            </h2>
+                            <ContentRenderer html={sec.content} />
+                            {sec.subsections?.map((sub, sIdx) => (
+                              <div key={sIdx} className="ml-10 pl-6 border-l border-maroon/20 space-y-4">
+                                <h3 className="text-xl font-bold text-zinc-200">{sub.title}</h3>
+                                <ContentRenderer html={sub.content} />
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <InputGroup label="Title" value={whitepaperConfig.title} onChange={(v: string) => updateState(setWhitepaperConfig, ['title'], v)} />
+                      <InputGroup label="Subtitle" value={whitepaperConfig.subtitle} onChange={(v: string) => updateState(setWhitepaperConfig, ['subtitle'], v)} />
+                      <InputGroup label="Version" value={whitepaperConfig.version} onChange={(v: string) => updateState(setWhitepaperConfig, ['version'], v)} />
 
-                  <div className="space-y-4">
-                    {whitepaperConfig.sections.map((sec, idx) => (
-                      <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setWhitepaperConfig, ['sections'], idx)}>
-                        <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
-                          const newSecs = [...whitepaperConfig.sections];
-                          newSecs[idx].title = v;
-                          updateState(setWhitepaperConfig, ['sections'], newSecs);
-                        }} />
-                        <InputGroup label="Content" type="textarea" value={sec.content} onChange={(v: string) => {
-                          const newSecs = [...whitepaperConfig.sections];
-                          newSecs[idx].content = v;
-                          updateState(setWhitepaperConfig, ['sections'], newSecs);
-                        }} />
-                      </AccordionItem>
-                    ))}
-                    <button onClick={() => addItem(setWhitepaperConfig, ['sections'], { title: "New Section", content: "Content here..." })} className="btn-primary w-full py-3">+ Add Section</button>
-                  </div>
+                      <div className="space-y-4 pt-6">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Document Sections</span>
+                        {whitepaperConfig.sections.map((sec, idx) => (
+                          <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setWhitepaperConfig, ['sections'], idx)}>
+                            <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
+                              const newSecs = [...whitepaperConfig.sections];
+                              newSecs[idx].title = v;
+                              updateState(setWhitepaperConfig, ['sections'], newSecs);
+                            }} />
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich Content</label>
+                              <AdvancedEditor
+                                content={sec.content}
+                                onChange={(html) => {
+                                  const newSecs = [...whitepaperConfig.sections];
+                                  newSecs[idx].content = html;
+                                  updateState(setWhitepaperConfig, ['sections'], newSecs);
+                                }}
+                              />
+                            </div>
+
+                            {/* Sub-sections UI */}
+                            <div className="mt-8 pl-8 border-l border-zinc-800 space-y-6">
+                              <span className="text-[10px] font-black text-maroon uppercase tracking-widest">Sub-Sections</span>
+                              {sec.subsections?.map((sub, sIdx) => (
+                                <div key={sIdx} className="bg-zinc-950/50 p-6 rounded-2xl border border-zinc-900 relative">
+                                  <button
+                                    onClick={() => {
+                                      const newSecs = [...whitepaperConfig.sections];
+                                      newSecs[idx].subsections = newSecs[idx].subsections?.filter((_, i) => i !== sIdx);
+                                      updateState(setWhitepaperConfig, ['sections'], newSecs);
+                                    }}
+                                    className="absolute top-4 right-4 text-zinc-700 hover:text-red-500"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <InputGroup
+                                    label="Sub-heading"
+                                    className="mb-4"
+                                    value={sub.title}
+                                    onChange={(v: string) => {
+                                      const newSecs = [...whitepaperConfig.sections];
+                                      if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].title = v;
+                                      updateState(setWhitepaperConfig, ['sections'], newSecs);
+                                    }}
+                                  />
+                                  <AdvancedEditor
+                                    content={sub.content}
+                                    onChange={(html) => {
+                                      const newSecs = [...whitepaperConfig.sections];
+                                      if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].content = html;
+                                      updateState(setWhitepaperConfig, ['sections'], newSecs);
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => {
+                                  const newSecs = [...whitepaperConfig.sections];
+                                  if (!newSecs[idx].subsections) newSecs[idx].subsections = [];
+                                  newSecs[idx].subsections.push({ title: 'New Sub-section', content: '' });
+                                  updateState(setWhitepaperConfig, ['sections'], newSecs);
+                                }}
+                                className="text-[10px] text-maroon font-bold uppercase hover:bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/20"
+                              >
+                                + Add Sub-section
+                              </button>
+                            </div>
+                          </AccordionItem>
+                        ))}
+                        <button onClick={() => addItem(setWhitepaperConfig, ['sections'], { title: "New Section", content: "" })} className="btn-primary w-full py-3">+ Add Section</button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -1449,26 +1570,109 @@ const AdminPanel = () => {
               {activeCmsPage === 'terms' && (
                 <div className="space-y-8">
                   <SectionHeader title="Terms of Service Config" icon={BookOpen} />
-                  <InputGroup label="Page Title" value={termsConfig.title} onChange={(v: string) => updateState(setTermsConfig, ['title'], v)} />
-                  <InputGroup label="Last Updated" value={termsConfig.lastUpdated} onChange={(v: string) => updateState(setTermsConfig, ['lastUpdated'], v)} />
+                  {isPreviewMode ? (
+                    <div className="silk-panel p-10 rounded-[3rem] border-zinc-900 bg-zinc-950 space-y-12">
+                      <div className="space-y-4 border-b border-zinc-900 pb-10">
+                        <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{termsConfig.title}</h1>
+                        <p className="text-zinc-500 font-mono text-[9px] uppercase tracking-widest">Last Updated: {termsConfig.lastUpdated}</p>
+                      </div>
+                      <div className="space-y-16">
+                        {termsConfig.sections.map((sec, idx) => (
+                          <div key={idx} className="space-y-6">
+                            <h2 className="text-2xl font-black text-white flex items-center gap-4">
+                              <span className="text-xs font-mono text-maroon">[{String(idx + 1).padStart(2, '0')}]</span>
+                              {sec.heading}
+                            </h2>
+                            <ContentRenderer html={sec.content} />
+                            {sec.subsections?.map((sub, sIdx) => (
+                              <div key={sIdx} className="ml-10 pl-6 border-l border-maroon/20 space-y-4">
+                                <h3 className="text-lg font-bold text-zinc-200">{sub.heading}</h3>
+                                <ContentRenderer html={sub.content} />
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <InputGroup label="Page Title" value={termsConfig.title} onChange={(v: string) => updateState(setTermsConfig, ['title'], v)} />
+                      <InputGroup label="Last Updated" value={termsConfig.lastUpdated} onChange={(v: string) => updateState(setTermsConfig, ['lastUpdated'], v)} />
 
-                  <div className="space-y-4 pt-6">
-                    {termsConfig.sections.map((sec, idx) => (
-                      <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setTermsConfig, ['sections'], idx)}>
-                        <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
-                          const newSecs = [...termsConfig.sections];
-                          newSecs[idx].heading = v;
-                          updateState(setTermsConfig, ['sections'], newSecs);
-                        }} />
-                        <InputGroup label="Content" type="textarea" value={sec.content} onChange={(v: string) => {
-                          const newSecs = [...termsConfig.sections];
-                          newSecs[idx].content = v;
-                          updateState(setTermsConfig, ['sections'], newSecs);
-                        }} />
-                      </AccordionItem>
-                    ))}
-                    <button onClick={() => addItem(setTermsConfig, ['sections'], { heading: "New Clause", content: "Details..." })} className="btn-primary w-full py-3">+ Add Clause</button>
-                  </div>
+                      <div className="space-y-4 pt-6">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Governance Clauses</span>
+                        {termsConfig.sections.map((sec, idx) => (
+                          <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setTermsConfig, ['sections'], idx)}>
+                            <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
+                              const newSecs = [...termsConfig.sections];
+                              newSecs[idx].heading = v;
+                              updateState(setTermsConfig, ['sections'], newSecs);
+                            }} />
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich content</label>
+                              <AdvancedEditor
+                                content={sec.content}
+                                onChange={(html) => {
+                                  const newSecs = [...termsConfig.sections];
+                                  newSecs[idx].content = html;
+                                  updateState(setTermsConfig, ['sections'], newSecs);
+                                }}
+                              />
+                            </div>
+
+                            {/* Sub-sections UI */}
+                            <div className="mt-8 pl-8 border-l border-zinc-800 space-y-6">
+                              <span className="text-[10px] font-black text-maroon uppercase tracking-widest">Nested Sub-sections</span>
+                              {sec.subsections?.map((sub, sIdx) => (
+                                <div key={sIdx} className="bg-zinc-950/50 p-6 rounded-2xl border border-zinc-900 relative">
+                                  <button
+                                    onClick={() => {
+                                      const newSecs = [...termsConfig.sections];
+                                      newSecs[idx].subsections = newSecs[idx].subsections?.filter((_, i) => i !== sIdx);
+                                      updateState(setTermsConfig, ['sections'], newSecs);
+                                    }}
+                                    className="absolute top-4 right-4 text-zinc-700 hover:text-red-500"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <InputGroup
+                                    label="Sub-heading"
+                                    className="mb-4"
+                                    value={sub.heading}
+                                    onChange={(v: string) => {
+                                      const newSecs = [...termsConfig.sections];
+                                      if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].heading = v;
+                                      updateState(setTermsConfig, ['sections'], newSecs);
+                                    }}
+                                  />
+                                  <AdvancedEditor
+                                    content={sub.content}
+                                    onChange={(html) => {
+                                      const newSecs = [...termsConfig.sections];
+                                      if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].content = html;
+                                      updateState(setTermsConfig, ['sections'], newSecs);
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => {
+                                  const newSecs = [...termsConfig.sections];
+                                  if (!newSecs[idx].subsections) newSecs[idx].subsections = [];
+                                  newSecs[idx].subsections.push({ heading: 'New Sub-clause', content: '' });
+                                  updateState(setTermsConfig, ['sections'], newSecs);
+                                }}
+                                className="text-[10px] text-maroon font-bold uppercase hover:bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/20"
+                              >
+                                + Add Sub-section
+                              </button>
+                            </div>
+                          </AccordionItem>
+                        ))}
+                        <button onClick={() => addItem(setTermsConfig, ['sections'], { heading: "New Clause", content: "" })} className="btn-primary w-full py-3">+ Add Clause</button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -1476,26 +1680,109 @@ const AdminPanel = () => {
               {activeCmsPage === 'privacy' && (
                 <div className="space-y-8">
                   <SectionHeader title="Privacy Policy Config" icon={Shield} />
-                  <InputGroup label="Page Title" value={privacyConfig.title} onChange={(v: string) => updateState(setPrivacyConfig, ['title'], v)} />
-                  <InputGroup label="Last Updated" value={privacyConfig.lastUpdated} onChange={(v: string) => updateState(setPrivacyConfig, ['lastUpdated'], v)} />
+                  {isPreviewMode ? (
+                    <div className="silk-panel p-10 rounded-[3rem] border-zinc-900 bg-zinc-950 space-y-12">
+                      <div className="space-y-4 border-b border-zinc-900 pb-10">
+                        <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{privacyConfig.title}</h1>
+                        <p className="text-zinc-500 font-mono text-[9px] uppercase tracking-widest">Last Updated: {privacyConfig.lastUpdated}</p>
+                      </div>
+                      <div className="space-y-16">
+                        {privacyConfig.sections.map((sec, idx) => (
+                          <div key={idx} className="space-y-6">
+                            <h2 className="text-2xl font-black text-white flex items-center gap-4">
+                              <span className="text-xs font-mono text-emerald-500">[{String(idx + 1).padStart(2, '0')}]</span>
+                              {sec.heading}
+                            </h2>
+                            <ContentRenderer html={sec.content} />
+                            {sec.subsections?.map((sub, sIdx) => (
+                              <div key={sIdx} className="ml-10 pl-6 border-l border-emerald-500/20 space-y-4">
+                                <h3 className="text-lg font-bold text-zinc-200">{sub.heading}</h3>
+                                <ContentRenderer html={sub.content} />
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <InputGroup label="Page Title" value={privacyConfig.title} onChange={(v: string) => updateState(setPrivacyConfig, ['title'], v)} />
+                      <InputGroup label="Last Updated" value={privacyConfig.lastUpdated} onChange={(v: string) => updateState(setPrivacyConfig, ['lastUpdated'], v)} />
 
-                  <div className="space-y-4 pt-6">
-                    {privacyConfig.sections.map((sec, idx) => (
-                      <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setPrivacyConfig, ['sections'], idx)}>
-                        <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
-                          const newSecs = [...privacyConfig.sections];
-                          newSecs[idx].heading = v;
-                          updateState(setPrivacyConfig, ['sections'], newSecs);
-                        }} />
-                        <InputGroup label="Content" type="textarea" value={sec.content} onChange={(v: string) => {
-                          const newSecs = [...privacyConfig.sections];
-                          newSecs[idx].content = v;
-                          updateState(setPrivacyConfig, ['sections'], newSecs);
-                        }} />
-                      </AccordionItem>
-                    ))}
-                    <button onClick={() => addItem(setPrivacyConfig, ['sections'], { heading: "New Section", content: "Details..." })} className="btn-primary w-full py-3">+ Add Section</button>
-                  </div>
+                      <div className="space-y-4 pt-6">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Privacy Modules</span>
+                        {privacyConfig.sections.map((sec, idx) => (
+                          <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setPrivacyConfig, ['sections'], idx)}>
+                            <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
+                              const newSecs = [...privacyConfig.sections];
+                              newSecs[idx].heading = v;
+                              updateState(setPrivacyConfig, ['sections'], newSecs);
+                            }} />
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich content</label>
+                              <AdvancedEditor
+                                content={sec.content}
+                                onChange={(html) => {
+                                  const newSecs = [...privacyConfig.sections];
+                                  newSecs[idx].content = html;
+                                  updateState(setPrivacyConfig, ['sections'], newSecs);
+                                }}
+                              />
+                            </div>
+
+                            {/* Sub-sections UI */}
+                            <div className="mt-8 pl-8 border-l border-zinc-800 space-y-6">
+                              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Nested Sub-sections</span>
+                              {sec.subsections?.map((sub, sIdx) => (
+                                <div key={sIdx} className="bg-zinc-950/50 p-6 rounded-2xl border border-zinc-900 relative">
+                                  <button
+                                    onClick={() => {
+                                      const newSecs = [...privacyConfig.sections];
+                                      newSecs[idx].subsections = newSecs[idx].subsections?.filter((_, i) => i !== sIdx);
+                                      updateState(setPrivacyConfig, ['sections'], newSecs);
+                                    }}
+                                    className="absolute top-4 right-4 text-zinc-700 hover:text-red-500"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <InputGroup
+                                    label="Sub-heading"
+                                    className="mb-4"
+                                    value={sub.heading}
+                                    onChange={(v: string) => {
+                                      const newSecs = [...privacyConfig.sections];
+                                      if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].heading = v;
+                                      updateState(setPrivacyConfig, ['sections'], newSecs);
+                                    }}
+                                  />
+                                  <AdvancedEditor
+                                    content={sub.content}
+                                    onChange={(html) => {
+                                      const newSecs = [...privacyConfig.sections];
+                                      if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].content = html;
+                                      updateState(setPrivacyConfig, ['sections'], newSecs);
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => {
+                                  const newSecs = [...privacyConfig.sections];
+                                  if (!newSecs[idx].subsections) newSecs[idx].subsections = [];
+                                  newSecs[idx].subsections.push({ heading: 'New Sub-module', content: '' });
+                                  updateState(setPrivacyConfig, ['sections'], newSecs);
+                                }}
+                                className="text-[10px] text-emerald-500 font-bold uppercase hover:bg-emerald-500/5 px-4 py-2 rounded-lg border border-emerald-500/20"
+                              >
+                                + Add Sub-section
+                              </button>
+                            </div>
+                          </AccordionItem>
+                        ))}
+                        <button onClick={() => addItem(setPrivacyConfig, ['sections'], { heading: "New Module", content: "" })} className="btn-primary w-full py-3">+ Add Section</button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 

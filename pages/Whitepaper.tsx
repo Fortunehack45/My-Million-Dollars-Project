@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { subscribeToContent, DEFAULT_WHITEPAPER_CONFIG } from '../services/firebase';
 import { WhitepaperConfig } from '../types';
+import { ContentRenderer } from '../components/ContentRenderer';
 
 const Whitepaper = () => {
    const [content, setContent] = useState<WhitepaperConfig>(DEFAULT_WHITEPAPER_CONFIG);
@@ -111,9 +112,16 @@ const Whitepaper = () => {
 
                            <div className="relative">
                               <div className="absolute -left-10 top-0 bottom-0 w-px bg-zinc-900 group-hover:bg-maroon/20 transition-colors duration-1000"></div>
-                              <p className="whitespace-pre-wrap text-zinc-400 leading-[1.8] text-lg font-medium selection:bg-maroon/20">
-                                 {section.content}
-                              </p>
+                              <div className="space-y-12">
+                                 <ContentRenderer html={section.content} className="text-zinc-400 text-lg" />
+
+                                 {section.subsections?.map((sub, sIdx) => (
+                                    <div key={sIdx} className="ml-10 pl-8 border-l border-zinc-900 space-y-6">
+                                       <h4 className="text-2xl font-black text-white uppercase tracking-tight">{sub.title}</h4>
+                                       <ContentRenderer html={sub.content} className="text-zinc-500 text-base" />
+                                    </div>
+                                 ))}
+                              </div>
                            </div>
                         </section>
                      ))}
