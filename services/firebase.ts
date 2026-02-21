@@ -330,43 +330,6 @@ export const setupPresence = (uid: string) => {
   });
 };
 
-// --- CMS SYNCHRONIZATION OPs ---
-
-export const subscribeToLandingConfig = (callback: (config: LandingConfig) => void) => {
-  return onSnapshot(doc(db, 'site_content', 'landing'), (snapshot) => {
-    if (snapshot.exists()) {
-      callback(snapshot.data() as LandingConfig);
-    } else {
-      callback(DEFAULT_LANDING_CONFIG);
-    }
-  }, (error) => {
-    console.warn("Landing Config Subscription Error:", error);
-    callback(DEFAULT_LANDING_CONFIG);
-  });
-};
-
-export const updateLandingConfig = async (config: LandingConfig) => {
-  const ref = doc(db, 'site_content', 'landing');
-  await setDoc(ref, config, { merge: true });
-};
-
-export const subscribeToContent = <T>(docId: string, defaultData: T, callback: (data: T) => void) => {
-  return onSnapshot(doc(db, 'site_content', docId), (snapshot) => {
-    if (snapshot.exists()) {
-      callback(snapshot.data() as T);
-    } else {
-      callback(defaultData);
-    }
-  }, (error) => {
-    console.warn(`Content Subscription Error [${docId}]:`, error);
-    callback(defaultData);
-  });
-};
-
-export const updateContent = async <T extends { [x: string]: any }>(docId: string, data: T) => {
-  const ref = doc(db, 'site_content', docId);
-  await setDoc(ref, data, { merge: true });
-};
 
 export const manualOffline = async (uid: string) => {
   const userStatusDatabaseRef = ref(rtdb, `/status/${uid}`);
