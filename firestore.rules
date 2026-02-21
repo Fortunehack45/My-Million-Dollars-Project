@@ -36,7 +36,7 @@ service cloud.firestore {
     //  USERS COLLECTION
     //  Read:   Anyone (required for leaderboard / network stats)
     //  Create: Only the user themselves (during registration)
-    //  Update: Owner (for mining) or admin
+    //  Update: Owner (for mining) or admin 
     //  Delete: Admin only
     // ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
