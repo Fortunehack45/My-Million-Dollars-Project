@@ -292,32 +292,7 @@ const AdminPanel = () => {
     setIsSyncing(false);
   };
 
-  if (!isAuthorized) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono">
-      <div className="text-center space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-black uppercase tracking-tight">Access_Denied</h1>
-          <p className="text-zinc-500 text-sm">Authorization required</p>
-        </div>
-        <div className="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800 max-w-md space-y-3">
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-400 uppercase">Your Email:</p>
-            <p className="text-maroon font-mono text-sm break-all">{firebaseUser?.email || 'Not logged in'}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-400 uppercase">Required Email:</p>
-            <p className="text-emerald-500 font-mono text-sm">fortunedomination@gmail.com</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold text-zinc-400 uppercase">Your Role:</p>
-            <p className="text-yellow-500 font-mono text-sm">{user?.role || 'user'}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-  }
+  if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono uppercase tracking-widest">Access_Denied</div>;
 
   return (
     <div className="w-full space-y-8 pb-20 animate-in fade-in duration-500 relative">
