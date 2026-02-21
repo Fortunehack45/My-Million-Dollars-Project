@@ -401,7 +401,7 @@ const Landing = () => {
                         </div>
 
                         <div className="space-y-6">
-                           <h1 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.8] transition-all duration-[1500ms] group-hover/hero-text:tracking-[-0.02em] perspective-1000">
+                           <h1 className="text-4xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.8] transition-all duration-[1500ms] group-hover/hero-text:tracking-[-0.02em] perspective-1000">
                               <span className="inline-block animate-fade-in-up" style={{ animationDelay: '200ms' }}>Argus</span><br />
                               <span className="text-maroon inline-block animate-fade-in-up" style={{ animationDelay: '400ms' }}>Protocol.</span>
                            </h1>
@@ -468,7 +468,7 @@ const Landing = () => {
                      </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
                      {content.features.items.map((item, i) => {
                         const Icon = IconMap[item.icon] || Globe;
                         return (
@@ -558,7 +558,7 @@ const Landing = () => {
                         <p className="text-zinc-500 text-lg md:text-2xl leading-relaxed font-medium max-w-2xl">{content.roadmap.description}</p>
                      </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                         {content.roadmap.phases.map((phase, i) => (
                            <div
                               key={i}

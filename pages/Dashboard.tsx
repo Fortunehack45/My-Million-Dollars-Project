@@ -320,7 +320,7 @@ const Dashboard = () => {
           </header>
 
           {/* STATS GRID - Premium Bento Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-12 gap-3 md:gap-6">
             <div className="md:col-span-2 lg:col-span-4 h-full">
               <StatCard
                 label="Node Balance"
@@ -391,11 +391,11 @@ const Dashboard = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.03] to-transparent opacity-50 pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.01] to-transparent -translate-y-full animate-scanline opacity-10 pointer-events-none"></div>
 
-                  <div className="flex flex-col xl:flex-row gap-12 items-start xl:items-center relative z-10">
-                    <div className="flex-1 w-full space-y-8">
-                      <div className="flex items-start justify-between border-b border-white/[0.03] pb-8">
+                  <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start lg:items-center relative z-10">
+                    <div className="flex-1 w-full space-y-6 md:space-y-8">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between border-b border-white/[0.03] pb-6 md:pb-8 gap-6">
                         <div className="space-y-3">
-                          <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Consensus Engine</h3>
+                          <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Consensus Engine</h3>
                           <div className="flex items-center gap-4">
                             <div className={`w-2.5 h-2.5 rounded-full ${user.miningActive ? 'bg-emerald-500 shadow-[0_0_15px_#10b981] animate-pulse' : 'bg-amber-500 shadow-[0_0_15px_#f59e0b]'}`} />
                             <span className="text-[11px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] italic">{user.miningActive ? 'Status: BLOCK_PRODUCTION_ACTIVE' : 'Status: LOCAL_DAEMON_IDLE'}</span>
@@ -446,12 +446,12 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    <div className="w-full xl:w-64 shrink-0 flex flex-col gap-5">
+                    <div className="w-full lg:w-64 shrink-0 flex flex-col gap-4 md:gap-5">
                       {user.miningActive ? (
                         <button
                           onClick={handleClaim}
                           disabled={isClaiming}
-                          className={`w-full h-24 rounded-3xl text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-700 flex flex-col items-center justify-center gap-3 relative overflow-hidden group/btn ${isSessionComplete ? 'bg-white text-black hover:bg-maroon hover:text-white' : 'bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-maroon/40 hover:text-maroon'}`}
+                          className={`w-full h-20 md:h-24 rounded-2xl md:rounded-3xl text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-700 flex flex-col items-center justify-center gap-2 md:gap-3 relative overflow-hidden group/btn ${isSessionComplete ? 'bg-white text-black hover:bg-maroon hover:text-white' : 'bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-maroon/40 hover:text-maroon'}`}
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-[1000ms] ease-out-expo pointer-events-none" />
                           <span className="relative z-10">{isClaiming ? 'Processing_Claim...' : isSessionComplete ? '⚡ Finalize_Block' : 'SIGTERM & CLAIM'}</span>

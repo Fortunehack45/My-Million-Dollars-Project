@@ -90,11 +90,11 @@ const Sidebar = () => {
     <>
       {/* MOBILE: Top Header (Branding & Admin/Profile) */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-xl z-[100] flex items-center justify-between px-6 border-b border-zinc-900/80">
-        <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center">
+        <div className="flex items-center space-x-3 group/logo">
+          <div className="w-9 h-9 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center transition-all group-hover:border-maroon/40">
             <Logo className="w-6 h-6 text-maroon" />
           </div>
-          <span className="font-bold text-lg text-white tracking-tight">Argus Protocol</span>
+          <span className="font-black text-[12px] text-white tracking-[0.2em] uppercase">Argus Protocol</span>
         </div>
 
         <div className="flex items-center gap-4">
