@@ -70,5 +70,13 @@ service cloud.firestore {
       allow update: if isAuthenticated();
       allow create, delete: if isAdmin();
     }
+
+    // Contact Messages
+    // Create: Allowed for anyone (contact form)
+    // Read, Update, Delete: Admin only
+    match /contact_messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
   }
 }
