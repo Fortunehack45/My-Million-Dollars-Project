@@ -277,7 +277,7 @@ const Dashboard = () => {
             <h1 className="text-base font-black text-white uppercase tracking-tight">Network Operations</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {livePeers.toLocaleString()} Live Validators</p>
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {netStats.activeNodes.toLocaleString()} Active Miners</p>
             </div>
           </div>
         </div>
