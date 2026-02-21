@@ -251,11 +251,12 @@ const AdminPanel = () => {
     const unsubContact = subscribeToContent('contact', DEFAULT_CONTACT_CONFIG, setContactConfig);
     const unsubTerms = subscribeToContent('terms', DEFAULT_LEGAL_CONFIG.terms, setTermsConfig);
     const unsubPrivacy = subscribeToContent('privacy', DEFAULT_LEGAL_CONFIG.privacy, setPrivacyConfig);
+    const unsubMessages = subscribeToContactMessages(setMessages);
 
     return () => {
       unsubUsers(); unsubStats(); unsubOnline(); unsubTasks();
       unsubLanding(); unsubAbout(); unsubArch(); unsubWhitepaper(); unsubTokenomics();
-      unsubCareers(); unsubContact(); unsubTerms(); unsubPrivacy();
+      unsubCareers(); unsubContact(); unsubTerms(); unsubPrivacy(); unsubMessages();
     };
   }, [isAuthorized]);
 
