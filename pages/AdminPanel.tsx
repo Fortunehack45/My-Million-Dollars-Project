@@ -28,7 +28,8 @@ import {
   subscribeToContactMessages,
   updateMessageStatusAction,
   ADMIN_EMAIL,
-  DEFAULT_MAX_USERS_CAP
+  DEFAULT_MAX_USERS_CAP,
+  subscribeToActiveMinerCount
 } from '../services/firebase';
 import {
   User, Task, NetworkStats, LandingConfig,
@@ -191,6 +192,7 @@ const AdminPanel = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [onlineUids, setOnlineUids] = useState<string[]>([]);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+  const [activeMinerCount, setActiveMinerCount] = useState(0);
   const [selectedAuditIp, setSelectedAuditIp] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<any>({
     title: '', description: '', points: 100.00, icon: 'web', link: '', actionLabel: 'Initialize',
@@ -240,6 +242,7 @@ const AdminPanel = () => {
     });
 
     const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
+    const unsubMiners = subscribeToActiveMinerCount(setActiveMinerCount);
 
     const unsubTasks = subscribeToTasks(setTasks);
     const unsubLanding = subscribeToLandingConfig(setLandingConfig);
@@ -254,7 +257,7 @@ const AdminPanel = () => {
     const unsubMessages = subscribeToContactMessages(setMessages);
 
     return () => {
-      unsubUsers(); unsubStats(); unsubOnline(); unsubTasks();
+      unsubUsers(); unsubStats(); unsubOnline(); unsubMiners(); unsubTasks();
       unsubLanding(); unsubAbout(); unsubArch(); unsubWhitepaper(); unsubTokenomics();
       unsubCareers(); unsubContact(); unsubTerms(); unsubPrivacy(); unsubMessages();
     };
@@ -389,27 +392,56 @@ const AdminPanel = () => {
     <div className="w-full space-y-8 pb-20 animate-fade-in-up relative will-change-transform">
 
       {/* Header - Z-Index 40 to stay above everything */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 silk-panel p-8 rounded-[2.5rem] border-zinc-900 sticky top-4 z-40 shadow-2xl transition-silk duration-300">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 silk-panel p-8 rounded-[3rem] border-zinc-900 sticky top-4 z-40 shadow-2xl transition-silk duration-500 bg-zinc-950/40 backdrop-blur-xl">
         <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-zinc-900 flex items-center justify-center rounded-2xl border border-zinc-800 shadow-sm shrink-0 transition-transform duration-300 hover:scale-105">
-            <Logo className="w-8 h-8 text-maroon" />
+          <div className="w-14 h-14 bg-zinc-900 flex items-center justify-center rounded-2xl border border-zinc-800 shadow-inner shrink-0 transition-all duration-500 hover:scale-105 hover:border-maroon/30 group/logo">
+            <Logo className="w-8 h-8 text-maroon transition-all duration-500 group-hover/logo:scale-110" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-3xl font-bold text-white tracking-tight leading-none truncate">System Control</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-black text-white tracking-tighter leading-none truncate uppercase">System Control</h1>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest font-mono">LIVE_OPS</span>
+              </div>
+            </div>
             <div className="flex items-center gap-3 mt-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] shrink-0"></span>
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.15em] font-mono truncate">{firebaseUser?.email}</p>
+              <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.2em] font-mono truncate">{firebaseUser?.email}</p>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-4 shrink-0">
-          <div className="flex bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-900">
-            <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><Activity className="w-3.5 h-3.5" /> Dashboard</button>
-            <button onClick={() => setActiveTab('messages')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'messages' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><MessageSquare className="w-3.5 h-3.5" /> Messages</button>
-            <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'cms' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3.5 h-3.5" /> Editor</button>
+          <div className="flex bg-zinc-900/40 p-1.5 rounded-2xl border border-zinc-900/50 backdrop-blur-md">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex items-center gap-2 px-6 py-3 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-[0_0_20px_rgba(0,0,0,0.4)]' : 'text-zinc-600 hover:text-zinc-300'}`}
+            >
+              <Activity className={`w-3.5 h-3.5 ${activeTab === 'dashboard' ? 'text-maroon' : ''}`} />
+              Metrics
+            </button>
+            <button
+              onClick={() => setActiveTab('messages')}
+              className={`flex items-center gap-2 px-6 py-3 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${activeTab === 'messages' ? 'bg-zinc-800 text-white shadow-[0_0_20px_rgba(0,0,0,0.4)]' : 'text-zinc-600 hover:text-zinc-300'}`}
+            >
+              <MessageSquare className={`w-3.5 h-3.5 ${activeTab === 'messages' ? 'text-blue-500' : ''}`} />
+              Comms
+            </button>
+            <button
+              onClick={() => setActiveTab('cms')}
+              className={`flex items-center gap-2 px-6 py-3 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 ${activeTab === 'cms' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-600 hover:text-zinc-300'}`}
+            >
+              <Layout className="w-3.5 h-3.5" />
+              CMS
+            </button>
           </div>
           {activeTab === 'cms' && (
-            <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-silk shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02]' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}><Save className="w-4 h-4" />{cmsStatus || (hasUnsavedChanges ? 'Confirm Update' : 'Synchronized')}</button>
+            <button
+              onClick={handleSaveCMS}
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02] shadow-[0_0_25px_rgba(16,185,129,0.3)]' : 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-zinc-800'}`}
+            >
+              <Save className="w-4 h-4" />
+              {cmsStatus || (hasUnsavedChanges ? 'Commit' : 'Synced')}
+            </button>
           )}
         </div>
       </header>
@@ -431,7 +463,7 @@ const AdminPanel = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
                   <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Miners</p>
-                  <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{netStats.activeNodes.toLocaleString()}</p>
+                  <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{activeMinerCount.toLocaleString()}</p>
                 </div>
                 <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-purple-500/20 transition-all duration-500">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
@@ -501,14 +533,14 @@ const AdminPanel = () => {
                           <td className="py-4 px-2 text-center">
                             <div className="flex justify-center">
                               {u.miningActive ? (
-                                <div className="flex items-center gap-1.5 px-2 py-1 bg-maroon/10 border border-maroon/20 rounded-md">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
-                                  <span className="text-[8px] font-black text-maroon uppercase">MINING</span>
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                  <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">MINING</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
                                   <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
-                                  <span className="text-[8px] font-black text-zinc-600 uppercase">IDLE</span>
+                                  <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">IDLE</span>
                                 </div>
                               )}
                             </div>
@@ -546,23 +578,23 @@ const AdminPanel = () => {
                 <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 mt-8 relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent h-1/2 w-full animate-scanline pointer-events-none opacity-40"></div>
 
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6 relative z-10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-red-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.1)]">
-                        <ShieldAlert className="w-7 h-7 text-red-500 animate-pulse" />
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800/50 pb-8 relative z-10">
+                    <div className="flex items-center gap-5">
+                      <div className="w-16 h-16 bg-red-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.1)] group/threat">
+                        <ShieldAlert className="w-8 h-8 text-red-500 animate-pulse transition-transform duration-500 group-hover/threat:scale-110" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-black text-white uppercase tracking-tight">Security_Intelligence</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                          <p className="text-[10px] text-zinc-500 font-mono font-bold uppercase tracking-widest">Global Handshake Audit · {users.filter(u => u.registrationIP).length} Sync points</p>
+                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Threat_Matrix</h2>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-ping"></span>
+                          <p className="text-[9px] text-zinc-500 font-mono font-black uppercase tracking-[0.25em]">Handshake Audit Protocol v4.0 · {users.filter(u => u.registrationIP).length} Sync_Points</p>
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-4">
-                      <div className="px-5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl">
-                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">Threat_Level</p>
-                        <p className={`text-xs font-mono font-black ${users.length > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>PROTECTIVE_MODE</p>
+                      <div className="px-6 py-3 bg-zinc-950/80 border border-zinc-800 rounded-2xl backdrop-blur-md shadow-xl">
+                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1 font-mono">Status_Code</p>
+                        <p className={`text-xs font-mono font-black ${users.length > 0 ? 'text-amber-500' : 'text-emerald-500'} tracking-tighter`}>CRYPTO_WATCH_ACTIVE</p>
                       </div>
                     </div>
                   </div>
@@ -908,16 +940,20 @@ const AdminPanel = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start relative">
 
           {/* Combined Sticky Sidebar - Z-Index 30 */}
-          <div className="md:col-span-3 space-y-4 md:sticky md:top-28 z-30 h-fit max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-1">
-            <div className="surface p-4 rounded-xl border border-zinc-800 bg-zinc-900/40">
-              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 block px-2">Navigation</span>
-              <div className="space-y-1">
+          <div className="md:col-span-3 space-y-5 md:sticky md:top-32 z-30 h-fit max-h-[calc(100vh-10rem)] overflow-y-auto custom-scrollbar pr-2">
+            <div className="silk-panel p-5 rounded-[2rem] border-zinc-900/50 bg-zinc-950/40 backdrop-blur-md shadow-xl">
+              <div className="flex items-center gap-2 mb-4 px-2">
+                <Globe className="w-3.5 h-3.5 text-zinc-500" />
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] font-mono">Archive_Index</span>
+              </div>
+              <div className="space-y-1.5">
                 {(['landing', 'architecture', 'tokenomics', 'whitepaper', 'about', 'careers', 'contact', 'terms', 'privacy'] as const).map(page => (
                   <button
                     key={page}
                     onClick={() => setActiveCmsPage(page)}
-                    className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeCmsPage === page ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
+                    className={`w-full text-left px-5 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] transition-all duration-500 relative overflow-hidden group/btn ${activeCmsPage === page ? 'bg-zinc-800 text-white shadow-lg shadow-black/40' : 'text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900/40'}`}
                   >
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 bg-maroon transition-transform duration-500 ${activeCmsPage === page ? 'scale-y-100' : 'scale-y-0'}`} />
                     {page}
                   </button>
                 ))}
@@ -925,14 +961,17 @@ const AdminPanel = () => {
             </div>
 
             {activeCmsPage === 'landing' && (
-              <div className="surface p-4 rounded-xl border border-zinc-800 bg-zinc-900/40">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 block px-2">Sections</span>
+              <div className="silk-panel p-5 rounded-[2rem] border-zinc-900/50 bg-zinc-950/40 backdrop-blur-md shadow-xl animate-in slide-in-from-left-4 duration-500">
+                <div className="flex items-center gap-2 mb-4 px-2">
+                  <Layers className="w-3.5 h-3.5 text-maroon/60" />
+                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] font-mono">Module_Tree</span>
+                </div>
                 <div className="space-y-1">
                   {['hero', 'socials', 'partners', 'features', 'architecture', 'roadmap', 'faq', 'cta', 'footer'].map(sec => (
                     <button
                       key={sec}
                       onClick={() => setActiveLandingSection(sec)}
-                      className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeLandingSection === sec ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}
+                      className={`w-full text-left px-5 py-3 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all duration-300 ${activeLandingSection === sec ? 'bg-zinc-900 text-maroon border-l-2 border-maroon' : 'text-zinc-600 hover:text-zinc-400 hover:bg-zinc-900/20'}`}
                     >
                       {sec}
                     </button>

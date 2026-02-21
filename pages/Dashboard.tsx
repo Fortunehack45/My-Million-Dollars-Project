@@ -278,8 +278,8 @@ const Dashboard = () => {
           <div>
             <h1 className="text-base font-black text-white uppercase tracking-tight">Network Operations</h1>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {activeMinerCount.toLocaleString()} Active Miners</p>
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Operational · <span className="text-emerald-500/80">{activeMinerCount.toLocaleString()}</span> Active Miners</p>
             </div>
           </div>
         </div>
