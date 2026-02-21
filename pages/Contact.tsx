@@ -155,8 +155,8 @@ const Contact = () => {
                               <AlertTriangle className="w-5 h-5 text-red-500" />
                            </div>
                            <div>
-                              <p className="text-[11px] font-black text-red-500 uppercase tracking-widest">Transmission Failed</p>
-                              <p className="text-[10px] text-red-500/70 mt-0.5">Please check your connection and retry.</p>
+                              <p className="text-[11px] font-black text-red-500 uppercase tracking-widest">Transmission Failure</p>
+                              <p className="text-[10px] text-red-500/70 mt-0.5">Network uplink interrupted. Please check your connection and attempt re-entry.</p>
                            </div>
                         </div>
                      )}

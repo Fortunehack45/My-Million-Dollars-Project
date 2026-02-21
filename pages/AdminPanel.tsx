@@ -374,8 +374,13 @@ const AdminPanel = () => {
 
   const handleSyncStats = async () => {
     setIsSyncing(true);
-    await recalculateNetworkStats();
+    const success = await recalculateNetworkStats();
     setIsSyncing(false);
+    if (success) {
+      // Small visual feedback within the button or a toast could go here
+      // For now we'll just use the button text change inherited from syncStatus if we added one, 
+      // but let's just make it clear in the button itself.
+    }
   };
 
   if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono uppercase tracking-widest">Access_Denied</div>;
@@ -426,7 +431,7 @@ const AdminPanel = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
                   <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Miners</p>
-                  <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.miningActive).length.toLocaleString()}</p>
+                  <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{netStats.activeNodes.toLocaleString()}</p>
                 </div>
                 <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-purple-500/20 transition-all duration-500">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
@@ -690,7 +695,7 @@ const AdminPanel = () => {
                       className={`flex items-center gap-2 bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500/20 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${isSyncing ? 'opacity-50 cursor-wait' : ''}`}
                     >
                       <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-                      {isSyncing ? 'Syncing...' : 'Sync Stats'}
+                      {isSyncing ? 'Synchronizing Cosmos...' : 'Sync Network Stats'}
                     </button>
                   </div>
                 </div>

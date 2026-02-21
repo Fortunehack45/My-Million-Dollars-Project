@@ -27,6 +27,7 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
   getAggregateFromServer,
+  getCountFromServer,
   sum,
   count
 } from 'firebase/firestore';
@@ -468,10 +469,16 @@ export const recalculateNetworkStats = async () => {
       totalMined: sum('points')
     });
 
+    // Also get active nodes count
+    const activeNodesSnapshot = await getCountFromServer(
+      query(usersColl, where('miningActive', '==', true))
+    );
+
     const statsRef = doc(db, 'global_stats', 'network');
     await setDoc(statsRef, {
       totalUsers: snapshot.data().totalUsers,
-      totalMined: snapshot.data().totalMined
+      totalMined: snapshot.data().totalMined,
+      activeNodes: activeNodesSnapshot.data().count
     }, { merge: true });
 
     return true;
@@ -650,13 +657,18 @@ export const logout = async () => {
 
 // --- CONTACT MESSAGES ---
 export const submitContactMessage = async (message: Omit<import('../types').ContactMessage, 'id' | 'createdAt' | 'status'>) => {
-  const msgRef = doc(collection(db, 'contact_messages'));
-  await setDoc(msgRef, {
-    ...message,
-    id: msgRef.id,
-    createdAt: Date.now(),
-    status: 'pending'
-  });
+  try {
+    const msgRef = doc(collection(db, 'contact_messages'));
+    await setDoc(msgRef, {
+      ...message,
+      id: msgRef.id,
+      createdAt: Date.now(),
+      status: 'pending'
+    });
+  } catch (error) {
+    console.error("Error submitting contact message:", error);
+    throw error;
+  }
 };
 
 export const subscribeToContactMessages = (callback: (messages: import('../types').ContactMessage[]) => void) => {
