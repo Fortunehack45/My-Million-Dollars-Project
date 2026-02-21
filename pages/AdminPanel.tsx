@@ -159,15 +159,15 @@ const RiskAnalysisModal = ({ ip, users, onClose }: { ip: string, users: User[], 
               <div key={u.uid} className="flex items-center justify-between p-4 bg-zinc-900/20 border border-zinc-900 rounded-xl group hover:border-maroon/30 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden">
-                    {u.photoURL ? <img src={u.photoURL} alt="" /> : <span className="text-[10px] text-zinc-700">{u.displayName?.[0]}</span>}
+                    {u.photoURL ? <img src={u.photoURL} alt="" /> : <span className="text-[10px] text-zinc-700">{(u.displayName || 'U')[0]}</span>}
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white group-hover:text-maroon transition-colors">{u.displayName}</p>
-                    <p className="text-[8px] text-zinc-600 font-mono">UID: {u.uid.slice(0, 16)}...</p>
+                    <p className="text-xs font-bold text-white group-hover:text-maroon transition-colors">{u.displayName || 'Anonymous'}</p>
+                    <p className="text-[8px] text-zinc-600 font-mono">UID: {(u.uid || '').slice(0, 16)}...</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-mono font-black text-white">{u.points.toFixed(2)} ARG</p>
+                  <p className="text-[10px] font-mono font-black text-white">{(u.points || 0).toFixed(2)} ARG</p>
                   <p className="text-[8px] text-zinc-700 uppercase">Balance</p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ const AdminPanel = () => {
   const [adjPoints, setAdjPoints] = useState<{ [key: string]: number }>({});
   const [isManaging, setIsManaging] = useState<{ [key: string]: boolean }>({});
 
-  const isAuthorized = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() || user?.role === 'admin';
+  const isAuthorized = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   // Initial Subscriptions
   useEffect(() => {
@@ -479,7 +479,10 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-900/50">
-                      {users.filter(u => u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) || u.email?.toLowerCase().includes(searchQuery.toLowerCase())).map((u) => (
+                      {users.filter(u =>
+                        (u.displayName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (u.email || '').toLowerCase().includes(searchQuery.toLowerCase())
+                      ).map((u) => (
                         <tr key={u.uid} className="group hover:bg-zinc-950/40 transition-colors">
                           <td className="py-4 px-2">
                             <div className="flex items-center gap-3">
@@ -511,8 +514,8 @@ const AdminPanel = () => {
                             </div>
                           </td>
                           <td className="py-4 px-2 text-right">
-                            <p className="text-xs font-mono font-black text-white">{u.points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
-                            <p className="text-[8px] text-zinc-600 font-mono">≈ ${(u.points * 0.5).toFixed(2)} USD</p>
+                            <p className="text-xs font-mono font-black text-white">{(u.points || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
+                            <p className="text-[8px] text-zinc-600 font-mono">≈ ${((u.points || 0) * 0.5).toFixed(2)} USD</p>
                           </td>
                           <td className="py-4 px-2 text-right hidden sm:table-cell">
                             <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-emerald-400' : 'text-zinc-600'}`}>{u.referralCount || 0}</span>
@@ -837,7 +840,11 @@ const AdminPanel = () => {
                 </thead>
                 <tbody className="divide-y divide-zinc-900/50">
                   {messages
-                    .filter(m => m.name.toLowerCase().includes(msgSearchQuery.toLowerCase()) || m.email.toLowerCase().includes(msgSearchQuery.toLowerCase()) || m.payload.toLowerCase().includes(msgSearchQuery.toLowerCase()))
+                    .filter(m =>
+                      (m.name || '').toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
+                      (m.email || '').toLowerCase().includes(msgSearchQuery.toLowerCase()) ||
+                      (m.payload || '').toLowerCase().includes(msgSearchQuery.toLowerCase())
+                    )
                     .map(msg => (
                       <tr key={msg.id} className="group hover:bg-zinc-950/40 transition-colors">
                         <td className="py-4 px-2">
@@ -905,10 +912,10 @@ const AdminPanel = () => {
             <div className="surface p-4 rounded-xl border border-zinc-800 bg-zinc-900/40">
               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 block px-2">Navigation</span>
               <div className="space-y-1">
-                {['landing', 'architecture', 'tokenomics', 'whitepaper', 'about', 'careers', 'contact', 'terms', 'privacy'].map(page => (
+                {(['landing', 'architecture', 'tokenomics', 'whitepaper', 'about', 'careers', 'contact', 'terms', 'privacy'] as const).map(page => (
                   <button
                     key={page}
-                    onClick={() => setActiveCmsPage(page as any)}
+                    onClick={() => setActiveCmsPage(page)}
                     className={`w-full text-left px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeCmsPage === page ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'}`}
                   >
                     {page}
@@ -986,10 +993,10 @@ const AdminPanel = () => {
                       <InputGroup label="Section Title" value={landingConfig.partners.title} onChange={(v: string) => updateState(setLandingConfig, ['partners', 'title'], v)} />
                       <div className="space-y-4">
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Partner Logos (Text)</span>
-                        {landingConfig.partners.items.map((item, idx) => (
+                        {(landingConfig.partners.items || []).map((item, idx) => (
                           <div key={idx} className="flex gap-4">
                             <InputGroup value={item} onChange={(v: string) => {
-                              const newItems = [...landingConfig.partners.items];
+                              const newItems = [...(landingConfig.partners.items || [])];
                               newItems[idx] = v;
                               updateState(setLandingConfig, ['partners', 'items'], newItems);
                             }} />
@@ -1008,20 +1015,20 @@ const AdminPanel = () => {
                       <InputGroup label="Description" type="textarea" value={landingConfig.features.description} onChange={(v: string) => updateState(setLandingConfig, ['features', 'description'], v)} />
 
                       <div className="space-y-4 pt-6">
-                        {landingConfig.features.items.map((item, idx) => (
+                        {(landingConfig.features.items || []).map((item, idx) => (
                           <AccordionItem key={idx} title={item.title || 'New Feature'} onDelete={() => removeItem(setLandingConfig, ['features', 'items'], idx)}>
                             <InputGroup label="Title" value={item.title} onChange={(v: string) => {
-                              const newItems = [...landingConfig.features.items];
+                              const newItems = [...(landingConfig.features.items || [])];
                               newItems[idx].title = v;
                               updateState(setLandingConfig, ['features', 'items'], newItems);
                             }} />
                             <InputGroup label="Description" type="textarea" value={item.desc} onChange={(v: string) => {
-                              const newItems = [...landingConfig.features.items];
+                              const newItems = [...(landingConfig.features.items || [])];
                               newItems[idx].desc = v;
                               updateState(setLandingConfig, ['features', 'items'], newItems);
                             }} />
                             <InputGroup label="Icon Name" value={item.icon} onChange={(v: string) => {
-                              const newItems = [...landingConfig.features.items];
+                              const newItems = [...(landingConfig.features.items || [])];
                               newItems[idx].icon = v;
                               updateState(setLandingConfig, ['features', 'items'], newItems);
                             }} />
@@ -1185,20 +1192,20 @@ const AdminPanel = () => {
 
                   <div className="space-y-4 pt-6">
                     <span className="text-xs font-bold text-zinc-500 uppercase">Tech Layers</span>
-                    {archConfig.layers.map((layer, idx) => (
+                    {(archConfig.layers || []).map((layer: any, idx: number) => (
                       <AccordionItem key={idx} title={layer.title} onDelete={() => removeItem(setArchConfig, ['layers'], idx)}>
                         <InputGroup label="Layer Title" value={layer.title} onChange={(v: string) => {
-                          const newLayers = [...archConfig.layers];
+                          const newLayers = [...(archConfig.layers || [])];
                           newLayers[idx].title = v;
                           updateState(setArchConfig, ['layers'], newLayers);
                         }} />
                         <InputGroup label="Description" value={layer.desc} onChange={(v: string) => {
-                          const newLayers = [...archConfig.layers];
+                          const newLayers = [...(archConfig.layers || [])];
                           newLayers[idx].desc = v;
                           updateState(setArchConfig, ['layers'], newLayers);
                         }} />
                         <InputGroup label="Statistic" value={layer.stat} onChange={(v: string) => {
-                          const newLayers = [...archConfig.layers];
+                          const newLayers = [...(archConfig.layers || [])];
                           newLayers[idx].stat = v;
                           updateState(setArchConfig, ['layers'], newLayers);
                         }} />
@@ -1283,25 +1290,25 @@ const AdminPanel = () => {
 
                   <div className="space-y-4">
                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Distribution Chart</span>
-                    {tokenomicsConfig.distribution.map((item, idx) => (
+                    {(tokenomicsConfig.distribution || []).map((item, idx) => (
                       <div key={idx} className="grid grid-cols-4 gap-4 items-end">
                         <InputGroup label="Label" value={item.label} onChange={(v: string) => {
-                          const newDist = [...tokenomicsConfig.distribution];
+                          const newDist = [...(tokenomicsConfig.distribution || [])];
                           newDist[idx].label = v;
                           updateState(setTokenomicsConfig, ['distribution'], newDist);
                         }} />
                         <InputGroup label="Percentage" type="number" value={item.percentage} onChange={(v: number) => {
-                          const newDist = [...tokenomicsConfig.distribution];
+                          const newDist = [...(tokenomicsConfig.distribution || [])];
                           newDist[idx].percentage = v;
                           updateState(setTokenomicsConfig, ['distribution'], newDist);
                         }} />
                         <InputGroup label="Value Text" value={item.value} onChange={(v: string) => {
-                          const newDist = [...tokenomicsConfig.distribution];
+                          const newDist = [...(tokenomicsConfig.distribution || [])];
                           newDist[idx].value = v;
                           updateState(setTokenomicsConfig, ['distribution'], newDist);
                         }} />
                         <InputGroup label="Color Class" value={item.color} onChange={(v: string) => {
-                          const newDist = [...tokenomicsConfig.distribution];
+                          const newDist = [...(tokenomicsConfig.distribution || [])];
                           newDist[idx].color = v;
                           updateState(setTokenomicsConfig, ['distribution'], newDist);
                         }} />

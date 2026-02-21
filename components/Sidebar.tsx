@@ -66,8 +66,7 @@ const Sidebar = () => {
 
   // High-priority robust admin check
   const isAuthorizedAdmin =
-    firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() ||
-    user?.role === 'admin';
+    firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
