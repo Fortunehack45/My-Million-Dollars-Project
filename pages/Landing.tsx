@@ -21,6 +21,7 @@ import {
    Globe,
    Milestone
 } from 'lucide-react';
+import MatrixBackground from '../components/MatrixBackground';
 
 // Icon mapping for dynamic content
 const IconMap: Record<string, any> = {
@@ -279,7 +280,7 @@ const Landing = () => {
                }
             });
          },
-         { threshold: 0.15 } // Increased threshold slightly for better trigger point
+         { threshold: 0.1, rootMargin: "0px 0px -10% 0px" } // Softer trigger for smoother transitions
       );
 
       const sections = document.querySelectorAll('section');
@@ -384,12 +385,8 @@ const Landing = () => {
          >
 
             {/* MATRIX BACKGROUND */}
-            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
-               <canvas ref={canvasRef} className="absolute inset-0" />
-               <div
-                  className="absolute w-[600px] h-[600px] bg-maroon/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out hidden md:block"
-                  style={{ transform: `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)` }}
-               />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+               <MatrixBackground color="rgba(128, 0, 0, 0.2)" speed={1.1} />
             </div>
 
             {/* Hero Section - The First Impression */}
@@ -404,23 +401,23 @@ const Landing = () => {
                         </div>
 
                         <div className="space-y-6">
-                           <h1 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[10rem] font-black text-white tracking-[-0.04em] uppercase leading-[0.82] transition-all duration-1000 group-hover/hero-text:tracking-[-0.03em]">
-                              Absolute<br />
-                              <span className="text-maroon">Autonomy.</span>
+                           <h1 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.8] transition-all duration-1000 group-hover/hero-text:tracking-[-0.04em] perspective-1000">
+                              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '200ms' }}>Absolute</span><br />
+                              <span className="text-maroon inline-block animate-fade-in-up" style={{ animationDelay: '400ms' }}>Autonomy.</span>
                            </h1>
                         </div>
 
-                        <p className="text-zinc-500 text-lg md:text-2xl font-medium max-w-3xl mx-auto lg:mx-0 leading-relaxed text-pretty opacity-0 animate-fade-in animation-delay-500">
+                        <p className="text-zinc-500 text-lg md:text-2xl font-medium max-w-3xl mx-auto lg:mx-0 leading-relaxed text-pretty opacity-0 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
                            {content.hero.subtitle}
                         </p>
                      </div>
 
-                     <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-8 pt-6">
-                        <button onClick={() => navigate('/login')} className="btn-premium-maroon w-full sm:w-auto">
-                           {content.hero.ctaPrimary} <ArrowRight className="w-5 h-5" />
+                     <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-8 pt-10 opacity-0 animate-fade-in-up" style={{ animationDelay: '800ms' }}>
+                        <button onClick={() => navigate('/login')} className="btn-premium-maroon w-full sm:w-auto hover:scale-105 transition-transform">
+                           {content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1" />
                         </button>
-                        <Link to="/whitepaper" className="btn-premium w-full sm:w-auto">
-                           {content.hero.ctaSecondary} <ArrowRight className="w-5 h-5 text-zinc-700" />
+                        <Link to="/whitepaper" className="btn-premium w-full sm:w-auto hover:scale-105 transition-transform">
+                           {content.hero.ctaSecondary} <ArrowRight className="w-5 h-5 text-zinc-700 group-hover:translate-x-1" />
                         </Link>
                      </div>
 
@@ -442,13 +439,12 @@ const Landing = () => {
                </div>
             </section>
 
-            {/* Partners Section */}
-            <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-[1500ms] cubic-bezier(0.16, 1, 0.3, 1) ${visibleSections.has('partners') ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-20 scale-95'}`}>
                <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                  <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
-                  <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+                  <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.5em] font-mono animate-pulse-gentle">{content.partners.title}</p>
+                  <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-1000">
                      {content.partners.items.map((name, i) => (
-                        <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
+                        <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-xl font-black text-white hover:text-maroon uppercase tracking-tighter transition-all duration-700 cursor-default ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-8'}`}>{name.replace('_', ' ')}</h3>
                      ))}
                   </div>
                </div>
@@ -458,15 +454,15 @@ const Landing = () => {
             {content.features?.isVisible && (
                <section id="features" className="py-32 md:py-64 px-6 max-w-7xl mx-auto relative z-10">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24 items-end">
-                     <div className="lg:col-span-8 space-y-6">
+                     <div className={`lg:col-span-8 space-y-8 transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
                         <div className="flex items-center gap-3 text-maroon">
-                           <Zap className="w-5 h-5" />
-                           <span className="text-[10px] font-black uppercase tracking-[0.5em] font-mono">Core_Deliverables</span>
+                           <Zap className="w-5 h-5 animate-pulse" />
+                           <span className="text-[10px] font-black uppercase tracking-[0.6em] font-mono">Infrastructure_Core</span>
                         </div>
-                        <h2 className="text-4xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.9]">{content.features.title}</h2>
+                        <h2 className="text-4xl md:text-9xl font-black text-white uppercase tracking-tighter leading-[0.8]">{content.features.title}</h2>
                      </div>
-                     <div className="lg:col-span-4">
-                        <p className="text-zinc-500 text-lg md:text-xl leading-relaxed font-medium pb-1 border-l-2 border-maroon pl-8">
+                     <div className={`lg:col-span-4 transition-all duration-1000 delay-300 ${visibleSections.has('features') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
+                        <p className="text-zinc-500 text-lg md:text-2xl leading-relaxed font-medium pb-2 border-l-4 border-maroon pl-10 text-pretty italic">
                            {content.features.description}
                         </p>
                      </div>

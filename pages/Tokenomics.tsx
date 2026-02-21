@@ -6,6 +6,7 @@ import { TokenomicsConfig, NetworkStats } from '../types';
 import { PieChart, Zap, ShieldCheck, Lock, Activity, Layers, ArrowRight, TrendingUp, Info } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import { ContentRenderer } from '../components/ContentRenderer';
+import MatrixBackground from '../components/MatrixBackground';
 
 const IconMap: any = { Zap, ShieldCheck, Lock, Activity, Layers, TrendingUp };
 
@@ -58,10 +59,13 @@ const Tokenomics = () => {
    return (
       <PublicLayout>
          <div className="relative pt-24 pb-32 min-h-screen overflow-hidden will-change-premium">
+            {/* Matrix Rain Background */}
+            <MatrixBackground color="rgba(128, 0, 0, 0.1)" opacity={0.4} />
+
             {/* Background Gradients */}
             <div className="fixed inset-0 pointer-events-none">
-               <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-maroon/5 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"></div>
-               <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] mix-blend-screen animate-float"></div>
+               <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-maroon/5 rounded-full blur-[100px] mix-blend-screen"></div>
+               <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] mix-blend-screen"></div>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -72,7 +76,7 @@ const Tokenomics = () => {
                      <PieChart className="w-4 h-4 text-maroon animate-pulse-gentle" />
                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Economic_Protocol_Ref: ARG_TOKEN_v2.0</span>
                   </div>
-                  <h1 className="text-5xl md:text-[11rem] font-black text-white uppercase tracking-tighter mb-12 leading-[0.8] drop-shadow-2xl">
+                  <h1 className="text-5xl md:text-[6rem] font-black text-white uppercase tracking-tighter mb-12 leading-[0.8] drop-shadow-2xl">
                      {content.title}
                   </h1>
                   <p className="border-l-2 border-maroon pl-10 text-zinc-500 text-lg md:text-2xl max-w-3xl leading-relaxed font-medium">
@@ -81,9 +85,9 @@ const Tokenomics = () => {
                </div>
 
                {/* Supply Cards - Argus High Fidelity */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-48">
-                  <div className={`silk-panel p-1.5 rounded-[3rem] transition-all duration-[1200ms] delay-150 relative overflow-hidden group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                     <div className="bg-zinc-950 h-full rounded-[2.8rem] p-12 flex items-center justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-48">
+                  <div className={`silk-panel p-1 rounded-[2.5rem] transition-all duration-[1200ms] delay-150 relative overflow-hidden group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                     <div className="bg-zinc-950 h-full rounded-[2.4rem] p-8 md:p-12 flex items-center justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent -translate-y-full animate-scanline opacity-20 pointer-events-none"></div>
                         <div className="space-y-6">
                            <div className="flex items-center gap-3">
@@ -91,20 +95,20 @@ const Tokenomics = () => {
                               <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] font-mono">Maximum_Supply_Cap</p>
                            </div>
                            <div className="space-y-4">
-                              <p className="text-5xl md:text-8xl font-black text-white tracking-tighter group-hover:text-maroon transition-colors duration-700 select-none leading-none">
+                              <p className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter group-hover:text-maroon transition-colors duration-700 select-none leading-none">
                                  {content.totalSupply}
                               </p>
                               <p className="text-[10px] font-mono text-zinc-600 font-black uppercase tracking-[0.4em] ml-1">Hard_Coded_Genesis_Constraint</p>
                            </div>
                         </div>
-                        <div className="w-24 h-24 bg-zinc-950 rounded-3xl flex items-center justify-center border border-zinc-900 shadow-2xl group-hover:bg-maroon transition-all duration-700">
-                           <Lock className="w-10 h-10 text-zinc-700 group-hover:text-white transition-colors" />
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-900 shadow-2xl group-hover:bg-maroon transition-all duration-700 shrink-0 ml-4">
+                           <Lock className="w-8 h-8 md:w-9 md:h-9 text-zinc-700 group-hover:text-white transition-colors" />
                         </div>
                      </div>
                   </div>
 
-                  <div className={`silk-panel p-1.5 rounded-[3rem] transition-all duration-[1200ms] delay-300 relative overflow-hidden group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                     <div className="bg-zinc-950 h-full rounded-[2.8rem] p-12 flex items-center justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
+                  <div className={`silk-panel p-1 rounded-[2.5rem] transition-all duration-[1200ms] delay-300 relative overflow-hidden group ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                     <div className="bg-zinc-950 h-full rounded-[2.4rem] p-8 md:p-12 flex items-center justify-between border border-zinc-900 group-hover:border-maroon/30 transition-all duration-700">
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.02] to-transparent -translate-y-full animate-scanline opacity-20 pointer-events-none"></div>
                         <div className="space-y-6">
                            <div className="flex items-center gap-3">
@@ -117,14 +121,14 @@ const Tokenomics = () => {
                               </div>
                            </div>
                            <div className="space-y-4">
-                              <p className="text-5xl md:text-8xl font-black text-white tracking-tighter group-hover:translate-x-2 transition-transform duration-700 leading-none">
-                                 {circulatingSupplyDisplay} <span className="text-2xl text-zinc-700 font-mono tracking-normal ml-2">ARG</span>
+                              <p className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter group-hover:translate-x-2 transition-transform duration-700 leading-none">
+                                 {circulatingSupplyDisplay} <span className="text-xl md:text-2xl text-zinc-700 font-mono tracking-normal ml-1">ARG</span>
                               </p>
                               <p className="text-[10px] font-mono text-maroon font-black uppercase tracking-[0.4em] ml-1">Algorithmically_Minted_Uptime</p>
                            </div>
                         </div>
-                        <div className="w-24 h-24 bg-zinc-950 rounded-3xl flex items-center justify-center border border-zinc-900 shadow-2xl">
-                           <Activity className="w-10 h-10 text-maroon animate-pulse" />
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-zinc-950 rounded-2xl flex items-center justify-center border border-zinc-900 shadow-2xl shrink-0 ml-4">
+                           <Activity className="w-8 h-8 md:w-9 md:h-9 text-maroon animate-pulse" />
                         </div>
                      </div>
                   </div>

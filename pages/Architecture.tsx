@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { subscribeToContent, DEFAULT_ARCHITECTURE_CONFIG } from '../services/firebase';
 import { ArchitecturePageConfig } from '../types';
+import MatrixBackground from '../components/MatrixBackground';
 
 const GhostDAGExplainer = () => {
    return (
@@ -158,54 +159,7 @@ const Architecture = () => {
       return () => unsubscribe();
    }, []);
 
-   // MATRIX RAIN EFFECT
-   useEffect(() => {
-      if (!canvasRef.current) return;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const resize = () => {
-         canvas.width = window.innerWidth;
-         canvas.height = window.innerHeight;
-      };
-      resize();
-      window.addEventListener('resize', resize);
-
-      const chars = "01";
-      const fontSize = 16;
-      let columns = Math.floor(canvas.width / fontSize);
-      let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
-
-      const draw = () => {
-         ctx.fillStyle = "rgba(9, 9, 11, 0.08)";
-         ctx.fillRect(0, 0, canvas.width, canvas.height);
-         ctx.font = fontSize + "px monospace";
-         const fadeSize = canvas.height * 0.25;
-
-         for (let i = 0; i < drops.length; i++) {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            const x = i * fontSize;
-            const y = drops[i] * fontSize;
-            let opacity = 1;
-            if (y < fadeSize) opacity = y / fadeSize;
-            else if (y > canvas.height - fadeSize) opacity = (canvas.height - y) / fadeSize;
-            opacity = Math.max(opacity, 0);
-
-            ctx.fillStyle = `rgba(244, 63, 94, ${opacity * 0.7})`;
-            ctx.fillText(char, x, y);
-            if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-         }
-         requestRef.current = requestAnimationFrame(draw);
-      };
-
-      requestRef.current = requestAnimationFrame(draw);
-      return () => {
-         if (requestRef.current) cancelAnimationFrame(requestRef.current);
-         window.removeEventListener('resize', resize);
-      };
-   }, []);
+   // MATRIX RAIN EFFECT handled by MatrixBackground component.
 
    useEffect(() => {
       const observer = new IntersectionObserver(
@@ -237,11 +191,9 @@ const Architecture = () => {
    return (
       <PublicLayout>
          <div className="relative pt-24 pb-32 overflow-hidden min-h-screen">
-            {/* Background Animation System */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-               <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.15]" />
-               <div className="absolute inset-0 bg-[linear-gradient(rgba(128,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(128,0,0,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-maroon/10 blur-[120px] rounded-full mix-blend-screen"></div>
+            {/* Matrix Background */}
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-20 bg-black">
+               <MatrixBackground color="rgba(128, 0, 0, 0.2)" speed={1.1} />
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">

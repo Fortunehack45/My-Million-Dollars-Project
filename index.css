@@ -25,6 +25,18 @@
   --s8: 32px;
   --s12: 48px;
   --s16: 64px;
+
+  /* Advanced Shadow System (Onyx Logic) */
+  --shadow-silk-sm: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  --shadow-silk-md: 0 4px 12px -2px rgba(0, 0, 0, 0.2), 0 2px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-silk-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-maroon: 0 0 30px -5px rgba(128, 0, 0, 0.25);
+  --shadow-maroon-intense: 0 0 50px -10px rgba(128, 0, 0, 0.4);
+
+  /* Institutional Colors */
+  --accent: #800000;
+  --accent-light: #991b1b;
+  --accent-glow: rgba(128, 0, 0, 0.3);
 }
 
 /* Base body styles */
@@ -57,27 +69,45 @@ body {
   background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
 }
 
+.nav-glass {
+  background: rgba(5, 5, 5, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
 /* Silk Edge Institutional Panel - Human Precision */
 .silk-panel {
   background-color: var(--bg-card);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--border);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
-  transition: all 800ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: var(--shadow-silk-md);
+  transition: all 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.silk-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 800ms ease;
 }
 
 .silk-panel:hover {
-  border-color: rgba(128, 0, 0, 0.15);
-  background-color: rgba(9, 9, 11, 0.55);
-  transform: translateY(-4px);
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  border-color: rgba(128, 0, 0, 0.2);
+  background-color: rgba(9, 9, 11, 0.6);
+  transform: translateY(-6px) scale(1.005);
+  box-shadow: var(--shadow-silk-lg), 0 0 20px -5px rgba(128, 0, 0, 0.1);
+}
+
+.silk-panel:hover::before {
+  opacity: 1;
 }
 
 /* Professional Human Button - Primary */
@@ -221,6 +251,38 @@ body {
   animation: scanline 8s linear infinite;
 }
 
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulse-gentle {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 4s ease-in-out infinite;
+}
+
 /* Institutional Shimmer Overlay */
 .shimmer-sweep {
   position: relative;
@@ -323,6 +385,40 @@ body {
 /* Mask utility */
 .mask-radial {
   mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+/* Atmospheric Gradients */
+.bg-mesh-maroon {
+  background-image:
+    radial-gradient(at 0% 0%, rgba(128, 0, 0, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(128, 0, 0, 0.02) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(128, 0, 0, 0.03) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(128, 0, 0, 0.02) 0px, transparent 50%);
+}
+
+.bg-document {
+  background: linear-gradient(to bottom, #09090b, #050505);
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+}
+
+/* Micro-Interaction Utilities */
+.hover-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .hover-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scale-ripple {
+  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scale-ripple:hover {
+  transform: scale(1.05);
 }
 
 /* =============================================

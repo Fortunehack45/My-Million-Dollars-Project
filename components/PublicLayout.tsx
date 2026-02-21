@@ -74,47 +74,45 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-maroon/30 selection:text-white font-sans scroll-smooth">
-      <nav className="fixed top-6 md:top-10 inset-x-0 z-[100] px-6 pointer-events-none">
+      <nav className="fixed top-0 inset-x-0 z-[100] px-6 py-4 pointer-events-none">
         <div className="max-w-7xl mx-auto pointer-events-auto">
-          {/* Argus Onyx Nav-Island */}
-          <div className="relative group/nav-island">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-2xl border border-white/[0.05] rounded-3xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover/nav-island:bg-black/70 group-hover/nav-island:border-white/[0.1] group-hover/nav-island:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)]"></div>
-
-            <div className="relative z-10 px-8 h-18 py-3 flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-5 group/logo">
-                <div className="w-10 h-10 bg-zinc-950 border border-zinc-900 rounded-xl flex items-center justify-center transition-all duration-700 group-hover/logo:border-maroon/30 group-hover/logo:bg-zinc-900">
-                  <Logo className="w-6 h-6 text-maroon transition-transform duration-700 group-hover/logo:scale-110" />
+          {/* Argus Institutional Nav-Island */}
+          <div className="nav-glass rounded-2xl transition-all duration-700 hover:bg-black/50 hover:border-white/10 group/nav">
+            <div className="relative z-10 px-8 h-12 flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-4 group/logo">
+                <div className="w-8 h-8 bg-zinc-950 border border-zinc-900 rounded-lg flex items-center justify-center transition-all duration-700 group-hover/logo:border-maroon/40 group-hover/logo:bg-zinc-900 group-hover/logo:scale-110">
+                  <Logo className="w-5 h-5 text-maroon transition-all duration-700" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-black text-[11px] tracking-[0.3em] text-white uppercase leading-none">Argus</span>
-                  <span className="text-[7px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-1 italic">Parallel Protocol</span>
+                  <span className="font-black text-[10px] tracking-[0.3em] text-white uppercase leading-none group-hover/logo:text-maroon transition-colors duration-500">Argus</span>
+                  <span className="text-[6px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-0.5 italic">Institutional</span>
                 </div>
               </Link>
 
-              <div className="hidden lg:flex items-center gap-12">
+              <div className="hidden lg:flex items-center gap-10">
                 {navLinks.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`text-[10px] font-bold uppercase tracking-[0.25em] transition-all duration-500 relative py-2 px-1 group/item ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
+                    className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-500 relative py-1 px-1 group/item ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
                   >
                     {item.label}
-                    <span className={`absolute bottom-0 left-0 h-[2px] bg-maroon transition-all duration-500 ${location.pathname === item.path ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></span>
+                    <span className={`absolute -bottom-1 left-0 h-[1.5px] bg-maroon transition-all duration-500 ${location.pathname === item.path ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></span>
                   </Link>
                 ))}
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={handleConsoleClick}
-                  className="hidden md:flex h-11 px-8 items-center bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-maroon hover:text-white transition-all duration-500 active:scale-95 shadow-2xl"
+                  className="hidden md:flex h-9 px-6 items-center bg-white text-black text-[9px] font-black uppercase tracking-[0.1em] rounded-xl hover:bg-maroon hover:text-white transition-all duration-500 active:scale-95 shadow-lg"
                 >
                   Access_Vault
                 </button>
 
                 <button
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className="lg:hidden p-3 text-zinc-400 hover:text-white transition-colors bg-white/5 rounded-xl border border-white/5"
+                  className="lg:hidden p-2 text-zinc-500 hover:text-white transition-colors flex items-center justify-center"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
