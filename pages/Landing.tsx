@@ -21,7 +21,6 @@ import {
    Globe,
    Milestone
 } from 'lucide-react';
-import MatrixBackground from '../components/MatrixBackground';
 
 // Icon mapping for dynamic content
 const IconMap: Record<string, any> = {
@@ -165,7 +164,7 @@ const Terminal = () => {
                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700"></div>
             </div>
             <div className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[8px] flex items-center gap-2 opacity-60">
-               <TerminalIcon className="w-3 h-3" /> Argus_Core_Interface
+               <TerminalIcon className="w-3 h-3" /> Core_Sytem_Interface
             </div>
             <div className="flex items-center gap-2">
                <div className="w-1 h-1 bg-emerald-500/50 rounded-full animate-pulse"></div>
@@ -280,7 +279,7 @@ const Landing = () => {
                }
             });
          },
-         { threshold: 0.1, rootMargin: "0px 0px -10% 0px" } // Softer trigger for smoother transitions
+         { threshold: 0.15 } // Increased threshold slightly for better trigger point
       );
 
       const sections = document.querySelectorAll('section');
@@ -385,104 +384,97 @@ const Landing = () => {
          >
 
             {/* MATRIX BACKGROUND */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-               <MatrixBackground color="rgba(128, 0, 0, 0.2)" speed={1.1} />
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
+               <canvas ref={canvasRef} className="absolute inset-0" />
+               <div
+                  className="absolute w-[600px] h-[600px] bg-maroon/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out hidden md:block"
+                  style={{ transform: `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)` }}
+               />
             </div>
 
-            {/* Hero Section - The First Impression */}
-            <section id="hero" className="relative z-10 pt-40 pb-24 md:pt-48 md:pb-64 px-6 max-w-7xl mx-auto w-full min-h-[90vh] flex items-center">
-               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-32 items-center w-full">
+            {/* Hero Section */}
+            <section id="hero" className="relative z-10 pt-28 pb-16 md:pt-32 md:pb-48 px-4 md:px-6 max-w-7xl mx-auto w-full min-h-[auto] md:min-h-[85vh] flex items-center">
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-24 items-center w-full">
 
-                  <div className="lg:col-span-12 xl:col-span-12 text-center lg:text-left space-y-12 animate-fade-in-up">
-                     <div className="space-y-10 group/hero-text">
-                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full shadow-2xl">
-                           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-gentle"></div>
-                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Protocol_Handshake_Status: v2.8_Operational</span>
+                  <div className="lg:col-span-7 space-y-8 md:space-y-12 animate-fade-in-up relative z-20 will-change-transform">
+                     <div className="space-y-6">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full animate-fade-in opacity-0 will-change-transform" style={{ animationDelay: '0.2s' }}>
+                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <div className="space-y-6">
-                           <h1 className="text-4xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.8] transition-all duration-[1500ms] group-hover/hero-text:tracking-[-0.02em] perspective-1000">
-                              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '200ms' }}>Argus</span><br />
-                              <span className="text-maroon inline-block animate-fade-in-up" style={{ animationDelay: '400ms' }}>Protocol.</span>
-                           </h1>
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.2rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium" style={{ animationDelay: '0.2s' }}>
+                           Argus<br />Protocol
+                        </h1>
+
+                        <div className="flex items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
+                           <div className="w-8 h-px bg-maroon/50"></div>
+                           <h2 className="text-[10px] md:text-xs font-black text-maroon uppercase tracking-[0.4em] italic">The Parallel Protocol</h2>
                         </div>
 
-                        <p className="text-zinc-500 text-lg md:text-2xl font-medium max-w-3xl mx-auto lg:mx-0 leading-relaxed text-pretty opacity-0 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+                        <p className="text-zinc-400 text-sm md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0 text-pretty" style={{ animationDelay: '0.4s' }}>
                            {content.hero.subtitle}
                         </p>
                      </div>
 
-                     <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-8 pt-10 opacity-0 animate-fade-in-up" style={{ animationDelay: '800ms' }}>
-                        <button onClick={() => navigate('/login')} className="btn-premium-maroon w-full sm:w-auto hover:scale-105 transition-transform">
-                           {content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1" />
-                        </button>
-                        <Link to="/whitepaper" className="btn-premium w-full sm:w-auto hover:scale-105 transition-transform">
-                           {content.hero.ctaSecondary} <ArrowRight className="w-5 h-5 text-zinc-700 group-hover:translate-x-1" />
-                        </Link>
+                     {/* Mobile Status Card (Visible only on small screens) */}
+                     <div className="block lg:hidden">
+                        <MobileStatusCard />
                      </div>
 
-                     {/* Institutional Proof Metrics */}
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-12 pt-16 border-t border-white/[0.03]">
-                        {[
-                           { label: 'Network Hashrate', value: '402.4 PH/s' },
-                           { label: 'Active Validators', value: liveValidators.toLocaleString() },
-                           { label: 'Block Latency', value: '0.4s' },
-                           { label: 'Market Cap Circ', value: '$842.1M' }
-                        ].map((stat, i) => (
-                           <div key={i} className="space-y-2 group/stat">
-                              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] font-mono group-hover/stat:text-maroon transition-colors">{stat.label}</p>
-                              <p className="text-2xl font-black text-white group-hover/stat:translate-x-1 transition-transform">{stat.value}</p>
-                           </div>
-                        ))}
+                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 animate-fade-in opacity-0 will-change-premium" style={{ animationDelay: '0.6s' }}>
+                        <button onClick={() => navigate('/login')} className="btn-premium-maroon text-[10px]">
+                           <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
+                        </button>
+                        <Link to="/whitepaper" className="btn-premium text-[10px]">
+                           {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
+                        </Link>
                      </div>
+                  </div>
+
+
+                  {/* Hero Right — Terminal UI */}
+                  <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block" style={{ animationDelay: '0.4s' }}>
+                     {/* Live validator badge */}
+                     <div className="absolute -top-5 -right-2 z-20 flex items-center gap-2 px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-full shadow-lg">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse"></span>
+                        <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">{liveValidators.toLocaleString()} Live Validators</span>
+                     </div>
+                     <Terminal />
                   </div>
                </div>
             </section>
 
-            <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-[1500ms] cubic-bezier(0.16, 1, 0.3, 1) ${visibleSections.has('partners') ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-20 scale-95'}`}>
+            {/* Partners Section */}
+            <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                  <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.5em] font-mono animate-pulse-gentle">{content.partners.title}</p>
-                  <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-1000">
+                  <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
+                  <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                      {content.partners.items.map((name, i) => (
-                        <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-xl font-black text-white hover:text-maroon uppercase tracking-tighter transition-all duration-700 cursor-default ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-8'}`}>{name.replace('_', ' ')}</h3>
+                        <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
                      ))}
                   </div>
                </div>
             </section>
 
-            {/* Features Index - Precise Visual Grid */}
+            {/* Features Grid */}
             {content.features?.isVisible && (
-               <section id="features" className="py-32 md:py-64 px-6 max-w-7xl mx-auto relative z-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24 items-end">
-                     <div className={`lg:col-span-8 space-y-8 transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
-                        <div className="flex items-center gap-3 text-maroon">
-                           <Zap className="w-5 h-5 animate-pulse" />
-                           <span className="text-[10px] font-black uppercase tracking-[0.6em] font-mono">Infrastructure_Core</span>
-                        </div>
-                        <h2 className="text-4xl md:text-9xl font-black text-white uppercase tracking-tighter leading-[0.8]">{content.features.title}</h2>
-                     </div>
-                     <div className={`lg:col-span-4 transition-all duration-1000 delay-300 ${visibleSections.has('features') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
-                        <p className="text-zinc-500 text-lg md:text-2xl leading-relaxed font-medium pb-2 border-l-4 border-maroon pl-10 text-pretty italic">
-                           {content.features.description}
-                        </p>
-                     </div>
+               <section id="features" className="py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+                  <div className={`text-center mb-12 md:mb-16 max-w-3xl mx-auto transition-all duration-1000 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                     <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4 md:mb-6">{content.features.title}</h2>
+                     <p className="text-zinc-500 text-sm md:text-lg leading-relaxed">{content.features.description}</p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                      {content.features.items.map((item, i) => {
                         const Icon = IconMap[item.icon] || Globe;
                         return (
-                           <div key={i} className={`group p-12 rounded-[2.5rem] silk-panel border-white/[0.03] hover:border-maroon/20 relative overflow-hidden transition-all duration-700 ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${i * 100}ms` }}>
-                              <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-                                 <Icon className="w-32 h-32 text-white" />
+                           <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-10 md:p-12 rounded-[2.5rem] silk-panel hover:-translate-y-2 group ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                              <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-maroon/10 group-hover:border-maroon/20 transition- silk-transition">
+                                 <Icon className="w-8 h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
                               </div>
-                              <div className="relative z-10">
-                                 <div className="w-16 h-16 bg-zinc-950 border border-zinc-900 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-maroon hover:scale-110 transition-all duration-700">
-                                    <Icon className="w-7 h-7 text-maroon group-hover:text-white transition-colors duration-700" />
-                                 </div>
-                                 <h3 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">{item.title}</h3>
-                                 <p className="text-sm text-zinc-500 leading-relaxed font-medium group-hover:text-zinc-400 transition-colors duration-700">{item.desc}</p>
-                              </div>
+                              <h3 className="text-xl md:text-2xl font-black text-white mb-4 uppercase tracking-tight">{item.title}</h3>
+                              <p className="text-sm md:text-base text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-silk">{item.desc}</p>
                            </div>
                         )
                      })}
@@ -490,51 +482,47 @@ const Landing = () => {
                </section>
             )}
 
-            {/* Architecture Section - Institutional Engineering */}
+            {/* Architecture Section */}
             {content.architecture.isVisible && (
-               <section id="architecture" className="py-32 md:py-64 px-6 max-w-7xl mx-auto relative z-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-                     <div className={`space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
-                        <div className="space-y-8">
-                           <div className="flex items-center gap-3 text-maroon">
-                              <Layers className="w-5 h-5" />
-                              <span className="text-[10px] font-black uppercase tracking-[0.5em] font-mono">Structural_Integrity</span>
-                           </div>
-                           <h2 className="text-4xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.85]">
+               <section id="architecture" className="py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                     <div className={`space-y-8 md:space-y-12 transition-all duration-1000 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+                        <div className="space-y-4 md:space-y-6">
+                           <h2 className="text-3xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
                               {content.architecture.title}
                            </h2>
-                           <p className="text-zinc-500 text-lg md:text-xl leading-relaxed max-w-lg font-medium border-l-2 border-zinc-900 pl-8">
+                           <p className="text-zinc-500 text-sm md:text-xl leading-relaxed max-w-lg">
                               {content.architecture.description}
                            </p>
                         </div>
-                        <div className="space-y-10">
+                        <div className="space-y-6 md:space-y-8">
                            {content.architecture.layers.map((layer, i) => (
-                              <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
-                                 <div className="w-16 h-16 border border-zinc-900 bg-zinc-950 flex items-center justify-center rounded-2xl shrink-0 group-hover:border-maroon/50 group-hover:bg-zinc-900 transition-all duration-500">
-                                    <span className="text-zinc-800 group-hover:text-maroon font-black text-xl transition-colors">0{i + 1}</span>
+                              <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
+                                 <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-maroon/50 transition-colors">
+                                    <Layers className="w-6 h-6 md:w-7 md:h-7 text-zinc-600 group-hover:text-maroon transition-colors" />
                                  </div>
-                                 <div className="space-y-2">
-                                    <h4 className="text-2xl font-black text-white uppercase tracking-tight group-hover:text-maroon transition-colors">{layer.title}</h4>
-                                    <p className="text-zinc-500 text-sm leading-relaxed font-medium">{layer.desc}</p>
+                                 <div>
+                                    <h4 className="text-lg md:text-xl font-bold text-white mb-1 group-hover:text-maroon transition-colors">{layer.title}</h4>
+                                    <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">{layer.desc}</p>
                                  </div>
                               </div>
                            ))}
                         </div>
                      </div>
-                     <div className={`relative hidden lg:block transition-all duration-1000 delay-300 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
-                        <div className="absolute inset-0 bg-maroon/5 blur-[150px] rounded-full"></div>
-                        <div className="relative border border-white/[0.03] bg-black/40 backdrop-blur-3xl rounded-[3rem] p-16 space-y-12 shadow-2xl">
-                           <div className="h-32 bg-maroon/[0.03] border border-maroon/10 rounded-3xl flex items-center justify-center group hover:bg-maroon/[0.06] transition-all duration-700">
-                              <span className="text-[11px] font-mono font-black text-maroon uppercase tracking-[0.4em] animate-pulse-gentle">Secure_Parallel_Compute</span>
+                     <div className={`relative animate-float hidden lg:block transition-all duration-1000 delay-300 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
+                        <div className="absolute inset-0 bg-maroon/10 blur-[150px] rounded-full"></div>
+                        <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
+                           <div className="h-24 bg-maroon/5 border border-maroon/20 rounded-2xl flex items-center justify-center">
+                              <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-[0.2em]">Compute_Sharding_Layer</span>
                            </div>
-                           <div className="grid grid-cols-2 gap-8">
-                              <div className="h-48 bg-zinc-950 border border-zinc-900 rounded-3xl flex flex-col items-center justify-center gap-6 group hover:border-maroon/30 transition-all duration-700 shadow-xl">
-                                 <Cpu className="w-8 h-8 text-zinc-700 group-hover:text-maroon group-hover:scale-110 transition-all duration-700" />
-                                 <span className="text-[10px] font-mono font-black text-zinc-500 uppercase tracking-widest">Logic_Kernel</span>
+                           <div className="grid grid-cols-2 gap-6">
+                              <div className="h-40 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col items-center justify-center gap-4 group hover:border-zinc-600 transition-colors">
+                                 <Cpu className="w-6 h-6 text-zinc-600 group-hover:text-white transition-colors" />
+                                 <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Execution_Engine</span>
                               </div>
-                              <div className="h-48 bg-zinc-950 border border-zinc-900 rounded-3xl flex flex-col items-center justify-center gap-6 group hover:border-maroon/30 transition-all duration-700 shadow-xl">
-                                 <Database className="w-8 h-8 text-zinc-700 group-hover:text-maroon group-hover:scale-110 transition-all duration-700" />
-                                 <span className="text-[10px] font-mono font-black text-zinc-500 uppercase tracking-widest">State_Archive</span>
+                              <div className="h-40 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col items-center justify-center gap-4 group hover:border-zinc-600 transition-colors">
+                                 <Database className="w-6 h-6 text-zinc-600 group-hover:text-white transition-colors" />
+                                 <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Persistence_Core</span>
                               </div>
                            </div>
                         </div>
@@ -543,88 +531,151 @@ const Landing = () => {
                </section>
             )}
 
-            {/* ENHANCED ROADMAP SECTION - Precision Timeline */}
+            {/* ENHANCED ROADMAP SECTION */}
             {content.roadmap?.isVisible && (
-               <section id="roadmap" className="py-48 md:py-96 relative z-10 overflow-hidden bg-zinc-950/20">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.03)_0%,transparent_70%)] opacity-50"></div>
+               <section id="roadmap" className="py-24 md:py-32 relative z-10 overflow-hidden">
+                  {/* Background decorative elements for roadmap */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-full bg-maroon/5 blur-[100px] pointer-events-none"></div>
 
-                  <div className="max-w-7xl mx-auto px-6 relative z-10">
-                     <div className={`max-w-4xl mb-32 transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                        <div className="flex items-center gap-3 text-maroon mb-8">
-                           <Milestone className="w-5 h-5" />
-                           <span className="text-[10px] font-black uppercase tracking-[0.5em] font-mono">Evolutionary_Trajectory</span>
+                  <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+                     <div className={`text-center max-w-3xl mx-auto mb-20 md:mb-32 transition-all duration-1000 ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full mb-6 backdrop-blur-md">
+                           <Milestone className="w-3 h-3 text-maroon" />
+                           <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">Execution Timeline</span>
                         </div>
-                        <h2 className="text-5xl md:text-9xl font-black text-white uppercase tracking-tighter mb-10 leading-[0.85]">{content.roadmap.title}</h2>
-                        <p className="text-zinc-500 text-lg md:text-2xl leading-relaxed font-medium max-w-2xl">{content.roadmap.description}</p>
+                        <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 leading-[0.9]">{content.roadmap.title}</h2>
+                        <p className="text-zinc-400 text-sm md:text-lg leading-relaxed">{content.roadmap.description}</p>
                      </div>
 
-                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                        {content.roadmap.phases.map((phase, i) => (
+                     <div className="relative">
+                        {/* Central Spine */}
+                        <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2 md:translate-x-0 bg-zinc-800/50">
+                           {/* Animated Beam Fill - Triggered by scroll visibility */}
                            <div
-                              key={i}
-                              className={`relative group bg-zinc-950/40 border border-white/[0.03] p-10 rounded-[2.5rem] hover:border-maroon/30 transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(185,28,28,0.15)] group hover:bg-zinc-900/40 overflow-hidden ${visibleSections.has('roadmap') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-                              style={{ transitionDelay: `${i * 150}ms` }}
-                           >
-                              <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                              <div className="flex items-center justify-between mb-12">
-                                 <span className="text-[10px] font-mono font-black text-maroon uppercase tracking-[0.3em] px-3 py-1 bg-maroon/5 rounded-full border border-maroon/10">
-                                    Phase 0{phase.phase}
-                                 </span>
-                                 {phase.status === 'LIVE' && (
-                                    <div className="flex items-center gap-2">
-                                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                       <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest font-mono">LIVE</span>
+                              className="absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2500ms] ease-out-expo"
+                              style={{ height: visibleSections.has('roadmap') ? '100%' : '0%' }}
+                           ></div>
+                        </div>
+
+                        <div className="space-y-12 md:space-y-32">
+                           {content.roadmap.phases.map((phase, i) => {
+                              const isEven = i % 2 === 0;
+                              return (
+                                 <div
+                                    key={i}
+                                    className={`relative flex flex-col md:flex-row items-center gap-8 md:gap-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} group`}
+                                 >
+                                    {/* Desktop Connector Line - Grows outwards */}
+                                    <div
+                                       className={`hidden md:block absolute top-12 ${isEven ? 'left-1/2' : 'right-1/2'} h-px bg-gradient-to-r from-maroon/40 to-transparent transition-all duration-1000 ease-out`}
+                                       style={{
+                                          width: visibleSections.has('roadmap') ? '3rem' : '0',
+                                          transitionDelay: `${i * 300 + 500}ms`
+                                       }}
+                                    >
+                                       <div className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-maroon rounded-full shadow-[0_0_5px_#800000] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     </div>
-                                 )}
-                              </div>
 
-                              <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4 group-hover:text-maroon transition-all duration-500 group-hover:translate-x-2">{phase.title}</h3>
-                              <p className="text-xs font-bold text-zinc-600 uppercase tracking-[0.2em] mb-10 font-mono italic opacity-60 group-hover:opacity-100 transition-opacity">{phase.period}</p>
-
-                              <div className="space-y-4 mb-12">
-                                 {phase.features.slice(0, 3).map((feat, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 group/feat">
-                                       <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 group-hover/feat:bg-maroon transition-colors"></div>
-                                       <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wide group-hover:text-zinc-300 transition-colors">{feat}</span>
+                                    {/* Central Node */}
+                                    <div className="absolute left-[19px] md:left-1/2 -translate-x-1/2 top-0 md:top-8 z-10 flex flex-col items-center justify-center">
+                                       <div
+                                          className={`w-3 h-3 md:w-4 md:h-4 bg-zinc-950 border-2 ${phase.status === 'LIVE' ? 'border-maroon shadow-[0_0_15px_#800000]' : 'border-zinc-700'} rotate-45 transition-all duration-500 group-hover:scale-125 group-hover:border-white z-20`}
+                                          style={{
+                                             transitionDelay: `${i * 300}ms`,
+                                             opacity: visibleSections.has('roadmap') ? 1 : 0,
+                                             transform: visibleSections.has('roadmap') ? 'rotate(45deg) scale(1)' : 'rotate(0deg) scale(0)'
+                                          }}
+                                       ></div>
                                     </div>
-                                 ))}
-                              </div>
 
-                              <div className="absolute bottom-10 right-10">
-                                 <span className="text-7xl font-black text-white/[0.02] group-hover:text-maroon/[0.05] transition-all duration-700 select-none">0{phase.phase}</span>
-                              </div>
-                           </div>
-                        ))}
+                                    {/* Spacer for desktop layout balance */}
+                                    <div className="hidden md:block w-1/2"></div>
+
+                                    {/* Content Card - Staggered Slide In */}
+                                    <div
+                                       className={`w-full md:w-1/2 pl-12 md:pl-0 transition-all duration-1000 ease-out-expo`}
+                                       style={{
+                                          transitionDelay: `${i * 300 + 200}ms`,
+                                          opacity: visibleSections.has('roadmap') ? 1 : 0,
+                                          transform: visibleSections.has('roadmap') ? 'translateX(0)' : `translateX(${isEven ? '50px' : '-50px'})`
+                                       }}
+                                    >
+                                       <div className="relative bg-zinc-950/80 backdrop-blur-sm border border-zinc-900 p-8 rounded-3xl overflow-hidden hover:border-zinc-700 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-maroon/5 hover:-translate-y-1">
+
+                                          {/* Large Background Watermark - High End Branding */}
+                                          <div className="absolute -right-4 -top-6 font-bold text-[8rem] md:text-[10rem] text-white/[0.02] select-none pointer-events-none transition-transform duration-700 group-hover:scale-105 group-hover:text-white/[0.04]">
+                                             0{phase.phase}
+                                          </div>
+
+                                          {/* Top Bar */}
+                                          <div className="flex items-center justify-between mb-6 relative z-10">
+                                             <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-widest px-2 py-1 bg-maroon/10 rounded border border-maroon/20">
+                                                Phase {phase.phase}
+                                             </span>
+                                             {phase.status === 'LIVE' && (
+                                                <div className="flex items-center gap-2">
+                                                   <span className="relative flex h-2 w-2">
+                                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                                   </span>
+                                                   <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Active Protocol</span>
+                                                </div>
+                                             )}
+                                             {phase.status !== 'LIVE' && (
+                                                <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest border border-zinc-800 px-2 py-1 rounded">{phase.status}</span>
+                                             )}
+                                          </div>
+
+                                          {/* Title & Desc */}
+                                          <div className="relative z-10 mb-8">
+                                             <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-maroon transition-colors duration-300">{phase.title}</h3>
+                                             <p className="font-mono text-xs text-zinc-500 mb-4">{phase.period}</p>
+                                             <p className="text-sm text-zinc-400 leading-relaxed">{phase.desc}</p>
+                                          </div>
+
+                                          {/* Features */}
+                                          <div className="space-y-3 relative z-10 border-t border-zinc-900 pt-6">
+                                             {phase.features.map((feat, idx) => (
+                                                <div key={idx} className="flex items-start gap-3 group/item">
+                                                   <div className={`mt-1 w-1.5 h-1.5 rounded-full ${phase.status === 'LIVE' ? 'bg-maroon' : 'bg-zinc-700'} group-hover/item:scale-150 transition-transform`}></div>
+                                                   <span className="text-xs font-medium text-zinc-300 group-hover/item:text-white transition-colors">{feat}</span>
+                                                </div>
+                                             ))}
+                                          </div>
+
+                                          {/* Decorative Corner */}
+                                          <div className="absolute bottom-0 right-0 w-12 h-12 bg-gradient-to-tl from-zinc-900/50 to-transparent"></div>
+                                          <div className="absolute bottom-3 right-3 w-1.5 h-1.5 bg-zinc-800 rounded-full"></div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              )
+                           })}
+                        </div>
                      </div>
                   </div>
                </section>
             )}
 
-            {/* FAQ Section - Institutional Knowledge Base */}
+            {/* FAQ Section */}
             {content.faq.isVisible && (
-               <section id="faq" className="py-32 md:py-64 px-6 max-w-4xl mx-auto relative z-10 border-t border-white/[0.02]">
-                  <div className="text-center space-y-6 mb-24">
-                     <span className="text-[10px] font-black uppercase tracking-[0.5em] font-mono text-maroon">Inquiry_Archive</span>
-                     <h2 className={`text-4xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
-                  </div>
-
+               <section id="faq" className="py-16 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
+                  <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-12 md:mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
                   <div className="space-y-4">
                      {content.faq.items.map((item, i) => (
-                        <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`border border-white/[0.03] bg-zinc-950/40 backdrop-blur-3xl rounded-[2rem] overflow-hidden hover:border-maroon/20 hover:bg-zinc-950/60 transition-all duration-700 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                        <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`border border-zinc-900 bg-black/40 backdrop-blur-md rounded-xl overflow-hidden hover:border-zinc-700 transition-all duration-700 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                            <button
                               onClick={() => toggleFaq(i)}
-                              className="w-full flex items-center justify-between p-8 md:p-10 text-left transition-colors"
+                              className="w-full flex items-center justify-between p-5 md:p-6 text-left hover:bg-zinc-900/20 transition-colors"
                            >
-                              <span className="font-black text-white text-xs md:text-sm uppercase tracking-[0.1em] pr-4">{item.q}</span>
-                              <div className={`p-2 rounded-full border border-zinc-800 transition-all duration-500 ${openFaq === i ? 'rotate-180 bg-maroon border-maroon' : ''}`}>
-                                 <Plus className={`w-4 h-4 text-zinc-500 transition-all duration-500 ${openFaq === i ? 'rotate-45 text-white' : ''} shrink-0`} />
-                              </div>
+                              <span className="font-bold text-white text-xs md:text-sm uppercase tracking-wide pr-4">{item.q}</span>
+                              <Plus className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${openFaq === i ? 'rotate-45' : ''} shrink-0`} />
                            </button>
                            <div
-                              className={`grid transition-all duration-700 ease-in-out-expo ${openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                              className={`grid transition-all duration-500 ease-in-out ${openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                            >
                               <div className="overflow-hidden">
-                                 <div className="p-8 md:p-10 pt-0 text-zinc-500 text-sm md:text-base leading-relaxed font-medium border-t border-white/[0.02] mt-2">
+                                 <div className="p-5 md:p-6 pt-0 text-zinc-500 text-xs md:text-sm leading-relaxed border-t border-zinc-900/50 mt-2">
                                     {item.a}
                                  </div>
                               </div>
@@ -635,33 +686,30 @@ const Landing = () => {
                </section>
             )}
 
-            {/* CTA Section - The Vault Entry */}
+            {/* CTA Section */}
             {content.cta.isVisible && (
-               <section id="cta" className={`py-48 md:py-96 relative z-10 overflow-hidden bg-black/40 transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.05)_0%,transparent_80%)]"></div>
-
-                  <div className="max-w-7xl mx-auto px-6 text-center space-y-16 md:space-y-24 relative z-10">
-                     <div className="space-y-12">
-                        <div className="inline-flex items-center gap-3 px-6 py-2.5 bg-black/60 backdrop-blur-xl border border-white/[0.05] rounded-full shadow-2xl">
-                           <Zap className="w-5 h-5 text-maroon animate-pulse" />
-                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono">System_Status: Awaiting_Auth_Token</span>
+               <section id="cta" className={`py-24 md:py-48 border-t border-zinc-900 relative z-10 overflow-hidden bg-black/40 backdrop-blur-xl transition-all duration-1000 ease-out ${visibleSections.has('cta') ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+                  <div className="max-w-5xl mx-auto px-4 md:px-6 text-center space-y-12 md:space-y-16">
+                     <div className="space-y-6 md:space-y-8">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-full">
+                           <Zap className="w-4 h-4 text-maroon animate-pulse" />
+                           <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest font-mono">Status: Awaiting_Handshake</span>
                         </div>
 
-                        <h2 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[11rem] font-black text-white uppercase tracking-tighter leading-[0.8] transition-all duration-1000 hover:tracking-tight">
+                        <h2 className="text-3xl sm:text-5xl md:text-8xl lg:text-9xl font-black text-white uppercase tracking-tighter leading-[0.9]">
                            {content.cta.title}
                         </h2>
 
-                        <p className="text-zinc-500 text-lg md:text-3xl max-w-3xl mx-auto leading-relaxed font-medium">
+                        <p className="text-zinc-500 text-base md:text-2xl max-w-2xl mx-auto leading-relaxed">
                            {content.cta.description}
                         </p>
                      </div>
 
-                     <div className="flex flex-col items-center gap-12">
-                        <button onClick={() => navigate('/login')} className="btn-premium-maroon h-20 md:h-28 px-12 md:px-24 text-[12px] md:text-[14px]">
+                     <div className="flex flex-col items-center gap-8 pt-6">
+                        <button onClick={() => navigate('/login')} className="h-14 md:h-24 px-8 md:px-20 bg-maroon text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(128,0,0,0.4)] hover:shadow-[0_0_100px_rgba(128,0,0,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
                            {content.cta.buttonText}
-                           <ArrowRight className="w-6 h-6 md:w-8 md:h-8 group-hover:translate-x-4 transition-transform duration-700" />
+                           <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-3 transition-transform duration-500" />
                         </button>
-                        <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] font-mono">End_To_End_Enrypted_Infrastructure</p>
                      </div>
                   </div>
                </section>

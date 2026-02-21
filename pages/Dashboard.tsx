@@ -24,8 +24,6 @@ import {
 import { NetworkStats } from '../types';
 import { Tooltip } from '../components/Tooltip';
 import Skeleton from '../components/Skeleton';
-import Layout from '../components/Layout';
-import MatrixBackground from '../components/MatrixBackground';
 
 const DashboardSkeleton = () => (
   <div className="w-full space-y-5 pb-16">
@@ -147,35 +145,30 @@ const GhostDAGVisualizer = () => {
   return <div ref={containerRef} className="absolute inset-0"><canvas ref={canvasRef} className="w-full h-full opacity-60" /></div>;
 };
 
-// Professional Stat Card - Institutional Argus Onyx
+// Professional Stat Card
 const StatCard = ({ label, value, subValue, icon: Icon, trend, trendUp, tooltip }: any) => (
-  <div className="silk-panel p-1 rounded-[2.5rem] group hover:-translate-y-1 transition-all duration-700 relative overflow-hidden h-full">
-    <div className="bg-zinc-950 h-full rounded-[2.4rem] p-8 flex flex-col justify-between border border-white/[0.02] group-hover:border-maroon/20 transition-all duration-700 relative z-10">
-      <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-      <div className="flex justify-between items-start mb-10">
-        <div className="w-14 h-14 bg-zinc-900/50 rounded-2xl border border-white/5 flex items-center justify-center group-hover:bg-maroon transition-all duration-700 shadow-2xl">
-          <Icon className="w-6 h-6 text-zinc-600 group-hover:text-white transition-colors duration-700" />
-        </div>
-        {trend && (
-          <div className={`px-4 py-1.5 rounded-full border text-[10px] font-mono font-black tracking-widest ${trendUp !== false ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'text-zinc-500 bg-zinc-800/50 border-white/5'}`}>
-            {trend}
-          </div>
-        )}
+  <div className="bg-zinc-950 p-6 flex flex-col justify-between h-full group hover:bg-zinc-900/40 transition-all duration-500 border-r border-b border-zinc-900 last:border-r-0 relative overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-br from-maroon/0 to-maroon/0 group-hover:from-maroon/[0.03] group-hover:to-transparent transition-all duration-700 pointer-events-none" />
+    <div className="flex justify-between items-start mb-6 relative z-10">
+      <div className="p-2.5 bg-zinc-900 rounded-xl border border-zinc-800 group-hover:border-maroon/20 group-hover:bg-zinc-900/80 transition-all duration-500">
+        <Icon className="w-4 h-4 text-zinc-500 group-hover:text-maroon transition-all duration-500" />
       </div>
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] font-mono">{label}</p>
-          <Tooltip text={tooltip} position="top">
-            <Info className="w-3.5 h-3.5 text-zinc-800 hover:text-maroon cursor-help transition-colors" />
-          </Tooltip>
-        </div>
-        <div className="space-y-1.5">
-          <p className="text-3xl md:text-4xl font-black text-white tracking-tighter group-hover:text-maroon transition-colors duration-700 leading-none">{value}</p>
-          {subValue && <p className="text-[11px] text-zinc-600 font-mono font-black uppercase tracking-widest">{subValue}</p>}
-        </div>
-      </div>
+      {trend && (
+        <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md border ${trendUp !== false ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-zinc-500 bg-zinc-800 border-zinc-700'}`}>
+          {trend}
+        </span>
+      )}
     </div>
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.01] to-transparent -translate-y-full animate-scanline opacity-10 pointer-events-none"></div>
+    <div className="relative z-10">
+      <div className="flex items-center gap-2 mb-2">
+        <p className="label-meta">{label}</p>
+        <Tooltip text={tooltip} position="right">
+          <Info className="w-3 h-3 text-zinc-700 hover:text-zinc-400 cursor-help transition-colors" />
+        </Tooltip>
+      </div>
+      <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">{value}</p>
+      {subValue && <p className="text-[10px] text-zinc-600 mt-1.5 font-medium">{subValue}</p>}
+    </div>
   </div>
 );
 
@@ -274,285 +267,217 @@ const Dashboard = () => {
   const progress = (miningTimer / MAX_SESSION_TIME) * 100;
 
   return (
-    <Layout>
-      <div className="relative flex flex-col p-4 md:p-8 overflow-hidden rounded-[2.5rem] bg-zinc-950 border border-zinc-900 shadow-2xl">
-        {/* Matrix Rain Background */}
-        <MatrixBackground color="rgba(185, 28, 28, 0.12)" opacity={0.45} />
+    <div className="w-full space-y-5 pb-16">
 
-        {/* Global Terminal Scanning Line */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.015] to-transparent -translate-y-full animate-scanline pointer-events-none z-10"></div>
-
-        <div className="relative z-10 w-full space-y-12 pb-24">
-
-          {/* HEADER - Institutional Operations Interface */}
-          <header className="flex flex-col md:flex-row md:items-end justify-between gap-10 pb-12 border-b border-zinc-900/50 relative overflow-hidden">
-            <div className="absolute -left-20 top-0 w-64 h-64 bg-maroon/[0.05] blur-[100px] rounded-full pointer-events-none" />
-            <div className="flex items-start gap-8 relative z-10">
-              <div className="w-16 h-16 bg-zinc-950 border border-zinc-900 flex items-center justify-center rounded-[1.5rem] shadow-2xl relative group overflow-hidden">
-                <div className="absolute inset-0 bg-maroon/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <Activity className="w-8 h-8 text-maroon animate-pulse" />
-              </div>
-              <div className="space-y-3">
-                <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">Argus Protocol</h1>
-                <div className="flex items-center gap-5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
-                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest leading-none font-bold">Consensus: Operational</p>
-                  </div>
-                  <div className="h-1 w-1 rounded-full bg-zinc-800" />
-                  <p className="text-[11px] font-mono text-maroon font-black uppercase tracking-widest leading-none italic animate-pulse-gentle">
-                    Node_Trust_Score: 99.8%
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-10 relative z-10 bg-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-2xl">
-              <div className="text-right space-y-1">
-                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] font-mono">Global_Throughput</p>
-                <p className="text-2xl font-mono font-black text-white">{hashrate.toFixed(1)} <span className="text-maroon text-xs">PH/s</span></p>
-              </div>
-              <div className="h-10 w-px bg-zinc-900" />
-              <div className="text-right space-y-1">
-                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] font-mono">Current_Epoch_H</p>
-                <p className="text-2xl font-mono font-black text-white tracking-widest">#{blockHeight.toLocaleString()}</p>
-              </div>
-            </div>
-          </header>
-
-          {/* STATS GRID - Premium Bento Layout */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-12 gap-3 md:gap-6">
-            <div className="md:col-span-2 lg:col-span-4 h-full">
-              <StatCard
-                label="Node Balance"
-                value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
-                subValue={`≈ $${(user.points * 0.5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
-                icon={Database}
-                trend="+2.4%"
-                trendUp={true}
-                tooltip="Total accumulated ARG credits and their current USD market valuation."
-              />
-            </div>
-            <div className="md:col-span-2 lg:col-span-3 h-full">
-              <StatCard label="Validators" value={activeMinerCount.toLocaleString()} subValue="Health: 99.99%" icon={Shield} tooltip="Verified nodes currently participating in consensus and security." />
-            </div>
-            <div className="md:col-span-2 lg:col-span-3 h-full">
-              <StatCard label="Network Load" value={`${tps.toLocaleString()} TPS`} subValue="Latency: 382ms" icon={Zap} trend="Optimal" trendUp={null} tooltip="Real-time transaction processing volume across the GhostDAG topology." />
-            </div>
-            <div className="md:col-span-2 lg:col-span-2 h-full">
-              <div className="silk-panel p-1 rounded-[2.5rem] bg-zinc-950/20 h-full border border-maroon/20 hover:bg-maroon/5 transition-all duration-700 flex flex-col items-center justify-center text-center p-6 space-y-3">
-                <div className="w-10 h-10 bg-maroon/10 rounded-xl flex items-center justify-center border border-maroon/20">
-                  <Globe className="w-5 h-5 text-maroon animate-spin-slow" />
-                </div>
-                <p className="text-[9px] font-black text-maroon uppercase tracking-widest font-mono italic">Primary_Shard</p>
-                <p className="text-xl font-black text-white">EU_WEST_1</p>
-              </div>
-            </div>
+      {/* HEADER */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
+            <Activity className="w-5 h-5 text-maroon" />
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-            {/* LEFT COLUMN */}
-            <div className="lg:col-span-8 space-y-8">
-
-              {/* GHOSTDAG VISUALIZER - Institutional Frame */}
-              <div className="h-[400px] md:h-[460px] rounded-[3rem] silk-panel relative overflow-hidden flex flex-col bg-zinc-950 p-1.5 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
-                <div className="bg-zinc-950 h-full rounded-[2.9rem] relative overflow-hidden flex flex-col border border-white/[0.02]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.03),transparent_80%)]" />
-                  <div className="relative z-10 px-10 py-8 border-b border-white/[0.03] flex justify-between items-center bg-black/40 backdrop-blur-md">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-maroon/10 rounded-lg">
-                        <GitMerge className="w-4 h-4 text-maroon animate-pulse" />
-                      </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.4em] font-mono">Consensus_Topological_Graph</span>
-                        <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest font-black">Cluster_Alpha_v4 // SECURE_SYNC</p>
-                      </div>
-                    </div>
-                    <div className="hidden md:flex items-center gap-8">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
-                        <span className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-widest">Honest_Set</span>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-maroon shadow-[0_0_10px_#800000]" />
-                        <span className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-widest">Outlier_Set</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="relative flex-1 w-full overflow-hidden">
-                    <GhostDAGVisualizer />
-                  </div>
-                </div>
-              </div>
-
-              {/* MINING CONTROLLER - Terminal Interface */}
-              <div className="rounded-[3rem] silk-panel bg-zinc-950 p-1.5 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] relative group">
-                <div className="bg-zinc-950 h-full rounded-[2.9rem] p-10 md:p-14 border border-zinc-900 group-hover:border-maroon/20 transition-all duration-700 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.03] to-transparent opacity-50 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-maroon/[0.01] to-transparent -translate-y-full animate-scanline opacity-10 pointer-events-none"></div>
-
-                  <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start lg:items-center relative z-10">
-                    <div className="flex-1 w-full space-y-6 md:space-y-8">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between border-b border-white/[0.03] pb-6 md:pb-8 gap-6">
-                        <div className="space-y-3">
-                          <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Consensus Engine</h3>
-                          <div className="flex items-center gap-4">
-                            <div className={`w-2.5 h-2.5 rounded-full ${user.miningActive ? 'bg-emerald-500 shadow-[0_0_15px_#10b981] animate-pulse' : 'bg-amber-500 shadow-[0_0_15px_#f59e0b]'}`} />
-                            <span className="text-[11px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] italic">{user.miningActive ? 'Status: BLOCK_PRODUCTION_ACTIVE' : 'Status: LOCAL_DAEMON_IDLE'}</span>
-                          </div>
-                        </div>
-                        <div className="text-right space-y-2">
-                          <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] font-mono">Accumulated_Credit_Pending</p>
-                          <div className="flex flex-col items-end">
-                            <p className="text-4xl md:text-6xl font-black text-white tracking-tighter tabular-nums leading-none">
-                              {pendingPoints.toFixed(4)} <span className="text-lg md:text-xl text-zinc-700 ml-1">ARG</span>
-                            </p>
-                            <p className="text-xs font-mono text-emerald-500/60 font-black uppercase tracking-widest mt-2 bg-emerald-500/5 px-4 py-1.5 rounded-full border border-emerald-500/10">
-                              Value: ${(pendingPoints * 0.5).toFixed(4)} USD
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-end mb-2">
-                          <div className="space-y-1">
-                            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest font-mono">Session_Progress_Matrix</p>
-                            <p className="text-sm font-black text-white uppercase tracking-tight italic">
-                              {isSessionComplete ? 'PROTOCOL_HARD_CAP_REACHED' : 'Syncing_Topology_Continuum...'}
-                            </p>
-                          </div>
-                          <span className="text-[11px] font-black font-mono text-maroon uppercase tracking-[0.3em]">{isSessionComplete ? 'DONE' : formatCountdown(miningTimer)}</span>
-                        </div>
-                        <div className="h-4 bg-zinc-900/50 rounded-full overflow-hidden border border-white/[0.02] p-1 shadow-inner">
-                          <div
-                            className={`h-full rounded-full transition-all duration-1000 relative overflow-hidden ${isSessionComplete ? 'bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-maroon shadow-[0_0_20px_rgba(185,28,28,0.4)]'}`}
-                            style={{ width: `${progress}%` }}
-                          >
-                            <div className="absolute inset-0 bg-white/20 animate-shimmer" />
-                          </div>
-                        </div>
-                        <div className="flex justify-between pt-2">
-                          <Tooltip text="Variable epoch rate based on network hash weight and referral vectors." position="top">
-                            <div className="pk-badge bg-zinc-900 text-zinc-500 border-zinc-800 hover:text-maroon transition-colors cursor-help group/rate">
-                              <span className="text-[9px] uppercase tracking-widest font-black">Coefficient:</span>
-                              <span className="text-[9px] font-mono font-black text-white ml-2 group-hover/rate:text-maroon">{(currentHourlyRate / 3600).toFixed(8)} ARG/s</span>
-                            </div>
-                          </Tooltip>
-                          <div className="flex gap-2">
-                            <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest font-mono italic">REF: GEN_v2_DAEMON</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="w-full lg:w-64 shrink-0 flex flex-col gap-4 md:gap-5">
-                      {user.miningActive ? (
-                        <button
-                          onClick={handleClaim}
-                          disabled={isClaiming}
-                          className={`w-full h-20 md:h-24 rounded-2xl md:rounded-3xl text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-700 flex flex-col items-center justify-center gap-2 md:gap-3 relative overflow-hidden group/btn ${isSessionComplete ? 'bg-white text-black hover:bg-maroon hover:text-white' : 'bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-maroon/40 hover:text-maroon'}`}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-[1000ms] ease-out-expo pointer-events-none" />
-                          <span className="relative z-10">{isClaiming ? 'Processing_Claim...' : isSessionComplete ? '⚡ Finalize_Block' : 'SIGTERM & CLAIM'}</span>
-                          <div className="h-px w-8 bg-current opacity-20" />
-                          <span className="text-[9px] font-mono opacity-50 italic">REF_ID: CLAIM_TX</span>
-                        </button>
-                      ) : (
-                        <button onClick={handleStartMining} className="w-full h-24 bg-maroon text-white rounded-3xl text-[11px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-black transition-all duration-700 shadow-[0_30px_60px_-15px_rgba(185,28,28,0.4)] relative overflow-hidden group/btn">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-[1000ms] pointer-events-none" />
-                          <span className="relative z-10">INITIALIZE_NODE</span>
-                        </button>
-                      )}
-                      <div className="p-5 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center gap-3 group-hover:border-maroon/20 transition-all">
-                        <Clock className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors" />
-                        <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest font-mono">System_Uptime: 99.99%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN */}
-            <div className="lg:col-span-4 space-y-8">
-
-              {/* SYSTEM LOG - Terminal Aesthetics */}
-              <div className="rounded-[2.5rem] silk-panel bg-zinc-950 flex flex-col h-[320px] md:h-[400px] overflow-hidden p-1.5 shadow-[0_50px_100px_-30px_rgba(0,0,0,0.6)]">
-                <div className="bg-zinc-950 h-full rounded-[2.35rem] overflow-hidden flex flex-col border border-white/[0.03]">
-                  <div className="px-6 py-5 border-b border-zinc-900 flex items-center justify-between bg-black/40 backdrop-blur-md">
-                    <span className="text-[10px] font-black flex items-center gap-3 text-zinc-400 uppercase tracking-[0.3em] font-mono">
-                      <Terminal className="w-4 h-4 text-maroon" /> Session_Telemetry_v2
-                    </span>
-                    <div className="flex gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 animate-pulse" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 animate-pulse delay-150" />
-                    </div>
-                  </div>
-                  <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 font-mono text-[10px] bg-black/50">
-                    {[
-                      { type: 'sys', msg: 'DAEMON_INIT: Booting Argus Core...', time: '04:21:01' },
-                      { type: 'ok', msg: `PEER_SYNC: ${activeMinerCount} valid nodes verified`, time: '04:21:05' },
-                      { type: 'info', msg: `DAG_TOPOLOGY: Block_Parity established at #${blockHeight.toLocaleString()}`, time: '04:21:08' },
-                      { type: 'ok', msg: `HASH_WORK: Nonce found (Target: 00000x...)`, time: '04:22:12' },
-                      { type: 'sys', msg: `ENTROPY_POOL: State transition validated`, time: '04:22:15' },
-                      user.miningActive ? { type: 'ok', msg: `PARALLEL_MINING: [THREAD_0-7] Executing work...`, time: 'LIVE' } : null,
-                      user.miningActive ? { type: 'info', msg: `CREDIT_FLOW: +${ratePerSecond.toFixed(8)} ARG/s`, time: 'LIVE' } : null,
-                    ].filter(Boolean).map((log: any, i) => (
-                      <div key={i} className="flex gap-4 border-l-2 border-white/5 pl-4 hover:border-maroon/40 transition-colors py-1 group/log">
-                        <span className="text-zinc-700 shrink-0 font-bold group-hover/log:text-zinc-500 transition-colors">{log.time}</span>
-                        <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-maroon font-black underline' : log.type === 'sys' ? 'text-white' : 'text-zinc-500'} tracking-tight`}>
-                          {log.msg}
-                        </span>
-                      </div>
-                    ))}
-                    <div className="flex items-center gap-3 text-maroon mt-6 px-4 py-2 bg-maroon/5 border border-maroon/10 rounded-lg">
-                      <span className="animate-pulse">▌</span>
-                      <span className="text-[9px] font-black uppercase tracking-[0.4em] font-mono">Awaiting_Consensus_Handshake</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* NODE STATS MINI CARDS - Refined Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'Security_Core', val: 'RSA-4096-AES', icon: Shield },
-                  { label: 'Referral_Vector', val: `${referrals}/${MAX_REFERRALS}_Nodes`, icon: TrendingUp },
-                  { label: 'Firmware_Ref', val: 'Node_Argon_v2.4', icon: Cpu },
-                  { label: 'Archival_H', val: `${user.completedTasks?.length || 0}_Ledgers`, icon: Clock },
-                ].map((item, i) => (
-                  <div key={i} className="rounded-3xl silk-panel bg-zinc-950 p-6 space-y-4 group hover:border-maroon/20 hover:scale-[1.02] transition-all duration-500 shadow-xl border border-white/[0.02]">
-                    <item.icon className="w-5 h-5 text-zinc-800 group-hover:text-maroon transition-all duration-700 transform group-hover:rotate-12" />
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest font-mono italic">{item.label}</p>
-                      <p className="text-[11px] font-mono text-zinc-400 font-bold uppercase tracking-tighter transition-colors group-hover:text-white">{item.val}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* PROTOCOL ADVISORY - High Fidelity Alert */}
-              <div className="rounded-3xl silk-panel bg-maroon/5 p-6 border border-maroon/20 shadow-2xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-maroon animate-pulse opacity-[0.03] pointer-events-none" />
-                <div className="flex gap-5 items-start relative z-10">
-                  <div className="w-10 h-10 rounded-2xl bg-maroon/10 flex items-center justify-center border border-maroon/20 shrink-0">
-                    <AlertTriangle className="w-5 h-5 text-maroon" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black text-maroon uppercase tracking-[0.3em] font-mono italic">Protocol_Continuum_Alert</p>
-                    <p className="text-[10px] text-zinc-500 leading-relaxed font-mono font-bold uppercase tracking-tight group-hover:text-zinc-400 transition-colors">
-                      Red-set outlier blocks do not yield parity credits. Continuous topological sync is required to scale mining vectors.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+          <div>
+            <h1 className="text-base font-black text-white uppercase tracking-tight">Network Operations</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {activeMinerCount.toLocaleString()} Active Miners</p>
             </div>
           </div>
         </div>
+        <div className="flex items-center gap-5">
+          <div className="text-right">
+            <p className="label-meta mb-0.5">Hashrate</p>
+            <p className="text-sm font-mono font-black text-white">{hashrate.toFixed(1)} <span className="text-zinc-600 text-xs">PH/s</span></p>
+          </div>
+          <div className="h-6 w-px bg-zinc-800" />
+          <div className="text-right">
+            <p className="label-meta mb-0.5">Block Height</p>
+            <p className="text-sm font-mono font-black text-maroon">#{blockHeight.toLocaleString()}</p>
+          </div>
+        </div>
+      </header>
+
+      {/* STATS GRID */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 border border-zinc-900 overflow-hidden rounded-2xl">
+        <StatCard
+          label="Node Balance"
+          value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
+          subValue={`≈ $${(user.points * 0.5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
+          icon={Database}
+          trend="+2.4%"
+          trendUp={true}
+          tooltip="Total accumulated ARG credits and their current USD market valuation."
+        />
+        <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
+        <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />
+        <StatCard label="Active Miners" value={activeMinerCount.toLocaleString()} subValue={`Mining Now · Shards: ${Math.max(1, Math.floor(activeMinerCount / 50))}`} icon={Server} tooltip="Live count of verified nodes currently securing the GhostDAG and mining ARG." />
       </div>
-    </Layout>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        {/* LEFT COLUMN */}
+        <div className="lg:col-span-8 space-y-5">
+
+          {/* GHOSTDAG VISUALIZER */}
+          <div className="h-[340px] md:h-[380px] rounded-2xl border border-zinc-900 relative overflow-hidden flex flex-col bg-zinc-950">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(24,24,27,0.2),rgba(3,3,5,1)_80%)]" />
+            <div className="relative z-10 px-5 py-3.5 border-b border-white/[0.04] flex justify-between items-center bg-zinc-950/50 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <GitMerge className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                <span className="label-meta text-zinc-400">GhostDAG_Topology · Live</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-[8px] font-mono text-zinc-600">Blue Block</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-maroon" />
+                  <span className="text-[8px] font-mono text-zinc-600">Red Block</span>
+                </div>
+                <span className="label-meta opacity-40">Latency: 12ms</span>
+              </div>
+            </div>
+            <div className="relative flex-1 w-full overflow-hidden">
+              <GhostDAGVisualizer />
+            </div>
+          </div>
+
+          {/* MINING CONTROLLER */}
+          <div className="rounded-2xl border border-zinc-900 bg-zinc-950 p-6 md:p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-maroon/[0.04] blur-[100px] rounded-full pointer-events-none" />
+
+            <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start md:items-center">
+              <div className="flex-1 w-full space-y-5">
+                {/* Header row */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-base font-black text-white uppercase tracking-tight mb-2">Consensus Engine</h3>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-1.5 h-1.5 rounded-full ${user.miningActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-amber-500'}`} />
+                      <span className="label-meta">{user.miningActive ? 'RUNNING · SHA-256-GHOST' : 'STANDBY · IDLE'}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="label-meta mb-1">Session Yield</p>
+                    <p className="text-2xl md:text-3xl font-mono font-black text-white tabular-nums">
+                      {pendingPoints.toFixed(4)} <span className="text-xs text-zinc-600">ARG</span>
+                    </p>
+                    <p className="text-[10px] font-mono text-emerald-500/80 mt-1 uppercase tracking-wider">
+                      ≈ ${(pendingPoints * 0.5).toFixed(4)} USD
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                  <div className="h-2 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ${isSessionComplete ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' : 'bg-maroon shadow-[0_0_12px_rgba(128,0,0,0.35)]'}`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between">
+                    <Tooltip text="Base 0.06 ARG/h + 0.1 per referral" position="top">
+                      <span className="label-meta cursor-help hover:text-zinc-300 transition-colors">Rate: {currentHourlyRate.toFixed(2)} ARG/h</span>
+                    </Tooltip>
+                    <span className="label-meta">{isSessionComplete ? 'Session Complete ✓' : `T-minus: ${formatCountdown(miningTimer)}`}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="w-full md:w-52 shrink-0">
+                {user.miningActive ? (
+                  <button
+                    onClick={handleClaim}
+                    disabled={isClaiming}
+                    className={`w-full h-14 btn-silk ${isSessionComplete ? 'btn-silk' : 'btn-ghost'} text-[10px]`}
+                  >
+                    {isClaiming ? 'Claiming...' : isSessionComplete ? '⚡ Secure Block' : 'Terminate & Claim'}
+                  </button>
+                ) : (
+                  <button onClick={handleStartMining} className="w-full h-14 btn-silk-inv text-[10px]">
+                    Initialize Node
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="lg:col-span-4 space-y-5">
+
+          {/* SYSTEM LOG */}
+          <div className="rounded-2xl border border-zinc-900 bg-zinc-950 flex flex-col h-[292px] md:h-[340px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-zinc-900 flex items-center justify-between bg-zinc-900/30">
+              <span className="label-meta flex items-center gap-2 text-zinc-400">
+                <Terminal className="w-3 h-3" /> System_Kernel
+              </span>
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2 font-mono text-[9px] bg-black/30">
+              {[
+                { type: 'sys', msg: 'Mounting /ghost_dag volume...', time: '00:00:01' },
+                { type: 'ok', msg: `Miners connected: ${activeMinerCount} [OK]`, time: '00:00:02' },
+                { type: 'info', msg: `Syncing block: #${blockHeight.toLocaleString()}`, time: '00:00:05' },
+                { type: 'warn', msg: 'Mempool pressure: Shard 4 elevated', time: '00:00:12' },
+                { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },
+                { type: 'info', msg: `Network TPS: ${tps.toLocaleString()}`, time: '00:00:20' },
+                user.miningActive ? { type: 'ok', msg: `Mining: +${ratePerSecond.toFixed(6)} ARG/s`, time: 'NOW' } : null,
+              ].filter(Boolean).map((log: any, i) => (
+                <div key={i} className="flex gap-3">
+                  <span className="text-zinc-700 shrink-0 w-14 text-right">{log.time}</span>
+                  <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-amber-500' : log.type === 'sys' ? 'text-maroon' : 'text-zinc-400'}`}>
+                    {log.msg}
+                  </span>
+                </div>
+              ))}
+              <div className="text-maroon animate-pulse font-black">▌</div>
+            </div>
+          </div>
+
+          {/* NODE STATS MINI CARDS */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
+              <Shield className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
+              <p className="label-meta text-[8px]">Security</p>
+              <p className="text-[9px] font-mono text-zinc-300 font-bold">RSA-4096-AES</p>
+            </div>
+            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
+              <TrendingUp className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
+              <p className="label-meta text-[8px]">Referrals</p>
+              <p className="text-[9px] font-mono text-zinc-300 font-bold">{referrals}/{MAX_REFERRALS} Active</p>
+            </div>
+            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
+              <Cpu className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
+              <p className="label-meta text-[8px]">Node Version</p>
+              <p className="text-[9px] font-mono text-zinc-300 font-bold">Node_v2.4</p>
+            </div>
+            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
+              <Clock className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
+              <p className="label-meta text-[8px]">Tasks Done</p>
+              <p className="text-[9px] font-mono text-zinc-300 font-bold">{user.completedTasks?.length || 0} Complete</p>
+            </div>
+          </div>
+
+          {/* PROTOCOL ADVISORY */}
+          <div className="rounded-xl border border-amber-900/25 bg-amber-950/10 p-4 flex gap-3 items-start">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1">Protocol Advisory</p>
+              <p className="text-[9px] text-amber-600/70 leading-relaxed font-mono">
+                Red-set blocks do not yield ARG credits. Maintain continuous uptime to minimize GhostDAG orphan rates.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 };
 
