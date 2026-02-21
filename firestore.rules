@@ -1,82 +1,99 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- HELPER FUNCTIONS ---
 
-    // Check if user is signed in
+    // ─────────────────────────────────────────────────────────────────
+    //  HELPER FUNCTIONS
+    // ─────────────────────────────────────────────────────────────────
+
+    // Returns true if the requester is signed in
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Check if the user accessing the document is the owner
+    // Returns true if the requester owns the document
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Check if the user is an admin (Hardcoded Email or Role-based)
-    // Note: In production, Custom Claims via Firebase Auth is recommended for roles.
+    // Returns true if the requester is an admin (by email or by role field)
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.email.lower() == "fortunedomination@gmail.com" ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+        )
       );
     }
 
-    // --- COLLECTION RULES ---
-
-    // Users Collection
-    // Public Read: Required for Leaderboard and Network Stats
-    // Write: Owner can update their own data (mining), Admin can manage all.
+    // ─────────────────────────────────────────────────────────────────
+    //  USERS COLLECTION
+    //  Read:   Anyone (required for leaderboard / network stats)
+    //  Create: Only the user themselves (during registration)
+    //  Update: Owner (for mining) or admin
+    //  Delete: Admin only
+    // ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow read: if true;
+      allow read:   if true;
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
     }
-    
-    // Usernames Collection (For uniqueness checks)
-    // Public Read: To check availability
-    // Create: Any auth user can claim if not exists
+
+    // ─────────────────────────────────────────────────────────────────
+    //  USERNAMES COLLECTION  (uniqueness reservation)
+    //  Read:   Anyone (to check availability before registering)
+    //  Create: Any authenticated user (claim their username)
+    //  Update / Delete: Admin only
+    // ─────────────────────────────────────────────────────────────────
     match /usernames/{username} {
-      allow read: if true;
-      allow create: if isAuthenticated();
+      allow read:          if true;
+      allow create:        if isAuthenticated();
       allow update, delete: if isAdmin();
     }
 
-    // Tasks Collection
-    // Public Read: To display tasks
-    // Write: Admin only
+    // ─────────────────────────────────────────────────────────────────
+    //  TASKS COLLECTION
+    //  Read:   Anyone (to display available tasks)
+    //  Write:  Admin only
+    // ─────────────────────────────────────────────────────────────────
     match /tasks/{taskId} {
-      allow read: if true;
+      allow read:  if true;
       allow write: if isAdmin();
     }
 
-    // Site Content (CMS)
-    // Public Read: For Landing pages etc.
-    // Write: Admin only
+    // ─────────────────────────────────────────────────────────────────
+    //  SITE CONTENT (CMS)
+    //  Read:   Anyone (landing pages, etc.)
+    //  Write:  Admin only
+    // ─────────────────────────────────────────────────────────────────
     match /site_content/{docId} {
-      allow read: if true;
+      allow read:  if true;
       allow write: if isAdmin();
     }
-    
-    // Global Stats
-    // Public Read: Dashboard metrics
-    // Update: Authenticated users (for incrementing global counters via client)
-    // In a strict environment, this would be handled via Cloud Functions.
+
+    // ─────────────────────────────────────────────────────────────────
+    //  GLOBAL STATS  (network metrics displayed on dashboard)
+    //  Read:   Anyone
+    //  Update: Any authenticated user (increment mining counters)
+    //  Create / Delete: Admin only
+    // ─────────────────────────────────────────────────────────────────
     match /global_stats/{statId} {
-      allow read: if true;
-      allow update: if isAuthenticated();
+      allow read:          if true;
+      allow update:        if isAuthenticated();
       allow create, delete: if isAdmin();
     }
 
-    // Contact Messages
-    // Create: Allowed for anyone (contact form)
-    // Read, Update, Delete: Admin only
+    // ─────────────────────────────────────────────────────────────────
+    //  CONTACT MESSAGES
+    //  Create: Anyone — public contact form, no login required
+    //  Read / Update / Delete: Admin only — managed from Admin Panel inbox
+    // ─────────────────────────────────────────────────────────────────
     match /contact_messages/{messageId} {
-      allow create: if true;
+      allow create:               if true;
       allow read, update, delete: if isAdmin();
     }
+
   }
 }
