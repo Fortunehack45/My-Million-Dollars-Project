@@ -276,14 +276,14 @@ export const DEFAULT_ARCHITECTURE_CONFIG: ArchitecturePageConfig = {
 export const DEFAULT_TOKENOMICS_CONFIG: TokenomicsConfig = {
   title: "Economic Architecture",
   subtitle: "A deflationary utility model designed for long-term network security and validator incentives. Powered by the ARG token.",
-  totalSupply: "1,000,000,000",
+  totalSupply: "2,000,000,000",
   circulatingSupply: "145,000,000",
   distribution: [
-    { label: "Mining / Staking Rewards", percentage: 40, color: "bg-emerald-500", value: "400M ARG" },
-    { label: "Ecosystem Fund", percentage: 20, color: "bg-primary", value: "200M ARG" },
-    { label: "Core Contributors", percentage: 15, color: "bg-zinc-100", value: "150M ARG" },
-    { label: "Early Backers", percentage: 15, color: "bg-zinc-500", value: "150M ARG" },
-    { label: "Public Sale", percentage: 10, color: "bg-amber-500", value: "100M ARG" },
+    { label: "Mining / Staking Rewards", percentage: 50, color: "bg-emerald-500", value: "1B ARG" },
+    { label: "Ecosystem Fund", percentage: 20, color: "bg-primary", value: "400M ARG" },
+    { label: "Core Contributors", percentage: 10, color: "bg-zinc-100", value: "200M ARG" },
+    { label: "Early Backers", percentage: 10, color: "bg-zinc-500", value: "200M ARG" },
+    { label: "Public Sale", percentage: 10, color: "bg-amber-500", value: "200M ARG" },
   ],
   utility: [
     { title: "Gas Metering", desc: "Pay for compute cycles and storage on the GhostDAG.", icon: "Zap" },
