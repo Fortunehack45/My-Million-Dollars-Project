@@ -51,7 +51,8 @@ import {
   ArchitecturePageConfig,
   TokenomicsConfig,
   CareersConfig,
-  ContactConfig
+  ContactConfig,
+  ContactMessage
 } from '../types';
 
 const firebaseConfig = {
