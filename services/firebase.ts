@@ -320,9 +320,7 @@ export const setupPresence = (uid: string) => {
   const isOfflineForDatabase = { state: 'offline', last_changed: serverTimestamp(), uid };
   const isOnlineForDatabase = { state: 'online', last_changed: serverTimestamp(), uid };
 
-  const connectedRef = ref(rtdb, '.info/connected');
-
-  onValue(connectedRef, (snapshot) => {
+  onValue(ref(rtdb, '.info/connected'), (snapshot) => {
     if (snapshot.val() === false) return;
     onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase).then(() => {
       set(userStatusDatabaseRef, isOnlineForDatabase);
@@ -330,6 +328,44 @@ export const setupPresence = (uid: string) => {
   }, (error) => {
     console.warn("Presence Setup Error:", error);
   });
+};
+
+// --- CMS SYNCHRONIZATION OPs ---
+
+export const subscribeToLandingConfig = (callback: (config: LandingConfig) => void) => {
+  return onSnapshot(doc(db, 'site_content', 'landing'), (snapshot) => {
+    if (snapshot.exists()) {
+      callback(snapshot.data() as LandingConfig);
+    } else {
+      callback(DEFAULT_LANDING_CONFIG);
+    }
+  }, (error) => {
+    console.warn("Landing Config Subscription Error:", error);
+    callback(DEFAULT_LANDING_CONFIG);
+  });
+};
+
+export const updateLandingConfig = async (config: LandingConfig) => {
+  const ref = doc(db, 'site_content', 'landing');
+  await setDoc(ref, config, { merge: true });
+};
+
+export const subscribeToContent = <T>(docId: string, defaultData: T, callback: (data: T) => void) => {
+  return onSnapshot(doc(db, 'site_content', docId), (snapshot) => {
+    if (snapshot.exists()) {
+      callback(snapshot.data() as T);
+    } else {
+      callback(defaultData);
+    }
+  }, (error) => {
+    console.warn(`Content Subscription Error [${docId}]:`, error);
+    callback(defaultData);
+  });
+};
+
+export const updateContent = async <T extends { [x: string]: any }>(docId: string, data: T) => {
+  const ref = doc(db, 'site_content', docId);
+  await setDoc(ref, data, { merge: true });
 };
 
 export const manualOffline = async (uid: string) => {
