@@ -10,11 +10,15 @@ import {
   Cpu,
   Lock,
   Terminal as TerminalIcon,
-  Server
+  Server,
+  Users
 } from 'lucide-react';
+import { subscribeToNetworkStats } from '../services/firebase';
+import { NetworkStats } from '../types';
 
 const Login = () => {
   const { login } = useAuth();
+  const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
 
   const getLocalTime = () => {
     const now = new Date();
@@ -33,11 +37,17 @@ const Login = () => {
     const bootTimer = setInterval(() => {
       setBootSequence(prev => (prev < 100 ? prev + 1 : 100));
     }, 20);
+
+    const unsubStats = subscribeToNetworkStats(setNetStats);
+
     return () => {
       clearInterval(timer);
       clearInterval(bootTimer);
+      unsubStats();
     };
   }, []);
+
+  const spotsLeft = Math.max(0, (netStats.maxUsersCap || 500000) - netStats.totalUsers);
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row relative selection:bg-maroon selection:text-white">
@@ -148,9 +158,17 @@ const Login = () => {
             <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-tight">
               Access_Authority
             </h2>
-            <p className="text-zinc-500 text-sm leading-relaxed font-medium border-l-2 border-zinc-900 pl-4">
-              Authorized operators only. Connect your system identity to begin node validation.
-            </p>
+            <div className="flex flex-col gap-3 border-l-2 border-maroon pl-4">
+              <p className="text-zinc-500 text-sm leading-relaxed font-medium">
+                Authorized operators only. Connect your system identity to begin node validation.
+              </p>
+              <div className="flex items-center gap-3 bg-maroon/5 border border-maroon/20 px-3 py-2 rounded-lg w-fit">
+                <Users className="w-4 h-4 text-maroon animate-pulse shadow-[0_0_8px_rgba(128,0,0,0.6)] rounded-full" />
+                <p className="text-[10px] font-mono font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                  Network Capacity: <span className="text-maroon">{spotsLeft.toLocaleString()}</span> Spots Remaining
+                </p>
+              </div>
+            </div>
           </header>
 
           <div className="space-y-10">

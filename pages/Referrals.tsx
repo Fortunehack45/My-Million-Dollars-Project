@@ -7,16 +7,24 @@ import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 
 const Referrals = () => {
   const { user } = useAuth();
-  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const [referralLogs, setReferralLogs] = useState<any[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
 
-  const copyToClipboard = () => {
+  const copyLink = () => {
     if (!user) return;
     const link = `${window.location.origin}/#/?ref=${user.referralCode}`;
     navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const copyCode = () => {
+    if (!user) return;
+    navigator.clipboard.writeText(user.referralCode || '');
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
   };
 
   useEffect(() => {
@@ -103,14 +111,40 @@ const Referrals = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-zinc-950 p-4 sm:p-6 rounded-2xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden group/link">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/30 to-transparent opacity-0 group-hover/link:opacity-100 transition-opacity"></div>
-              <code className="text-maroon font-mono text-[10px] sm:text-xs font-black tracking-tight bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/10 truncate w-full relative z-10">
-                {window.location.origin}/#/?ref={user.referralCode}
-              </code>
-              <button onClick={copyToClipboard} className="btn-silk-inv !px-10 !py-4 w-full md:w-auto text-[10px] font-black uppercase tracking-widest relative z-10">
-                {copied ? 'HASH_COPIED' : 'COPY_HANDSHAKE_LINK'}
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Link Container */}
+              <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 flex flex-col justify-between gap-6 shadow-xl relative overflow-hidden group/link hover:border-maroon/30 transition-all duration-500">
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/30 to-transparent opacity-0 group-hover/link:opacity-100 transition-opacity"></div>
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Direct URL Handshake</p>
+                  <code className="block text-white font-mono text-[10px] sm:text-xs font-medium tracking-tight bg-zinc-900/50 px-4 py-3 rounded-lg border border-zinc-800/80 truncate w-full">
+                    {window.location.origin}/#/?ref={user.referralCode}
+                  </code>
+                </div>
+                <button
+                  onClick={copyLink}
+                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedLink ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-maroon text-white hover:bg-[#a00000] hover:scale-[1.02] shadow-[0_0_15px_rgba(128,0,0,0.2)]'}`}
+                >
+                  {copiedLink ? <><CheckCircle2 className="w-4 h-4" /> Link Copied</> : 'Copy Full Link'}
+                </button>
+              </div>
+
+              {/* Code Container */}
+              <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 flex flex-col justify-between gap-6 shadow-xl relative overflow-hidden group/code hover:border-maroon/30 transition-all duration-500">
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/30 to-transparent opacity-0 group-hover/code:opacity-100 transition-opacity"></div>
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Unique Access Code</p>
+                  <code className="block text-maroon font-mono text-sm sm:text-base font-black tracking-[0.2em] bg-maroon/5 text-center py-2.5 rounded-lg border border-maroon/10 w-full">
+                    {user.referralCode}
+                  </code>
+                </div>
+                <button
+                  onClick={copyCode}
+                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedCode ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-transparent border border-maroon/30 text-maroon hover:bg-maroon hover:text-white'}`}
+                >
+                  {copiedCode ? <><CheckCircle2 className="w-4 h-4" /> Code Copied</> : 'Copy Code Only'}
+                </button>
+              </div>
             </div>
 
             <div className="p-8 bg-zinc-900/40 rounded-[2rem] border border-white/5 flex items-start gap-5 group">

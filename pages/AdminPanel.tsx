@@ -416,24 +416,27 @@ const AdminPanel = () => {
 
               {/* Metrics Overview */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
+                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/[0.02] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Users</p>
-                  <p className="text-3xl font-black text-white group-hover:scale-105 transition-transform origin-left">{users.length.toLocaleString()}</p>
+                  <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{users.length.toLocaleString()}</p>
                 </div>
-                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
+                  <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Miners</p>
-                  <p className="text-3xl font-black text-emerald-400 group-hover:scale-105 transition-transform origin-left">{users.filter(u => u.miningActive).length.toLocaleString()}</p>
+                  <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.miningActive).length.toLocaleString()}</p>
                 </div>
-                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
+                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-purple-500/20 transition-all duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">NFT Minters</p>
-                  <p className="text-3xl font-black text-purple-400 group-hover:scale-105 transition-transform origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+                  <p className="text-4xl font-black text-purple-400 group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
                 </div>
-                <div className="p-6 bg-zinc-950/80 rounded-2xl border border-zinc-900 shadow-xl relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors pointer-events-none"></div>
-                  <p className="text-[10px] text-amber-500/70 font-bold uppercase tracking-widest mb-1">Spots Left</p>
-                  <p className="text-3xl font-black text-amber-500 group-hover:scale-105 transition-transform origin-left">{Math.max(0, capInput - users.length).toLocaleString()}</p>
-                  <p className="text-[9px] text-zinc-600 mt-1 uppercase font-mono tracking-widest">Cap: {capInput.toLocaleString()}</p>
+                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-amber-900/30 shadow-2xl relative overflow-hidden group hover:border-amber-500/50 transition-all duration-500 bg-gradient-to-br from-amber-500/[0.02] to-transparent">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-amber-500/0 group-hover:from-amber-500/10 group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
+                  <p className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest mb-1 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">Registrations Left <span className="bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded text-[8px] animate-pulse w-fit">COUNTDOWN</span></p>
+                  <p className="text-4xl font-black text-amber-500 group-hover:scale-105 transition-transform duration-500 origin-left">{Math.max(0, capInput - users.length).toLocaleString()}</p>
+                  <p className="text-[9px] text-zinc-500 mt-2 uppercase font-mono tracking-widest">Max Cap: <span className="text-zinc-300">{capInput.toLocaleString()}</span></p>
                 </div>
               </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PublicLayout from '../components/PublicLayout';
 import { Mail, MapPin, Clock, MessageSquare, Send, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -109,7 +109,7 @@ const Contact = () => {
                               value={formData.name}
                               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                               placeholder="Your Name / Org"
-                              className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors"
+                              className="w-full bg-zinc-950/50 border border-zinc-800/80 text-white px-6 py-4 rounded-xl focus:border-maroon/50 focus:bg-zinc-900 outline-none transition-all placeholder:text-zinc-700"
                               disabled={status === 'submitting' || status === 'success'}
                            />
                         </div>
@@ -120,47 +120,60 @@ const Contact = () => {
                               value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                               placeholder="email@domain.com"
-                              className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors"
+                              className="w-full bg-zinc-950/50 border border-zinc-800/80 text-white px-6 py-4 rounded-xl focus:border-maroon/50 focus:bg-zinc-900 outline-none transition-all placeholder:text-zinc-700"
                               disabled={status === 'submitting' || status === 'success'}
                            />
                         </div>
                         <div className="space-y-2">
                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Payload</label>
                            <textarea
-                              rows={4}
+                              rows={5}
                               value={formData.payload}
                               onChange={(e) => setFormData({ ...formData, payload: e.target.value })}
                               placeholder="Message content..."
-                              className="w-full bg-zinc-900 border border-zinc-800 text-white px-6 py-4 rounded-xl focus:border-maroon/50 outline-none transition-colors resize-none"
+                              className="w-full bg-zinc-950/50 border border-zinc-800/80 text-white px-6 py-4 rounded-xl focus:border-maroon/50 focus:bg-zinc-900 outline-none transition-all resize-none placeholder:text-zinc-700"
                               disabled={status === 'submitting' || status === 'success'}
                            ></textarea>
                         </div>
                      </div>
 
                      {status === 'success' && (
-                        <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl flex items-center gap-3 animate-fade-in-up">
-                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                           <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Transmission Successful</p>
+                        <div className="bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-2xl flex items-center gap-4 animate-fade-in-up">
+                           <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0">
+                              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                           </div>
+                           <div>
+                              <p className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">Transmission Successful</p>
+                              <p className="text-[10px] text-emerald-500/70 mt-0.5">Your payload has been securely logged.</p>
+                           </div>
                         </div>
                      )}
 
                      {status === 'error' && (
-                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center gap-3 animate-fade-in-up">
-                           <AlertTriangle className="w-5 h-5 text-red-500" />
-                           <p className="text-xs font-bold text-red-500 uppercase tracking-widest">Transmission Failed. Retry.</p>
+                        <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-2xl flex items-center gap-4 animate-fade-in-up">
+                           <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center shrink-0">
+                              <AlertTriangle className="w-5 h-5 text-red-500" />
+                           </div>
+                           <div>
+                              <p className="text-[11px] font-black text-red-500 uppercase tracking-widest">Transmission Failed</p>
+                              <p className="text-[10px] text-red-500/70 mt-0.5">Please check your connection and retry.</p>
+                           </div>
                         </div>
                      )}
 
                      <button
                         onClick={handleSubmit}
                         disabled={status === 'submitting' || status === 'success' || !formData.name || !formData.email || !formData.payload}
-                        className="btn-premium-maroon w-full py-6 flex items-center justify-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`w-full py-5 rounded-xl flex items-center justify-center gap-4 text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${status === 'submitting' || status === 'success' || !formData.name || !formData.email || !formData.payload
+                           ? 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+                           : 'bg-maroon text-white hover:bg-[#a00000] hover:scale-[1.02] shadow-[0_0_20px_rgba(128,0,0,0.3)]'
+                           }`}
                      >
-                        {status === 'submitting' ? 'Encrypting & Sending...' : 'Transmit Data'}
-                        {status !== 'submitting' && <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-silk" />}
+                        {status === 'submitting' ? 'Encrypting & Transmitting...' : status === 'success' ? 'Secured' : 'Transmit Data'}
+                        {status !== 'submitting' && status !== 'success' && <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                      </button>
 
-                     <p className="text-[9px] text-zinc-600 text-center uppercase tracking-widest">
+                     <p className="text-[9px] text-zinc-600 text-center uppercase tracking-widest font-mono">
                         Secured by Argus Relay Protocol v2
                      </p>
                   </div>

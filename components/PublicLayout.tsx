@@ -173,42 +173,54 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       </main>
 
       {/* Footer - Professional Refinement */}
-      <footer id="main-footer" className="bg-zinc-950 border-t border-zinc-900 pt-24 pb-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20">
-            <div className="md:col-span-5 space-y-8">
-              <div className="flex items-center gap-4 group">
-                <div className="w-12 h-12 bg-zinc-900 border border-zinc-800/50 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 transition-all duration-500 relative overflow-hidden">
+      <footer id="main-footer" className="bg-zinc-950 border-t border-zinc-900 pt-24 pb-12 relative z-10 overflow-hidden">
+        {/* Ambient background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-maroon/5 blur-[120px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-20 lg:gap-8">
+            <div className="md:col-span-5 lg:col-span-4 space-y-8">
+              <Link to="/" className="inline-flex items-center gap-4 group">
+                <div className="w-12 h-12 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-2xl shadow-xl group-hover:border-maroon/40 group-hover:bg-zinc-900 transition-all duration-500 relative overflow-hidden">
                   <Logo className="w-8 h-8 text-maroon" />
                 </div>
-                <span className="font-bold text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500">Argus Protocol</span>
-              </div>
+                <span className="font-black text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
+              </Link>
               <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
                 {landingConfig.footer.description}
               </p>
               <div className="flex gap-4">
-                <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><XIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white transition-all"><DiscordIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black transition-all"><GithubIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><XIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] hover:scale-110 transition-all duration-300"><DiscordIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><GithubIcon className="w-4 h-4" /></a>
               </div>
             </div>
 
-            {landingConfig.footer.columns?.map((col, idx) => (
-              <div key={idx} className={`space-y-4 ${idx === 2 ? 'md:col-span-3' : 'md:col-span-2'}`}>
-                <h4 className="text-white font-bold uppercase text-xs tracking-widest mb-2">{col.title}</h4>
-                {col.links?.map((link, lIdx) => (
-                  <Link key={lIdx} to={link.url} className="block text-zinc-500 hover:text-maroon text-sm transition-colors">{link.label}</Link>
-                ))}
-              </div>
-            ))}
+            <div className="md:col-span-7 lg:col-span-8 flex flex-wrap gap-12 sm:gap-16 justify-start md:justify-end">
+              {landingConfig.footer.columns?.map((col, idx) => (
+                <div key={idx} className="space-y-6 min-w-[140px]">
+                  <h4 className="text-white font-black uppercase text-xs tracking-[0.2em] mb-4">{col.title}</h4>
+                  <ul className="space-y-4">
+                    {col.links?.map((link, lIdx) => (
+                      <li key={lIdx}>
+                        <Link to={link.url} className="text-zinc-500 hover:text-maroon text-sm transition-colors duration-300 flex items-center gap-2 group/link">
+                          <span className="w-0 h-px bg-maroon transition-all duration-300 group-hover/link:w-2"></span>
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-zinc-600 text-xs">{landingConfig.footer.copyright}</p>
+          <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">{landingConfig.footer.copyright}</p>
             {landingConfig.footer.statusText && (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">{landingConfig.footer.statusText}</span>
+              <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-full cursor-default">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <span className="text-[10px] font-mono font-bold text-emerald-500/80 uppercase tracking-[0.2em]">{landingConfig.footer.statusText}</span>
               </div>
             )}
           </div>
