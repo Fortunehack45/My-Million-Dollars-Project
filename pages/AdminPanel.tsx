@@ -5,6 +5,7 @@ import {
   addNewTask,
   subscribeToUsers,
   subscribeToNetworkStats,
+  subscribeToActiveMinerCount,
   subscribeToOnlineUsers,
   subscribeToTasks,
   deleteTask,
@@ -191,6 +192,7 @@ const AdminPanel = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [onlineUids, setOnlineUids] = useState<string[]>([]);
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+  const [activeMinerCount, setActiveMinerCount] = useState(0);
   const [selectedAuditIp, setSelectedAuditIp] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<any>({
     title: '', description: '', points: 100.00, icon: 'web', link: '', actionLabel: 'Initialize',
@@ -225,8 +227,47 @@ const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [adjPoints, setAdjPoints] = useState<{ [key: string]: number }>({});
   const [isManaging, setIsManaging] = useState<{ [key: string]: boolean }>({});
+  const [brandingStatus, setBrandingStatus] = useState<string>('');
 
   const isAuthorized = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() || user?.role === 'admin';
+
+  // Branding Health Sync Logic
+  const handleBrandingSync = async () => {
+    setIsSyncing(true);
+    setBrandingStatus('Initializing_Audit...');
+    try {
+      const collections = [
+        { id: 'landing', data: landingConfig, setter: setLandingConfig, updater: (d: any) => updateLandingConfig(d) },
+        { id: 'about', data: aboutConfig, setter: setAboutConfig, updater: (d: any) => updateContent('about', d) },
+        { id: 'architecture_page', data: archConfig, setter: setArchConfig, updater: (d: any) => updateContent('architecture_page', d) },
+        { id: 'whitepaper', data: whitepaperConfig, setter: setWhitepaperConfig, updater: (d: any) => updateContent('whitepaper', d) },
+        { id: 'tokenomics', data: tokenomicsConfig, setter: setTokenomicsConfig, updater: (d: any) => updateContent('tokenomics', d) },
+        { id: 'careers', data: careersConfig, setter: setCareersConfig, updater: (d: any) => updateContent('careers', d) },
+        { id: 'contact_page', data: contactConfig, setter: setContactConfig, updater: (d: any) => updateContent('contact_page', d) },
+        { id: 'terms', data: termsConfig, setter: setTermsConfig, updater: (d: any) => updateContent('terms', d) },
+        { id: 'privacy', data: privacyConfig, setter: setPrivacyConfig, updater: (d: any) => updateContent('privacy', d) }
+      ];
+
+      let fixes = 0;
+      for (const col of collections) {
+        setBrandingStatus(`Auditing_${col.id}...`);
+        const str = JSON.stringify(col.data);
+        if (str.includes('NEX') || str.includes('nex')) {
+          const updated = JSON.parse(str.replace(/NEX/g, 'ARG').replace(/nex/g, 'arg'));
+          await col.updater(updated);
+          fixes++;
+        }
+      }
+
+      setBrandingStatus(fixes > 0 ? `SUCCESS: ${fixes} Modules Fixed` : 'Branding_Verified');
+      setTimeout(() => setBrandingStatus(''), 3000);
+    } catch (error) {
+      console.error("Branding Sync Failed:", error);
+      setBrandingStatus('SYNC_FAILED');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Initial Subscriptions
   useEffect(() => {
@@ -239,6 +280,7 @@ const AdminPanel = () => {
       if (stats.maxUsersCap) setCapInput(stats.maxUsersCap);
     });
 
+    const unsubMiners = subscribeToActiveMinerCount(setActiveMinerCount);
     const unsubOnline = subscribeToOnlineUsers(setOnlineUids);
 
     const unsubTasks = subscribeToTasks(setTasks);
@@ -254,7 +296,7 @@ const AdminPanel = () => {
     const unsubMessages = subscribeToContactMessages(setMessages);
 
     return () => {
-      unsubUsers(); unsubStats(); unsubOnline(); unsubTasks();
+      unsubUsers(); unsubStats(); unsubMiners(); unsubOnline(); unsubTasks();
       unsubLanding(); unsubAbout(); unsubArch(); unsubWhitepaper(); unsubTokenomics();
       unsubCareers(); unsubContact(); unsubTerms(); unsubPrivacy(); unsubMessages();
     };
@@ -383,34 +425,67 @@ const AdminPanel = () => {
     }
   };
 
-  if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono uppercase tracking-widest">Access_Denied</div>;
+  if (!isAuthorized) return (
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 bg-red-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center mx-auto">
+          <ShieldAlert className="w-8 h-8 text-red-500" />
+        </div>
+        <p className="text-white font-black text-xl uppercase tracking-widest">Access Denied</p>
+        <p className="text-zinc-600 text-xs font-mono">Insufficient privileges for this node</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="w-full space-y-8 pb-20 animate-fade-in-up relative will-change-transform">
+    <div className="w-full space-y-6 pb-20 animate-fade-in-up relative will-change-transform">
 
-      {/* Header - Z-Index 40 to stay above everything */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 silk-panel p-8 rounded-[2.5rem] border-zinc-900 sticky top-4 z-40 shadow-2xl transition-silk duration-300">
-        <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-zinc-900 flex items-center justify-center rounded-2xl border border-zinc-800 shadow-sm shrink-0 transition-transform duration-300 hover:scale-105">
-            <Logo className="w-8 h-8 text-maroon" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-3xl font-bold text-white tracking-tight leading-none truncate">System Control</h1>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] shrink-0"></span>
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.15em] font-mono truncate">{firebaseUser?.email}</p>
+      {/* Header */}
+      <header className="bg-zinc-950/90 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-5 sticky top-3 z-40 shadow-2xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center rounded-xl border border-zinc-800 shrink-0">
+              <Logo className="w-6 h-6 text-maroon" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-lg font-black text-white uppercase tracking-tight">Command Center</h1>
+                <span className="text-[8px] font-black text-emerald-400/70 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">OPERATIONAL</span>
+              </div>
+              <p className="text-[9px] text-zinc-600 font-mono uppercase tracking-widest mt-0.5">{firebaseUser?.email}</p>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-4 shrink-0">
-          <div className="flex bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-900">
-            <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><Activity className="w-3.5 h-3.5" /> Dashboard</button>
-            <button onClick={() => setActiveTab('messages')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'messages' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}><MessageSquare className="w-3.5 h-3.5" /> Messages</button>
-            <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'cms' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3.5 h-3.5" /> Editor</button>
+
+          {/* Live Summary Pills */}
+          <div className="hidden lg:flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-lg border border-zinc-800">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[9px] font-mono font-bold text-zinc-400">{activeMinerCount} mining</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-lg border border-zinc-800">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              <span className="text-[9px] font-mono font-bold text-zinc-400">{onlineUids.length} online</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-lg border border-zinc-800">
+              <span className="text-[9px] font-mono font-bold text-zinc-400">{users.length} total</span>
+            </div>
           </div>
-          {activeTab === 'cms' && (
-            <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-silk shadow-sm ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-[1.02]' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}><Save className="w-4 h-4" />{cmsStatus || (hasUnsavedChanges ? 'Confirm Update' : 'Synchronized')}</button>
-          )}
+
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+              <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-1.5 px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all duration-200 ${activeTab === 'dashboard' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}><Activity className="w-3 h-3" /> Dashboard</button>
+              <button onClick={() => setActiveTab('messages')} className={`flex items-center gap-1.5 px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all duration-200 ${activeTab === 'messages' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                <MessageSquare className="w-3 h-3" /> Messages
+                {messages.filter(m => m.status === 'pending').length > 0 && (
+                  <span className="w-4 h-4 bg-maroon text-white text-[7px] font-black rounded-full flex items-center justify-center">{messages.filter(m => m.status === 'pending').length}</span>
+                )}
+              </button>
+              <button onClick={() => setActiveTab('cms')} className={`flex items-center gap-1.5 px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all duration-200 ${activeTab === 'cms' ? 'bg-maroon text-white' : 'text-zinc-500 hover:text-zinc-300'}`}><Layout className="w-3 h-3" /> Editor</button>
+            </div>
+            {activeTab === 'cms' && (
+              <button onClick={handleSaveCMS} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-emerald-500 text-white hover:bg-emerald-400' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}><Save className="w-3.5 h-3.5" />{cmsStatus || (hasUnsavedChanges ? 'Publish' : 'No Changes')}</button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -422,45 +497,92 @@ const AdminPanel = () => {
 
               {/* Metrics Overview */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/[0.02] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Users</p>
-                  <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{users.length.toLocaleString()}</p>
+                {/* Total Users */}
+                <div className="relative p-5 bg-zinc-950 rounded-2xl border border-zinc-800/80 overflow-hidden group hover:border-zinc-700 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-9 h-9 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-zinc-400" />
+                    </div>
+                    <span className="text-[8px] font-mono font-black text-zinc-600 uppercase tracking-widest pt-1">LIVE</span>
+                  </div>
+                  <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Users</p>
+                  <p className="text-3xl font-black text-white group-hover:text-zinc-100 transition-colors">{users.length.toLocaleString()}</p>
+                  <p className="text-[9px] text-zinc-600 font-mono mt-1">{netStats.totalUsers.toLocaleString()} in DB</p>
                 </div>
-                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                  <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Miners</p>
-                  <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{netStats.activeNodes.toLocaleString()}</p>
+
+                {/* Active Miners — live real-time count */}
+                <div className="relative p-5 bg-zinc-950 rounded-2xl border border-emerald-900/40 overflow-hidden group hover:border-emerald-700/50 transition-all duration-300">
+                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-9 h-9 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-emerald-400" />
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-widest mb-1">Active Miners</p>
+                  <p className="text-3xl font-black text-emerald-400">{activeMinerCount.toLocaleString()}</p>
+                  <p className="text-[9px] text-emerald-900 font-mono mt-1">Mining now</p>
                 </div>
-                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-purple-500/20 transition-all duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">NFT Minters</p>
-                  <p className="text-4xl font-black text-purple-400 group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+
+                {/* NFT Minters */}
+                <div className="relative p-5 bg-zinc-950 rounded-2xl border border-zinc-800/80 overflow-hidden group hover:border-purple-800/50 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-9 h-9 bg-purple-500/10 rounded-xl border border-purple-500/20 flex items-center justify-center">
+                      <Cpu className="w-4 h-4 text-purple-400" />
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">NFT Minters</p>
+                  <p className="text-3xl font-black text-purple-400">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+                  <p className="text-[9px] text-zinc-600 font-mono mt-1">{((users.filter(u => u.ownedNFT).length / Math.max(users.length, 1)) * 100).toFixed(1)}% adoption</p>
                 </div>
-                <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-amber-900/30 shadow-2xl relative overflow-hidden group hover:border-amber-500/50 transition-all duration-500 bg-gradient-to-br from-amber-500/[0.02] to-transparent">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-amber-500/0 group-hover:from-amber-500/10 group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                  <p className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest mb-1 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">Registrations Left <span className="bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded text-[8px] animate-pulse w-fit">COUNTDOWN</span></p>
-                  <p className="text-4xl font-black text-amber-500 group-hover:scale-105 transition-transform duration-500 origin-left">{Math.max(0, capInput - users.length).toLocaleString()}</p>
-                  <p className="text-[9px] text-zinc-500 mt-2 uppercase font-mono tracking-widest">Max Cap: <span className="text-zinc-300">{capInput.toLocaleString()}</span></p>
+
+                {/* Spots Left */}
+                <div className="relative p-5 bg-zinc-950 rounded-2xl border border-amber-900/40 overflow-hidden group hover:border-amber-700/50 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-9 h-9 bg-amber-500/10 rounded-xl border border-amber-500/20 flex items-center justify-center">
+                      <Target className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <span className="text-[8px] font-black text-amber-500/70 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 animate-pulse">CAP</span>
+                  </div>
+                  <p className="text-[9px] text-amber-500/70 font-bold uppercase tracking-widest mb-1">Spots Left</p>
+                  <p className="text-3xl font-black text-amber-400">{Math.max(0, capInput - users.length).toLocaleString()}</p>
+                  <p className="text-[9px] text-amber-900/80 font-mono mt-1">of {capInput.toLocaleString()} cap</p>
                 </div>
               </div>
 
-              {/* User Directory */}
-              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
-                      <Users className="w-5 h-5 text-maroon" />
+              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-8">
+                  <button
+                    onClick={handleBrandingSync}
+                    disabled={isSyncing}
+                    className="group flex items-center gap-3 px-6 py-3 bg-zinc-950 border border-zinc-800 rounded-2xl hover:border-maroon/40 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    <Activity className={`w-4 h-4 ${isSyncing ? 'animate-spin text-maroon' : 'text-zinc-600'}`} />
+                    <div className="text-left">
+                      <p className="text-[10px] font-black text-white uppercase tracking-widest">{isSyncing ? 'Synchronizing...' : (brandingStatus || 'Branding Health Sync')}</p>
+                      <p className="text-[8px] text-zinc-600 font-mono uppercase">Enforce ARG Standard</p>
                     </div>
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">User Directory</h2>
+                  </button>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b border-zinc-900 pb-10">
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 bg-maroon/10 rounded-2xl border border-maroon/20 flex items-center justify-center shadow-lg">
+                      <Users className="w-7 h-7 text-maroon" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black text-white uppercase tracking-tight">Operator Directory</h2>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        <p className="text-[10px] text-zinc-500 font-mono font-bold uppercase tracking-widest">{users.length} Registered_Nodes</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative max-w-xs w-full">
-                    <AlignLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                  <div className="relative max-w-sm w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                     <input
                       type="text"
-                      placeholder="Search Users..."
-                      className={`${INPUT_STYLES} pl-10`}
+                      placeholder="Search by ID, Email, or Handle..."
+                      className={`${INPUT_STYLES} pl-12 py-4 bg-black/40 border-zinc-800 rounded-2xl focus:border-maroon/50 transition-all font-mono text-xs`}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -468,68 +590,92 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left">
+                  <table className="w-full text-left border-separate border-spacing-y-2">
                     <thead>
-                      <tr className="text-[10px] font-black text-zinc-600 uppercase tracking-widest border-b border-zinc-900">
-                        <th className="pb-4 px-2">Node Entity</th>
-                        <th className="pb-4 px-2 text-center">Status</th>
-                        <th className="pb-4 px-2 text-right">Balance</th>
-                        <th className="pb-4 px-2 text-right hidden sm:table-cell">Refs</th>
-                        <th className="pb-4 px-2 text-right">Actions</th>
+                      <tr className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] px-4">
+                        <th className="pb-4 pl-4">Validator_Identity</th>
+                        <th className="pb-4 text-center">Protocol_Status</th>
+                        <th className="pb-4 text-right">Ledger_Surplus</th>
+                        <th className="pb-4 text-right hidden lg:table-cell">Topology_Weight</th>
+                        <th className="pb-4 pr-4 text-right">Administrative</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-900/50">
-                      {users.filter(u => u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) || u.email?.toLowerCase().includes(searchQuery.toLowerCase())).map((u) => (
-                        <tr key={u.uid} className="group hover:bg-zinc-950/40 transition-colors">
-                          <td className="py-4 px-2">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center overflow-hidden">
-                                {u.photoURL ? <img src={u.photoURL} alt="" className="w-full h-full object-cover" /> : <Shield className="w-5 h-5 text-zinc-700" />}
+                    <tbody className="space-y-4">
+                      {users.filter(u =>
+                        u.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        u.uid.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).map((u) => (
+                        <tr key={u.uid} className="group bg-zinc-950/40 hover:bg-zinc-900/40 border border-zinc-900/50 rounded-2xl transition-all duration-300">
+                          <td className="py-5 pl-4 first:rounded-l-2xl">
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                <div className="w-12 h-12 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-110">
+                                  {u.photoURL ? (
+                                    <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <Fingerprint className="w-6 h-6 text-zinc-700" />
+                                  )}
+                                </div>
+                                {u.miningActive && (
+                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-zinc-950 rounded-full animate-pulse" />
+                                )}
                               </div>
                               <div>
-                                <p className="text-xs font-bold text-white flex items-center gap-2">
-                                  {u.displayName}
-                                  {u.role === 'admin' && <span className="text-[8px] bg-maroon/20 text-maroon px-1.5 py-0.5 rounded border border-maroon/20">ADMIN</span>}
+                                <p className="text-sm font-black text-white flex items-center gap-2 group-hover:text-maroon transition-colors">
+                                  {u.displayName || 'Unknown_Node'}
+                                  {u.role === 'admin' && (
+                                    <span className="text-[8px] bg-maroon/20 text-maroon px-2 py-0.5 rounded-full border border-maroon/20 font-black">CORE_ADMIN</span>
+                                  )}
                                 </p>
-                                <p className="text-[9px] text-zinc-500 font-mono lower">{u.email}</p>
+                                <p className="text-[9px] text-zinc-500 font-mono mt-0.5">{u.email}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-4 px-2 text-center">
+                          <td className="py-5 text-center">
                             <div className="flex justify-center">
                               {u.miningActive ? (
-                                <div className="flex items-center gap-1.5 px-2 py-1 bg-maroon/10 border border-maroon/20 rounded-md">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
-                                  <span className="text-[8px] font-black text-maroon uppercase">MINING</span>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                                  <Activity className="w-3 h-3 text-emerald-500 animate-pulse" />
+                                  <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Active_Node</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
-                                  <span className="text-[8px] font-black text-zinc-600 uppercase">IDLE</span>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-xl opacity-60">
+                                  <Timer className="w-3 h-3 text-zinc-600" />
+                                  <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Inert_State</span>
                                 </div>
                               )}
                             </div>
                           </td>
-                          <td className="py-4 px-2 text-right">
-                            <p className="text-xs font-mono font-black text-white">{u.points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
-                            <p className="text-[8px] text-zinc-600 font-mono">≈ ${(u.points * 0.5).toFixed(2)} USD</p>
+                          <td className="py-5 text-right">
+                            <div className="inline-flex flex-col items-end">
+                              <p className="text-sm font-black text-white font-mono">{u.points.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
+                              <p className="text-[9px] text-zinc-600 font-mono italic">MARKET: ${(u.points * 4.2).toLocaleString()}</p>
+                            </div>
                           </td>
-                          <td className="py-4 px-2 text-right hidden sm:table-cell">
-                            <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-emerald-400' : 'text-zinc-600'}`}>{u.referralCount || 0}</span>
+                          <td className="py-5 text-right hidden lg:table-cell">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/30 border border-zinc-900 rounded-xl">
+                              <Globe className="w-3 h-3 text-zinc-700" />
+                              <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-white' : 'text-zinc-700'}`}>{u.referralCount || 0}</span>
+                            </div>
                           </td>
-                          <td className="py-4 px-2 text-right">
-                            <div className="flex justify-end gap-2">
+                          <td className="py-5 pr-4 text-right last:rounded-r-2xl">
+                            <div className="flex justify-end gap-3 translate-x-1 group-hover:translate-x-0 transition-transform">
                               <button
                                 onClick={() => setIsManaging({ ...isManaging, [u.uid]: !isManaging[u.uid] })}
-                                className="p-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
+                                className={`p-2.5 rounded-xl border transition-all ${isManaging[u.uid] ? 'bg-maroon border-maroon text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:bg-zinc-800'}`}
                               >
-                                <Settings className={`w-3.5 h-3.5 ${isManaging[u.uid] ? 'text-maroon' : 'text-zinc-500'}`} />
+                                <Settings className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => deleteUserAction(u.uid, u.displayName || '')}
-                                className="p-2 bg-red-500/5 border border-red-500/10 rounded-lg hover:bg-red-500/20 hover:border-red-500 transition-silk text-red-500/50 hover:text-red-500"
+                                onClick={() => {
+                                  if (confirm(`Purge entity ID: ${u.uid}? All ARG credits will be burned.`)) {
+                                    deleteUserAction(u.uid, u.displayName || '');
+                                  }
+                                }}
+                                className="p-2.5 bg-red-500/5 border border-red-500/10 rounded-xl text-red-500/40 hover:bg-red-500/20 hover:border-red-500 hover:text-red-500 transition-all"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>

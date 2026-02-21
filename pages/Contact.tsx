@@ -29,13 +29,27 @@ const Contact = () => {
 
    const handleSubmit = async () => {
       if (!formData.name || !formData.email || !formData.payload) return;
+
+      // Basic Security Sanitization & Caps
+      const sanitizedPayload = formData.payload
+         .trim()
+         .slice(0, 2000)
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;");
+
+      const sanitizedName = formData.name
+         .trim()
+         .slice(0, 100)
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;");
+
       setStatus('submitting');
       try {
          await submitContactMessage({
             uid: user?.uid || null,
-            name: formData.name,
-            email: formData.email,
-            payload: formData.payload
+            name: sanitizedName,
+            email: formData.email.trim(),
+            payload: sanitizedPayload
          });
          setStatus('success');
          setFormData({ name: '', email: '', payload: '' });

@@ -27,6 +27,11 @@ service cloud.firestore {
       );
     }
 
+    // Helper to check if an update safely avoids protected fields
+    function isModifyingProtectedUserFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'ownedNFT', 'referralCount']);
+    }
+
     // ─────────────────────────────────────────────────────────────────
     //  USERS COLLECTION
     //  Read:   Anyone (required for leaderboard / network stats)
@@ -36,8 +41,11 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
       allow read:   if true;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) 
+                    && (!('role' in request.resource.data) || request.resource.data.role == 'user')
+                    && (!('ownedNFT' in request.resource.data) || request.resource.data.ownedNFT == false)
+                    && (!('referralCount' in request.resource.data) || request.resource.data.referralCount == 0);
+      allow update: if isAdmin() || (isOwner(userId) && !isModifyingProtectedUserFields());
       allow delete: if isAdmin();
     }
 
@@ -81,7 +89,7 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────────
     match /global_stats/{statId} {
       allow read:          if true;
-      allow update:        if isAuthenticated();
+      allow update:        if isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalMined', 'totalUsers', 'activeNodes']);
       allow create, delete: if isAdmin();
     }
 
