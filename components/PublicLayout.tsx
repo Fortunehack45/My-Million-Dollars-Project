@@ -187,17 +187,17 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 <span className="font-black text-xl text-white tracking-tight group-hover:text-maroon transition-colors duration-500 uppercase">Argus Protocol</span>
               </Link>
               <p className="text-zinc-500 text-sm leading-relaxed max-w-sm font-medium">
-                {landingConfig.footer.description}
+                {landingConfig.footer?.description || DEFAULT_LANDING_CONFIG.footer.description}
               </p>
               <div className="flex gap-4">
-                <a href={landingConfig.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><XIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] hover:scale-110 transition-all duration-300"><DiscordIcon className="w-4 h-4" /></a>
-                <a href={landingConfig.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><GithubIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials?.twitter || DEFAULT_LANDING_CONFIG.socials.twitter} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><XIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials?.discord || DEFAULT_LANDING_CONFIG.socials.discord} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] hover:scale-110 transition-all duration-300"><DiscordIcon className="w-4 h-4" /></a>
+                <a href={landingConfig.socials?.github || DEFAULT_LANDING_CONFIG.socials.github} target="_blank" rel="noreferrer" className="w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white hover:scale-110 transition-all duration-300"><GithubIcon className="w-4 h-4" /></a>
               </div>
             </div>
 
             <div className="md:col-span-7 lg:col-span-8 flex flex-wrap gap-12 sm:gap-16 justify-start md:justify-end">
-              {landingConfig.footer.columns?.map((col, idx) => (
+              {(landingConfig.footer?.columns || DEFAULT_LANDING_CONFIG.footer.columns)?.map((col, idx) => (
                 <div key={idx} className="space-y-6 min-w-[140px]">
                   <h4 className="text-white font-black uppercase text-xs tracking-[0.2em] mb-4">{col.title}</h4>
                   <ul className="space-y-4">
@@ -216,11 +216,11 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           </div>
 
           <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">{landingConfig.footer.copyright}</p>
-            {landingConfig.footer.statusText && (
+            <p className="text-zinc-600 text-[10px] font-mono uppercase tracking-widest">{landingConfig.footer?.copyright || DEFAULT_LANDING_CONFIG.footer.copyright}</p>
+            {(landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText) && (
               <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-full cursor-default">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                <span className="text-[10px] font-mono font-bold text-emerald-500/80 uppercase tracking-[0.2em]">{landingConfig.footer.statusText}</span>
+                <span className="text-[10px] font-mono font-bold text-emerald-500/80 uppercase tracking-[0.2em]">{landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText}</span>
               </div>
             )}
           </div>
