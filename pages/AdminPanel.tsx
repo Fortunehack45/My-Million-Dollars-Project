@@ -1424,7 +1424,64 @@ const AdminPanel = () => {
                         ))}
                       </div>
 
-                      <div className="space-y-4">
+                      <div className="space-y-4 pt-6">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Utility Cards</span>
+                        {(tokenomicsConfig.utility || []).map((item, idx) => (
+                          <AccordionItem key={idx} title={item.title} onDelete={() => removeItem(setTokenomicsConfig, ['utility'], idx)}>
+                            <InputGroup label="Title" value={item.title} onChange={(v: string) => {
+                              const newUtil = [...(tokenomicsConfig.utility || [])];
+                              newUtil[idx].title = v;
+                              updateState(setTokenomicsConfig, ['utility'], newUtil);
+                            }} />
+                            <InputGroup label="Description" type="textarea" value={item.desc} onChange={(v: string) => {
+                              const newUtil = [...(tokenomicsConfig.utility || [])];
+                              newUtil[idx].desc = v;
+                              updateState(setTokenomicsConfig, ['utility'], newUtil);
+                            }} />
+                            <InputGroup label="Icon (e.g. Zap, Lock)" value={item.icon} onChange={(v: string) => {
+                              const newUtil = [...(tokenomicsConfig.utility || [])];
+                              newUtil[idx].icon = v;
+                              updateState(setTokenomicsConfig, ['utility'], newUtil);
+                            }} />
+                          </AccordionItem>
+                        ))}
+                        <button onClick={() => addItem(setTokenomicsConfig, ['utility'], { title: "New Utility", desc: "Description...", icon: "Zap" })} className="btn-primary w-full py-3">+ Add Utility Card</button>
+                      </div>
+
+                      <div className="space-y-4 pt-6">
+                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Release Schedule</span>
+                        {(tokenomicsConfig.schedule || []).map((item, idx) => (
+                          <AccordionItem key={idx} title={item.phase} onDelete={() => removeItem(setTokenomicsConfig, ['schedule'], idx)}>
+                            <div className="grid grid-cols-2 gap-4">
+                              <InputGroup label="Phase Protocol" value={item.phase} onChange={(v: string) => {
+                                const newSched = [...(tokenomicsConfig.schedule || [])];
+                                newSched[idx].phase = v;
+                                updateState(setTokenomicsConfig, ['schedule'], newSched);
+                              }} />
+                              <InputGroup label="Activation Date" value={item.date} onChange={(v: string) => {
+                                const newSched = [...(tokenomicsConfig.schedule || [])];
+                                newSched[idx].date = v;
+                                updateState(setTokenomicsConfig, ['schedule'], newSched);
+                              }} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <InputGroup label="Liquidity Event (Allocation)" value={item.allocation} onChange={(v: string) => {
+                                const newSched = [...(tokenomicsConfig.schedule || [])];
+                                newSched[idx].allocation = v;
+                                updateState(setTokenomicsConfig, ['schedule'], newSched);
+                              }} />
+                              <InputGroup label="Deployment Mechanism (Action)" value={item.action} onChange={(v: string) => {
+                                const newSched = [...(tokenomicsConfig.schedule || [])];
+                                newSched[idx].action = v;
+                                updateState(setTokenomicsConfig, ['schedule'], newSched);
+                              }} />
+                            </div>
+                          </AccordionItem>
+                        ))}
+                        <button onClick={() => addItem(setTokenomicsConfig, ['schedule'], { phase: "New Phase", date: "TBD", allocation: "0%", action: "TBD" })} className="btn-primary w-full py-3">+ Add Schedule Phase</button>
+                      </div>
+
+                      <div className="space-y-4 pt-6">
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Economic Analysis Sections</span>
                         {(tokenomicsConfig.sections || []).map((sec, idx) => (
                           <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setTokenomicsConfig, ['sections'], idx)}>
