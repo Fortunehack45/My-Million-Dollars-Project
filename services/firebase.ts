@@ -754,6 +754,26 @@ export const updateContent = async (docId: string, data: any) => {
   await setDoc(doc(db, 'site_content', docId), data, { merge: true });
 };
 
+// --- ACCESS CONTROL SERVICES ---
+
+export const subscribeToLockedPages = (callback: (lockedPages: string[]) => void) => {
+  return onSnapshot(doc(db, 'site_content', 'access_control'), (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      callback(data.lockedPages || []);
+    } else {
+      callback([]);
+    }
+  }, (error) => {
+    console.warn("Access Control Error:", error);
+    callback([]);
+  });
+};
+
+export const updateLockedPages = async (lockedPages: string[]) => {
+  await setDoc(doc(db, 'site_content', 'access_control'), { lockedPages }, { merge: true });
+};
+
 // --- ADMINISTRATIVE USER ACTIONS ---
 
 export const deleteUserAction = async (uid: string, username: string) => {

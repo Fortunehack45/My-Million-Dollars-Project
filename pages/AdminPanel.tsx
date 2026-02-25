@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from 'react-router';
 import {
   addNewTask,
   subscribeToUsers,
@@ -29,7 +30,9 @@ import {
   updateMessageStatusAction,
   ADMIN_EMAIL,
   DEFAULT_MAX_USERS_CAP,
-  subscribeToActiveMinerCount
+  subscribeToActiveMinerCount,
+  subscribeToLockedPages,
+  updateLockedPages
 } from '../services/firebase';
 import {
   User, Task, NetworkStats, LandingConfig,
@@ -42,7 +45,7 @@ import {
   Layers, AlignLeft, CheckCircle2, Shield, MapPin,
   Briefcase, Phone, HelpCircle, Share2, PieChart,
   ListPlus, ChevronDown, ChevronRight, Settings,
-  Target, RefreshCw, MessageSquare
+  Target, RefreshCw, MessageSquare, Maximize, Minimize
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import { AdvancedEditor } from '../components/AdvancedEditor';
@@ -189,6 +192,7 @@ const RiskAnalysisModal = ({ ip, users, onClose }: { ip: string, users: User[], 
 
 const AdminPanel = () => {
   const { user, firebaseUser } = useAuth();
+  const navigate = useNavigate();
 
   const [users, setUsers] = useState<User[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -201,13 +205,15 @@ const AdminPanel = () => {
     verificationWaitTime: 5, activeDurationHours: 24
   });
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'cms'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'cms' | 'locks' | 'messages'>('dashboard');
+  const [lockedPages, setLockedPages] = useState<string[]>([]);
   const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy'>('landing');
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Messages State
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -258,11 +264,13 @@ const AdminPanel = () => {
     const unsubTerms = subscribeToContent('terms', DEFAULT_LEGAL_CONFIG.terms, setTermsConfig);
     const unsubPrivacy = subscribeToContent('privacy', DEFAULT_LEGAL_CONFIG.privacy, setPrivacyConfig);
     const unsubMessages = subscribeToContactMessages(setMessages);
+    const unsubLocks = subscribeToLockedPages(setLockedPages);
 
     return () => {
       unsubUsers(); unsubStats(); unsubOnline(); unsubMiners(); unsubTasks();
       unsubLanding(); unsubAbout(); unsubArch(); unsubWhitepaper(); unsubTokenomics();
       unsubCareers(); unsubContact(); unsubTerms(); unsubPrivacy(); unsubMessages();
+      unsubLocks();
     };
   }, [isAuthorized]);
 
@@ -324,6 +332,13 @@ const AdminPanel = () => {
       }
     }));
     setHasUnsavedChanges(true);
+  };
+
+  const handleToggleLock = (page: string) => {
+    const newLocked = lockedPages.includes(page)
+      ? lockedPages.filter(p => p !== page)
+      : [...lockedPages, page];
+    updateLockedPages(newLocked);
   };
 
   const handleSaveCMS = async () => {
@@ -397,7 +412,7 @@ const AdminPanel = () => {
       {/* ONYX SIDEBAR */}
       <aside className="w-80 h-full border-r border-zinc-900 bg-zinc-950/50 backdrop-blur-3xl flex flex-col z-50 shrink-0">
         <div className="p-8 border-b border-zinc-900/50">
-          <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate('/')}>
+          <div className="flex items-center gap-4 group cursor-pointer mb-6" onClick={() => navigate('/')}>
             <div className="w-12 h-12 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center transition-all duration-500 group-hover:border-maroon/40 shadow-inner">
               <Logo className="w-7 h-7 text-maroon transition-transform duration-500 group-hover:scale-110" />
             </div>
@@ -405,6 +420,32 @@ const AdminPanel = () => {
               <h1 className="text-xl font-black text-white uppercase tracking-tighter leading-none">Argus_Panel</h1>
               <p className="text-[8px] font-mono font-black text-zinc-600 uppercase tracking-widest mt-1">Institutional_v2.4.0</p>
             </div>
+          </div>
+
+          <div className="flex gap-2 w-full">
+            <Link
+              to="/"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-xl text-zinc-400 hover:text-white hover:border-maroon/50 hover:bg-maroon/5 transition-all group shadow-2xl"
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest">Return</span>
+            </Link>
+            <button
+              onClick={() => {
+                if (!document.fullscreenElement) {
+                  document.documentElement.requestFullscreen().catch(err => console.error(err));
+                  setIsFullscreen(true);
+                } else {
+                  if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    setIsFullscreen(false);
+                  }
+                }
+              }}
+              className="flex items-center justify-center px-4 py-2 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-xl text-zinc-400 hover:text-white hover:border-maroon/50 hover:bg-maroon/5 transition-all group shadow-2xl"
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            >
+              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
@@ -440,6 +481,13 @@ const AdminPanel = () => {
               >
                 <Layout className={`w-4 h-4 transition-colors ${activeTab === 'cms' ? 'text-white' : 'text-zinc-700 group-hover:text-zinc-500'}`} />
                 CMS Controller
+              </button>
+              <button
+                onClick={() => setActiveTab('locks')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'locks' ? 'bg-red-500 text-white border border-red-500/20 shadow-lg shadow-red-500/20' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
+              >
+                <Shield className={`w-4 h-4 transition-colors ${activeTab === 'locks' ? 'text-white' : 'text-zinc-700 group-hover:text-red-500'}`} />
+                Registry Locks
               </button>
             </div>
           </div>

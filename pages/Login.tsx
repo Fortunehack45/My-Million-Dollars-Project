@@ -19,6 +19,8 @@ import { NetworkStats } from '../types';
 const Login = () => {
   const { login } = useAuth();
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const getLocalTime = () => {
     const now = new Date();
@@ -171,18 +173,36 @@ const Login = () => {
             </div>
           </header>
 
-          <div className="space-y-10">
-            <div className="border border-zinc-800 hover:border-zinc-700 rounded-2xl overflow-hidden group/btn transition-all duration-700 bg-zinc-950">
+          <div className="space-y-6">
+            {isSignUp && (
+              <label className="flex items-start gap-4 p-4 border border-zinc-900 rounded-xl bg-zinc-900/40 cursor-pointer hover:border-maroon/50 transition-colors group/terms relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-maroon/[0.04] to-transparent opacity-0 group-hover/terms:opacity-100 transition-opacity pointer-events-none"></div>
+                <div className="pt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="w-4 h-4 rounded text-maroon bg-zinc-950 border-zinc-700 focus:ring-maroon focus:ring-opacity-20 cursor-pointer transition-all"
+                  />
+                </div>
+                <span className="text-xs text-zinc-400 leading-tight">
+                  I agree to the <a href="/#/terms" target="_blank" className="text-white hover:text-maroon underline transition-colors">Terms & Conditions</a> and <a href="/#/privacy" target="_blank" className="text-white hover:text-maroon underline transition-colors">Privacy Policy</a> governing the institutional network.
+                </span>
+              </label>
+            )}
+
+            <div className={`border ${isSignUp && !acceptedTerms ? 'border-zinc-900 opacity-50 grayscale' : 'border-zinc-800 hover:border-zinc-700'} rounded-2xl overflow-hidden group/btn transition-all duration-700 bg-zinc-950`}>
               <button
                 onClick={login}
-                className="w-full py-6 flex items-center justify-between px-8 relative overflow-hidden active:scale-[0.98] transition-all duration-700"
+                disabled={isSignUp && !acceptedTerms}
+                className={`w-full py-6 flex items-center justify-between px-8 relative overflow-hidden active:scale-[0.98] transition-all duration-700 ${isSignUp && !acceptedTerms ? 'cursor-not-allowed' : ''}`}
               >
                 {/* Hover shimmer */}
                 <div className="absolute inset-0 bg-gradient-to-r from-maroon/[0.04] via-zinc-900/0 to-transparent opacity-0 group-hover/btn:opacity-100 transition-all duration-700"></div>
                 {/* Left: Google logo + text */}
                 <div className="flex items-center gap-6 relative z-10">
                   {/* Full-color Google G logo - Starts grayscale, animates to color on parent hover */}
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md group-hover/btn:shadow-lg transition-all duration-700 shrink-0 grayscale group-hover/btn:grayscale-0">
+                  <div className={`w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md transition-all duration-700 shrink-0 ${isSignUp && !acceptedTerms ? 'grayscale' : 'group-hover/btn:shadow-lg grayscale group-hover/btn:grayscale-0'}`}>
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -191,11 +211,21 @@ const Login = () => {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <span className="block text-xs font-black text-white uppercase tracking-[0.2em] group-hover/btn:text-zinc-300 transition-all duration-500">Continue with Google</span>
+                    <span className="block text-xs font-black text-white uppercase tracking-[0.2em] group-hover/btn:text-zinc-300 transition-all duration-500">{isSignUp ? 'Sign Up with Google' : 'Log in with Google'}</span>
                     <span className="block label-meta mt-1 opacity-40">Encrypted · RSA-4096 · Zero-trust handshake</span>
                   </div>
                 </div>
-                <ArrowRight className="w-5 h-5 text-zinc-700 group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all duration-500 relative z-10" />
+                <ArrowRight className={`w-5 h-5 text-zinc-700 transition-all duration-500 relative z-10 ${isSignUp && !acceptedTerms ? '' : 'group-hover/btn:text-white group-hover/btn:translate-x-1'}`} />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 mt-6">
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-[10px] font-mono font-bold text-zinc-500 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2 group"
+              >
+                {isSignUp ? 'Already authorized? Initialize Login' : 'No identity found? Request Access (Sign Up)'}
+                <ArrowRight className="w-3 h-3 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
               </button>
             </div>
 

@@ -24,7 +24,7 @@ import { Terms, Privacy } from './pages/Legal';
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, firebaseUser, loading } = useAuth();
-  
+
   if (loading) return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
@@ -36,7 +36,7 @@ const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
 
   if (!firebaseUser) return <Navigate to="/login" />;
   if (!user) return <Navigate to="/setup" />;
-  
+
   return <Layout>{children}</Layout>;
 };
 
@@ -45,6 +45,24 @@ const PublicRoute = ({ children }: { children?: React.ReactNode }) => {
   if (loading) return null;
   if (firebaseUser && user) return <Navigate to="/" />;
   if (firebaseUser && !user) return <Navigate to="/setup" />;
+  return <>{children}</>;
+};
+
+const AdminRoute = ({ children }: { children?: React.ReactNode }) => {
+  const { user, firebaseUser, loading } = useAuth();
+
+  if (loading) return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
+        <p className="label-meta animate-pulse">Synchronizing_State</p>
+      </div>
+    </div>
+  );
+
+  if (!firebaseUser) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/setup" />;
+
   return <>{children}</>;
 };
 
@@ -83,20 +101,20 @@ const AppRoutes = () => {
       <Route path="/setup" element={
         firebaseUser && !user ? <ProfileSetup /> : <Navigate to="/" />
       } />
-      
+
       {/* App Routes */}
       <Route path="/tasks" element={
         <ProtectedRoute>
           <SocialTasks />
         </ProtectedRoute>
       } />
-      
+
       <Route path="/leaderboard" element={
         <ProtectedRoute>
           <Leaderboard />
         </ProtectedRoute>
       } />
-      
+
       <Route path="/referrals" element={
         <ProtectedRoute>
           <Referrals />
@@ -110,9 +128,9 @@ const AppRoutes = () => {
       } />
 
       <Route path="/admin" element={
-        <ProtectedRoute>
+        <AdminRoute>
           <AdminPanel />
-        </ProtectedRoute>
+        </AdminRoute>
       } />
 
       {/* Public Routes */}

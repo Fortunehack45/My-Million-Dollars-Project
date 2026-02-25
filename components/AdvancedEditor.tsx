@@ -14,16 +14,16 @@ import {
     AlignLeft, AlignCenter, AlignRight,
     List, ListOrdered, Link as LinkIcon,
     Table as TableIcon, Heading1, Heading2,
-    Undo, Redo, Sigma, PieChart, BarChart
+    Undo, Redo, Sigma, PieChart, BarChart,
+    Maximize, Minimize
 } from 'lucide-react';
-import { BubbleMenu } from '@tiptap/react';
 
 interface AdvancedEditorProps {
     content: string;
     onChange: (html: string) => void;
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor, isFullscreen, onToggleFullscreen }: { editor: any, isFullscreen: boolean, onToggleFullscreen: () => void }) => {
     if (!editor) return null;
 
     const addLink = useCallback(() => {
@@ -160,16 +160,27 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
             <div className="flex-1" />
 
-            {/* Hint for Slash Commands */}
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-zinc-900/60 rounded-lg border border-white/5">
-                <Command className="w-3 h-3 text-zinc-600" />
-                <span className="text-[9px] font-mono font-black text-zinc-500 uppercase tracking-widest italic">Type '/' to trigger protocol commands</span>
+            {/* Hint for Slash Commands / Fullscreen Toggle */}
+            <div className="flex items-center gap-2">
+                <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-zinc-900/60 rounded-lg border border-white/5">
+                    <Command className="w-3 h-3 text-zinc-600" />
+                    <span className="text-[9px] font-mono font-black text-zinc-500 uppercase tracking-widest italic">Type '/' to trigger protocol commands</span>
+                </div>
+                <button
+                    onClick={onToggleFullscreen}
+                    className="p-2 ml-2 rounded-lg bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
+                    title={isFullscreen ? "Minimize Editor" : "Maximize Editor"}
+                >
+                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                </button>
             </div>
         </div>
     );
 };
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({ content, onChange }) => {
+    const [isFullscreen, setIsFullscreen] = React.useState(false);
+
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -187,15 +198,17 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({ content, onChang
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-invert prose-sm max-w-none focus:outline-none min-h-[400px] p-8 text-zinc-300 font-sans',
+                class: `prose prose-invert prose-sm max-w-none focus:outline-none p-8 text-zinc-300 font-sans ${isFullscreen ? 'min-h-[calc(100vh-100px)]' : 'min-h-[400px]'}`,
             },
         },
     });
 
     return (
-        <div className="w-full bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden focus-within:border-maroon/30 transition-colors">
-            <MenuBar editor={editor} />
-            <EditorContent editor={editor} />
+        <div className={`w-full bg-zinc-950 border border-zinc-900 transition-colors flex flex-col ${isFullscreen ? 'fixed inset-0 z-[150] m-0 rounded-none h-screen' : 'rounded-2xl overflow-hidden focus-within:border-maroon/30'}`}>
+            <MenuBar editor={editor} isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(!isFullscreen)} />
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <EditorContent editor={editor} />
+            </div>
             <style>{`
         .ProseMirror table {
           border-collapse: collapse;

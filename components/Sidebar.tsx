@@ -16,21 +16,24 @@ import {
   CreditCard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { ADMIN_EMAIL } from '../services/firebase';
+import { ADMIN_EMAIL, subscribeToLockedPages } from '../services/firebase';
 import Logo from './Logo';
 
-const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: string, label: string, icon: any, highlight?: boolean, key?: React.Key }) => {
+const DesktopNavItem = ({ to, label, icon: Icon, highlight = false, isDisabled = false }: { to: string, label: string, icon: any, highlight?: boolean, isDisabled?: boolean, key?: React.Key }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <Link
-      to={to}
-      className={`relative flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-500 group overflow-hidden ${isActive
-        ? 'bg-zinc-900/80 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] border border-white/5'
-        : highlight
-          ? 'text-maroon hover:bg-maroon/5'
-          : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/40'
+      to={isDisabled ? '#' : to}
+      onClick={isDisabled ? (e) => e.preventDefault() : undefined}
+      className={`relative flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-500 group overflow-hidden ${isDisabled
+        ? 'opacity-40 grayscale cursor-not-allowed pointer-events-none'
+        : isActive
+          ? 'bg-zinc-900/80 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] border border-white/5'
+          : highlight
+            ? 'text-maroon hover:bg-maroon/5'
+            : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/40'
         }`}
     >
       {isActive && (
@@ -46,14 +49,15 @@ const DesktopNavItem = ({ to, label, icon: Icon, highlight = false }: { to: stri
   );
 };
 
-const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, icon: any }) => {
+const MobileNavItem = ({ to, label, icon: Icon, isDisabled = false }: { to: string, label: string, icon: any, isDisabled?: boolean }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <Link
-      to={to}
-      className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative transition-all duration-300 ${isActive ? 'text-maroon' : 'text-zinc-600 hover:text-zinc-400'}`}
+      to={isDisabled ? '#' : to}
+      onClick={isDisabled ? (e) => e.preventDefault() : undefined}
+      className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative transition-all duration-300 ${isDisabled ? 'opacity-30 grayscale pointer-events-none' : isActive ? 'text-maroon' : 'text-zinc-600 hover:text-zinc-400'}`}
     >
       <Icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} />
       <span className={`text-[8px] font-bold uppercase tracking-[0.2em] transition-colors duration-300`}>{label}</span>
@@ -63,6 +67,12 @@ const MobileNavItem = ({ to, label, icon: Icon }: { to: string, label: string, i
 
 const Sidebar = () => {
   const { user, firebaseUser, logout } = useAuth();
+  const [lockedPages, setLockedPages] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    const unsub = subscribeToLockedPages(setLockedPages);
+    return () => unsub();
+  }, []);
 
   // High-priority robust admin check
   const isAuthorizedAdmin =
@@ -122,6 +132,7 @@ const Sidebar = () => {
               to={item.to}
               label={item.label}
               icon={item.icon}
+              isDisabled={!isAuthorizedAdmin && lockedPages.includes(item.to)}
             />
           ))}
         </div>
@@ -154,6 +165,7 @@ const Sidebar = () => {
                 to={item.to}
                 label={item.label}
                 icon={item.icon}
+                isDisabled={!isAuthorizedAdmin && lockedPages.includes(item.to)}
               />
             ))}
 
