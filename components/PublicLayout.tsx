@@ -80,9 +80,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           <div className="nav-glass rounded-2xl transition-all duration-700 hover:bg-black/50 hover:border-white/10 group/nav">
             <div className="relative z-10 px-8 h-12 flex items-center justify-between">
               <Link to="/" className="flex items-center gap-4 group/logo">
-                <div className="w-8 h-8 bg-zinc-950 border border-zinc-900 rounded-lg flex items-center justify-center transition-all duration-700 group-hover/logo:border-maroon/40 group-hover/logo:bg-zinc-900 group-hover/logo:scale-110">
-                  <Logo className="w-5 h-5 text-maroon transition-all duration-700" />
-                </div>
+                <Logo className="w-7 h-7 text-maroon transition-all duration-700 group-hover/logo:scale-110 group-hover/logo:brightness-125" />
                 <div className="flex flex-col">
                   <span className="font-black text-[10px] tracking-[0.3em] text-white uppercase leading-none group-hover/logo:text-maroon transition-colors duration-500">Argus Protocol</span>
                   <span className="text-[6px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-0.5 italic text-center">Institutional Intelligence</span>

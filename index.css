@@ -48,6 +48,15 @@ body {
   overflow-x: hidden;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
   letter-spacing: -0.011em;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+/* Global Hardware Acceleration classes */
+.hw-accelerate {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 ::selection {

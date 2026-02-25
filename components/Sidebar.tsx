@@ -101,9 +101,7 @@ const Sidebar = () => {
       {/* MOBILE: Top Header (Branding & Admin/Profile) */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-xl z-[100] flex items-center justify-between px-6 border-b border-zinc-900/80">
         <div className="flex items-center space-x-3 group/logo">
-          <div className="w-9 h-9 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center transition-all group-hover:border-maroon/40">
-            <Logo className="w-6 h-6 text-maroon" />
-          </div>
+          <Logo className="w-8 h-8 text-maroon transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(128,0,0,0.5)]" />
           <span className="font-black text-[12px] text-white tracking-[0.2em] uppercase">Argus Protocol</span>
         </div>
 
@@ -143,10 +141,9 @@ const Sidebar = () => {
         <div className="flex flex-col h-full p-6">
           <div className="mb-12 px-4 pt-4">
             <div className="flex items-center space-x-5 group/sidebar-logo">
-              <div className="relative w-12 h-12 bg-zinc-900 border border-white/5 flex items-center justify-center rounded-2xl shadow-2xl group-hover/sidebar-logo:border-maroon/50 group-hover/sidebar-logo:scale-110 transition-all duration-700 ease-out-expo">
-                {/* Glow Effect */}
-                <div className="absolute inset-0 bg-maroon/10 blur-xl opacity-0 group-hover/sidebar-logo:opacity-100 transition-opacity duration-700"></div>
-                <Logo className="relative z-10 w-7 h-7 text-maroon drop-shadow-[0_0_10px_rgba(128,0,0,0.4)]" />
+              <div className="relative flex items-center justify-center group-hover/sidebar-logo:scale-110 transition-transform duration-700 ease-out-expo">
+                <div className="absolute inset-0 bg-maroon/20 blur-xl opacity-0 group-hover/sidebar-logo:opacity-100 transition-opacity duration-700"></div>
+                <Logo className="relative z-10 w-11 h-11 text-maroon drop-shadow-[0_0_15px_rgba(128,0,0,0.5)]" />
               </div>
               <div className="flex flex-col">
                 <span className="block font-black text-xl text-white tracking-[-0.03em] leading-none uppercase group-hover/sidebar-logo:text-maroon transition-colors duration-500">Argus Protocol</span>

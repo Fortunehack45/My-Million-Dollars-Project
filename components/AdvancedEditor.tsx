@@ -180,6 +180,30 @@ const MenuBar = ({ editor, isFullscreen, onToggleFullscreen }: { editor: any, is
 
 export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({ content, onChange }) => {
     const [isFullscreen, setIsFullscreen] = React.useState(false);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    const handleToggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            containerRef.current?.requestFullscreen().catch(err => console.error("Fullscreen error:", err));
+            setIsFullscreen(true);
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                setIsFullscreen(false);
+            }
+        }
+    };
+
+    // Listen for Escape key fullscreen exit
+    React.useEffect(() => {
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                setIsFullscreen(false);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
 
     const editor = useEditor({
         extensions: [
@@ -204,8 +228,8 @@ export const AdvancedEditor: React.FC<AdvancedEditorProps> = ({ content, onChang
     });
 
     return (
-        <div className={`w-full bg-zinc-950 border border-zinc-900 transition-colors flex flex-col ${isFullscreen ? 'fixed inset-0 z-[150] m-0 rounded-none h-screen' : 'rounded-2xl overflow-hidden focus-within:border-maroon/30'}`}>
-            <MenuBar editor={editor} isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(!isFullscreen)} />
+        <div ref={containerRef} className={`w-full bg-zinc-950 border border-zinc-900 transition-colors flex flex-col ${isFullscreen ? 'h-screen p-4 rounded-none overflow-hidden' : 'rounded-2xl overflow-hidden focus-within:border-maroon/30'} ${isFullscreen && 'fixed inset-0 z-[9999]'}`}>
+            <MenuBar editor={editor} isFullscreen={isFullscreen} onToggleFullscreen={handleToggleFullscreen} />
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <EditorContent editor={editor} />
             </div>
