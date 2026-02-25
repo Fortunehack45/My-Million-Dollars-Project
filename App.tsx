@@ -20,6 +20,7 @@ import Careers from './pages/Careers';
 import Contact from './pages/Contact';
 import Docs from './pages/Docs';
 import { Terms, Privacy } from './pages/Legal';
+import CookieConsent from './components/CookieConsent';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
@@ -153,6 +154,7 @@ function App() {
   return (
     <AuthProvider>
       <HashRouter>
+        <CookieConsent />
         <AppRoutes />
       </HashRouter>
     </AuthProvider>
