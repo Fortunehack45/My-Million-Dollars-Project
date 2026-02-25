@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData, getNetworkStats, DEFAULT_MAX_USERS_CAP } from '../services/firebase';
 import {
@@ -249,7 +250,7 @@ const ProfileSetup = () => {
         </form>
 
         <p className="text-center mt-8 text-[11px] text-zinc-600 font-medium">
-          By initializing, you agree to the <a href="#" className="underline decoration-zinc-800 hover:text-zinc-400 transition-colors">Protocol Standards</a>
+          By initializing, you agree to the <Link to="/terms" className="underline decoration-zinc-800 hover:text-zinc-400 transition-colors">Terms and Conditions</Link>
         </p>
       </div>
     </div>
