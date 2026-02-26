@@ -79,8 +79,9 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
             </span>
 
             {timeLeft && !isCompleted && timeLeft !== 'EXPIRED' && (
-              <span className={`flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${timeLeft.includes('h') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/50' : 'text-maroon border-maroon/20 bg-maroon/5 animate-pulse'}`}>
-                <Timer className="w-3 h-3" /> Ends in: {timeLeft}
+              <span className={`flex items-center gap-2 text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full border shadow-sm transition-all duration-500 ${timeLeft.includes('H') ? 'text-zinc-400 border-zinc-800 bg-zinc-900/80' : 'text-red-500 border-red-500/20 bg-red-500/5 animate-pulse shadow-lg shadow-red-500/10'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${timeLeft.includes('H') ? 'bg-zinc-600' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`}></div>
+                <span className="opacity-70">EXPIRY:</span> {timeLeft}
               </span>
             )}
 

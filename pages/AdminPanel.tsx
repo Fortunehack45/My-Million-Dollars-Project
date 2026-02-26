@@ -40,7 +40,7 @@ import {
 } from '../types';
 import {
   Users, PlusCircle, Database, ShieldAlert, Cpu,
-  Radio, Trash2, Globe, Layout, Save, X,
+  Radio, Trash2, Globe, Layout, Save, X, Menu,
   BookOpen, FileText, Info, Zap, Activity,
   Layers, AlignLeft, CheckCircle2, Shield, MapPin,
   Briefcase, Phone, HelpCircle, Share2, PieChart,
@@ -214,6 +214,7 @@ const AdminPanel = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Messages State
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -417,10 +418,26 @@ const AdminPanel = () => {
   if (!isAuthorized) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-mono uppercase tracking-widest">Access_Denied</div>;
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden font-sans text-white selection:bg-maroon/30">
+    <div className="flex h-screen bg-black overflow-hidden font-sans text-white selection:bg-maroon/30 relative">
+
+      {/* Mobile Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="lg:hidden fixed bottom-6 right-6 z-[100] w-14 h-14 bg-red-600/20 backdrop-blur-xl text-red-500 rounded-2xl shadow-2xl shadow-red-500/10 flex items-center justify-center border border-red-500/20 group hover:scale-105 transition-all active:scale-95"
+      >
+        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[45] animate-fade-in"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
       {/* ONYX SIDEBAR */}
-      <aside className="w-80 h-full border-r border-zinc-900 bg-zinc-950/50 backdrop-blur-3xl flex flex-col z-50 shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-zinc-950/80 backdrop-blur-3xl border-r border-zinc-900 transition-transform duration-500 ease-out-expo flex flex-col shrink-0 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-8 border-b border-zinc-900/50">
           <div className="flex items-center gap-4 group cursor-pointer mb-6" onClick={() => navigate('/')}>
             <div className="w-12 h-12 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center transition-all duration-500 group-hover:border-maroon/40 shadow-inner">
@@ -530,7 +547,7 @@ const AdminPanel = () => {
       {/* MAIN VIEWPORT */}
       <main className="flex-1 h-full overflow-y-auto custom-scrollbar bg-black relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(128,0,0,0.05)_0%,transparent_70%)] pointer-events-none"></div>
-        <div className="max-w-6xl mx-auto p-12 relative z-10 animate-fade-in-up">
+        <div className="max-w-[1600px] mx-auto p-4 sm:p-8 lg:p-12 relative z-10 animate-fade-in-up">
 
           {/* Dashboard View */}
           {activeTab === 'dashboard' && (
@@ -904,14 +921,23 @@ const AdminPanel = () => {
                     <div className="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1">
                       {tasks.map(t => {
                         const isExpired = t.expiresAt && t.expiresAt < Date.now();
+                        const participantCount = users.filter(u => u.completedTasks?.includes(t.id)).length;
                         return (
                           <div key={t.id} className={`flex justify-between items-center p-4 bg-zinc-950/40 rounded-xl border border-zinc-900 group ${isExpired ? 'opacity-50' : ''}`}>
-                            <div>
-                              <p className="text-white text-xs font-bold">{t.title}</p>
-                              <p className="text-maroon text-[10px] font-mono">{t.points} ARG</p>
-                              {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1">EXPIRED</p>}
+                            <div className="space-y-1">
+                              <p className="text-white text-xs font-bold leading-tight">{t.title}</p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-maroon text-[9px] font-mono font-bold uppercase tracking-widest">{t.points} ARG</span>
+                                <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+                                <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-1">
+                                  <Users className="w-2.5 h-2.5" /> {participantCount} Active
+                                </span>
+                              </div>
+                              {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1">EXPIRED_SEQUENCE</p>}
                             </div>
-                            <button onClick={() => deleteTask(t.id)} className="text-zinc-600 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                            <button onClick={() => deleteTask(t.id)} className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         )
                       })}
