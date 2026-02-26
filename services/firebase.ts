@@ -400,12 +400,14 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
   const userRef = doc(db, 'users', fbUser.uid);
   const nameRef = doc(db, 'usernames', username.toLowerCase());
 
+  const initialPoints = referrerUid ? 15.0 : 5.0;
+
   const newUser: User = {
     uid: fbUser.uid,
     displayName: username,
     email: fbUser.email,
     photoURL: fbUser.photoURL,
-    points: 5.0,
+    points: initialPoints,
     miningActive: false,
     miningStartTime: null,
     referralCode: 'ARG-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
@@ -431,7 +433,7 @@ export const createInitialProfile = async (fbUser: FirebaseUser, username: strin
     const statsRef = doc(db, 'global_stats', 'network');
     await setDoc(statsRef, {
       totalUsers: increment(1),
-      totalMined: increment(5.0),
+      totalMined: increment(initialPoints),
       activeNodes: increment(0)
     }, { merge: true });
   } catch (e) {
