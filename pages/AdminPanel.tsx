@@ -335,10 +335,20 @@ const AdminPanel = () => {
   };
 
   const handleToggleLock = (page: string) => {
-    const newLocked = lockedPages.includes(page)
-      ? lockedPages.filter(p => p !== page)
-      : [...lockedPages, page];
-    updateLockedPages(newLocked);
+    setLockedPages(prev =>
+      prev.includes(page) ? prev.filter(p => p !== page) : [...prev, page]
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSaveLocks = async () => {
+    setCmsStatus('SAVING...');
+    try {
+      await updateLockedPages(lockedPages);
+      setCmsStatus('SAVED');
+      setHasUnsavedChanges(false);
+      setTimeout(() => setCmsStatus(''), 2000);
+    } catch (e) { setCmsStatus('ERROR'); }
   };
 
   const handleSaveCMS = async () => {
@@ -501,6 +511,13 @@ const AdminPanel = () => {
               </button>
               <button onClick={handleSaveCMS} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-zinc-900 text-zinc-700 border border-zinc-800'}`}>
                 {cmsStatus || (hasUnsavedChanges ? 'COMMIT_CHANGES' : 'CLIENT_SYNCED')}
+              </button>
+            </div>
+          )}
+          {activeTab === 'locks' && (
+            <div className="space-y-3">
+              <button onClick={handleSaveLocks} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-zinc-900 text-zinc-700 border border-zinc-800'}`}>
+                {cmsStatus || (hasUnsavedChanges ? 'DEPLOY_LOCKS' : 'REGISTRY_SECURED')}
               </button>
             </div>
           )}
@@ -999,6 +1016,71 @@ const AdminPanel = () => {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Registry Locks View */}
+          {activeTab === 'locks' && (
+            <div className="space-y-8 animate-fade-in-up">
+              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 bg-zinc-950/50">
+                <div className="flex items-center gap-3 mb-8 border-b border-zinc-900 pb-6">
+                  <div className="p-2.5 bg-red-500/10 rounded-xl border border-red-500/20">
+                    <Shield className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">Registry Control Matrix</h2>
+                    <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-1">Status: {hasUnsavedChanges ? 'Awaiting_Commit' : 'Direct_Registry_Link'}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    { path: '/', label: 'Dashboard', desc: 'Main terminal for node operators' },
+                    { path: '/tasks', label: 'Task Modules', desc: 'Social and technical verification tasks' },
+                    { path: '/nft', label: 'Minting Engine', desc: 'NFT generation and acquisition' },
+                    { path: '/referrals', label: 'Network Graph', desc: 'Referral tracking and topology' },
+                    { path: '/leaderboard', label: 'Global Rankings', desc: 'Competitive leaderboard display' },
+                    { path: '/architecture', label: 'Architecture Docs', desc: 'Technical protocol overview' },
+                    { path: '/tokenomics', label: 'Economic Specs', desc: 'Token distribution and schedules' },
+                    { path: '/careers', label: 'Talent Acquisition', desc: 'Open positions within the lab' },
+                    { path: '/contact', label: 'Comms Uplink', desc: 'Support and contact channels' }
+                  ].map((page) => (
+                    <div key={page.path} className={`p-6 rounded-2xl border transition-all duration-500 ${lockedPages.includes(page.path) ? 'bg-red-500/5 border-red-500/20 shadow-lg shadow-red-500/5' : 'bg-zinc-900/30 border-zinc-800 hover:border-zinc-700'}`}>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full animate-pulse ${lockedPages.includes(page.path) ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
+                          <span className="text-[10px] font-black text-white uppercase tracking-widest">{page.label}</span>
+                        </div>
+                        <button
+                          onClick={() => handleToggleLock(page.path)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${lockedPages.includes(page.path) ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-zinc-800'}`}
+                        >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${lockedPages.includes(page.path) ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-mono text-zinc-600 truncate">{page.path}</p>
+                        <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors uppercase font-mono">{page.desc}</p>
+                      </div>
+                      <div className="mt-4 flex items-center gap-2">
+                        <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${lockedPages.includes(page.path) ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                          {lockedPages.includes(page.path) ? 'SYS_LOCK_ACTIVE' : 'PATH_OPEN'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-12 p-6 bg-red-500/5 border border-red-500/10 rounded-3xl">
+                  <div className="flex gap-4">
+                    <ShieldAlert className="w-6 h-6 text-red-500 shrink-0" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-black text-white uppercase tracking-widest">Protocol Override Warning</p>
+                      <p className="text-[11px] text-red-500/70 leading-relaxed font-mono uppercase">LOCKED PAGES ARE ONLY ACCESSIBLE BY AUTHORIZED INSTITUTIONAL ENTITIES. TERMINATING PATH ACCESS WILL REDIRECT ALL GENERAL TRAFFIC TO THE ROOT DOMAIN.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

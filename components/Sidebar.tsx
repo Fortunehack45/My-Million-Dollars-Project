@@ -166,15 +166,22 @@ const Sidebar = () => {
               />
             ))}
 
-            {isAuthorizedAdmin && (
-              <div className="pt-8 mt-8 border-t border-zinc-900/50">
-                <div className="flex items-center gap-2 px-4 mb-4 opacity-80">
-                  <ShieldAlert className="w-3 h-3 text-maroon animate-pulse" />
-                  <p className="label-meta text-[8px] text-maroon">System Override</p>
-                </div>
-                <DesktopNavItem to="/admin" label="Command Center" icon={Settings} highlight={true} />
+            <div className={`pt-8 mt-8 border-t border-zinc-900/50 transition-opacity duration-500 ${!isAuthorizedAdmin ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-2 px-4 mb-4">
+                <ShieldAlert className={`w-3 h-3 ${isAuthorizedAdmin ? 'text-maroon animate-pulse' : 'text-zinc-600'}`} />
+                <p className={`label-meta text-[8px] uppercase tracking-widest ${isAuthorizedAdmin ? 'text-maroon' : 'text-zinc-600'}`}>
+                  {isAuthorizedAdmin ? 'System Override' : 'Restricted_Access'}
+                </p>
               </div>
-            )}
+              <DesktopNavItem
+                to="/admin"
+                label="Command Center"
+                icon={Settings}
+                highlight={isAuthorizedAdmin}
+                isDisabled={!isAuthorizedAdmin}
+                key="admin-nav"
+              />
+            </div>
           </nav>
 
           {user && (
