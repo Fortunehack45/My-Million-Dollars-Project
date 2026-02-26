@@ -451,7 +451,7 @@ const Landing = () => {
                   <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
                   <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
                      {content.partners.items.map((name, i) => (
-                        <h3 key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
+                        <h3 key={name} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
                      ))}
                   </div>
                </div>
@@ -469,7 +469,7 @@ const Landing = () => {
                      {content.features.items.map((item, i) => {
                         const Icon = IconMap[item.icon] || Globe;
                         return (
-                           <div key={i} style={{ transitionDelay: `${i * 150}ms` }} className={`p-10 md:p-12 rounded-[2.5rem] silk-panel hover:-translate-y-2 group ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                           <div key={item.title} style={{ transitionDelay: `${i * 150}ms` }} className={`p-10 md:p-12 rounded-[2.5rem] silk-panel hover:-translate-y-2 group ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                               <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-maroon/10 group-hover:border-maroon/20 transition- silk-transition">
                                  <Icon className="w-8 h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
                               </div>
@@ -497,7 +497,7 @@ const Landing = () => {
                         </div>
                         <div className="space-y-6 md:space-y-8">
                            {content.architecture.layers.map((layer, i) => (
-                              <div key={i} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
+                              <div key={layer.title} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
                                  <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-maroon/50 transition-colors">
                                     <Layers className="w-6 h-6 md:w-7 md:h-7 text-zinc-600 group-hover:text-maroon transition-colors" />
                                  </div>
@@ -562,7 +562,7 @@ const Landing = () => {
                               const isEven = i % 2 === 0;
                               return (
                                  <div
-                                    key={i}
+                                    key={phase.phase}
                                     className={`relative flex flex-col md:flex-row items-center gap-8 md:gap-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} group`}
                                  >
                                     {/* Desktop Connector Line - Grows outwards */}
@@ -636,7 +636,7 @@ const Landing = () => {
                                           {/* Features */}
                                           <div className="space-y-3 relative z-10 border-t border-zinc-900 pt-6">
                                              {phase.features.map((feat, idx) => (
-                                                <div key={idx} className="flex items-start gap-3 group/item">
+                                                <div key={feat} className="flex items-start gap-3 group/item">
                                                    <div className={`mt-1 w-1.5 h-1.5 rounded-full ${phase.status === 'LIVE' ? 'bg-maroon' : 'bg-zinc-700'} group-hover/item:scale-150 transition-transform`}></div>
                                                    <span className="text-xs font-medium text-zinc-300 group-hover/item:text-white transition-colors">{feat}</span>
                                                 </div>

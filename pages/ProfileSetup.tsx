@@ -29,9 +29,13 @@ const ProfileSetup = () => {
 
   // Auto-fill referral code
   useEffect(() => {
-    const savedRef = localStorage.getItem('referralCode');
-    if (savedRef) {
-      setRefCode(savedRef.toUpperCase());
+    try {
+      const savedRef = localStorage.getItem('referralCode');
+      if (savedRef) {
+        setRefCode(savedRef.toUpperCase());
+      }
+    } catch (e) {
+      console.warn('Local storage access restricted.');
     }
   }, []);
 

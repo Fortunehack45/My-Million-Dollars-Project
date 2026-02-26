@@ -163,12 +163,14 @@ const Docs = () => {
                   <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-3">Community</h4>
                   <a
                     href="#"
+                    onClick={(e) => e.preventDefault()}
                     className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-maroon transition-colors mb-2"
                   >
                     GitHub Repository <ExternalLink size={12} />
                   </a>
                   <a
                     href="#"
+                    onClick={(e) => e.preventDefault()}
                     className="flex items-center gap-2 text-[13px] text-zinc-500 hover:text-maroon transition-colors"
                   >
                     Discord Server <ExternalLink size={12} />
@@ -471,7 +473,7 @@ uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`}
                 <div className="text-xs text-zinc-600">
                   Last updated: <span className="text-zinc-400">February 18, 2026</span>
                 </div>
-                <a href="#" className="text-xs text-maroon hover:underline">Edit this page on GitHub</a>
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-xs text-maroon hover:underline">Edit this page on GitHub</a>
               </div>
             </div>
           </div>

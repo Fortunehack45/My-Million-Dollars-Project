@@ -429,7 +429,7 @@ const Dashboard = () => {
                 { type: 'info', msg: `Network TPS: ${tps.toLocaleString()}`, time: '00:00:20' },
                 user.miningActive ? { type: 'ok', msg: `Mining: +${ratePerSecond.toFixed(6)} ARG/s`, time: 'NOW' } : null,
               ].filter(Boolean).map((log: any, i) => (
-                <div key={i} className="flex gap-3">
+                <div key={`${log.time}-${i}`} className="flex gap-3">
                   <span className="text-zinc-700 shrink-0 w-14 text-right">{log.time}</span>
                   <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-amber-500' : log.type === 'sys' ? 'text-maroon' : 'text-zinc-400'}`}>
                     {log.msg}

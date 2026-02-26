@@ -1102,7 +1102,7 @@ const AdminPanel = () => {
                           <div className="space-y-4">
                             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Partner Logos (Text)</span>
                             {(landingConfig.partners.items || []).map((item, idx) => (
-                              <div key={idx} className="flex gap-4">
+                              <div key={`${item}-${idx}`} className="flex gap-4">
                                 <InputGroup value={item} onChange={(v: string) => {
                                   const newItems = [...(landingConfig.partners.items || [])];
                                   newItems[idx] = v;
@@ -1124,7 +1124,7 @@ const AdminPanel = () => {
 
                           <div className="space-y-4 pt-6">
                             {(landingConfig.features.items || []).map((item, idx) => (
-                              <AccordionItem key={idx} title={item.title || 'New Feature'} onDelete={() => removeItem(setLandingConfig, ['features', 'items'], idx)}>
+                              <AccordionItem key={`${item.title}-${idx}`} title={item.title || 'New Feature'} onDelete={() => removeItem(setLandingConfig, ['features', 'items'], idx)}>
                                 <InputGroup label="Title" value={item.title} onChange={(v: string) => {
                                   const newItems = [...(landingConfig.features.items || [])];
                                   newItems[idx].title = v;
@@ -1155,7 +1155,7 @@ const AdminPanel = () => {
 
                           <div className="space-y-4 pt-6">
                             {landingConfig.roadmap.phases.map((phase, idx) => (
-                              <AccordionItem key={idx} title={`Phase ${phase.phase}: ${phase.title}`} onDelete={() => removeItem(setLandingConfig, ['roadmap', 'phases'], idx)}>
+                              <AccordionItem key={`${phase.phase}-${idx}`} title={`Phase ${phase.phase}: ${phase.title}`} onDelete={() => removeItem(setLandingConfig, ['roadmap', 'phases'], idx)}>
                                 <div className="grid grid-cols-2 gap-4">
                                   <InputGroup label="Phase Number" value={phase.phase} onChange={(v: string) => {
                                     const newPhases = [...landingConfig.roadmap.phases];

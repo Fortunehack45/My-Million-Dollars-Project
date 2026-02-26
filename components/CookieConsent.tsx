@@ -5,21 +5,33 @@ const CookieConsent = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        const consent = localStorage.getItem('argus_cookie_consent');
-        if (!consent) {
-            // Small delay for dramatic entrance
-            const timer = setTimeout(() => setIsVisible(true), 1500);
-            return () => clearTimeout(timer);
+        try {
+            const consent = localStorage.getItem('argus_cookie_consent');
+            if (!consent) {
+                // Small delay for dramatic entrance
+                const timer = setTimeout(() => setIsVisible(true), 1500);
+                return () => clearTimeout(timer);
+            }
+        } catch (e) {
+            console.warn('LocalStorage access denied for cookie consent.');
         }
     }, []);
 
     const handleAcceptAll = () => {
-        localStorage.setItem('argus_cookie_consent', 'all');
+        try {
+            localStorage.setItem('argus_cookie_consent', 'all');
+        } catch (e) {
+            console.warn('Failed to save cookie consent.');
+        }
         setIsVisible(false);
     };
 
     const handleEssentialOnly = () => {
-        localStorage.setItem('argus_cookie_consent', 'essential');
+        try {
+            localStorage.setItem('argus_cookie_consent', 'essential');
+        } catch (e) {
+            console.warn('Failed to save cookie consent.');
+        }
         setIsVisible(false);
     };
 

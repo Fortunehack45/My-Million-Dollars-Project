@@ -35,7 +35,7 @@ const Careers = () => {
 
             <div className="grid gap-10 relative z-10">
                {content.positions.map((job, i) => (
-                  <div key={i} className="group relative silk-panel p-1.5 rounded-[3rem] transition-all duration-700 hover:-translate-y-2">
+                  <div key={job.title} className="group relative silk-panel p-1.5 rounded-[3rem] transition-all duration-700 hover:-translate-y-2">
                      <div className="bg-zinc-950 h-full rounded-[2.9rem] p-10 md:p-14 flex flex-col lg:flex-row lg:items-center justify-between gap-12 border border-white/[0.02] group-hover:border-maroon/30 transition-all duration-700 relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 

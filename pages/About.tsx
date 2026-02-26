@@ -43,7 +43,7 @@ const About = () => {
                   { icon: Globe, title: content.vision.title, desc: content.vision.desc, label: 'Global_Continuum' },
                   { icon: Users, title: content.collective.title, desc: content.collective.desc, label: 'Standard_Protocol' }
                ].map((item, i) => (
-                  <div key={i} className="group relative p-1.5 rounded-[3rem] silk-panel transition-all duration-700 hover:-translate-y-2">
+                  <div key={item.label} className="group relative p-1.5 rounded-[3rem] silk-panel transition-all duration-700 hover:-translate-y-2">
                      <div className="bg-zinc-950 h-full rounded-[2.9rem] p-12 flex flex-col items-center text-center border border-white/[0.02] group-hover:border-maroon/20 transition-all duration-700 relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
