@@ -195,9 +195,9 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               </p>
 
               <div className="flex gap-4">
-                <a href={landingConfig.socials?.twitter || DEFAULT_LANDING_CONFIG.socials.twitter} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"><XIcon className="w-5 h-5" /></a>
+                <a href={landingConfig.socials?.twitter || DEFAULT_LANDING_CONFIG.socials.twitter} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-maroon hover:text-white hover:border-maroon transition-all duration-500 shadow-lg"><XIcon className="w-5 h-5" /></a>
                 <a href={landingConfig.socials?.discord || DEFAULT_LANDING_CONFIG.socials.discord} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-maroon hover:text-white hover:border-maroon transition-all duration-500 shadow-lg"><DiscordIcon className="w-5 h-5" /></a>
-                <a href={landingConfig.socials?.github || DEFAULT_LANDING_CONFIG.socials.github} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"><GithubIcon className="w-5 h-5" /></a>
+                <a href={landingConfig.socials?.github || DEFAULT_LANDING_CONFIG.socials.github} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-maroon hover:text-white hover:border-maroon transition-all duration-500 shadow-lg"><GithubIcon className="w-5 h-5" /></a>
               </div>
             </div>
 
