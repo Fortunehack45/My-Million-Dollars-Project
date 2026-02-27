@@ -198,7 +198,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
               <div className="flex gap-4">
                 <a href={landingConfig.socials?.twitter || DEFAULT_LANDING_CONFIG.socials.twitter} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"><XIcon className="w-5 h-5" /></a>
-                <a href={landingConfig.socials?.discord || DEFAULT_LANDING_CONFIG.socials.discord} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-[#5865F2] hover:text-white hover:border-[#5865F2] transition-all duration-500 shadow-lg"><DiscordIcon className="w-5 h-5" /></a>
+                <a href={landingConfig.socials?.discord || DEFAULT_LANDING_CONFIG.socials.discord} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-maroon hover:text-white hover:border-maroon transition-all duration-500 shadow-lg"><DiscordIcon className="w-5 h-5" /></a>
                 <a href={landingConfig.socials?.github || DEFAULT_LANDING_CONFIG.socials.github} target="_blank" rel="noreferrer" className="w-12 h-12 bg-zinc-900/50 border border-zinc-900 rounded-2xl flex items-center justify-center text-zinc-500 hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"><GithubIcon className="w-5 h-5" /></a>
               </div>
             </div>
@@ -233,9 +233,9 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             </div>
 
             {(landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText) && (
-              <div className="flex items-center gap-4 px-6 py-2.5 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-full cursor-default shadow-sm backdrop-blur-sm">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.4)]"></div>
-                <span className="text-[10px] font-mono font-black text-emerald-500/90 uppercase tracking-[0.25em]">{landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText}</span>
+              <div className="flex items-center gap-4 px-6 py-2.5 bg-maroon/[0.03] border border-maroon/10 rounded-full cursor-default shadow-sm backdrop-blur-sm">
+                <div className="w-2 h-2 rounded-full bg-maroon animate-pulse shadow-[0_0_12px_rgba(128,0,0,0.4)]"></div>
+                <span className="text-[10px] font-mono font-black text-maroon/90 uppercase tracking-[0.25em]">{landingConfig.footer?.statusText || DEFAULT_LANDING_CONFIG.footer.statusText}</span>
               </div>
             )}
           </div>

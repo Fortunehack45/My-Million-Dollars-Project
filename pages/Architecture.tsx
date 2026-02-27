@@ -29,9 +29,9 @@ const GhostDAGExplainer = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-               <div className="p-10 silk-panel rounded-[2.5rem] space-y-6 hover:border-emerald-500/20 group/node">
-                  <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center group-hover/node:bg-emerald-500 transition-all duration-700">
-                     <GitBranch className="w-7 h-7 text-emerald-500 group-hover:text-white transition-colors" />
+               <div className="p-10 silk-panel rounded-[2.5rem] space-y-6 hover:border-maroon/20 group/node">
+                  <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center group-hover/node:bg-maroon transition-all duration-700">
+                     <GitBranch className="w-7 h-7 text-maroon group-hover:text-white transition-colors" />
                   </div>
                   <div>
                      <h4 className="text-[11px] font-black text-white uppercase tracking-[0.3em] mb-2 font-mono">Blue_Set_Canonical</h4>
@@ -66,7 +66,7 @@ const GhostDAGExplainer = () => {
                            <div key={i} className="flex flex-col items-center gap-10">
                               <div className="w-20 h-20 bg-zinc-950 border border-zinc-900 flex items-center justify-center rounded-3xl relative shadow-2xl group-hover:border-maroon/50 transition-all duration-1000">
                                  <Box className="w-8 h-8 text-zinc-700 group-hover:text-white transition-colors" />
-                                 {i === 2 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.6)]"></div>}
+                                 {i === 2 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-maroon rounded-full animate-pulse shadow-[0_0_15px_rgba(128,0,0,0.6)]"></div>}
                               </div>
                               <div className="h-32 w-px bg-gradient-to-b from-zinc-800 via-maroon/20 to-transparent"></div>
                               <div className="w-16 h-16 bg-zinc-950/40 border border-white/[0.02] flex items-center justify-center rounded-2xl">
@@ -84,9 +84,9 @@ const GhostDAGExplainer = () => {
                      </div>
                      <div className="flex flex-col items-end gap-3 pb-1">
                         <div className="flex gap-1.5">
-                           {[1, 2, 3, 4, 5].map(j => <div key={j} className="w-1.5 h-4 bg-emerald-500/20 rounded-full animate-pulse" style={{ animationDelay: `${j * 100}ms` }}></div>)}
+                           {[1, 2, 3, 4, 5].map(j => <div key={j} className="w-1.5 h-4 bg-maroon/20 rounded-full animate-pulse" style={{ animationDelay: `${j * 100}ms` }}></div>)}
                         </div>
-                        <span className="text-[10px] font-mono font-black text-emerald-500 uppercase tracking-[0.3em]">Network_Sync_Optimal</span>
+                        <span className="text-[10px] font-mono font-black text-maroon uppercase tracking-[0.3em]">Network_Sync_Optimal</span>
                      </div>
                   </div>
                </div>

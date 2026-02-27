@@ -125,7 +125,7 @@ const Contact = () => {
                                  </div>
                                  <span className="text-[11px] font-black text-white uppercase tracking-[0.4em] font-mono italic">Encrypted_Transmission_Link</span>
                               </div>
-                              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
+                              <div className="h-2 w-2 rounded-full bg-maroon animate-pulse shadow-[0_0_10px_#800000]" />
                            </div>
 
                            <div className="space-y-10">
@@ -171,12 +171,12 @@ const Contact = () => {
                            </div>
 
                            {status === 'success' && (
-                              <div className="bg-emerald-500/5 border border-emerald-500/10 p-8 rounded-3xl flex items-center gap-6 animate-in fade-in zoom-in-95 duration-700">
-                                 <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-500/20">
-                                    <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+                              <div className="bg-maroon/[0.03] border border-maroon/10 p-8 rounded-3xl flex items-center gap-6 animate-in fade-in zoom-in-95 duration-700">
+                                 <div className="w-14 h-14 bg-maroon/10 rounded-2xl flex items-center justify-center shrink-0 border border-maroon/20">
+                                    <CheckCircle2 className="w-7 h-7 text-maroon" />
                                  </div>
-                                 <div className="space-y-1">
-                                    <p className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.4em] font-mono">Transmission_Successful</p>
+                                 <div>
+                                    <p className="text-[11px] font-black text-maroon uppercase tracking-[0.4em] font-mono">Transmission_Successful</p>
                                     <p className="text-[10px] text-zinc-600 font-mono font-bold uppercase tracking-widest">Payload_Authenticated_And_Logged</p>
                                  </div>
                               </div>

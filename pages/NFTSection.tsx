@@ -16,7 +16,7 @@ const TierCard = ({ tier, points, required, status, icon: Icon }: any) => {
 
    return (
       <div className={`relative p-8 rounded-[2rem] border transition-all duration-1000 group overflow-hidden ${isEligible
-         ? 'bg-emerald-500/[0.02] border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.05)]'
+         ? 'bg-maroon/[0.02] border-maroon/20 shadow-[0_0_50px_rgba(128,0,0,0.05)]'
          : 'bg-zinc-950/40 border-zinc-900/50 hover:border-zinc-800'
          }`}>
 
@@ -26,10 +26,10 @@ const TierCard = ({ tier, points, required, status, icon: Icon }: any) => {
          </div>
 
          <div className="flex justify-between items-start mb-8 relative z-10">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-2xl ${isEligible ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 scale-110' : 'bg-zinc-900 border border-zinc-800 text-zinc-600 group-hover:text-zinc-400 group-hover:scale-105'}`}>
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-2xl ${isEligible ? 'bg-maroon/10 border border-maroon/20 text-maroon scale-110' : 'bg-zinc-900 border border-zinc-800 text-zinc-600 group-hover:text-zinc-400 group-hover:scale-105'}`}>
                <Icon className="w-7 h-7" />
             </div>
-            <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-2xl backdrop-blur-md ${isEligible ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-zinc-900/80 text-zinc-700 border-zinc-800'}`}>
+            <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-2xl backdrop-blur-md ${isEligible ? 'bg-maroon/20 text-white border-maroon/30' : 'bg-zinc-900/80 text-zinc-700 border-zinc-800'}`}>
                {status}
             </div>
          </div>
@@ -43,11 +43,11 @@ const TierCard = ({ tier, points, required, status, icon: Icon }: any) => {
             <div className="space-y-2">
                <div className="flex justify-between text-[9px] uppercase font-bold tracking-widest">
                   <span className="text-zinc-600">Verification Scale</span>
-                  <span className={isEligible ? 'text-emerald-500' : 'text-zinc-700'}>{progress.toFixed(1)}%</span>
+                  <span className={isEligible ? 'text-maroon' : 'text-zinc-700'}>{progress.toFixed(1)}%</span>
                </div>
                <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
                   <div
-                     className={`h-full transition-all duration-1000 ease-out ${isEligible ? 'bg-emerald-500' : 'bg-maroon/40'}`}
+                     className={`h-full transition-all duration-1000 ease-out ${isEligible ? 'bg-maroon' : 'bg-maroon/40'}`}
                      style={{ width: `${progress}%` }}
                   />
                </div>
@@ -55,7 +55,7 @@ const TierCard = ({ tier, points, required, status, icon: Icon }: any) => {
 
             <div className="flex items-center justify-between pt-2">
                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">Auth_Req</p>
-               <p className={`text-xs font-mono font-black ${isEligible ? 'text-emerald-400' : 'text-zinc-500'}`}>{required.toLocaleString()} ARG</p>
+               <p className={`text-xs font-mono font-black ${isEligible ? 'text-white' : 'text-zinc-500'}`}>{required.toLocaleString()} ARG</p>
             </div>
          </div>
 
@@ -200,7 +200,7 @@ const NFTSection = () => {
                      <div className="flex flex-col">
                         <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">Status</span>
                         <div className="flex items-center gap-2">
-                           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                           <div className="w-2 h-2 bg-maroon rounded-full animate-pulse" />
                            <span className="text-sm font-black text-white uppercase tracking-tighter">Ready for Epoch 1</span>
                         </div>
                      </div>

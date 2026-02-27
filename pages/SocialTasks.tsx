@@ -68,7 +68,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
 
       <div className="flex flex-col md:flex-row p-6 md:p-8 gap-6 md:items-center relative z-10">
         {/* Status Icon */}
-        <div className={`hidden md:flex w-16 h-16 rounded-2xl border flex items-center justify-center shrink-0 transition-silk ${isCompleted ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-zinc-950 border-white/5 text-zinc-500 group-hover:text-maroon group-hover:border-maroon/20 group-hover:bg-maroon/5'}`}>
+        <div className={`hidden md:flex w-16 h-16 rounded-2xl border flex items-center justify-center shrink-0 transition-silk ${isCompleted ? 'bg-maroon/10 border border-maroon/20 text-maroon' : 'bg-zinc-950 border-white/5 text-zinc-500 group-hover:text-maroon group-hover:border-maroon/20 group-hover:bg-maroon/5'}`}>
           {isCompleted ? <ShieldCheck className="w-7 h-7" /> : (task.icon === 'twitter' ? <Twitter className="w-7 h-7" /> : task.icon === 'telegram' ? <Send className="w-7 h-7" /> : <Globe className="w-7 h-7" />)}
         </div>
 
@@ -102,8 +102,8 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
           </div>
 
           {isCompleted ? (
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Validated</span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-maroon/10 rounded-lg border border-maroon/20">
+              <span className="text-[10px] font-bold text-maroon uppercase tracking-widest">Validated</span>
             </div>
           ) : timeLeft === 'EXPIRED' ? (
             <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 rounded-lg border border-zinc-800 opacity-50">
@@ -169,7 +169,7 @@ const SocialTasks = () => {
           <div>
             <h1 className="text-base font-black text-white uppercase tracking-tight">Operational_Tasks</h1>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]" />
               <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Security_Clearance: Alpha_One · v2.8</p>
             </div>
           </div>

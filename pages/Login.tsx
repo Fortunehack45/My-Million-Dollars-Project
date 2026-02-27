@@ -88,7 +88,7 @@ const Login = () => {
                   <Activity className="w-3 h-3 text-maroon" />
                   <span className="label-meta">Epoch_Sync_Health</span>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-600">↑ 99.97%</span>
+                <span className="text-[10px] font-mono text-zinc-500">↑ 99.97%</span>
               </div>
               {/* Deterministic bar chart for professional, stable look */}
               <div className="h-28 flex items-end gap-[2px]">
@@ -120,7 +120,7 @@ const Login = () => {
               <div className="grid grid-cols-3 gap-2">
                 {[{ id: 'NA_W', lat: 2 }, { id: 'NA_E', lat: 5 }, { id: 'EU_W', lat: 8 }, { id: 'EU_C', lat: 11 }, { id: 'AS_E', lat: 18 }, { id: 'AU_S', lat: 22 }].map((node) => (
                   <div key={node.id} className="border border-zinc-900 hover:border-maroon/30 p-3 flex flex-col items-center gap-2 bg-zinc-900/30 transition-colors duration-500 group">
-                    <div className="w-1 h-1 bg-emerald-500 rounded-full shadow-[0_0_6px_rgba(16,185,129,0.8)] group-hover:shadow-[0_0_12px_rgba(16,185,129,0.9)]"></div>
+                    <div className="w-1 h-1 bg-maroon rounded-full shadow-[0_0_6px_#800000] group-hover:shadow-[0_0_12px_#ff0000]"></div>
                     <span className="text-[8px] font-mono text-zinc-500 group-hover:text-zinc-300 transition-colors">{node.id}</span>
                     <span className="text-[7px] font-mono text-zinc-700">{node.lat}ms</span>
                   </div>
@@ -139,8 +139,8 @@ const Login = () => {
               <span className="text-zinc-700">PID: 8042</span>
             </div>
             <div className="space-y-1 text-zinc-600">
-              <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Booting Argus Kernel v2.4.0...</p>
-              <p><span className="text-emerald-500 mr-2">OK</span> {timestamp} Initializing encrypted tunnel layers...</p>
+              <p><span className="text-white mr-2">OK</span> {timestamp} Booting Argus Kernel v2.4.0...</p>
+              <p><span className="text-white mr-2">OK</span> {timestamp} Initializing encrypted tunnel layers...</p>
               <p><span className="text-maroon mr-2">!!</span> {timestamp} Waiting for Operator Credentials</p>
               <div className="pt-2 flex items-center gap-3">
                 <div className="h-[2px] bg-zinc-800 flex-1 overflow-hidden">

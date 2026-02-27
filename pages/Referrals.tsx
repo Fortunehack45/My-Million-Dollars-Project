@@ -79,7 +79,7 @@ const Referrals = () => {
           <div>
             <h1 className="text-base font-black text-white uppercase tracking-tight">Authorization_Bridge</h1>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]" />
               <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Network expansion active · v2.8</p>
             </div>
           </div>
@@ -123,7 +123,7 @@ const Referrals = () => {
                 </div>
                 <button
                   onClick={copyLink}
-                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedLink ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-maroon text-white hover:bg-[#a00000] hover:scale-[1.02] shadow-[0_0_15px_rgba(128,0,0,0.2)]'}`}
+                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedLink ? 'bg-maroon/10 text-maroon border border-maroon/20' : 'bg-maroon text-white hover:bg-[#a00000] hover:scale-[1.02] shadow-[0_0_15px_rgba(128,0,0,0.2)]'}`}
                 >
                   {copiedLink ? <><CheckCircle2 className="w-4 h-4" /> Link Copied</> : 'Copy Full Link'}
                 </button>
@@ -140,7 +140,7 @@ const Referrals = () => {
                 </div>
                 <button
                   onClick={copyCode}
-                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedCode ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-transparent border border-maroon/30 text-maroon hover:bg-maroon hover:text-white'}`}
+                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedCode ? 'bg-maroon/10 text-maroon border border-maroon/20' : 'bg-transparent border border-maroon/30 text-maroon hover:bg-maroon hover:text-white'}`}
                 >
                   {copiedCode ? <><CheckCircle2 className="w-4 h-4" /> Code Copied</> : 'Copy Code Only'}
                 </button>
@@ -257,8 +257,8 @@ const Referrals = () => {
                           <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-1">Grant_Allocation</p>
                           <p className="text-sm font-mono font-black text-white">+{REFERRAL_BONUS_POINTS.toFixed(2)} <span className="text-[10px] text-zinc-500">ARG</span></p>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        <div className="w-8 h-8 rounded-full bg-maroon/10 border border-maroon/20 flex items-center justify-center shadow-[0_0_15px_rgba(128,0,0,0.1)]">
+                          <CheckCircle2 className="w-4 h-4 text-maroon" />
                         </div>
                       </div>
                       <div className="w-px h-10 bg-zinc-800"></div>

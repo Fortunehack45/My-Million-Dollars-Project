@@ -190,7 +190,7 @@ const Sidebar = () => {
                 <div className="relative">
                   <img src={user.photoURL || ''} className="w-9 h-9 rounded-xl grayscale group-hover:grayscale-0 transition-all duration-500 border border-zinc-800" alt="" />
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-zinc-950 rounded-full flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <div className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]"></div>
                   </div>
                 </div>
                 <div className="overflow-hidden">

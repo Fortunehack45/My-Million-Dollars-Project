@@ -492,7 +492,7 @@ const AdminPanel = () => {
                 onClick={() => setActiveTab('messages')}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'messages' ? 'bg-zinc-900 text-white border border-white/5 shadow-xl' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
               >
-                <MessageSquare className={`w-4 h-4 transition-colors ${activeTab === 'messages' ? 'text-blue-500' : 'text-zinc-700 group-hover:text-zinc-500'}`} />
+                <MessageSquare className={`w-4 h-4 transition-colors ${activeTab === 'messages' ? 'text-maroon' : 'text-zinc-700 group-hover:text-zinc-500'}`} />
                 Inbound Comms
               </button>
             </div>
@@ -526,7 +526,7 @@ const AdminPanel = () => {
               <button onClick={() => setIsPreviewMode(!isPreviewMode)} className={`w-full py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest border transition-all ${isPreviewMode ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white'}`}>
                 {isPreviewMode ? 'Exit Preview' : 'Live Preview'}
               </button>
-              <button onClick={handleSaveCMS} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-zinc-900 text-zinc-700 border border-zinc-800'}`}>
+              <button onClick={handleSaveCMS} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'bg-zinc-900 text-zinc-700 border border-zinc-800'}`}>
                 {cmsStatus || (hasUnsavedChanges ? 'COMMIT_CHANGES' : 'CLIENT_SYNCED')}
               </button>
             </div>
@@ -562,16 +562,16 @@ const AdminPanel = () => {
                       <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Users</p>
                       <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{users.length.toLocaleString()}</p>
                     </div>
-                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                      <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Miners</p>
-                      <p className="text-4xl font-black text-emerald-400 group-hover:scale-105 transition-transform duration-500 origin-left">{activeMinerCount.toLocaleString()}</p>
+                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-maroon/20 transition-all duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-br from-maroon/0 to-maroon/0 group-hover:from-maroon/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
+                      <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-maroon animate-pulse shadow-[0_0_12px_#800000]"></div>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Nodes</p>
+                      <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{activeMinerCount.toLocaleString()}</p>
                     </div>
-                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-purple-500/20 transition-all duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">NFT Minters</p>
-                      <p className="text-4xl font-black text-purple-400 group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-500">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Registry Units</p>
+                      <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
                     </div>
                     <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-amber-900/30 shadow-2xl relative overflow-hidden group hover:border-amber-500/50 transition-all duration-500 bg-gradient-to-br from-amber-500/[0.02] to-transparent">
                       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-amber-500/0 group-hover:from-amber-500/10 group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
@@ -636,9 +636,9 @@ const AdminPanel = () => {
                               <td className="py-4 px-2 text-center">
                                 <div className="flex justify-center">
                                   {u.miningActive ? (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                      <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">MINING</span>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-maroon/10 border border-maroon/20 rounded-full shadow-[0_0_15px_rgba(128,0,0,0.1)]">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
+                                      <span className="text-[8px] font-black text-maroon uppercase tracking-widest">ACTIVE_SYNC</span>
                                     </div>
                                   ) : (
                                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
@@ -653,7 +653,7 @@ const AdminPanel = () => {
                                 <p className="text-[8px] text-zinc-600 font-mono">≈ ${((u.points || 0) * 0.5).toFixed(2)} USD</p>
                               </td>
                               <td className="py-4 px-2 text-right hidden sm:table-cell">
-                                <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-emerald-400' : 'text-zinc-600'}`}>{u.referralCount || 0}</span>
+                                <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-maroon' : 'text-zinc-600'}`}>{u.referralCount || 0}</span>
                               </td>
                               <td className="py-4 px-2 text-right">
                                 <div className="flex justify-end gap-2">
@@ -697,7 +697,7 @@ const AdminPanel = () => {
                         <div className="flex gap-4">
                           <div className="px-6 py-3 bg-zinc-950/80 border border-zinc-800 rounded-2xl backdrop-blur-md shadow-xl">
                             <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1 font-mono">Status_Code</p>
-                            <p className={`text-xs font-mono font-black ${users.length > 0 ? 'text-amber-500' : 'text-emerald-500'} tracking-tighter`}>CRYPTO_WATCH_ACTIVE</p>
+                            <p className={`text-xs font-mono font-black ${users.length > 0 ? 'text-white' : 'text-white'} tracking-tighter`}>CRYPTO_WATCH_ACTIVE</p>
                           </div>
                         </div>
                       </div>
@@ -739,7 +739,7 @@ const AdminPanel = () => {
                                     </div>
                                     <div>
                                       <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1.5">VPN_Heuristics</p>
-                                      <p className="text-xl font-mono font-black text-emerald-500/80">LOW_PROB</p>
+                                      <p className="text-xl font-mono font-black text-white/50">LOW_PROB</p>
                                     </div>
                                     <div>
                                       <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1.5">Action_Required</p>
@@ -790,8 +790,8 @@ const AdminPanel = () => {
 
                         {Array.from(new Set(users.map(u => u.registrationIP).filter(Boolean))).every(ip => users.filter(u => u.registrationIP === ip).length < 2) && (
                           <div className="py-24 text-center silk-panel !bg-black/20 rounded-[3rem] border-dashed border-zinc-900/50">
-                            <div className="w-20 h-20 bg-emerald-500/5 rounded-3xl border border-emerald-500/10 flex items-center justify-center mx-auto mb-6">
-                              <CheckCircle2 className="w-8 h-8 text-emerald-500/40" />
+                            <div className="w-20 h-20 bg-maroon/5 rounded-3xl border border-maroon/10 flex items-center justify-center mx-auto mb-6">
+                              <CheckCircle2 className="w-8 h-8 text-maroon/40" />
                             </div>
                             <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">Network_Integrity_Verified</h3>
                             <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] max-w-xs mx-auto">No linked validator accounts identified from unique IP headers.</p>
@@ -998,7 +998,7 @@ const AdminPanel = () => {
                             <td className="py-4 px-2">
                               <div className="flex items-center gap-2">
                                 <p className="text-xs font-bold text-zinc-300">{msg.name}</p>
-                                {msg.uid && <span className="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-[8px] font-mono text-emerald-400">AUTH</span>}
+                                {msg.uid && <span className="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-[8px] font-mono text-white/50">AUTH</span>}
                               </div>
                               <p className="text-[10px] text-zinc-500 font-mono"><a href={`mailto:${msg.email}`} className="hover:text-maroon transition-colors">{msg.email}</a></p>
                             </td>
@@ -1009,7 +1009,7 @@ const AdminPanel = () => {
                             </td>
                             <td className="py-4 px-2 text-center">
                               <div className="flex justify-center">
-                                <span className={`px-2 py-1 text-[8px] font-black uppercase rounded-md border ${msg.status === 'resolved' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-amber-500/10 border-amber-500/20 text-amber-500'}`}>
+                                <span className={`px-2 py-1 text-[8px] font-black uppercase rounded-md border ${msg.status === 'resolved' ? 'bg-maroon/10 border-maroon/20 text-maroon' : 'bg-zinc-800 border-zinc-700 text-zinc-500'}`}>
                                   {msg.status}
                                 </span>
                               </div>
@@ -1018,7 +1018,7 @@ const AdminPanel = () => {
                               {msg.status === 'pending' ? (
                                 <button
                                   onClick={() => updateMessageStatusAction(msg.id, 'resolved')}
-                                  className="p-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg hover:bg-emerald-500/20 hover:border-emerald-500 transition-silk text-emerald-500/50 hover:text-emerald-500"
+                                  className="p-2 bg-maroon/5 border border-maroon/10 rounded-lg hover:bg-maroon/20 hover:border-maroon transition-silk text-maroon/50 hover:text-maroon"
                                   title="Mark Resolved"
                                 >
                                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -1076,7 +1076,7 @@ const AdminPanel = () => {
                     <div key={page.path} className={`p-6 rounded-2xl border transition-all duration-500 ${lockedPages.includes(page.path) ? 'bg-red-500/5 border-red-500/20 shadow-lg shadow-red-500/5' : 'bg-zinc-900/30 border-zinc-800 hover:border-zinc-700'}`}>
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-2 h-2 rounded-full animate-pulse ${lockedPages.includes(page.path) ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
+                          <div className={`w-2 h-2 rounded-full animate-pulse ${lockedPages.includes(page.path) ? 'bg-maroon shadow-[0_0_8px_#800000]' : 'bg-zinc-800'}`}></div>
                           <span className="text-[10px] font-black text-white uppercase tracking-widest">{page.label}</span>
                         </div>
                         <button
@@ -1091,7 +1091,7 @@ const AdminPanel = () => {
                         <p className="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors uppercase font-mono">{page.desc}</p>
                       </div>
                       <div className="mt-4 flex items-center gap-2">
-                        <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${lockedPages.includes(page.path) ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                        <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${lockedPages.includes(page.path) ? 'bg-maroon text-white animate-pulse' : 'bg-zinc-900 text-zinc-600'}`}>
                           {lockedPages.includes(page.path) ? 'SYS_LOCK_ACTIVE' : 'PATH_OPEN'}
                         </span>
                       </div>
@@ -1913,7 +1913,7 @@ const AdminPanel = () => {
                             {privacyConfig.sections.map((sec, idx) => (
                               <div key={idx} className="space-y-6">
                                 <h2 className="text-2xl font-black text-white flex items-center gap-4">
-                                  <span className="text-xs font-mono text-emerald-500">[{String(idx + 1).padStart(2, '0')}]</span>
+                                  <span className="text-xs font-mono text-zinc-500">[{String(idx + 1).padStart(2, '0')}]</span>
                                   {sec.heading}
                                 </h2>
                                 <ContentRenderer html={sec.content} />
@@ -2016,7 +2016,7 @@ const AdminPanel = () => {
 
         </div>
       </main>
-    </div>
+    </div >
   );
 };
 

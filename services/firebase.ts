@@ -279,7 +279,7 @@ export const DEFAULT_TOKENOMICS_CONFIG: TokenomicsConfig = {
   totalSupply: "2,000,000,000",
   circulatingSupply: "145,000,000",
   distribution: [
-    { label: "Mining / Staking Rewards", percentage: 50, color: "bg-emerald-500", value: "1B ARG" },
+    { label: "Mining / Staking Rewards", percentage: 50, color: "bg-maroon", value: "1B ARG" },
     { label: "Ecosystem Fund", percentage: 20, color: "bg-primary", value: "400M ARG" },
     { label: "Core Contributors", percentage: 10, color: "bg-zinc-100", value: "200M ARG" },
     { label: "Early Backers", percentage: 10, color: "bg-zinc-500", value: "200M ARG" },

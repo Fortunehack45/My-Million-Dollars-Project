@@ -196,19 +196,19 @@ const ProfileSetup = () => {
                   ${isNameTaken === true
                     ? 'border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500/20'
                     : isNameTaken === false
-                      ? 'border-emerald-500/50 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20'
+                      ? 'border-maroon/50 focus:border-maroon focus:ring-1 focus:ring-maroon/20'
                       : 'border-zinc-800 focus:border-zinc-600 focus:ring-1 focus:ring-white/5'
                   }`}
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2">
                 {checkingName && <Loader2 className="w-3.5 h-3.5 text-zinc-500 animate-spin" />}
-                {!checkingName && isNameTaken === false && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 animate-scale-in" />}
+                {!checkingName && isNameTaken === false && <CheckCircle2 className="w-3.5 h-3.5 text-maroon animate-scale-in" />}
               </div>
             </div>
             {/* Status Message */}
             <div className="h-4 pl-1 will-change-opacity">
               {!checkingName && isNameTaken === true && <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest animate-fade-in">Handle_Denied</span>}
-              {!checkingName && isNameTaken === false && <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest animate-fade-in">Handle_Authorized</span>}
+              {!checkingName && isNameTaken === false && <span className="text-[10px] text-maroon font-black uppercase tracking-widest animate-fade-in">Handle_Authorized</span>}
             </div>
           </div>
 

@@ -40,7 +40,7 @@ const Leaderboard = () => {
           <div>
             <h1 className="text-base font-black text-white uppercase tracking-tight">Authority_Index</h1>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]" />
               <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Global ranking sync · v2.8</p>
             </div>
           </div>

@@ -150,8 +150,8 @@ const Terminal = () => {
       <div className="relative w-full h-[400px] xl:h-[500px] bg-black/80 backdrop-blur-2xl rounded-2xl border border-white/[0.05] shadow-[0_30px_100px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] group animate-fade-in-right hover:border-white/[0.1] transition-all duration-700">
 
          {/* SCANLINE OVERLAY */}
-         <div className="absolute inset-0 pointer-events-none z-30 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
-         <div className="absolute inset-0 pointer-events-none z-30 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent animate-scanline h-[20%]" />
+         <div className="absolute inset-0 pointer-events-none z-30 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(128,0,0,0.06),rgba(128,0,0,0.02),rgba(128,0,0,0.06))] bg-[length:100%_2px,3px_100%]" />
+         <div className="absolute inset-0 pointer-events-none z-30 bg-gradient-to-b from-transparent via-maroon/[0.05] to-transparent animate-scanline h-[20%]" />
 
          {/* CRT GLOW */}
          <div className="absolute inset-0 pointer-events-none z-20 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.05)_0%,transparent_70%)]" />
@@ -159,19 +159,19 @@ const Terminal = () => {
          {/* Header - macOS Style */}
          <div className="flex items-center justify-between px-5 py-3 bg-zinc-900/40 border-b border-white/[0.03] backdrop-blur-md relative z-40">
             <div className="flex gap-2 group/controls">
-               <div className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] relative transition-all duration-300">
+               <div className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 relative transition-all duration-300">
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/controls:opacity-100 transition-opacity">
-                     <span className="text-[6px] text-[#4c0000]">×</span>
+                     <span className="text-[6px] text-zinc-400">×</span>
                   </div>
                </div>
-               <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123] relative transition-all duration-300">
+               <div className="w-3 h-3 rounded-full bg-maroon border border-maroon/50 relative transition-all duration-300">
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/controls:opacity-100 transition-opacity">
-                     <span className="text-[6px] text-[#5c3e00]">−</span>
+                     <span className="text-[6px] text-white">−</span>
                   </div>
                </div>
-               <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29] relative transition-all duration-300">
+               <div className="w-3 h-3 rounded-full bg-white border border-white/50 relative transition-all duration-300">
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/controls:opacity-100 transition-opacity">
-                     <span className="text-[6px] text-[#006500]">+</span>
+                     <span className="text-[6px] text-zinc-900">+</span>
                   </div>
                </div>
             </div>
@@ -184,8 +184,8 @@ const Terminal = () => {
             </div>
 
             <div className="flex items-center gap-2">
-               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
-               <span className="text-zinc-500 text-[8px] font-black tracking-widest uppercase opacity-40">STABLE</span>
+               <div className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_rgba(128,0,0,0.6)]"></div>
+               <span className="text-zinc-500 text-[8px] font-black tracking-widest uppercase opacity-40">ACTIVE</span>
             </div>
          </div>
 
@@ -200,9 +200,9 @@ const Terminal = () => {
                {logs.map((log) => (
                   <div key={log.id} className="flex gap-3 leading-relaxed opacity-90 hover:opacity-100 transition-opacity">
                      <span className="text-zinc-600 shrink-0 select-none w-14 text-right">[{log.timestamp.split('.')[0]}]</span>
-                     <div className={`break-words ${log.type === 'error' ? 'text-red-400' :
-                        log.type === 'warning' ? 'text-amber-400' :
-                           log.type === 'success' ? 'text-emerald-400' :
+                     <div className={`break-words ${log.type === 'error' ? 'text-maroon font-bold' :
+                        log.type === 'warning' ? 'text-maroon opacity-70' :
+                           log.type === 'success' ? 'text-white font-bold' :
                               log.type === 'system' ? 'text-maroon font-bold' :
                                  'text-zinc-300'
                         }`}>
@@ -237,8 +237,8 @@ const NetworkStatus = () => (
       </div>
       <div className="h-4 w-px bg-zinc-800"></div>
       <div className="flex items-center gap-2">
-         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Mainnet_Operational</span>
+         <div className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]"></div>
+         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Protocol_Active</span>
       </div>
       <div className="hidden md:flex items-center gap-4 ml-4">
          <span className="text-[10px] font-mono text-zinc-600">v2.8.4</span>
@@ -256,8 +256,8 @@ const MobileStatusCard = () => (
          <div>
             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Network Status</p>
             <p className="text-xs font-mono font-bold text-white flex items-center gap-2">
-               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-               Operational
+               <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]"></span>
+               Synchronized
             </p>
          </div>
       </div>
@@ -370,7 +370,7 @@ const Landing = () => {
                }
             }
 
-            ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`;
+            ctx.fillStyle = `rgba(128, 0, 0, ${alpha})`;
             ctx.fillText(char, x, y);
 
             if (y > canvas.height && Math.random() > 0.995) drops[i] = 0; // Much slower reset
@@ -416,7 +416,7 @@ const Landing = () => {
                   <div className="lg:col-span-7 space-y-8 md:space-y-12 animate-fade-in-up relative z-20 will-change-transform">
                      <div className="space-y-6">
                         <div className="inline-flex items-center gap-3 px-4 py-2 bg-zinc-950 border border-zinc-900 rounded-full animate-fade-in opacity-0 will-change-transform" style={{ animationDelay: '0.2s' }}>
-                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                           <div className="w-1.5 h-1.5 rounded-full bg-maroon shadow-[0_0_8px_rgba(128,0,0,0.6)] animate-pulse"></div>
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
@@ -454,8 +454,8 @@ const Landing = () => {
                   <div className="lg:col-span-5 relative mt-8 lg:mt-0 animate-fade-in-right opacity-0 hidden lg:block" style={{ animationDelay: '0.4s' }}>
                      {/* Live validator badge */}
                      <div className="absolute -top-5 -right-2 z-20 flex items-center gap-2 px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-full shadow-lg">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse"></span>
-                        <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">{liveValidators.toLocaleString()} Live Validators</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-maroon shadow-[0_0_6px_rgba(128,0,0,0.7)] animate-pulse"></span>
+                        <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">{liveValidators.toLocaleString()} Active Nodes</span>
                      </div>
                      <Terminal />
                   </div>
@@ -464,7 +464,7 @@ const Landing = () => {
 
             {/* Partners Section (Infrastructure Support) */}
             {content.partners?.isVisible && (
-               <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+               <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-zinc-950/90 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                   <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
                      <div className="flex flex-col items-center gap-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/50 border border-zinc-800 rounded-full animate-fade-in-up">
@@ -583,7 +583,7 @@ const Landing = () => {
                         <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2 md:translate-x-0 bg-zinc-800/50">
                            {/* Animated Beam Fill - Triggered by scroll visibility */}
                            <div
-                              className="absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-primary to-transparent transition-all duration-[2500ms] ease-out-expo"
+                              className="absolute top-0 left-0 w-full bg-gradient-to-b from-transparent via-maroon to-transparent transition-all duration-[2500ms] ease-out-expo"
                               style={{ height: visibleSections.has('roadmap') ? '100%' : '0%' }}
                            ></div>
                         </div>

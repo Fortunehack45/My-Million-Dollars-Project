@@ -78,7 +78,7 @@ const GhostDAGVisualizer = () => {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let nodes: Array<{ x: number, y: number, vx: number, vy: number, id: number, type: 'blue' | 'red' }> = [];
+    let nodes: Array<{ x: number, y: number, vx: number, vy: number, id: number, type: 'white' | 'red' }> = [];
     let links: Array<{ source: number, target: number }> = [];
     let nextId = 0;
 
@@ -92,7 +92,7 @@ const GhostDAGVisualizer = () => {
     window.addEventListener('resize', resize);
 
     for (let i = 0; i < 6; i++) {
-      nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, id: nextId++, type: 'blue' });
+      nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, id: nextId++, type: 'white' });
     }
 
     const addNode = () => {
@@ -101,7 +101,7 @@ const GhostDAGVisualizer = () => {
         const activeIds = new Set(nodes.map(n => n.id));
         links = links.filter(l => activeIds.has(l.source) && activeIds.has(l.target));
       }
-      const newNode = { x: canvas.width + 10, y: Math.random() * canvas.height, vx: -0.9 - Math.random(), vy: (Math.random() - 0.5) * 0.3, id: nextId++, type: Math.random() > 0.88 ? 'red' : 'blue' as any };
+      const newNode = { x: canvas.width + 10, y: Math.random() * canvas.height, vx: -0.9 - Math.random(), vy: (Math.random() - 0.5) * 0.3, id: nextId++, type: Math.random() > 0.88 ? 'red' : 'white' as any };
       const targetCount = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < targetCount; i++) {
         if (nodes.length > 0) {
@@ -132,8 +132,14 @@ const GhostDAGVisualizer = () => {
       nodes.forEach(node => {
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.type === 'red' ? 2.5 : 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = node.type === 'blue' ? '#10b981' : '#800000';
+        ctx.fillStyle = node.type === 'white' ? '#FFFFFF' : '#800000';
         ctx.fill();
+        if (node.type === 'red') {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#800000';
+        } else {
+          ctx.shadowBlur = 0;
+        }
       });
       animationFrameId = requestAnimationFrame(draw);
     };
@@ -148,13 +154,13 @@ const GhostDAGVisualizer = () => {
 // Professional Stat Card
 const StatCard = ({ label, value, subValue, icon: Icon, trend, trendUp, tooltip }: any) => (
   <div className="group relative transition-all duration-700 hover:-translate-y-1.5 h-full">
-    <div className="liquid-glass border border-white/5 h-full p-6 flex flex-col justify-between relative z-10 bg-black/40">
+    <div className="liquid-glass border border-white/5 h-full p-6 flex flex-col justify-between relative z-10 bg-zinc-950/90 shadow-2xl">
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div className="p-2.5 bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-white/5 group-hover:border-maroon/30 transition-all duration-500">
           <Icon className="w-4 h-4 text-zinc-500 group-hover:text-maroon transition-all duration-500" />
         </div>
         {trend && (
-          <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md border ${trendUp !== false ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-zinc-500 bg-zinc-800 border-zinc-700'}`}>
+          <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md border ${trendUp !== false ? 'text-maroon bg-white/5 border-maroon/20' : 'text-zinc-500 bg-zinc-800 border-zinc-700'}`}>
             {trend}
           </span>
         )}
@@ -281,8 +287,8 @@ const Dashboard = () => {
           <div>
             <h1 className="text-base font-black text-white uppercase tracking-tight">Network Operations</h1>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Operational · {activeMinerCount.toLocaleString()} Active Miners</p>
+              <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]" />
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Active_Kernel · {activeMinerCount.toLocaleString()} Verified Nodes</p>
             </div>
           </div>
         </div>
@@ -321,17 +327,17 @@ const Dashboard = () => {
         <div className="lg:col-span-8 space-y-5">
 
           {/* GHOSTDAG VISUALIZER */}
-          <div className="h-[340px] md:h-[380px] rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col liquid-glass bg-black/40 group/viz shadow-2xl">
+          <div className="h-[340px] md:h-[380px] rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col liquid-glass bg-zinc-950/90 group/viz shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(24,24,27,0.2),rgba(3,3,5,1)_80%)]" />
-            <div className="relative z-10 px-5 py-3.5 border-b border-white/[0.04] flex justify-between items-center bg-zinc-950/50 backdrop-blur-sm">
+            <div className="relative z-10 px-5 py-3.5 border-b border-white/[0.04] flex justify-between items-center bg-black/60 backdrop-blur-md">
               <div className="flex items-center gap-3">
-                <GitMerge className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                <span className="label-meta text-zinc-400">GhostDAG_Topology · Live</span>
+                <GitMerge className="w-3.5 h-3.5 text-maroon animate-pulse" />
+                <span className="label-meta text-zinc-400">GhostDAG_Topology · Synchronized</span>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[8px] font-mono text-zinc-600">Blue Block</span>
+                  <div className="w-2 h-2 rounded-full bg-white opacity-80" />
+                  <span className="text-[8px] font-mono text-zinc-600">Sync Block</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-maroon" />
@@ -346,7 +352,7 @@ const Dashboard = () => {
           </div>
 
           {/* MINING CONTROLLER */}
-          <div className="rounded-[2.5rem] border border-white/5 liquid-glass bg-black/40 p-6 md:p-8 relative overflow-hidden shadow-2xl group/mining">
+          <div className="rounded-[2.5rem] border border-white/5 liquid-glass bg-zinc-950/90 p-6 md:p-8 relative overflow-hidden shadow-2xl group/mining">
             <div className="absolute top-0 right-0 w-72 h-72 bg-maroon/[0.04] blur-[100px] rounded-full pointer-events-none" />
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start md:items-center">
@@ -356,8 +362,8 @@ const Dashboard = () => {
                   <div>
                     <h3 className="text-base font-black text-white uppercase tracking-tight mb-2">Consensus Engine</h3>
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-1.5 h-1.5 rounded-full ${user.miningActive ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse' : 'bg-amber-500'}`} />
-                      <span className="label-meta">{user.miningActive ? 'RUNNING · SHA-256-GHOST' : 'STANDBY · IDLE'}</span>
+                      <div className={`w-1.5 h-1.5 rounded-full ${user.miningActive ? 'bg-maroon shadow-[0_0_8px_#800000] animate-pulse' : 'bg-zinc-700'}`} />
+                      <span className="label-meta">{user.miningActive ? 'KERNEL_ACTIVE · SHA-256G' : 'NODE_STANDBY'}</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -365,7 +371,7 @@ const Dashboard = () => {
                     <p className="text-2xl md:text-3xl font-mono font-black text-white tabular-nums">
                       {pendingPoints.toFixed(4)} <span className="text-xs text-zinc-600">ARG</span>
                     </p>
-                    <p className="text-[10px] font-mono text-emerald-500/80 mt-1 uppercase tracking-wider">
+                    <p className="text-[10px] font-mono text-zinc-400 mt-1 uppercase tracking-wider">
                       ≈ ${(pendingPoints * 0.5).toFixed(4)} USD
                     </p>
                   </div>
@@ -375,7 +381,7 @@ const Dashboard = () => {
                 <div className="space-y-2">
                   <div className="h-2 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
                     <div
-                      className={`h-full rounded-full transition-all duration-1000 ${isSessionComplete ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' : 'bg-maroon shadow-[0_0_12px_rgba(128,0,0,0.35)]'}`}
+                      className={`h-full rounded-full transition-all duration-1000 ${isSessionComplete ? 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.3)]' : 'bg-maroon shadow-[0_0_12px_rgba(128,0,0,0.35)]'}`}
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -432,16 +438,16 @@ const Dashboard = () => {
 
               {[
                 { type: 'sys', msg: 'Mounting /ghost_dag volume...', time: '00:00:01' },
-                { type: 'ok', msg: `Miners connected: ${activeMinerCount} [OK]`, time: '00:00:02' },
+                { type: 'ok', msg: `Nodes synchronized: ${activeMinerCount} [OK]`, time: '00:00:02' },
                 { type: 'info', msg: `Syncing block: #${blockHeight.toLocaleString()}`, time: '00:00:05' },
-                { type: 'warn', msg: 'Mempool pressure: Shard 4 elevated', time: '00:00:12' },
+                { type: 'warn', msg: 'Mempool state: High consensus load', time: '00:00:12' },
                 { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },
                 { type: 'info', msg: `Network TPS: ${tps.toLocaleString()}`, time: '00:00:20' },
                 user.miningActive ? { type: 'ok', msg: `Mining: +${ratePerSecond.toFixed(6)} ARG/s`, time: 'NOW' } : null,
               ].filter(Boolean).map((log: any, i) => (
                 <div key={`${log.time}-${i}`} className="flex gap-3 opacity-90 hover:opacity-100 transition-opacity">
                   <span className="text-zinc-600 shrink-0 w-14 text-right">[{log.time}]</span>
-                  <span className={`${log.type === 'ok' ? 'text-emerald-400' : log.type === 'warn' ? 'text-amber-400' : log.type === 'sys' ? 'text-maroon font-bold' : 'text-zinc-300'}`}>
+                  <span className={`${log.type === 'ok' ? 'text-white font-bold' : log.type === 'warn' ? 'text-maroon' : log.type === 'sys' ? 'text-maroon font-bold' : 'text-zinc-300'}`}>
                     {log.msg}
                   </span>
                 </div>
@@ -465,7 +471,7 @@ const Dashboard = () => {
               { label: 'Tasks Done', value: `${user.completedTasks?.length || 0} COMPLETE`, icon: Clock, tooltip: 'Total network verification and social tasks completed.' }
             ].map((cap, i) => (
               <div key={cap.label} className="group relative transition-all duration-500 hover:-translate-y-1">
-                <div className="liquid-glass border border-white/5 p-4 rounded-3xl bg-black/40 relative overflow-hidden h-full">
+                <div className="liquid-glass border border-white/5 p-4 rounded-3xl bg-zinc-950/90 relative overflow-hidden h-full">
                   {/* Subtle refractive highlight */}
                   <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
@@ -492,11 +498,11 @@ const Dashboard = () => {
 
           {/* PROTOCOL ADVISORY */}
           <div className="rounded-xl border border-amber-900/25 bg-amber-950/10 p-4 flex gap-3 items-start">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-4 h-4 text-maroon shrink-0 mt-0.5" />
             <div>
-              <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1">Protocol Advisory</p>
-              <p className="text-[9px] text-amber-600/70 leading-relaxed font-mono">
-                Red-set blocks do not yield ARG credits. Maintain continuous uptime to minimize GhostDAG orphan rates.
+              <p className="text-[10px] font-black text-maroon uppercase tracking-widest mb-1">Protocol Advisory</p>
+              <p className="text-[9px] text-zinc-500 leading-relaxed font-mono">
+                Verification blocks require absolute consensus. Maintain continuous connectivity to optimize GhostDAG performance.
               </p>
             </div>
           </div>

@@ -65,7 +65,7 @@ const Tokenomics = () => {
             {/* Background Gradients */}
             <div className="fixed inset-0 pointer-events-none">
                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-maroon/5 rounded-full blur-[100px] mix-blend-screen"></div>
-               <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px] mix-blend-screen"></div>
+               <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-maroon/5 rounded-full blur-[100px] mix-blend-screen"></div>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">

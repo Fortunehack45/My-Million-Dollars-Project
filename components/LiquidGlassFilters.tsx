@@ -46,19 +46,12 @@ const LiquidGlassFilters: React.FC = () => {
                     />
                 </filter>
 
-                {/* Effect 3: RGB Split - chromatic aberration */}
+                {/* Effect 3: Red Refraction - specialized chromatic aberration */}
                 <filter id="rgb-split">
-                    <feOffset in="SourceGraphic" dx="-1.5" dy="0" result="red">
-                        <animate attributeName="dx" values="-1.5; -2.5; -1.5" dur="4s" repeatCount="indefinite" />
-                    </feOffset>
-                    <feOffset in="SourceGraphic" dx="1.5" dy="0" result="blue">
-                        <animate attributeName="dx" values="1.5; 2.5; 1.5" dur="4s" repeatCount="indefinite" />
-                    </feOffset>
-                    <feColorMatrix in="red" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="redOnly" />
-                    <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="greenOnly" />
-                    <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blueOnly" />
-                    <feBlend in="redOnly" in2="greenOnly" mode="screen" result="rg" />
-                    <feBlend in="rg" in2="blueOnly" mode="screen" />
+                    {/* Slightly desaturated white/light-maroon for the right shift */}
+                    <feColorMatrix in="white_shift" type="matrix" values="0.8 0 0 0 0  0 0.1 0 0 0  0 0 0.1 0 0  0 0 0 0.4 0" result="whiteOnly" />
+                    <feBlend in="redOnly" in2="main" mode="screen" result="rm" />
+                    <feBlend in="rm" in2="whiteOnly" mode="screen" />
                 </filter>
             </defs>
         </svg>

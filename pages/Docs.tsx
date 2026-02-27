@@ -42,7 +42,7 @@ const CodeBlock = ({ code, language = 'bash', title }: { code: string; language?
             <div className="flex gap-1.5 backdrop-blur-md">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/10"></div>
               <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/10"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/10"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-maroon/20 border border-maroon/10"></div>
             </div>
             {title && <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">{title}</span>}
             {!title && <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">{language}</span>}
@@ -52,7 +52,7 @@ const CodeBlock = ({ code, language = 'bash', title }: { code: string; language?
             className="flex items-center gap-2 px-3 py-1 hover:bg-zinc-800/50 rounded-lg transition-all text-zinc-500 hover:text-white"
           >
             <span className="text-[9px] font-bold uppercase tracking-widest">{copied ? 'Copied' : 'Copy'}</span>
-            {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+            {copied ? <Check size={12} className="text-maroon" /> : <Copy size={12} />}
           </button>
         </div>
       )}
@@ -67,7 +67,7 @@ const CodeBlock = ({ code, language = 'bash', title }: { code: string; language?
 
 const Endpoint = ({ method, path, description }: { method: 'GET' | 'POST' | 'WS'; path: string; description: string }) => {
   const colors = {
-    GET: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+    GET: 'bg-maroon/10 text-maroon border-maroon/20',
     POST: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
     WS: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
   };

@@ -2,8 +2,8 @@
 
 :root {
   --primary: #800000;
-  --primary-light: #991b1b;
-  --primary-dark: #450a0a;
+  --primary-light: #a00000;
+  --primary-dark: #660000;
   --primary-glow: rgba(128, 0, 0, 0.4);
 
   --bg: #050505;
@@ -13,8 +13,8 @@
   --border: rgba(255, 255, 255, 0.04);
   --border-strong: rgba(255, 255, 255, 0.08);
 
-  --glass: rgba(5, 5, 5, 0.6);
-  --glass-edge: rgba(255, 255, 255, 0.06);
+  --glass: rgba(5, 5, 5, 0.85);
+  --glass-edge: rgba(255, 255, 255, 0.08);
 
   /* Argus Precision Scale (4px units) */
   --s1: 4px;
@@ -34,9 +34,12 @@
   --shadow-maroon-intense: 0 0 50px -10px rgba(128, 0, 0, 0.4);
 
   /* Institutional Colors */
-  --accent: #800000;
-  --accent-light: #991b1b;
-  --accent-glow: rgba(128, 0, 0, 0.3);
+  --maroon: #800000;
+  --maroon-light: #a00000;
+  --maroon-glow: rgba(128, 0, 0, 0.35);
+  --accent: var(--maroon);
+  --accent-light: var(--maroon-light);
+  --accent-glow: var(--maroon-glow);
 }
 
 /* Base body styles */
@@ -60,7 +63,7 @@ body {
 }
 
 ::selection {
-  background-color: rgba(128, 0, 0, 0.3);
+  background-color: rgba(128, 0, 0, 0.5);
   color: white;
 }
 
@@ -75,22 +78,15 @@ body {
   -webkit-backdrop-filter: saturate(1.8);
   /* Fallback */
 
-  background: light-dark(hsl(0 0% 100% / 0.1),
-      hsl(0 0% 0% / 0.2));
+  background: rgba(0, 0, 0, 0.45);
 
   box-shadow:
-    0 0 2px 1px light-dark(color-mix(in oklch, canvasText, #0000 85%),
-      color-mix(in oklch, canvasText, #0000 65%)) inset,
-    0 0 10px 4px light-dark(color-mix(in oklch, canvasText, #0000 90%),
-      color-mix(in oklch, canvasText, #0000 85%)) inset,
-    0px 4px 16px rgba(17, 17, 26, 0.05),
-    0px 8px 24px rgba(17, 17, 26, 0.05),
-    0px 0 8px rgba(17, 17, 26, 0.05),
-    0px 8px 24px rgba(17, 17, 26, 0.2),
-    0px 16px 56px rgba(17, 17, 26, 0.05),
-    0px 4px 16px rgba(17, 17, 26, 0.05) inset,
-    0px 8px 24px rgba(17, 17, 26, 0.05) inset,
-    0px 16px 56px rgba(17, 17, 26, 0.05) inset;
+    0 0 2px 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 10px 4px rgba(255, 255, 255, 0.02) inset,
+    0px 4px 16px rgba(0, 0, 0, 0.2),
+    0px 8px 24px rgba(0, 0, 0, 0.3),
+    0px 16px 56px rgba(0, 0, 0, 0.4),
+    0px 4px 16px rgba(0, 0, 0, 0.2) inset;
 
   transition: all 800ms cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -127,15 +123,13 @@ body {
   z-index: 100;
   backdrop-filter: url(#filter) saturate(1.8);
   -webkit-backdrop-filter: saturate(1.8);
-  background: light-dark(hsl(0 0% 100% / 0.1),
-      hsl(0 0% 0% / 0.2));
+  background: rgba(0, 0, 0, 0.6);
 
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 0 2px 1px light-dark(color-mix(in oklch, canvasText, #0000 85%),
-      color-mix(in oklch, canvasText, #0000 65%)) inset,
-    0px 10px 40px rgba(0, 0, 0, 0.4),
-    0px 4px 16px rgba(17, 17, 26, 0.1) inset;
+    0 0 2px 1px rgba(255, 255, 255, 0.05) inset,
+    0px 10px 40px rgba(0, 0, 0, 0.6),
+    0px 4px 16px rgba(0, 0, 0, 0.2) inset;
 
   will-change: backdrop-filter, transform;
   transform: translateZ(0);
@@ -143,7 +137,7 @@ body {
 
 /* Silk Edge Institutional Panel - Human Precision */
 .silk-panel {
-  background-color: var(--bg-card);
+  background-color: rgba(9, 9, 11, 0.85);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--border);
@@ -626,9 +620,9 @@ body {
 }
 
 .btn-silk-inv:hover {
-  background-color: #991b1b;
-  border-color: #991b1b;
-  box-shadow: 0 8px 40px rgba(128, 0, 0, 0.45);
+  background-color: #a00000;
+  border-color: #a00000;
+  box-shadow: 0 8px 40px rgba(160, 0, 0, 0.45);
 }
 
 /* btn-ghost: Transparent → Subtle fill on hover */
@@ -644,17 +638,17 @@ body {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* btn-danger: Subtle red → Brighter on hover */
+/* btn-danger: Subtle maroon → Institutional on hover */
 .btn-danger {
-  background-color: rgba(185, 28, 28, 0.1);
-  color: #f87171;
-  border: 1px solid rgba(185, 28, 28, 0.3);
+  background-color: rgba(128, 0, 0, 0.1);
+  color: #cc0000;
+  border: 1px solid rgba(128, 0, 0, 0.3);
 }
 
 .btn-danger:hover {
-  background-color: rgba(185, 28, 28, 0.2);
-  color: #fca5a5;
-  border-color: rgba(185, 28, 28, 0.6);
+  background-color: rgba(128, 0, 0, 0.2);
+  color: #ff3333;
+  border-color: rgba(128, 0, 0, 0.6);
 }
 
 .btn-silk:disabled,
