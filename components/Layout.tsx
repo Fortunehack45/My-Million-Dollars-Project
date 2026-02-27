@@ -2,7 +2,6 @@ import React from 'react';
 import { useLocation, Link, Navigate } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import Sidebar from './Sidebar';
-import LiquidGlassFilters from './LiquidGlassFilters';
 import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL, subscribeToLockedPages } from '../services/firebase';
 
@@ -42,7 +41,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-maroon selection:text-white">
-      <LiquidGlassFilters />
       <Sidebar />
 
       <main className="flex-1 h-screen overflow-hidden w-full relative">

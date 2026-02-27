@@ -495,7 +495,7 @@ const Landing = () => {
                         return (
                            <div
                               key={feature.title}
-                              className={`group relative p-10 rounded-[2.5rem] liquid-glass transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                              className={`group relative p-10 rounded-[2.5rem] frosted-glass transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                               style={{ transitionDelay: `${i * 150}ms` }}
                            >
                               <div className="relative z-10">
