@@ -147,27 +147,28 @@ const GhostDAGVisualizer = () => {
 
 // Professional Stat Card
 const StatCard = ({ label, value, subValue, icon: Icon, trend, trendUp, tooltip }: any) => (
-  <div className="bg-zinc-950 p-6 flex flex-col justify-between h-full group hover:bg-zinc-900/40 transition-all duration-500 border-r border-b border-zinc-900 last:border-r-0 relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-br from-maroon/0 to-maroon/0 group-hover:from-maroon/[0.03] group-hover:to-transparent transition-all duration-700 pointer-events-none" />
-    <div className="flex justify-between items-start mb-6 relative z-10">
-      <div className="p-2.5 bg-zinc-900 rounded-xl border border-zinc-800 group-hover:border-maroon/20 group-hover:bg-zinc-900/80 transition-all duration-500">
-        <Icon className="w-4 h-4 text-zinc-500 group-hover:text-maroon transition-all duration-500" />
+  <div className="group relative transition-all duration-700 hover:-translate-y-1.5 h-full">
+    <div className="liquid-glass border border-white/5 h-full p-6 flex flex-col justify-between relative z-10 bg-black/40">
+      <div className="flex justify-between items-start mb-6 relative z-10">
+        <div className="p-2.5 bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-white/5 group-hover:border-maroon/30 transition-all duration-500">
+          <Icon className="w-4 h-4 text-zinc-500 group-hover:text-maroon transition-all duration-500" />
+        </div>
+        {trend && (
+          <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md border ${trendUp !== false ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-zinc-500 bg-zinc-800 border-zinc-700'}`}>
+            {trend}
+          </span>
+        )}
       </div>
-      {trend && (
-        <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md border ${trendUp !== false ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-zinc-500 bg-zinc-800 border-zinc-700'}`}>
-          {trend}
-        </span>
-      )}
-    </div>
-    <div className="relative z-10">
-      <div className="flex items-center gap-2 mb-2">
-        <p className="label-meta">{label}</p>
-        <Tooltip text={tooltip} position="right">
-          <Info className="w-3 h-3 text-zinc-700 hover:text-zinc-400 cursor-help transition-colors" />
-        </Tooltip>
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-2">
+          <p className="label-meta">{label}</p>
+          <Tooltip text={tooltip} position="right">
+            <Info className="w-3 h-3 text-zinc-700 hover:text-zinc-400 cursor-help transition-colors" />
+          </Tooltip>
+        </div>
+        <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">{value}</p>
+        {subValue && <p className="text-[10px] text-zinc-600 mt-1.5 font-medium">{subValue}</p>}
       </div>
-      <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">{value}</p>
-      {subValue && <p className="text-[10px] text-zinc-600 mt-1.5 font-medium">{subValue}</p>}
     </div>
   </div>
 );
@@ -297,7 +298,7 @@ const Dashboard = () => {
       </header>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 border border-zinc-900 overflow-hidden rounded-2xl">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
         <StatCard
           label="Node Balance"
           value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
@@ -318,7 +319,7 @@ const Dashboard = () => {
         <div className="lg:col-span-8 space-y-5">
 
           {/* GHOSTDAG VISUALIZER */}
-          <div className="h-[340px] md:h-[380px] rounded-2xl border border-zinc-900 relative overflow-hidden flex flex-col bg-zinc-950">
+          <div className="h-[340px] md:h-[380px] rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col liquid-glass bg-black/40 group/viz shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(24,24,27,0.2),rgba(3,3,5,1)_80%)]" />
             <div className="relative z-10 px-5 py-3.5 border-b border-white/[0.04] flex justify-between items-center bg-zinc-950/50 backdrop-blur-sm">
               <div className="flex items-center gap-3">
@@ -343,7 +344,7 @@ const Dashboard = () => {
           </div>
 
           {/* MINING CONTROLLER */}
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-950 p-6 md:p-8 relative overflow-hidden">
+          <div className="rounded-[2.5rem] border border-white/5 liquid-glass bg-black/40 p-6 md:p-8 relative overflow-hidden shadow-2xl group/mining">
             <div className="absolute top-0 right-0 w-72 h-72 bg-maroon/[0.04] blur-[100px] rounded-full pointer-events-none" />
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start md:items-center">

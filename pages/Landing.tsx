@@ -483,15 +483,22 @@ const Landing = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                     {content.features.items.map((item, i) => {
-                        const Icon = IconMap[item.icon] || Globe;
+                     {content.features.items.map((feature, i) => {
+                        const Icon = IconMap[feature.icon] || Globe;
                         return (
-                           <div key={item.title} style={{ transitionDelay: `${i * 150}ms` }} className={`p-10 md:p-12 rounded-[2.5rem] silk-panel hover:-translate-y-2 group ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                              <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-800 flex items-center justify-center mb-8 group-hover:bg-maroon/10 group-hover:border-maroon/20 transition- silk-transition">
-                                 <Icon className="w-8 h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
+                           <div
+                              key={feature.title}
+                              className={`group relative p-10 rounded-[2.5rem] liquid-glass transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                              style={{ transitionDelay: `${i * 150}ms` }}
+                           >
+                              <div className="relative z-10">
+                                 <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-maroon/20 group-hover:border-maroon/30 transition-all duration-700 shadow-xl overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-maroon/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <Icon className="w-8 h-8 text-maroon relative z-10" />
+                                 </div>
+                                 <h3 className="text-xl font-black text-white mb-6 uppercase tracking-tight group-hover:text-maroon transition-colors">{feature.title}</h3>
+                                 <p className="text-zinc-500 leading-relaxed font-medium group-hover:text-zinc-300 transition-colors">{feature.desc}</p>
                               </div>
-                              <h3 className="text-xl md:text-2xl font-black text-white mb-4 uppercase tracking-tight">{item.title}</h3>
-                              <p className="text-sm md:text-base text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-silk">{item.desc}</p>
                            </div>
                         )
                      })}
