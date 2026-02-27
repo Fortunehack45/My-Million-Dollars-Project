@@ -18,7 +18,7 @@ const GhostDAGExplainer = () => {
          <div className="space-y-12 relative z-10">
             <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full shadow-2xl">
                <div className="w-2 h-2 rounded-full bg-maroon animate-pulse-gentle"></div>
-               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Topology_Protocol_Ref: GhostDAG_v2.8</span>
+               <span className="label-meta italic">Topology_Protocol_Ref: GhostDAG_v2.8</span>
             </div>
 
             <div className="space-y-8">
@@ -111,12 +111,12 @@ const BenchmarkChart = () => {
                <div className="space-y-3">
                   {/* Argus */}
                   <div className="space-y-1">
-                     <div className="flex justify-between text-[10px] font-bold uppercase">
+                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
                         <span className="text-maroon">Argus Protocol GhostDAG</span>
                         <span className="text-white">{metric.argus}</span>
                      </div>
-                     <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                        <div className="h-full bg-maroon w-full shadow-[0_0_10px_#800000]"></div>
+                     <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
+                        <div className="h-full bg-maroon w-full shadow-[0_0_15px_#800000]"></div>
                      </div>
                   </div>
 
@@ -212,8 +212,8 @@ const Architecture = () => {
                      data-id="hero-title"
                      className={`text-5xl md:text-[11rem] font-black text-white uppercase tracking-tighter mb-12 md:mb-16 leading-[0.8] transition-all duration-1000 delay-100 group-hover/arch-header:tracking-[-0.03em] ${isVisible('hero-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                   >
-                     The Parallel<br />
-                     <span className="text-maroon">Economy.</span>
+                     Topological<br />
+                     <span className="text-maroon">Frontier.</span>
                   </h1>
 
                   <p

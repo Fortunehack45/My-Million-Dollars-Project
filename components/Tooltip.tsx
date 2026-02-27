@@ -25,10 +25,10 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children, position = 'to
   return (
     <div className="relative group inline-block">
       {children}
-      <div className={`absolute z-[200] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 origin-center pointer-events-none ${positionClasses[position]}`}>
-        <div className="bg-zinc-950/90 border border-zinc-800 text-zinc-300 text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-2 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.8)] backdrop-blur-md whitespace-nowrap">
-          {text}
-          <div className={`absolute w-1.5 h-1.5 bg-zinc-950 border-zinc-800 rotate-45 ${arrowClasses[position]}`}></div>
+      <div className={`absolute z-[200] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out-expo delay-150 origin-bottom pointer-events-none ${positionClasses[position]}`}>
+        <div className="liquid-glass border border-white/10 text-white text-[10px] font-mono font-black uppercase tracking-[0.2em] px-4 py-2.5 rounded-xl shadow-2xl whitespace-nowrap bg-black/40 backdrop-blur-xl">
+          <div className="relative z-10">{text}</div>
+          <div className={`absolute w-2 h-2 bg-zinc-900/50 border-white/10 rotate-45 z-0 ${arrowClasses[position]}`}></div>
         </div>
       </div>
     </div>

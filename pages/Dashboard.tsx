@@ -163,7 +163,9 @@ const StatCard = ({ label, value, subValue, icon: Icon, trend, trendUp, tooltip 
         <div className="flex items-center gap-2 mb-2">
           <p className="label-meta">{label}</p>
           <Tooltip text={tooltip} position="right">
-            <Info className="w-3 h-3 text-zinc-700 hover:text-zinc-400 cursor-help transition-colors" />
+            <div className="p-1 -m-1 cursor-help group/info hover:scale-110 transition-transform duration-300">
+              <Info className="w-3.5 h-3.5 text-zinc-700 group-hover/info:text-maroon transition-colors" />
+            </div>
           </Tooltip>
         </div>
         <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">{value}</p>

@@ -86,8 +86,8 @@ const Endpoint = ({ method, path, description }: { method: 'GET' | 'POST' | 'WS'
 };
 
 const SectionHeading = ({ id, children, icon: Icon }: { id: string; children: React.ReactNode; icon?: any }) => (
-  <h2 id={id} className="group flex items-center gap-3 text-xl font-semibold text-white mt-12 mb-6 scroll-mt-32">
-    {Icon && <Icon className="w-5 h-5 text-zinc-500 group-hover:text-maroon transition-colors" />}
+  <h2 id={id} className="group flex items-center gap-3 text-2xl font-black text-white uppercase tracking-tight mt-20 mb-8 scroll-mt-32">
+    {Icon && <Icon className="w-5 h-5 text-zinc-700 group-hover:text-maroon transition-all duration-500" />}
     {children}
     <a href={`#${id}`} className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-zinc-400 transition-opacity">
       <Hash size={16} />
@@ -190,11 +190,12 @@ const Docs = () => {
                   <span className="text-zinc-300">Introduction</span>
                 </div>
 
-                <h1 className="text-4xl font-bold text-white tracking-tight mb-4">
-                  Argus Protocol
+                <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter mb-8 leading-[0.9]">
+                  Argus<br />
+                  <span className="text-maroon">Protocol.</span>
                 </h1>
 
-                <p className="text-xl text-zinc-400 leading-relaxed mb-8 font-light">
+                <p className="text-xl md:text-2xl text-zinc-500 leading-relaxed mb-12 font-medium border-l-2 border-zinc-900 pl-8">
                   A zero-ops orchestration layer for GhostDAG nodes. Argus linearizes the 3D block-DAG into deterministic streams for GNNs and autonomously optimizes network parameters using reinforcement learning.
                 </p>
 

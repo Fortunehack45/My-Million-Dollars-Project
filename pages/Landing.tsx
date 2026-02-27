@@ -420,16 +420,16 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.2rem] font-black text-white tracking-[-0.05em] uppercase leading-[0.85] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium" style={{ animationDelay: '0.2s' }}>
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.4rem] font-black text-white tracking-[-0.07em] uppercase leading-[0.8] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium" style={{ animationDelay: '0.2s' }}>
                            Argus<br />Protocol
                         </h1>
 
                         <div className="flex items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
                            <div className="w-8 h-px bg-maroon/50"></div>
-                           <h2 className="text-[10px] md:text-xs font-black text-maroon uppercase tracking-[0.4em] italic">The Parallel Protocol</h2>
+                           <h2 className="label-meta italic text-maroon">The Parallel Protocol</h2>
                         </div>
 
-                        <p className="text-zinc-400 text-sm md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0 text-pretty" style={{ animationDelay: '0.4s' }}>
+                        <p className="text-zinc-500 text-sm md:text-xl font-medium max-w-xl leading-relaxed animate-fade-in opacity-0 text-pretty border-l-2 border-zinc-900 pl-8" style={{ animationDelay: '0.4s' }}>
                            {content.hero.subtitle}
                         </p>
                      </div>
