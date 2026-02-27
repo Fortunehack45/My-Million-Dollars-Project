@@ -12,16 +12,16 @@ const LiquidGlassFilters: React.FC = () => {
                 <filter id="filter">
                     <feTurbulence
                         type="fractalNoise"
-                        baseFrequency="0.012 0.012"
-                        numOctaves="3"
+                        baseFrequency="0.01 0.01"
+                        numOctaves="2"
                         result="noise"
                     >
-                        <animate attributeName="baseFrequency" values="0.012 0.012;0.015 0.015;0.012 0.012" dur="10s" repeatCount="indefinite" />
+                        <animate attributeName="baseFrequency" values="0.01 0.01;0.012 0.012;0.01 0.01" dur="15s" repeatCount="indefinite" />
                     </feTurbulence>
                     <feDisplacementMap
                         in="SourceGraphic"
                         in2="noise"
-                        scale="8"
+                        scale="5"
                         xChannelSelector="R"
                         yChannelSelector="G"
                     />

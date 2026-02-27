@@ -466,11 +466,16 @@ const Landing = () => {
             {content.partners?.isVisible && (
                <section id="partners" className={`relative z-10 py-12 md:py-24 border-t border-zinc-900/50 bg-black/40 backdrop-blur-md transition-all duration-1000 ease-out ${visibleSections.has('partners') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                   <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                     <p className="text-[10px] font-black text-zinc-600 mb-8 md:mb-12 uppercase tracking-[0.3em]">{content.partners.title}</p>
-                     <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
-                        {content.partners.items.map((name, i) => (
-                           <h3 key={name} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
-                        ))}
+                     <div className="flex flex-col items-center gap-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/50 border border-zinc-800 rounded-full animate-fade-in-up">
+                           <span className="w-1 h-1 rounded-full bg-maroon animate-pulse"></span>
+                           <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{content.partners.title}</p>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+                           {content.partners.items.map((name, i) => (
+                              <h3 key={name} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
+                           ))}
+                        </div>
                      </div>
                   </div>
                </section>

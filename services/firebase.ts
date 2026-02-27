@@ -110,7 +110,7 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
   },
   partners: {
     isVisible: true,
-    title: "Powering the Fortune 500 of Web3",
+    title: "Infrastructure supported by anonymous investors",
     items: ['SEQUOIA_COMPUTE', 'ANDREESSEN_CLOUD', 'BINANCE_LABS', 'COINBASE_VENTURES', 'POLYCHAIN_CAPITAL']
   },
   architecture: {
