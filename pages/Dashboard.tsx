@@ -456,28 +456,38 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* NODE STATS MINI CARDS */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
-              <Shield className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
-              <p className="label-meta text-[8px]">Security</p>
-              <p className="text-[9px] font-mono text-zinc-300 font-bold">RSA-4096-AES</p>
-            </div>
-            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
-              <TrendingUp className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
-              <p className="label-meta text-[8px]">Referrals</p>
-              <p className="text-[9px] font-mono text-zinc-300 font-bold">{referrals}/{MAX_REFERRALS} Active</p>
-            </div>
-            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
-              <Cpu className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
-              <p className="label-meta text-[8px]">Node Version</p>
-              <p className="text-[9px] font-mono text-zinc-300 font-bold">Node_v2.4</p>
-            </div>
-            <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-2 group hover:border-maroon/20 transition-all duration-500">
-              <Clock className="w-4 h-4 text-zinc-700 group-hover:text-maroon transition-colors duration-500" />
-              <p className="label-meta text-[8px]">Tasks Done</p>
-              <p className="text-[9px] font-mono text-zinc-300 font-bold">{user.completedTasks?.length || 0} Complete</p>
-            </div>
+          {/* CORE CAPABILITIES — Elevated Visual Polish */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: 'Security', value: 'RSA-4096-AES', icon: Shield, tooltip: 'End-to-end encrypted packet transmission with rotating keys.' },
+              { label: 'Referrals', value: `${referrals}/${MAX_REFERRALS} ACTIVE`, icon: TrendingUp, tooltip: 'Network growth contribution and active referral count.' },
+              { label: 'Node Version', value: 'PROTOCOL_v2.4', icon: Cpu, tooltip: 'Current operational kernel version of the Argus client.' },
+              { label: 'Tasks Done', value: `${user.completedTasks?.length || 0} COMPLETE`, icon: Clock, tooltip: 'Total network verification and social tasks completed.' }
+            ].map((cap, i) => (
+              <div key={cap.label} className="group relative transition-all duration-500 hover:-translate-y-1">
+                <div className="liquid-glass border border-white/5 p-4 rounded-3xl bg-black/40 relative overflow-hidden h-full">
+                  {/* Subtle refractive highlight */}
+                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="p-2 bg-zinc-900/50 rounded-xl border border-white/5 group-hover:border-maroon/30 transition-colors duration-500">
+                      <cap.icon className="w-3.5 h-3.5 text-zinc-500 group-hover:text-maroon transition-colors" />
+                    </div>
+                    <Tooltip text={cap.tooltip} position="top">
+                      <Info className="w-3 h-3 text-zinc-800 hover:text-maroon transition-colors cursor-help" />
+                    </Tooltip>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{cap.label}</p>
+                    <p className="text-[10px] font-mono font-black text-white group-hover:text-maroon transition-colors duration-500 truncate">{cap.value}</p>
+                  </div>
+
+                  {/* Glass shimmer effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.02] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* PROTOCOL ADVISORY */}

@@ -1205,8 +1205,9 @@ const AdminPanel = () => {
 
                       {activeLandingSection === 'partners' && (
                         <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['partners', 'isVisible'], v)} />
-                          <InputGroup label="Section Title" value={landingConfig.partners.title} onChange={(v: string) => updateState(setLandingConfig, ['partners', 'title'], v)} />
+                          <SectionHeader title="Infrastructure Support (Investors)" icon={Layers} description="Manage visibility and labels for anonymous investors and infrastructure partners." />
+                          <Toggle label="Display on Landing Page" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['partners', 'isVisible'], v)} />
+                          <InputGroup label="Display Title" value={landingConfig.partners.title} onChange={(v: string) => updateState(setLandingConfig, ['partners', 'title'], v)} />
                           <div className="space-y-4">
                             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Partner Logos (Text)</span>
                             {(landingConfig.partners.items || []).map((item, idx) => (

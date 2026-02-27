@@ -61,10 +61,15 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({
 
                 // Glossy look: Leading character is brighter
                 const yPos = y / canvas.height;
-                const baseColor = color.replace('rgba(', '').replace(')', '').split(',');
+
+                // Robust color handling
+                const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                const r = match ? match[1] : '128';
+                const g = match ? match[2] : '0';
+                const b = match ? match[3] : '0';
 
                 // Main trail
-                ctx.fillStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${0.1 + (1 - yPos) * 0.3})`;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.1 + (1 - yPos) * 0.3})`;
                 ctx.fillText(char, x, y);
 
                 // Re-spawn logic
