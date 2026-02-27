@@ -95,6 +95,8 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({ html, classNam
                 }
 
                 // Standard HTML content
+                // SECURITY: This content must be sanitized or come from a trusted source (site_content)
+                // In a production environment, use DOMPurify to sanitize this HTML.
                 return (
                     <div
                         key={index}

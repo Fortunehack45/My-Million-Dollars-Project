@@ -408,18 +408,25 @@ const Dashboard = () => {
         {/* RIGHT COLUMN */}
         <div className="lg:col-span-4 space-y-5">
 
-          {/* SYSTEM LOG */}
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-950 flex flex-col h-[292px] md:h-[340px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-zinc-900 flex items-center justify-between bg-zinc-900/30">
-              <span className="label-meta flex items-center gap-2 text-zinc-400">
-                <Terminal className="w-3 h-3" /> System_Kernel
+          {/* SYSTEM LOG — macOS Style */}
+          <div className="rounded-2xl border border-white/[0.05] bg-black/80 backdrop-blur-2xl flex flex-col h-[292px] md:h-[340px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group/terminal">
+            <div className="px-4 py-3 border-b border-white/[0.03] flex items-center justify-between bg-zinc-900/40 relative">
+              <div className="flex gap-1.5 group/controls">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] border border-[#E0443E]/50" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] border border-[#DEA123]/50" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F] border border-[#1AAB29]/50" />
+              </div>
+              <span className="absolute left-1/2 -translate-x-1/2 label-meta flex items-center gap-2 text-zinc-500 opacity-60 text-[8px] font-bold tracking-widest uppercase">
+                <Terminal className="w-2.5 h-2.5 text-maroon/70" /> argus_kernel — 80×24
               </span>
               <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
-                <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/30 animate-pulse" />
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2 font-mono text-[9px] bg-black/30">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-2 font-mono text-[9px] bg-black/40 relative">
+              {/* Terminal scanline effect */}
+              <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_2px]" />
+
               {[
                 { type: 'sys', msg: 'Mounting /ghost_dag volume...', time: '00:00:01' },
                 { type: 'ok', msg: `Miners connected: ${activeMinerCount} [OK]`, time: '00:00:02' },
@@ -429,14 +436,20 @@ const Dashboard = () => {
                 { type: 'info', msg: `Network TPS: ${tps.toLocaleString()}`, time: '00:00:20' },
                 user.miningActive ? { type: 'ok', msg: `Mining: +${ratePerSecond.toFixed(6)} ARG/s`, time: 'NOW' } : null,
               ].filter(Boolean).map((log: any, i) => (
-                <div key={`${log.time}-${i}`} className="flex gap-3">
-                  <span className="text-zinc-700 shrink-0 w-14 text-right">{log.time}</span>
-                  <span className={`${log.type === 'ok' ? 'text-emerald-500' : log.type === 'warn' ? 'text-amber-500' : log.type === 'sys' ? 'text-maroon' : 'text-zinc-400'}`}>
+                <div key={`${log.time}-${i}`} className="flex gap-3 opacity-90 hover:opacity-100 transition-opacity">
+                  <span className="text-zinc-600 shrink-0 w-14 text-right">[{log.time}]</span>
+                  <span className={`${log.type === 'ok' ? 'text-emerald-400' : log.type === 'warn' ? 'text-amber-400' : log.type === 'sys' ? 'text-maroon font-bold' : 'text-zinc-300'}`}>
                     {log.msg}
                   </span>
                 </div>
               ))}
-              <div className="text-maroon animate-pulse font-black">▌</div>
+              <div className="flex gap-3 pt-1">
+                <span className="text-zinc-600 shrink-0 w-14 text-right">[{new Date().toLocaleTimeString('en-GB', { hour12: false })}]</span>
+                <div className="text-maroon animate-pulse font-black flex items-center">
+                  <span className="mr-2">➜</span>
+                  <span className="w-1.5 h-3 bg-maroon ml-1"></span>
+                </div>
+              </div>
             </div>
           </div>
 

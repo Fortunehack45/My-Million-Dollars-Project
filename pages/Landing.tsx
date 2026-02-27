@@ -147,7 +147,7 @@ const Terminal = () => {
    }, [logs, currentLine]);
 
    return (
-      <div className="relative w-full h-[400px] xl:h-[500px] bg-zinc-950 rounded-2xl border border-zinc-900 shadow-2xl flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] group animate-fade-in-right hover:border-zinc-800 transition-all duration-500">
+      <div className="relative w-full h-[400px] xl:h-[500px] bg-black/80 backdrop-blur-2xl rounded-2xl border border-white/[0.05] shadow-[0_30px_100px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden font-mono text-[10px] xl:text-[11px] group animate-fade-in-right hover:border-white/[0.1] transition-all duration-700">
 
          {/* SCANLINE OVERLAY */}
          <div className="absolute inset-0 pointer-events-none z-30 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
@@ -156,19 +156,36 @@ const Terminal = () => {
          {/* CRT GLOW */}
          <div className="absolute inset-0 pointer-events-none z-20 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.05)_0%,transparent_70%)]" />
 
-         {/* Header - Refined */}
-         <div className="flex items-center justify-between px-6 py-4 bg-zinc-900/40 border-b border-zinc-900">
-            <div className="flex gap-2">
-               <div className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700"></div>
-               <div className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700"></div>
-               <div className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-zinc-700"></div>
+         {/* Header - macOS Style */}
+         <div className="flex items-center justify-between px-5 py-3 bg-zinc-900/40 border-b border-white/[0.03] backdrop-blur-md relative z-40">
+            <div className="flex gap-2 group/controls">
+               <div className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] relative transition-all duration-300">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/controls:opacity-100 transition-opacity">
+                     <span className="text-[6px] text-[#4c0000]">×</span>
+                  </div>
+               </div>
+               <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123] relative transition-all duration-300">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/controls:opacity-100 transition-opacity">
+                     <span className="text-[6px] text-[#5c3e00]">−</span>
+                  </div>
+               </div>
+               <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29] relative transition-all duration-300">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/controls:opacity-100 transition-opacity">
+                     <span className="text-[6px] text-[#006500]">+</span>
+                  </div>
+               </div>
             </div>
-            <div className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[8px] flex items-center gap-2 opacity-60">
-               <TerminalIcon className="w-3 h-3" /> Core_Sytem_Interface
+
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 bg-black/20 rounded-md border border-white/[0.02]">
+               <TerminalIcon className="w-3 h-3 text-maroon/70" />
+               <span className="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[8px] opacity-60">
+                  sh — argus-core — 80×24
+               </span>
             </div>
+
             <div className="flex items-center gap-2">
-               <div className="w-1 h-1 bg-emerald-500/50 rounded-full animate-pulse"></div>
-               <span className="text-zinc-600 text-[8px] font-bold tracking-widest uppercase">STABLE</span>
+               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+               <span className="text-zinc-500 text-[8px] font-black tracking-widest uppercase opacity-40">STABLE</span>
             </div>
          </div>
 

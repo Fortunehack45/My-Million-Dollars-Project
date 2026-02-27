@@ -56,7 +56,7 @@ import {
 } from '../types';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDmi5prKatt_Z-d2-YCMmw344KbzYZv15E",
   authDomain: "argus-protocol.firebaseapp.com",
   projectId: "argus-protocol",
   storageBucket: "argus-protocol.firebasestorage.app",
