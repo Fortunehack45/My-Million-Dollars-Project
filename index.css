@@ -95,6 +95,12 @@ body {
   transition: all 600ms cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+
+  /* Hardware Acceleration & Stability */
+  will-change: backdrop-filter, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: paint;
 }
 
 .liquid-glass::before {
@@ -117,13 +123,21 @@ body {
 }
 
 .nav-glass {
-  background: rgba(5, 5, 5, 0.5);
-  backdrop-filter: blur(28px) saturate(150%);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  z-index: 100;
+  backdrop-filter: url(#filter) saturate(1.8);
+  -webkit-backdrop-filter: saturate(1.8);
+  background: light-dark(hsl(0 0% 100% / 0.1),
+      hsl(0 0% 0% / 0.2));
+
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow:
-    0 8px 32px 0 rgba(0, 0, 0, 0.37),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    0 0 2px 1px light-dark(color-mix(in oklch, canvasText, #0000 85%),
+      color-mix(in oklch, canvasText, #0000 65%)) inset,
+    0px 10px 40px rgba(0, 0, 0, 0.4),
+    0px 4px 16px rgba(17, 17, 26, 0.1) inset;
+
+  will-change: backdrop-filter, transform;
+  transform: translateZ(0);
 }
 
 /* Silk Edge Institutional Panel - Human Precision */

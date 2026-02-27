@@ -12,14 +12,16 @@ const LiquidGlassFilters: React.FC = () => {
                 <filter id="filter">
                     <feTurbulence
                         type="fractalNoise"
-                        baseFrequency="0.01 0.01"
+                        baseFrequency="0.012 0.012"
                         numOctaves="3"
                         result="noise"
-                    />
+                    >
+                        <animate attributeName="baseFrequency" values="0.012 0.012;0.015 0.015;0.012 0.012" dur="10s" repeatCount="indefinite" />
+                    </feTurbulence>
                     <feDisplacementMap
                         in="SourceGraphic"
                         in2="noise"
-                        scale="4"
+                        scale="8"
                         xChannelSelector="R"
                         yChannelSelector="G"
                     />
@@ -29,14 +31,16 @@ const LiquidGlassFilters: React.FC = () => {
                 <filter id="warp">
                     <feTurbulence
                         type="fractalNoise"
-                        baseFrequency="0.05 0.05"
+                        baseFrequency="0.04 0.04"
                         numOctaves="2"
                         result="noise"
-                    />
+                    >
+                        <animate attributeName="seed" values="1;100;1" dur="20s" repeatCount="indefinite" />
+                    </feTurbulence>
                     <feDisplacementMap
                         in="SourceGraphic"
                         in2="noise"
-                        scale="10"
+                        scale="15"
                         xChannelSelector="R"
                         yChannelSelector="G"
                     />
@@ -44,8 +48,12 @@ const LiquidGlassFilters: React.FC = () => {
 
                 {/* Effect 3: RGB Split - chromatic aberration */}
                 <filter id="rgb-split">
-                    <feOffset in="SourceGraphic" dx="-2" dy="0" result="red" />
-                    <feOffset in="SourceGraphic" dx="2" dy="0" result="blue" />
+                    <feOffset in="SourceGraphic" dx="-1.5" dy="0" result="red">
+                        <animate attributeName="dx" values="-1.5; -2.5; -1.5" dur="4s" repeatCount="indefinite" />
+                    </feOffset>
+                    <feOffset in="SourceGraphic" dx="1.5" dy="0" result="blue">
+                        <animate attributeName="dx" values="1.5; 2.5; 1.5" dur="4s" repeatCount="indefinite" />
+                    </feOffset>
                     <feColorMatrix in="red" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="redOnly" />
                     <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="greenOnly" />
                     <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blueOnly" />

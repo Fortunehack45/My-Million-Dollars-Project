@@ -79,8 +79,8 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       <nav className="fixed top-0 inset-x-0 z-[100] px-6 py-4 pointer-events-none">
         <div className="max-w-7xl mx-auto pointer-events-auto">
           {/* Argus Institutional Nav-Island */}
-          <div className="nav-glass rounded-2xl transition-all duration-700 hover:bg-black/50 hover:border-white/10 group/nav">
-            <div className="relative z-10 px-8 h-12 flex items-center justify-between">
+          <div className="nav-glass rounded-2xl transition-all duration-700 hover:bg-black/60 group/nav shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <div className="relative z-10 px-8 h-14 flex items-center justify-between">
               <Link to="/" className="flex items-center gap-4 group/logo">
                 <Logo className="w-7 h-7 text-maroon transition-all duration-700 group-hover/logo:scale-110 group-hover/logo:brightness-125" />
                 <div className="flex flex-col">

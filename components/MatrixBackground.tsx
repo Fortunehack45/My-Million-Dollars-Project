@@ -31,34 +31,49 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({
         resize();
         window.addEventListener('resize', resize);
 
+        const charList = chars === '01' ? '01' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
         let columns = Math.floor(canvas.width / fontSize);
         let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
+        let speeds: number[] = new Array(columns).fill(1).map(() => 0.5 + Math.random() * 1.5);
 
         let animationId: number;
+        let lastTime = 0;
+        const fps = 30; // Cap FPS for smoother perception and battery life
+        const interval = 1000 / fps;
 
-        const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        const draw = (timestamp: number) => {
+            animationId = requestAnimationFrame(draw);
+
+            const delta = timestamp - lastTime;
+            if (delta < interval) return;
+            lastTime = timestamp - (delta % interval);
+
+            // Progressive trail fading
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+            ctx.font = `900 ${fontSize}px "JetBrains Mono", monospace`;
 
             for (let i = 0; i < drops.length; i++) {
-                const char = chars[Math.floor(Math.random() * chars.length)];
+                const char = charList[Math.floor(Math.random() * charList.length)];
                 const x = i * fontSize;
                 const y = drops[i] * fontSize;
 
-                // Gradient effect based on vertical position
+                // Glossy look: Leading character is brighter
                 const yPos = y / canvas.height;
-                ctx.fillStyle = color.replace('0.15', (0.1 + (1 - yPos) * 0.2).toString());
+                const baseColor = color.replace('rgba(', '').replace(')', '').split(',');
 
+                // Main trail
+                ctx.fillStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${0.1 + (1 - yPos) * 0.3})`;
                 ctx.fillText(char, x, y);
 
-                if (y > canvas.height && Math.random() > 0.98) {
+                // Re-spawn logic
+                if (y > canvas.height && Math.random() > 0.975) {
                     drops[i] = 0;
+                    speeds[i] = 0.5 + Math.random() * 1.5;
                 }
-                drops[i] += speed * (0.5 + Math.random() * 0.5);
+                drops[i] += speed * speeds[i];
             }
-            animationId = requestAnimationFrame(draw);
         };
 
         animationId = requestAnimationFrame(draw);
