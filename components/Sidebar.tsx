@@ -13,7 +13,8 @@ import {
   ShieldAlert,
   Menu,
   X,
-  CreditCard
+  CreditCard,
+  ShieldCheck as VaultIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ADMIN_EMAIL, subscribeToLockedPages } from '../services/firebase';
@@ -80,6 +81,7 @@ const Sidebar = () => {
 
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/vault', label: 'Vault', icon: VaultIcon },
     { to: '/tasks', label: 'Tasks', icon: CheckSquare },
     { to: '/nft', label: 'Mint', icon: CreditCard },
     { to: '/referrals', label: 'Network', icon: Users },

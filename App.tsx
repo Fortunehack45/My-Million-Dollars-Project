@@ -10,6 +10,7 @@ import Referrals from './pages/Referrals';
 import NFTSection from './pages/NFTSection';
 import Login from './pages/Login';
 import ProfileSetup from './pages/ProfileSetup';
+import Vault from './pages/Vault';
 import AdminPanel from './pages/AdminPanel';
 import Landing from './pages/Landing';
 import Architecture from './pages/Architecture';
@@ -126,6 +127,12 @@ const AppRoutes = () => {
       <Route path="/nft" element={
         <ProtectedRoute>
           <NFTSection />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/vault" element={
+        <ProtectedRoute>
+          <Vault />
         </ProtectedRoute>
       } />
 
