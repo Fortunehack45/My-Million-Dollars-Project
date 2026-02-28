@@ -5,8 +5,8 @@ import { ArgusSynapseService } from '../services/ArgusSynapseService';
 import { EthereumService } from '../services/EthereumService';
 import {
     db,
-    CURRENT_ARG_PRICE,
 } from '../services/firebase';
+import { useTokenPrices } from '../services/TokenPriceService';
 import {
     collection,
     addDoc,
@@ -30,6 +30,7 @@ import {
     Zap,
     CircleDollarSign,
     TrendingUp,
+    TrendingDown,
     AlertCircle,
 } from 'lucide-react';
 
@@ -164,6 +165,9 @@ const Vault = () => {
     const [copyState, setCopyState] = useState<'arg' | 'eth' | null>(null);
     const [toast, setToast] = useState({ msg: '', visible: false });
 
+    // Live token prices & market data
+    const tokenPrices = useTokenPrices();
+
     // Deterministic address derivation
     useEffect(() => {
         if (user?.uid) {
@@ -273,7 +277,7 @@ const Vault = () => {
     };
 
     // ─── ARG USD value ──
-    const argUsd = ((user?.points || balance.arg) * CURRENT_ARG_PRICE).toFixed(2);
+    const argUsd = (balance.arg * tokenPrices.arg.priceUsd).toFixed(2);
     const ethProviderReady = EthereumService.isProviderConfigured();
 
     return (
@@ -462,7 +466,13 @@ const Vault = () => {
                                 <div className="group p-6 rounded-2xl border border-zinc-800 bg-zinc-900/20 hover:border-maroon/40 hover:bg-maroon/5 transition-all duration-500 cursor-pointer" onClick={() => setActiveChain('ARG')}>
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="w-10 h-10 bg-maroon rounded-xl flex items-center justify-center font-black text-white text-lg">A</div>
-                                        <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">GhostDAG</span>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">GhostDAG</span>
+                                            <span className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-black rounded uppercase ${tokenPrices.arg.change24h >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                                                {tokenPrices.arg.change24h >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                                                {tokenPrices.arg.change24h >= 0 ? '+' : ''}{tokenPrices.arg.change24h}%
+                                            </span>
+                                        </div>
                                     </div>
                                     <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Argus Protocol</p>
                                     <p className="text-3xl font-black text-white">
@@ -478,14 +488,23 @@ const Vault = () => {
                                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
                                             <CircleDollarSign className="w-5 h-5 text-zinc-950" />
                                         </div>
-                                        <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">Ethereum</span>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">Ethereum</span>
+                                            {tokenPrices.eth.priceUsd > 0 && (
+                                                <span className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-black rounded uppercase ${tokenPrices.eth.change24h >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                                                    {tokenPrices.eth.change24h >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                                                    {tokenPrices.eth.change24h >= 0 ? '+' : ''}{tokenPrices.eth.change24h}%
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Ether</p>
                                     <p className="text-3xl font-black text-white">
                                         {balance.eth}
                                         <span className="text-xs text-zinc-500 ml-1">ETH</span>
                                     </p>
-                                    <p className="text-xs text-zinc-600 mt-1">≈ ${(parseFloat(balance.eth) * 3200).toFixed(2)} USD</p>
+                                    <p className="text-xs text-zinc-600 mt-1">≈ ${(parseFloat(balance.eth) * tokenPrices.eth.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</p>
+
                                 </div>
                             </div>
 

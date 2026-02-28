@@ -3,23 +3,24 @@ import { ethers } from 'ethers';
 
 /**
  * EthereumService
- * Real Ethereum mainnet integration using Infura as the JSON-RPC provider.
+ * Real Ethereum mainnet integration using Alchemy as the JSON-RPC provider.
  *
  * Configuration:
- *   Set VITE_INFURA_API_KEY in your .env file.
+ *   Set VITE_ALCHEMY_API_KEY in your .env file.
+ *   Get a free key at: https://alchemy.com → Create App → Ethereum → Mainnet
  */
 
 // ─── Provider ─────────────────────────────────────────
-const INFURA_API_KEY = import.meta.env.VITE_INFURA_API_KEY as string | undefined;
+const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY as string | undefined;
 
 // Build provider lazily so module loads even when key is not yet set
 function getProvider(): ethers.JsonRpcProvider | null {
-    if (!INFURA_API_KEY || INFURA_API_KEY === 'your_infura_api_key_here') {
-        console.warn('[EthereumService] VITE_INFURA_API_KEY not set — ETH balance will show 0.00');
+    if (!ALCHEMY_API_KEY || ALCHEMY_API_KEY === 'your_alchemy_api_key_here') {
+        console.warn('[EthereumService] VITE_ALCHEMY_API_KEY not set — ETH balance will show 0.00');
         return null;
     }
     return new ethers.JsonRpcProvider(
-        `https://mainnet.infura.io/v3/${INFURA_API_KEY}`
+        `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`
     );
 }
 
@@ -71,10 +72,10 @@ export class EthereumService {
     }
 
     /**
-     * Returns true if the Infura API key is configured and non-placeholder.
+     * Returns true if the Alchemy API key is configured and non-placeholder.
      */
     static isProviderConfigured(): boolean {
-        return !!INFURA_API_KEY && INFURA_API_KEY !== 'your_infura_api_key_here';
+        return !!ALCHEMY_API_KEY && ALCHEMY_API_KEY !== 'your_alchemy_api_key_here';
     }
 
     /**

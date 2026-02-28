@@ -24,6 +24,7 @@ import {
 import { NetworkStats } from '../types';
 import { Tooltip } from '../components/Tooltip';
 import Skeleton from '../components/Skeleton';
+import { useTokenPrices } from '../services/TokenPriceService';
 
 const DashboardSkeleton = () => (
   <div className="w-full space-y-5 pb-16">
@@ -191,6 +192,7 @@ const Dashboard = () => {
   const [tps, setTps] = useState(0);
   const [hashrate, setHashrate] = useState(402.1);
   const [isClaiming, setIsClaiming] = useState(false);
+  const { arg } = useTokenPrices();
 
   const MAX_SESSION_TIME = 24 * 60 * 60;
 
@@ -310,10 +312,10 @@ const Dashboard = () => {
         <StatCard
           label="Node Balance"
           value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
-          subValue={`≈ $${(user.points * 0.5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
+          subValue={`≈ $${(user.points * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
           icon={Database}
-          trend="+2.4%"
-          trendUp={true}
+          trend={`${arg.change24h >= 0 ? '+' : ''}${arg.change24h}%`}
+          trendUp={arg.change24h >= 0}
           tooltip="Total accumulated ARG credits and their current USD market valuation."
         />
         <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
