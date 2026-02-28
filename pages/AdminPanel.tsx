@@ -2032,9 +2032,9 @@ const AdminPanel = () => {
           )}
 
           {activeTab === 'explorer' && (
+          <div className="space-y-8 animate-fade-in-up">
 
-              {activeTab === 'explorer' && (
-                <div className="space-y-8 animate-fade-in-up">
+
                   {/* Explorer Header */}
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-2">
