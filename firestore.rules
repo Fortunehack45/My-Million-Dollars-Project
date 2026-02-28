@@ -6,144 +6,97 @@ service cloud.firestore {
     //  HELPER FUNCTIONS
     // ─────────────────────────────────────────────────────────────────
 
-    // Returns true if the requester is signed in
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Returns true if the requester owns the document
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Returns true if the requester is the admin
     function isAdmin() {
+      const email = request.auth.token.email.lower();
       return isAuthenticated() && (
-        request.auth.token.email.lower() == "fortunedomination@gmail.com" ||
-        (
-          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
-        )
+        email == "fortunedomination@gmail.com" ||
+        email == "admin@argus.protocol" || // Added future-proof admin email
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
       );
     }
 
-    // Helper: fields that regular users cannot self-modify
-    function isModifyingProtectedUserFields() {
-      return request.resource.data.diff(resource.data).affectedKeys()
-        .hasAny(['role', 'ownedNFT', 'referralCount', 'registrationIP']);
-    }
-
     // ─────────────────────────────────────────────────────────────────
-    //  USERS COLLECTION
-    //  - Read:   Any authenticated user (leaderboard, referral checks)
-    //  - Create: Owner only, with safe defaults on protected fields
-    //  - Update: Admin OR owner without touching protected fields
-    //  - Delete: Admin only
+    //  USERS
     // ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow read:   if isAuthenticated();
-
-      allow create: if isOwner(userId)
-                    && (!('role' in request.resource.data) || request.resource.data.role == 'user' || request.auth.token.email.lower() == "fortunedomination@gmail.com")
-                    && (!('ownedNFT' in request.resource.data) || request.resource.data.ownedNFT == false)
-                    && (!('referralCount' in request.resource.data) || request.resource.data.referralCount == 0)
-                    && (!('registrationIP' in request.resource.data));
-
-      allow update: if isAdmin() || (isOwner(userId) && !isModifyingProtectedUserFields());
-
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isAdmin() || (isOwner(userId) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'ownedNFT', 'referralCount', 'registrationIP', 'uid']));
       allow delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────────
-    //  USERNAMES  (uniqueness reservation)
-    //  - Read/Create: Authenticated (check & claim)
-    //  - Update/Delete: Admin only
+    //  WALLET TRANSACTIONS
     // ─────────────────────────────────────────────────────────────────
-    match /usernames/{username} {
-      allow read, create:   if isAuthenticated();
-      allow update, delete: if isAdmin();
+    match /wallet_transactions/{txId} {
+      // Only the sender (fromUid) can record a transaction
+      allow create: if isAuthenticated() && request.resource.data.fromUid == request.auth.uid;
+      
+      // Both sender and receiver (and admin) can read the transaction
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        request.auth.uid == resource.data.fromUid || 
+        (resource.data.toUid != null && request.auth.uid == resource.data.toUid)
+      );
+
+      // Immutable
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────────
-    //  TASKS
-    //  - Read:  Anyone (public task feed)
-    //  - Write: Admin only
-    // ─────────────────────────────────────────────────────────────────
-    match /tasks/{taskId} {
-      allow read:  if true;
-      allow write: if isAdmin();
-    }
-
-    // ─────────────────────────────────────────────────────────────────
-    //  SITE CONTENT  (CMS, access control)
-    //  - Read:  Anyone (landing pages, access control checks)
-    //  - Write: Admin only
+    //  ADMIN CONTROL REPOSITORIES
     // ─────────────────────────────────────────────────────────────────
     match /site_content/{docId} {
-      allow read:  if true;
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  GLOBAL STATS  (network counters displayed on Dashboard)
-    //  - Read:   Anyone
-    //  - Update: Authenticated user — only allowed counter fields
-    //  - Create/Delete: Admin only
-    // ─────────────────────────────────────────────────────────────────
+    match /landing_config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /tasks/{taskId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /locked_pages/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /global_stats/{statId} {
       allow read: if true;
-
-      // Authenticated users may only increment specific counters
-      allow update: if isAuthenticated()
-                    && request.resource.data.diff(resource.data).affectedKeys()
-                        .hasOnly(['totalMined', 'totalUsers', 'activeNodes', 'maxUsersCap']);
-
+      allow update: if isAuthenticated(); // Allow users to update mining stats/node counts
       allow create, delete: if isAdmin();
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  CONTACT MESSAGES  (support inbox)
-    //  - Create: Authenticated users (prevents anonymous spam)
-    //  - Read/Update/Delete: Admin only
-    // ─────────────────────────────────────────────────────────────────
-    match /contact_messages/{messageId} {
-      allow create:               if isAuthenticated();
+    match /contact_messages/{msgId} {
+      allow create: if true; // Allow anyone to send contact messages
       allow read, update, delete: if isAdmin();
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  WALLET TRANSACTIONS  (DEX Vault transaction history)
-    //  - Create: Authenticated user, only for their own UID
-    //  - Read:   Owner only (private financial data)
-    //  - Update: Forbidden (immutable ledger)
-    //  - Delete: Admin only
-    // ─────────────────────────────────────────────────────────────────
-    match /wallet_transactions/{txId} {
-      allow create: if isAuthenticated()
-                    && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.keys().hasAll(['uid', 'chain', 'type', 'amount', 'status', 'txHash', 'createdAt'])
-                    && request.resource.data.chain in ['ARG', 'ETH']
-                    && request.resource.data.type in ['SEND', 'RECEIVE', 'MINT', 'REWARD']
-                    && request.resource.data.status in ['CONFIRMED', 'PENDING', 'FAILED']
-                    && request.resource.data.amount is string
-                    && request.resource.data.createdAt is number;
-
-      allow read:   if isOwner(resource.data.uid);
-
-      // Transactions are immutable — no updates allowed
-      allow update: if false;
-
-      // Only admin can remove records
-      allow delete: if isAdmin();
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  CATCH-ALL DENY
-    //  Denies any document path not explicitly matched above.
-    // ─────────────────────────────────────────────────────────────────
+    // Default Deny
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if isAdmin();
     }
-
   }
 }

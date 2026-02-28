@@ -82,7 +82,7 @@ export const BASE_MINING_RATE = 0.06; // ARG per hour
 export const REFERRAL_BOOST = 0.1; // ARG per hour per user
 export const MAX_REFERRALS = 20;
 export const REFERRAL_BONUS_POINTS = 0.5;
-export const CURRENT_ARG_PRICE = 4.20; // Constant for valuation logic
+export const CURRENT_ARG_PRICE = 0.5; // Constant for valuation logic
 export const DEFAULT_MAX_USERS_CAP = 500000; // Hard cap default
 
 // Protocol Constants for Calculations
@@ -574,6 +574,16 @@ export const subscribeToActiveMinerCount = (callback: (count: number) => void) =
   }, (error) => {
     console.warn("Active Miner Count Error:", error);
     callback(0);
+  });
+};
+
+export const subscribeToAllTransactions = (callback: (txs: any[]) => void) => {
+  const q = query(collection(db, 'wallet_transactions'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+  }, (error) => {
+    console.warn("Global Tx Subscription Error:", error);
+    callback([]);
   });
 };
 

@@ -25,6 +25,7 @@ import { NetworkStats } from '../types';
 import { Tooltip } from '../components/Tooltip';
 import Skeleton from '../components/Skeleton';
 import { useTokenPrices } from '../services/TokenPriceService';
+import { ArgusLogo } from '../components/ArgusLogo';
 
 const DashboardSkeleton = () => (
   <div className="w-full space-y-5 pb-16">
@@ -313,10 +314,10 @@ const Dashboard = () => {
           label="Node Balance"
           value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
           subValue={`≈ $${(user.points * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
-          icon={Database}
+          icon={() => <ArgusLogo className="w-5 h-5 text-maroon" />}
           trend={`${arg.change24h >= 0 ? '+' : ''}${arg.change24h}%`}
           trendUp={arg.change24h >= 0}
-          tooltip="Total accumulated ARG credits and their current USD market valuation."
+          tooltip="Total accumulated ARG credits from mining activity."
         />
         <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
         <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />

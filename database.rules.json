@@ -20,6 +20,18 @@
           ".validate": false
         }
       }
+    },
+    "presence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "online_users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }

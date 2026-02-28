@@ -15,6 +15,7 @@ import {
     orderBy,
     onSnapshot,
     serverTimestamp,
+    getDocs,
 } from 'firebase/firestore';
 import {
     ShieldCheck,
@@ -32,21 +33,15 @@ import {
     TrendingUp,
     TrendingDown,
     AlertCircle,
+    X,
 } from 'lucide-react';
+import { ArgusLogo } from '../components/ArgusLogo';
+import { EthLogo } from '../components/EthLogo';
 
 // ─── Types ────────────────────────────────────────────
-interface WalletTx {
-    id?: string;
-    uid: string;
-    chain: 'ARG' | 'ETH';
-    type: 'SEND' | 'RECEIVE' | 'REWARD' | 'MINT';
-    amount: string;
-    to?: string;
-    from?: string;
-    status: 'CONFIRMED' | 'PENDING' | 'FAILED';
-    txHash: string;
-    createdAt: number;
-}
+import { WalletTx } from '../types';
+
+export const GAS_FEE_ARG = 0.001;
 
 // ─── QR Code SVG Simulation ───────────────────────────
 const QRCode = ({ data }: { data: string }) => {
@@ -110,9 +105,9 @@ const ChainTab = ({
             }`}
     >
         {chain === 'ARG' ? (
-            <span className="w-4 h-4 rounded-sm bg-current/20 flex items-center justify-center text-[8px] font-black">A</span>
+            <ArgusLogo className="w-4 h-4 text-white" />
         ) : (
-            <CircleDollarSign className="w-4 h-4" />
+            <EthLogo className="w-4 h-4" />
         )}
         {chain}
     </button>
@@ -164,9 +159,12 @@ const Vault = () => {
     const [txError, setTxError] = useState('');
     const [copyState, setCopyState] = useState<'arg' | 'eth' | null>(null);
     const [toast, setToast] = useState({ msg: '', visible: false });
+    const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
 
     // Live token prices & market data
     const tokenPrices = useTokenPrices();
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const refreshBalances = () => setRefreshTrigger(prev => prev + 1);
 
     // Deterministic address derivation
     useEffect(() => {
@@ -177,35 +175,30 @@ const Vault = () => {
         }
     }, [user?.uid]);
 
-    // Fetch balances
-    const refreshBalances = useCallback(async () => {
-        if (!addresses.arg) return;
-        setIsRefreshing(true);
-        try {
-            const [argBal, ethBal] = await Promise.all([
-                ArgusSynapseService.getBalance(addresses.arg),
-                EthereumService.getBalance(addresses.eth),
-            ]);
-            // Merge ARG balance with points (real in-app balance)
-            const argWithPoints = (user?.points || 0) > 0 ? user!.points : argBal;
-            setBalance({ arg: argWithPoints, eth: ethBal });
-        } catch {
-            setBalance({ arg: user?.points || 0, eth: '0.00' });
-        } finally {
-            setIsRefreshing(false);
-        }
-    }, [addresses, user?.points]);
-
+    // Fetch ETH exclusively
     useEffect(() => {
-        if (addresses.arg) refreshBalances();
-    }, [addresses.arg]);
+        let mounted = true;
+        const fetchEth = async () => {
+            if (!addresses.eth) return;
+            setIsRefreshing(true);
+            try {
+                const ethBal = await EthereumService.getBalance(addresses.eth);
+                if (mounted) setBalance(prev => ({ ...prev, eth: ethBal }));
+            } catch {
+                if (mounted) setBalance(prev => ({ ...prev, eth: '0.00' }));
+            } finally {
+                if (mounted) setIsRefreshing(false);
+            }
+        };
+        fetchEth();
+    }, [addresses.eth, refreshTrigger]);
 
-    // Subscribe to Firestore tx history for this user
+    // Subscribe to bidirectional global tx history for this user
     useEffect(() => {
-        if (!user?.uid) return;
+        if (!user?.uid || !addresses.arg || !addresses.eth) return;
         const q = query(
             collection(db, 'wallet_transactions'),
-            where('uid', '==', user.uid),
+            where('participants', 'array-contains-any', [addresses.arg, addresses.eth]),
             orderBy('createdAt', 'desc')
         );
         const unsub = onSnapshot(q, snapshot => {
@@ -213,7 +206,22 @@ const Vault = () => {
             setTxHistory(txs);
         });
         return () => unsub();
-    }, [user?.uid]);
+    }, [user?.uid, addresses.arg, addresses.eth]);
+
+    // Compute genuine real-time ARG balance natively
+    useEffect(() => {
+        if (!user || !addresses.arg) return;
+        let argNet = 0;
+        txHistory.forEach(tx => {
+            if (tx.chain !== 'ARG' || tx.status !== 'CONFIRMED') return;
+            const amt = parseFloat(tx.amount);
+            if (tx.from === addresses.arg) argNet -= (amt + (tx.gasFee || 0));
+            // Only add if explicitly received and not self-transfer (though self is blocked)
+            else if (tx.to === addresses.arg) argNet += amt;
+        });
+        const genuineArg = (user.points || 0) + argNet;
+        setBalance(prev => ({ ...prev, arg: Math.max(0, genuineArg) }));
+    }, [user?.points, addresses.arg, txHistory]);
 
     const showToast = (msg: string) => {
         setToast({ msg, visible: true });
@@ -245,25 +253,58 @@ const Vault = () => {
             setTxError('Invalid Ethereum address. Must start with "0x..."');
             return;
         }
+        if (txForm.recipient.toLowerCase() === (activeChain === 'ARG' ? addresses.arg : addresses.eth).toLowerCase()) {
+            setTxError('You cannot transfer assets to yourself.');
+            return;
+        }
+
         const amt = parseFloat(txForm.amount);
+        const requiredTotal = activeChain === 'ARG' ? amt + GAS_FEE_ARG : amt;
+
         if (isNaN(amt) || amt <= 0) {
             setTxError('Enter a valid amount greater than 0');
             return;
         }
 
+        if (activeChain === 'ARG' && balance.arg < requiredTotal) {
+            setTxError(`Insufficient funds. You need ${requiredTotal} ARG (including ${GAS_FEE_ARG} ARG gas fee).`);
+            return;
+        }
+
+        if (activeChain === 'ETH' && parseFloat(balance.eth) < amt) {
+            setTxError(`Insufficient funds for ETH transfer.`);
+            return;
+        }
+
         setIsProcessing(true);
         try {
+            // Find recipient UID if they exist in our system
+            let toUid = '';
+            try {
+                const userSnap = await getDocs(query(
+                    collection(db, 'users'),
+                    where(activeChain === 'ARG' ? 'argAddress' : 'ethAddress', '==', txForm.recipient)
+                ));
+                if (!userSnap.empty) toUid = userSnap.docs[0].id;
+            } catch (e) { /* silent fail for external addresses */ }
+
             const txHash = '0x' + Math.random().toString(16).slice(2, 18) + Math.random().toString(16).slice(2, 18);
+            const fromAddr = activeChain === 'ARG' ? addresses.arg : addresses.eth;
+            const toAddr = txForm.recipient;
+
             const tx: Omit<WalletTx, 'id'> = {
-                uid: user!.uid,
+                fromUid: user!.uid,
+                toUid: toUid || undefined,
                 chain: activeChain,
                 type: 'SEND',
                 amount: txForm.amount,
-                to: txForm.recipient,
-                from: activeChain === 'ARG' ? addresses.arg : addresses.eth,
+                to: toAddr,
+                from: fromAddr,
                 status: 'CONFIRMED',
                 txHash,
                 createdAt: Date.now(),
+                participants: [fromAddr, toAddr],
+                gasFee: activeChain === 'ARG' ? GAS_FEE_ARG : 0,
             };
             await addDoc(collection(db, 'wallet_transactions'), tx);
             setTxForm({ recipient: '', amount: '' });
@@ -465,7 +506,9 @@ const Vault = () => {
                                 {/* ARG Card */}
                                 <div className="group p-6 rounded-2xl border border-zinc-800 bg-zinc-900/20 hover:border-maroon/40 hover:bg-maroon/5 transition-all duration-500 cursor-pointer" onClick={() => setActiveChain('ARG')}>
                                     <div className="flex justify-between items-start mb-6">
-                                        <div className="w-10 h-10 bg-maroon rounded-xl flex items-center justify-center font-black text-white text-lg">A</div>
+                                        <div className="w-10 h-10 bg-maroon rounded-xl flex items-center justify-center">
+                                            <ArgusLogo className="w-6 h-6 text-white" />
+                                        </div>
                                         <div className="flex flex-col items-end gap-1">
                                             <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">GhostDAG</span>
                                             <span className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-black rounded uppercase ${tokenPrices.arg.change24h >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
@@ -486,7 +529,7 @@ const Vault = () => {
                                 <div className="group p-6 rounded-2xl border border-zinc-800 bg-zinc-900/20 hover:border-white/20 hover:bg-white/5 transition-all duration-500 cursor-pointer" onClick={() => setActiveChain('ETH')}>
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                                            <CircleDollarSign className="w-5 h-5 text-zinc-950" />
+                                            <EthLogo className="w-6 h-6" />
                                         </div>
                                         <div className="flex flex-col items-end gap-1">
                                             <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">Ethereum</span>
@@ -516,22 +559,30 @@ const Vault = () => {
                                         <button onClick={() => setActiveTab('HISTORY')} className="text-[9px] text-maroon font-bold uppercase hover:underline">View All</button>
                                     </div>
                                     <div className="space-y-2">
-                                        {txHistory.slice(0, 3).map(tx => (
-                                            <div key={tx.id} className="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-900 rounded-xl">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`p-2 rounded-xl ${tx.type === 'SEND' ? 'bg-orange-500/10 text-orange-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
-                                                        {tx.type === 'SEND' ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownLeft className="w-3.5 h-3.5" />}
+                                        {txHistory.slice(0, 3).map(tx => {
+                                            const isSent = tx.from === (tx.chain === 'ARG' ? addresses.arg : addresses.eth);
+                                            const typeLabel = isSent ? 'SEND' : 'RECEIVE';
+                                            return (
+                                                <div
+                                                    key={tx.id}
+                                                    onClick={() => setSelectedTx(tx)}
+                                                    className="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-900 rounded-xl cursor-pointer hover:bg-zinc-900/50 hover:border-zinc-800 transition-all"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-2 rounded-xl flex items-center justify-center ${isSent ? 'bg-orange-500/10 text-orange-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                                                            {tx.chain === 'ARG' ? <ArgusLogo className="w-3.5 h-3.5" /> : <EthLogo className="w-3.5 h-3.5" />}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-white uppercase">{typeLabel} · {tx.chain}</p>
+                                                            <p className="text-[8px] text-zinc-600 font-mono">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-white uppercase">{tx.type} · {tx.chain}</p>
-                                                        <p className="text-[8px] text-zinc-600 font-mono">{new Date(tx.createdAt).toLocaleDateString()}</p>
-                                                    </div>
+                                                    <p className={`text-sm font-black ${isSent ? 'text-zinc-300' : 'text-maroon'}`}>
+                                                        {isSent ? '−' : '+'}{tx.amount} {tx.chain}
+                                                    </p>
                                                 </div>
-                                                <p className={`text-sm font-black ${tx.type === 'SEND' ? 'text-zinc-300' : 'text-maroon'}`}>
-                                                    {tx.type === 'SEND' ? '−' : '+'}{tx.amount} {tx.chain}
-                                                </p>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -692,35 +743,26 @@ const Vault = () => {
                                 </span>
                             </div>
 
-                            {txHistory.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 space-y-4 opacity-40">
-                                    <History className="w-10 h-10 text-zinc-700" />
-                                    <div className="text-center">
-                                        <p className="text-sm font-bold text-white">No transactions yet</p>
-                                        <p className="text-[10px] text-zinc-600 mt-1">Send or receive assets to see your history</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {txHistory.map(tx => (
+                            <div className="space-y-2">
+                                {txHistory.map(tx => {
+                                    const isSent = tx.from === (tx.chain === 'ARG' ? addresses.arg : addresses.eth);
+                                    const typeLabel = isSent ? 'SEND' : 'RECEIVE';
+                                    return (
                                         <div
                                             key={tx.id}
-                                            className="flex items-center justify-between p-5 bg-zinc-900/20 border border-zinc-900 rounded-2xl hover:bg-zinc-900/40 hover:border-zinc-800 transition-all group"
+                                            onClick={() => setSelectedTx(tx)}
+                                            className="flex items-center justify-between p-5 bg-zinc-900/20 border border-zinc-900 rounded-2xl cursor-pointer hover:bg-zinc-900/40 hover:border-zinc-800 transition-all group"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`p-2.5 rounded-xl border flex-shrink-0 ${tx.type === 'SEND'
+                                                <div className={`p-2.5 rounded-xl border flex-shrink-0 ${isSent
                                                     ? 'bg-orange-500/5 border-orange-500/20 text-orange-400'
-                                                    : tx.type === 'RECEIVE'
-                                                        ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400'
-                                                        : 'bg-maroon/5 border-maroon/20 text-maroon'
+                                                    : 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400'
                                                     }`}>
-                                                    {tx.type === 'SEND'
-                                                        ? <ArrowUpRight className="w-4 h-4" />
-                                                        : <ArrowDownLeft className="w-4 h-4" />}
+                                                    {isSent ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownLeft className="w-4 h-4" />}
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-[10px] font-black text-white uppercase">{tx.type} · {tx.chain}</span>
+                                                        <span className="text-[10px] font-black text-white uppercase">{typeLabel} · {tx.chain}</span>
                                                         <span className="text-[8px] font-mono text-zinc-600">{tx.txHash.slice(0, 14)}…</span>
                                                     </div>
                                                     <p className="text-[9px] text-zinc-600 mt-0.5">
@@ -729,8 +771,8 @@ const Vault = () => {
                                                 </div>
                                             </div>
                                             <div className="text-right flex-shrink-0">
-                                                <p className={`text-sm font-black ${tx.type === 'SEND' ? 'text-zinc-200' : 'text-maroon'}`}>
-                                                    {tx.type === 'SEND' ? '−' : '+'}{tx.amount} {tx.chain}
+                                                <p className={`text-sm font-black ${isSent ? 'text-zinc-200' : 'text-maroon'}`}>
+                                                    {isSent ? '−' : '+'}{tx.amount} {tx.chain}
                                                 </p>
                                                 <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded mt-1 inline-block ${tx.status === 'CONFIRMED' ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'
                                                     }`}>
@@ -738,13 +780,68 @@ const Vault = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
+                                    );
+                                })}
+                            </div>
                             )}
                         </div>
                     )}
                 </div>
             </div>
+
+            {/* ── Transaction Detail Modal ── */}
+            {selectedTx && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedTx(null)} />
+                    <div className="relative w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-300">
+                        <button
+                            onClick={() => setSelectedTx(null)}
+                            className="absolute top-6 right-6 p-2 bg-zinc-900 text-zinc-400 hover:text-white rounded-full transition-colors"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+
+                        <div className="mb-8">
+                            <h3 className="text-lg font-black text-white uppercase tracking-tight">Transaction Details</h3>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Confirmed on GhostDAG</p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800/80 text-center">
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Amount</p>
+                                <p className="text-3xl font-black text-white">{selectedTx.amount} <span className="text-sm text-zinc-500 ml-1">{selectedTx.chain}</span></p>
+                            </div>
+
+                            <div className="space-y-4 text-sm mt-4">
+                                <div className="flex justify-between items-center py-2 border-b border-zinc-900">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Time</span>
+                                    <span className="text-xs text-zinc-300">{new Date(selectedTx.createdAt).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-zinc-900">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Status</span>
+                                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded text-emerald-400 bg-emerald-500/10">{selectedTx.status}</span>
+                                </div>
+                                <div className="py-2 border-b border-zinc-900 space-y-1.5">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">From</span>
+                                    <span className="font-mono text-[10px] text-zinc-400 break-all">{selectedTx.from}</span>
+                                </div>
+                                <div className="py-2 border-b border-zinc-900 space-y-1.5">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">To</span>
+                                    <span className="font-mono text-[10px] text-zinc-400 break-all">{selectedTx.to}</span>
+                                </div>
+                                <div className="py-2 border-b border-zinc-900 space-y-1.5">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Network Fee</span>
+                                    <span className="font-mono text-xs text-white">{(selectedTx.chain === 'ARG' ? selectedTx.gasFee : 0)} {selectedTx.chain}</span>
+                                </div>
+                                <div className="py-2 space-y-1.5">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Transaction Hash</span>
+                                    <span className="font-mono text-[10px] text-zinc-400 break-all">{selectedTx.txHash}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

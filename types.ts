@@ -14,7 +14,9 @@ export interface User {
   ownedNFT: boolean;
   role?: 'admin' | 'user';
   createdAt?: number;
-  registrationIP?: string;  // For admin duplicate/VPN detection
+  registrationIP?: string;
+  argAddress?: string;
+  ethAddress?: string;
 }
 
 export interface Task {
@@ -163,4 +165,21 @@ export interface ContactConfig {
   email: string;
   address: string;
   supportHours: string;
+}
+
+export interface WalletTx {
+  id: string;
+  uid: string;
+  chain: 'ARG' | 'ETH';
+  type: 'SEND' | 'RECEIVE';
+  amount: string;
+  to: string;
+  from: string;
+  status: 'PENDING' | 'CONFIRMED' | 'FAILED';
+  txHash: string;
+  createdAt: number;
+  participants: string[]; // [senderAddress, receiverAddress]
+  gasFee: number;
+  fromUid: string;
+  toUid?: string;
 }
