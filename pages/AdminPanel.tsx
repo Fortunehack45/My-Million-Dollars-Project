@@ -2025,146 +2025,145 @@ const AdminPanel = () => {
                         </>
                       )}
                     </div>
-                  )}
-
-                </div>
+                  </div>
               </div>
-            </div>
-          {activeTab === 'explorer' && (
-            <div className="space-y-8 animate-fade-in-up">
-              {/* Explorer Header */}
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
-                      <Database className="w-6 h-6 text-amber-500" />
+              )}
+
+              {activeTab === 'explorer' && (
+                <div className="space-y-8 animate-fade-in-up">
+                  {/* Explorer Header */}
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                          <Database className="w-6 h-6 text-amber-500" />
+                        </div>
+                        <div>
+                          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">ArgusScan_Ledger</h2>
+                          <p className="text-[10px] text-zinc-500 font-mono tracking-[0.2em]">GLOBAL_TRANSACTION_ORBIT_OS</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-3xl font-black text-white uppercase tracking-tighter">ArgusScan_Ledger</h2>
-                      <p className="text-[10px] text-zinc-500 font-mono tracking-[0.2em]">GLOBAL_TRANSACTION_ORBIT_OS</p>
+
+                    {/* Treasury Card */}
+                    <div className="bg-zinc-950/80 p-6 rounded-[2rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group min-w-[300px]">
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.03] to-transparent pointer-events-none"></div>
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Protocol_Treasury</p>
+                        <TrendingUp className="w-4 h-4 text-amber-500" />
+                      </div>
+                      <div className="flex items-end gap-3">
+                        <p className="text-4xl font-black text-white tracking-tighter">{treasuryBalance.toFixed(4)}</p>
+                        <p className="text-xs font-black text-amber-500 mb-1.5 uppercase">ARG_Gas_Fees</p>
+                      </div>
+                      <p className="text-[9px] text-zinc-600 mt-2 font-mono uppercase tracking-widest">Aggregate_Network_Revenue</p>
+                    </div>
+                  </div>
+
+                  {/* Explorer Search / Filter (Mock for now) */}
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                      <Search className="w-4 h-4 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search by TxID, Address, or Height..."
+                      className="w-full bg-zinc-950/50 border border-zinc-900 text-sm p-5 pl-14 rounded-[1.5rem] focus:border-amber-500/30 outline-none transition-all font-mono"
+                    />
+                  </div>
+
+                  {/* Transactions Table */}
+                  <div className="silk-panel rounded-[2.5rem] border-zinc-900 overflow-hidden">
+                    <div className="p-8 border-b border-zinc-900 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <History className="w-5 h-5 text-zinc-500" />
+                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Live_Chain_Feed</h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Syncing_Nodes</span>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-zinc-900/20">
+                          <tr>
+                            <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Transaction_ID</th>
+                            <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Entity_Route</th>
+                            <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Payload_Value</th>
+                            <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Protocol_Fee</th>
+                            <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Timestamp</th>
+                            <th className="px-8 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-900/50">
+                          {allTransactions.map((tx) => (
+                            <tr key={tx.id} className="group hover:bg-white/[0.01] transition-colors">
+                              <td className="px-8 py-6">
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg ${tx.chain === 'ARG' ? 'bg-maroon/10' : 'bg-blue-500/10'}`}>
+                                    {tx.chain === 'ARG' ? <ArgusLogo className="w-4 h-4 text-maroon" /> : <EthLogo className="w-4 h-4 text-blue-500" />}
+                                  </div>
+                                  <span className="font-mono text-[10px] text-zinc-400 group-hover:text-white transition-colors cursor-pointer flex items-center gap-1.5">
+                                    {tx.txHash.slice(0, 12)}...
+                                    <ExternalLink className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100 transition-all" />
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-8 py-6">
+                                <div className="space-y-1">
+                                  <p className="font-mono text-[9px] text-zinc-500 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-800"></span>
+                                    FROM: <span className="text-zinc-300">{tx.from.slice(0, 8)}...{tx.from.slice(-4)}</span>
+                                  </p>
+                                  <p className="font-mono text-[9px] text-zinc-500 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-maroon/40"></span>
+                                    TO: <span className="text-zinc-300">{tx.to.slice(0, 8)}...{tx.to.slice(-4)}</span>
+                                  </p>
+                                </div>
+                              </td>
+                              <td className="px-8 py-6">
+                                <p className={`text-sm font-black tracking-tight ${tx.chain === 'ARG' ? 'text-white' : 'text-blue-400'}`}>
+                                  {tx.amount} {tx.chain}
+                                </p>
+                                <p className="text-[9px] text-zinc-600 uppercase font-bold">{tx.type}</p>
+                              </td>
+                              <td className="px-8 py-6">
+                                <p className="font-mono text-[10px] text-amber-500/80 font-bold">{tx.gasFee?.toFixed(4) || '0.0000'} ARG</p>
+                              </td>
+                              <td className="px-8 py-6 text-zinc-500 text-[10px] font-mono">
+                                {new Date(tx.createdAt).toLocaleString()}
+                              </td>
+                              <td className="px-8 py-6 text-right">
+                                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${tx.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                                  tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                                    'bg-red-500/10 text-red-500 border border-red-500/20'
+                                  }`}>
+                                  {tx.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                          {allTransactions.length === 0 && (
+                            <tr>
+                              <td colSpan={6} className="px-8 py-20 text-center">
+                                <div className="flex flex-col items-center gap-3 opacity-20">
+                                  <Database className="w-12 h-12 text-zinc-700" />
+                                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">No_Historical_Data_Synced</p>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Treasury Card */}
-                <div className="bg-zinc-950/80 p-6 rounded-[2rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group min-w-[300px]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.03] to-transparent pointer-events-none"></div>
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Protocol_Treasury</p>
-                    <TrendingUp className="w-4 h-4 text-amber-500" />
-                  </div>
-                  <div className="flex items-end gap-3">
-                    <p className="text-4xl font-black text-white tracking-tighter">{treasuryBalance.toFixed(4)}</p>
-                    <p className="text-xs font-black text-amber-500 mb-1.5 uppercase">ARG_Gas_Fees</p>
-                  </div>
-                  <p className="text-[9px] text-zinc-600 mt-2 font-mono uppercase tracking-widest">Aggregate_Network_Revenue</p>
-                </div>
-              </div>
-
-              {/* Explorer Search / Filter (Mock for now) */}
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                  <Search className="w-4 h-4 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search by TxID, Address, or Height..."
-                  className="w-full bg-zinc-950/50 border border-zinc-900 text-sm p-5 pl-14 rounded-[1.5rem] focus:border-amber-500/30 outline-none transition-all font-mono"
-                />
-              </div>
-
-              {/* Transactions Table */}
-              <div className="silk-panel rounded-[2.5rem] border-zinc-900 overflow-hidden">
-                <div className="p-8 border-b border-zinc-900 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <History className="w-5 h-5 text-zinc-500" />
-                    <h3 className="text-sm font-black text-white uppercase tracking-widest">Live_Chain_Feed</h3>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Syncing_Nodes</span>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-zinc-900/20">
-                      <tr>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Transaction_ID</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Entity_Route</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Payload_Value</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Protocol_Fee</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Timestamp</th>
-                        <th className="px-8 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-900/50">
-                      {allTransactions.map((tx) => (
-                        <tr key={tx.id} className="group hover:bg-white/[0.01] transition-colors">
-                          <td className="px-8 py-6">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg ${tx.chain === 'ARG' ? 'bg-maroon/10' : 'bg-blue-500/10'}`}>
-                                {tx.chain === 'ARG' ? <ArgusLogo className="w-4 h-4 text-maroon" /> : <EthLogo className="w-4 h-4 text-blue-500" />}
-                              </div>
-                              <span className="font-mono text-[10px] text-zinc-400 group-hover:text-white transition-colors cursor-pointer flex items-center gap-1.5">
-                                {tx.txHash.slice(0, 12)}...
-                                <ExternalLink className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100 transition-all" />
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-8 py-6">
-                            <div className="space-y-1">
-                              <p className="font-mono text-[9px] text-zinc-500 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800"></span>
-                                FROM: <span className="text-zinc-300">{tx.from.slice(0, 8)}...{tx.from.slice(-4)}</span>
-                              </p>
-                              <p className="font-mono text-[9px] text-zinc-500 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-maroon/40"></span>
-                                TO: <span className="text-zinc-300">{tx.to.slice(0, 8)}...{tx.to.slice(-4)}</span>
-                              </p>
-                            </div>
-                          </td>
-                          <td className="px-8 py-6">
-                            <p className={`text-sm font-black tracking-tight ${tx.chain === 'ARG' ? 'text-white' : 'text-blue-400'}`}>
-                              {tx.amount} {tx.chain}
-                            </p>
-                            <p className="text-[9px] text-zinc-600 uppercase font-bold">{tx.type}</p>
-                          </td>
-                          <td className="px-8 py-6">
-                            <p className="font-mono text-[10px] text-amber-500/80 font-bold">{tx.gasFee?.toFixed(4) || '0.0000'} ARG</p>
-                          </td>
-                          <td className="px-8 py-6 text-zinc-500 text-[10px] font-mono">
-                            {new Date(tx.createdAt).toLocaleString()}
-                          </td>
-                          <td className="px-8 py-6 text-right">
-                            <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${tx.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                                tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                                  'bg-red-500/10 text-red-500 border border-red-500/20'
-                              }`}>
-                              {tx.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                      {allTransactions.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="px-8 py-20 text-center">
-                            <div className="flex flex-col items-center gap-3 opacity-20">
-                              <Database className="w-12 h-12 text-zinc-700" />
-                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">No_Historical_Data_Synced</p>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
-          )}
-
-        </div>
-      </main>
+              </main>
     </div >
   );
 };
