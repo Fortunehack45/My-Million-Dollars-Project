@@ -15,10 +15,9 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      const email = request.auth.token.email.lower();
       return isAuthenticated() && (
-        email == "fortunedomination@gmail.com" ||
-        email == "admin@argus.protocol" || // Added future-proof admin email
+        request.auth.token.email.toLower() == "fortunedomination@gmail.com" ||
+        request.auth.token.email.toLower() == "admin@argus.protocol" ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
       );
@@ -28,7 +27,9 @@ service cloud.firestore {
     //  USERS
     // ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
+      // Allow users to read their own full profile or others' public profile data
       allow read: if isAuthenticated();
+      
       allow create: if isOwner(userId);
       allow update: if isAdmin() || (isOwner(userId) && 
         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'ownedNFT', 'referralCount', 'registrationIP', 'uid']));
