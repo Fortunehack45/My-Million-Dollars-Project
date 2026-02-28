@@ -23,8 +23,42 @@ import Docs from './pages/Docs';
 import { Terms, Privacy } from './pages/Legal';
 import CookieConsent from './components/CookieConsent';
 import ScrollToTop from './components/ScrollToTop';
+import { subscribeToLockedPages, ADMIN_EMAIL } from './services/firebase';
 
-// Protected Route Wrapper
+// Registry Protected Route (Enforces Admin Locks)
+const RegistryProtectedRoute = ({ children, path }: { children: React.ReactNode, path: string }) => {
+  const { user, firebaseUser, loading } = useAuth();
+  const [lockedPages, setLockedPages] = React.useState<string[]>([]);
+  const [checkingLocks, setCheckingLocks] = React.useState(true);
+
+  React.useEffect(() => {
+    const unsub = subscribeToLockedPages((locks) => {
+      setLockedPages(locks);
+      setCheckingLocks(false);
+    });
+    return () => unsub();
+  }, []);
+
+  if (loading || checkingLocks) return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
+        <p className="label-meta animate-pulse">Verifying_Registry_Handshake</p>
+      </div>
+    </div>
+  );
+
+  const isAuthorizedAdmin = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const isLocked = !isAuthorizedAdmin && lockedPages.includes(path);
+
+  if (isLocked) return <Navigate to="/" />;
+  if (!firebaseUser) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/setup" />;
+
+  return <Layout>{children}</Layout>;
+};
+
+// Standard Protected Route
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, firebaseUser, loading } = useAuth();
 
@@ -131,9 +165,9 @@ const AppRoutes = () => {
       } />
 
       <Route path="/vault" element={
-        <ProtectedRoute>
+        <RegistryProtectedRoute path="/vault">
           <Vault />
-        </ProtectedRoute>
+        </RegistryProtectedRoute>
       } />
 
       <Route path="/admin" element={

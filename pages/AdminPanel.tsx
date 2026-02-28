@@ -1064,6 +1064,7 @@ const AdminPanel = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {[
                     { path: '/', label: 'Dashboard', desc: 'Main terminal for node operators' },
+                    { path: '/vault', label: 'Vault', desc: 'Secure asset management and DEX interface' },
                     { path: '/tasks', label: 'Task Modules', desc: 'Social and technical verification tasks' },
                     { path: '/nft', label: 'Minting Engine', desc: 'NFT generation and acquisition' },
                     { path: '/referrals', label: 'Network Graph', desc: 'Referral tracking and topology' },
