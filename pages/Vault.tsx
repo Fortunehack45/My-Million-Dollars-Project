@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ArgusSynapseService } from '../services/ArgusSynapseService';
@@ -17,22 +16,19 @@ import {
     onSnapshot,
 } from 'firebase/firestore';
 import {
-    ShieldCheck,
     ArrowUpRight,
     ArrowDownLeft,
-    History,
     Copy,
     Check,
-    RefreshCcw,
     Loader2,
     SendHorizonal,
-    DownloadCloud,
     Zap,
-    CircleDollarSign,
-    TrendingUp,
-    TrendingDown,
     AlertCircle,
     X,
+    ChevronDown,
+    CreditCard,
+    Repeat,
+    History
 } from 'lucide-react';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
@@ -84,94 +80,42 @@ const Toast = ({ msg, visible }: { msg: string; visible: boolean }) => (
     </div>
 );
 
-// ─── Chain Tab ────────────────────────────────────────
-const ChainTab = ({
-    chain,
-    active,
-    onClick,
-}: {
-    chain: 'ARG' | 'ETH';
-    active: boolean;
-    onClick: () => void;
-}) => (
-    <button
-        onClick={onClick}
-        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all duration-300 ${active
-            ? chain === 'ARG'
-                ? 'bg-maroon text-white shadow-lg shadow-maroon/30'
-                : 'bg-white text-zinc-950 shadow-lg shadow-white/20'
-            : 'text-zinc-500 hover:text-zinc-300'
-            }`}
-    >
-        {chain === 'ARG' ? (
-            <ArgusLogo className="w-4 h-4 text-white" />
-        ) : (
-            <EthLogo className="w-4 h-4" />
-        )}
-        {chain}
-    </button>
-);
-
-// ─── Nav Item ─────────────────────────────────────────
-const NavItem = ({
-    id,
-    label,
-    Icon,
-    active,
-    onClick,
-}: {
-    id: string;
-    label: string;
-    Icon: any;
-    active: boolean;
-    onClick: () => void;
-}) => (
-    <button
-        onClick={onClick}
-        className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-300 group ${active
-            ? 'bg-zinc-900 border border-zinc-800 shadow-xl text-white'
-            : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
-            }`}
-    >
-        <Icon
-            className={`w-4 h-4 flex-shrink-0 transition-all duration-300 ${active ? 'text-maroon scale-110' : 'group-hover:scale-110'
-                }`}
-        />
-        <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
-        {active && (
-            <span className="ml-auto w-1.5 h-1.5 bg-maroon rounded-full animate-pulse" />
-        )}
-    </button>
-);
-
-// ─── Main Component ───────────────────────────────────
+// ─── Main Component: MetaMask Style ───────────────────
 const Vault = () => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'SEND' | 'RECEIVE' | 'HISTORY'>('OVERVIEW');
-    const [activeChain, setActiveChain] = useState<'ARG' | 'ETH'>('ARG');
+    
+    // Core state
+    const [activeNetwork, setActiveNetwork] = useState<'ARG' | 'ETH'>('ARG');
     const [addresses, setAddresses] = useState({ arg: '', eth: '' });
     const [balance, setBalance] = useState({ arg: 0, eth: '0.00' });
     const [txHistory, setTxHistory] = useState<WalletTx[]>([]);
+    
+    // UI State
+    const [activeTab, setActiveTab] = useState<'TOKENS' | 'ACTIVITY'>('TOKENS');
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [txForm, setTxForm] = useState({ recipient: '', amount: '' });
-    const [txError, setTxError] = useState('');
     const [copyState, setCopyState] = useState<'arg' | 'eth' | null>(null);
     const [toast, setToast] = useState({ msg: '', visible: false });
+    
+    // Modals
+    const [isNetworkDropdownOpen, setIsNetworkDropdownOpen] = useState(false);
+    const [activeModal, setActiveModal] = useState<'SEND' | 'RECEIVE' | 'SWAP' | 'BUY' | 'TX_DETAIL' | null>(null);
     const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
 
-    // Live token prices & market data
+    // Send Form
+    const [txForm, setTxForm] = useState({ recipient: '', amount: '' });
+    const [txError, setTxError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Live token prices
     const tokenPrices = useTokenPrices();
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const refreshBalances = () => setRefreshTrigger(prev => prev + 1);
 
-    // Deterministic address derivation + persist to Firestore for recipient lookup
+    // Derivation + Persistence
     useEffect(() => {
         if (user?.uid) {
             const arg = ArgusSynapseService.generateAddress(user.uid);
             const eth = EthereumService.generateAddress(user.uid);
             setAddresses({ arg, eth });
-            // Save addresses to user profile so others can find us by address
             saveUserAddresses(user.uid, arg, eth);
         }
     }, [user?.uid]);
@@ -194,7 +138,7 @@ const Vault = () => {
         fetchEth();
     }, [addresses.eth, refreshTrigger]);
 
-    // Subscribe to bidirectional global tx history for this user
+    // Subscribe to tx history for BOTH addresses
     useEffect(() => {
         if (!user?.uid || !addresses.arg || !addresses.eth) return;
         const q = query(
@@ -209,7 +153,7 @@ const Vault = () => {
         return () => unsub();
     }, [user?.uid, addresses.arg, addresses.eth]);
 
-    // Sync ARG balance from Firestore user.points (source of truth after transferARG)
+    // Sync ARG balance
     useEffect(() => {
         if (!user) return;
         setBalance(prev => ({ ...prev, arg: Math.max(0, user.points || 0) }));
@@ -220,15 +164,15 @@ const Vault = () => {
         setTimeout(() => setToast(t => ({ ...t, visible: false })), 2500);
     };
 
-    const copyAddress = async (type: 'arg' | 'eth') => {
-        const addr = type === 'arg' ? addresses.arg : addresses.eth;
+    const copyAddress = async () => {
+        const addr = activeNetwork === 'ARG' ? addresses.arg : addresses.eth;
         try {
             await navigator.clipboard.writeText(addr);
-            setCopyState(type);
+            setCopyState(activeNetwork === 'ARG' ? 'arg' : 'eth');
             showToast('Address copied to clipboard');
             setTimeout(() => setCopyState(null), 2000);
         } catch {
-            showToast('Copy failed — please copy manually');
+            showToast('Copy failed');
         }
     };
 
@@ -236,43 +180,34 @@ const Vault = () => {
         e.preventDefault();
         setTxError('');
 
-        // Validate address format
-        if (activeChain === 'ARG' && !ArgusSynapseService.isValidAddress(txForm.recipient)) {
-            setTxError('Invalid Argus address. Must start with "arg..."');
-            return;
+        // Validation
+        if (activeNetwork === 'ARG' && !ArgusSynapseService.isValidAddress(txForm.recipient)) {
+            setTxError('Invalid Argus address. Must start with "arg..."'); return;
         }
-        if (activeChain === 'ETH' && !EthereumService.isValidAddress(txForm.recipient)) {
-            setTxError('Invalid Ethereum address. Must start with "0x..."');
-            return;
+        if (activeNetwork === 'ETH' && !EthereumService.isValidAddress(txForm.recipient)) {
+            setTxError('Invalid Ethereum address. Must start with "0x..."'); return;
         }
-        if (txForm.recipient.toLowerCase() === (activeChain === 'ARG' ? addresses.arg : addresses.eth).toLowerCase()) {
-            setTxError('You cannot transfer assets to yourself.');
-            return;
+        if (txForm.recipient.toLowerCase() === (activeNetwork === 'ARG' ? addresses.arg : addresses.eth).toLowerCase()) {
+            setTxError('Cannot transfer to yourself.'); return;
         }
-
         const amt = parseFloat(txForm.amount);
         if (isNaN(amt) || amt <= 0) {
-            setTxError('Enter a valid amount greater than 0');
-            return;
+            setTxError('Enter a valid amount > 0'); return;
         }
 
-        const requiredTotal = activeChain === 'ARG' ? amt + GAS_FEE_ARG : amt;
-
-        if (activeChain === 'ARG' && balance.arg < requiredTotal) {
-            setTxError(`Insufficient funds. You need ${requiredTotal.toFixed(4)} ARG (incl. ${GAS_FEE_ARG} ARG gas).`);
-            return;
+        const requiredTotal = activeNetwork === 'ARG' ? amt + GAS_FEE_ARG : amt;
+        if (activeNetwork === 'ARG' && balance.arg < requiredTotal) {
+            setTxError(`Insufficient funds. Need ${requiredTotal.toFixed(4)} ARG (incl. gas).`); return;
         }
-        if (activeChain === 'ETH' && parseFloat(balance.eth) < amt) {
-            setTxError('Insufficient ETH balance.');
-            return;
+        if (activeNetwork === 'ETH' && parseFloat(balance.eth) < amt) {
+            setTxError('Insufficient ETH balance.'); return;
         }
 
         setIsProcessing(true);
         try {
             const txHash = '0x' + Math.random().toString(16).slice(2, 18) + Math.random().toString(16).slice(2, 18);
 
-            if (activeChain === 'ARG') {
-                // ── ARG: atomic Firestore transaction (debit sender + credit receiver)
+            if (activeNetwork === 'ARG') {
                 const result = await transferARG({
                     senderUid: user!.uid,
                     senderArgAddress: addresses.arg,
@@ -281,13 +216,10 @@ const Vault = () => {
                     gasFee: GAS_FEE_ARG,
                     txHash,
                 });
-
                 if (!result.success) {
-                    setTxError(result.error || 'Transfer failed. Please try again.');
-                    return;
+                    setTxError(result.error || 'Transfer failed.'); return;
                 }
             } else {
-                // ── ETH: log-only (on-chain execution happens outside app scope)
                 const { addDoc: firestoreAddDoc } = await import('firebase/firestore');
                 await firestoreAddDoc(collection(db, 'wallet_transactions'), {
                     uid: user!.uid,
@@ -308,534 +240,420 @@ const Vault = () => {
 
             setTxForm({ recipient: '', amount: '' });
             showToast('Transaction broadcast successfully ✓');
-            setActiveTab('HISTORY');
+            setActiveModal(null);
+            setActiveTab('ACTIVITY');
         } catch (err) {
-            setTxError('Broadcast failed. Please try again.');
+            setTxError('Broadcast failed. Try again.');
         } finally {
             setIsProcessing(false);
         }
     };
 
-    // ─── ARG USD value ──
-    const argUsd = (balance.arg * tokenPrices.arg.priceUsd).toFixed(2);
-    const ethProviderReady = EthereumService.isProviderConfigured();
+    // Derived Display Values
+    const currentAddress = activeNetwork === 'ARG' ? addresses.arg : addresses.eth;
+    const truncatedAddress = currentAddress ? `${currentAddress.slice(0, 7)}...${currentAddress.slice(-5)}` : 'Loading...';
+    
+    // Network specific balance and USD
+    const displayBalanceData = activeNetwork === 'ARG' 
+        ? { amount: balance.arg, symbol: 'ARG', usdPrice: tokenPrices.arg.priceUsd, decimals: 2 }
+        : { amount: parseFloat(balance.eth), symbol: 'ETH', usdPrice: tokenPrices.eth.priceUsd, decimals: 4 };
+
+    const totalUsdValue = (displayBalanceData.amount * displayBalanceData.usdPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    
+    // Filter history by active network
+    const networkTxHistory = txHistory.filter(tx => tx.chain === activeNetwork);
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex flex-col items-center justify-start min-h-screen py-8 px-4 sm:px-0 bg-zinc-950/20 w-full">
             <Toast msg={toast.msg} visible={toast.visible} />
 
-            {/* ── Infura not configured notice ─────────── */}
-            {!ethProviderReady && (
-                <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
-                    <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">ETH Live Balance — Setup Required</p>
-                        <p className="text-[9px] text-amber-400/70 leading-relaxed">
-                            Set <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">VITE_INFURA_API_KEY</code> in your <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">.env</code> file to fetch real Ethereum mainnet balances.
-                            Get a free key at{' '}
-                            <a href="https://infura.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-300">infura.io</a>.
-                            ARG balance is always live via Argus Protocol.
-                        </p>
+            {/* Main MetaMask-style Card */}
+            <div className="w-full max-w-[440px] bg-zinc-950 border border-zinc-900 rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col h-[750px] shadow-black/50">
+                {/* Background glow based on network */}
+                <div className={`absolute -top-[150px] left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full blur-[100px] pointer-events-none transition-colors duration-1000 ${
+                    activeNetwork === 'ARG' ? 'bg-maroon/20' : 'bg-blue-500/10'
+                }`} />
+
+                {/* 1. Network Header */}
+                <div className="flex justify-between items-center px-6 py-5 border-b border-zinc-900/50 bg-zinc-950/80 z-10 relative">
+                    {/* Network Switcher Dropdown */}
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsNetworkDropdownOpen(!isNetworkDropdownOpen)}
+                            className="flex items-center gap-2 px-4 py-2 bg-zinc-900/50 hover:bg-zinc-900 rounded-full border border-zinc-800 transition-colors"
+                        >
+                            {activeNetwork === 'ARG' ? (
+                                <><ArgusLogo className="w-4 h-4 text-maroon" /> <span className="text-xs font-bold text-white tracking-widest leading-none">Argus GhostDAG</span></>
+                            ) : (
+                                <><EthLogo className="w-4 h-4 text-blue-500" /> <span className="text-xs font-bold text-white tracking-widest leading-none">Ethereum Mainnet</span></>
+                            )}
+                            <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
+                        </button>
+                        
+                        {/* Dropdown Menu */}
+                        {isNetworkDropdownOpen && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsNetworkDropdownOpen(false)} />
+                                <div className="absolute top-full left-0 mt-2 w-56 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden py-1">
+                                    <button 
+                                        onClick={() => { setActiveNetwork('ARG'); setIsNetworkDropdownOpen(false); }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-800 transition-colors text-left"
+                                    >
+                                        <ArgusLogo className="w-5 h-5 text-maroon" />
+                                        <div>
+                                            <p className="text-xs font-bold tracking-widest text-white leading-tight">Argus GhostDAG</p>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        onClick={() => { setActiveNetwork('ETH'); setIsNetworkDropdownOpen(false); }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-800 transition-colors text-left"
+                                    >
+                                        <EthLogo className="w-5 h-5 text-blue-500" />
+                                        <div>
+                                            <p className="text-xs font-bold tracking-widest text-white leading-tight">Ethereum Mainnet</p>
+                                        </div>
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                    {/* Identicon mock */}
+                    <div className="w-8 h-8 rounded-full border border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-900 overflow-hidden flex items-center justify-center">
+                        <div className="w-full h-full opacity-50 distribute-patterns" style={{
+                            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 2px, #fff 2px, #fff 4px)`
+                        }}></div>
                     </div>
                 </div>
-            )}
 
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-zinc-950 border border-zinc-900 shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-maroon/10 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute -top-20 -right-20 w-80 h-80 bg-maroon/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="flex-1 overflow-y-auto z-10 custom-scrollbar pb-10">
+                    {/* 2. Account Pill */}
+                    <div className="flex justify-center mt-6">
+                        <button 
+                            onClick={copyAddress}
+                            className="flex items-center gap-2 px-4 py-1.5 bg-zinc-900/40 hover:bg-zinc-800 border border-zinc-800/80 rounded-full transition-all group"
+                        >
+                            <span className="text-[11px] font-mono font-medium text-zinc-300">{truncatedAddress}</span>
+                            {copyState ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3 h-3 text-zinc-500 group-hover:text-zinc-300" />}
+                        </button>
+                    </div>
 
-                <div className="relative z-10 p-8 md:p-12">
-                    <div className="flex flex-col xl:flex-row justify-between gap-8">
-                        {/* Left: Identity */}
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2.5 bg-maroon/10 border border-maroon/20 rounded-2xl">
-                                    <ShieldCheck className="w-5 h-5 text-maroon" />
+                    {/* 3. Central Balance Hero */}
+                    <div className="text-center mt-8 mb-10 px-6">
+                        {isRefreshing ? (
+                            <div className="flex justify-center py-6">
+                                <Loader2 className="w-8 h-8 text-zinc-600 animate-spin" />
+                            </div>
+                        ) : (
+                            <>
+                                <h1 className="text-6xl font-black text-white tracking-tighter tabular-nums leading-none">
+                                    ${totalUsdValue}
+                                </h1>
+                                <p className="text-zinc-500 font-medium text-sm mt-3 uppercase tracking-widest flex items-center justify-center gap-1.5">
+                                    <span className="font-bold text-zinc-400">
+                                        {displayBalanceData.amount.toLocaleString(undefined, { minimumFractionDigits: displayBalanceData.decimals })}
+                                    </span>
+                                    {displayBalanceData.symbol}
+                                </p>
+                            </>
+                        )}
+                    </div>
+
+                    {/* 4. Quick Action Row */}
+                    <div className="flex justify-center gap-6 mb-10 px-6">
+                        {/* Buy */}
+                        <div className="flex flex-col items-center gap-2">
+                            <button onClick={() => setActiveModal('BUY')} className="w-14 h-14 bg-blue-500 hover:bg-blue-400 rounded-full flex items-center justify-center transition-colors shadow-lg shadow-blue-500/20 text-white">
+                                <CreditCard className="w-6 h-6" />
+                            </button>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">Buy</span>
+                        </div>
+                        {/* Send */}
+                        <div className="flex flex-col items-center gap-2">
+                            <button onClick={() => setActiveModal('SEND')} className="w-14 h-14 bg-zinc-800 hover:bg-zinc-700 rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20 text-white">
+                                <ArrowUpRight className="w-6 h-6" />
+                            </button>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white">Send</span>
+                        </div>
+                        {/* Swap */}
+                        <div className="flex flex-col items-center gap-2">
+                            <button onClick={() => setActiveModal('SWAP')} className="w-14 h-14 bg-zinc-800 hover:bg-zinc-700 rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20 text-white">
+                                <Repeat className="w-6 h-6" />
+                            </button>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white">Swap</span>
+                        </div>
+                        {/* Receive */}
+                        <div className="flex flex-col items-center gap-2">
+                            <button onClick={() => setActiveModal('RECEIVE')} className="w-14 h-14 bg-zinc-800 hover:bg-zinc-700 rounded-full flex items-center justify-center transition-colors shadow-lg shadow-black/20 text-white">
+                                <ArrowDownLeft className="w-6 h-6" />
+                            </button>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-white">Receive</span>
+                        </div>
+                    </div>
+
+                    {/* 5. Tabs (Tokens | Activity) */}
+                    <div className="flex border-b border-zinc-900 border-t bg-zinc-950/80 sticky top-0 z-10 backdrop-blur-md">
+                        <button 
+                            onClick={() => setActiveTab('TOKENS')}
+                            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-colors relative ${activeTab === 'TOKENS' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+                        >
+                            Tokens
+                            {activeTab === 'TOKENS' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-maroon" />}
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('ACTIVITY')}
+                            className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-colors relative ${activeTab === 'ACTIVITY' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+                        >
+                            Activity
+                            {activeTab === 'ACTIVITY' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-maroon" />}
+                        </button>
+                    </div>
+
+                    {/* Tab Content */}
+                    <div className="min-h-[200px]">
+                        {activeTab === 'TOKENS' && (
+                            <div className="divide-y divide-zinc-900/50">
+                                {/* Only show the asset for the active network */}
+                                <div className="flex items-center justify-between p-5 hover:bg-zinc-900/30 transition-colors cursor-pointer" onClick={() => setActiveModal('RECEIVE')}>
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activeNetwork === 'ARG' ? 'bg-maroon' : 'bg-white'}`}>
+                                            {activeNetwork === 'ARG' ? <ArgusLogo className="w-5 h-5 text-white" /> : <EthLogo className="w-5 h-5" />}
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-bold text-sm tracking-wide">{activeNetwork === 'ARG' ? 'Argus' : 'Ethereum'}</p>
+                                            <p className="text-xs text-zinc-500 font-medium">{displayBalanceData.amount.toLocaleString(undefined, { minimumFractionDigits: displayBalanceData.decimals })} {displayBalanceData.symbol}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-white font-bold text-sm">${totalUsdValue}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h1 className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-[0.3em]">
-                                        Operator Vault
-                                    </h1>
-                                    <p className="text-[8px] text-maroon font-black uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                                        <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse" />
-                                        GhostDAG · Synced
+                                <div className="p-8 text-center">
+                                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
+                                        Don't see your token?<br/>
+                                        <a href="#" className="text-maroon hover:underline">Import tokens</a>
                                     </p>
                                 </div>
                             </div>
+                        )}
 
-                            {/* Balance */}
-                            <div>
-                                <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-2">
-                                    {activeChain === 'ARG' ? 'ARG Balance' : 'ETH Balance'}
-                                </p>
-                                {isRefreshing ? (
-                                    <div className="flex items-center gap-2">
-                                        <Loader2 className="w-5 h-5 text-maroon animate-spin" />
-                                        <span className="text-zinc-600 text-sm font-mono">Syncing…</span>
+                        {activeTab === 'ACTIVITY' && (
+                            <div className="divide-y divide-zinc-900/50">
+                                {networkTxHistory.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+                                        <History className="w-10 h-10 text-zinc-800 mb-4" />
+                                        <p className="text-sm font-bold text-white mb-1">You have no transactions</p>
+                                        <p className="text-xs text-zinc-500">Transfers on {activeNetwork} will appear here.</p>
                                     </div>
                                 ) : (
-                                    <>
-                                        <p className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none">
-                                            {activeChain === 'ARG'
-                                                ? `${(user?.points || balance.arg).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                                : balance.eth}
-                                            <span className="text-base ml-2 text-zinc-500">{activeChain}</span>
-                                        </p>
-                                        {activeChain === 'ARG' && (
-                                            <div className="flex items-center gap-3 mt-3">
-                                                <span className="text-zinc-500 text-sm font-medium">≈ ${argUsd} USD</span>
-                                                <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold rounded-full">
-                                                    <TrendingUp className="w-3 h-3" />+4.2%
-                                                </span>
+                                    networkTxHistory.map(tx => {
+                                        const isSent = tx.from === (tx.chain === 'ARG' ? addresses.arg : addresses.eth);
+                                        const label = isSent ? 'Send' : 'Receive';
+                                        return (
+                                            <div 
+                                                key={tx.id} 
+                                                onClick={() => { setSelectedTx(tx); setActiveModal('TX_DETAIL'); }}
+                                                className="flex items-center justify-between p-5 hover:bg-zinc-900/30 transition-colors cursor-pointer"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${
+                                                        isSent ? 'bg-zinc-900 border-zinc-700/50' : 'bg-zinc-900 border-zinc-700/50'
+                                                    }`}>
+                                                        {isSent ? <ArrowUpRight className="w-5 h-5 text-white" /> : <ArrowDownLeft className="w-5 h-5 text-white" />}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-white">{label} {tx.chain}</p>
+                                                        <p className={`text-[10px] font-bold mt-0.5 uppercase tracking-wider ${
+                                                            tx.status === 'CONFIRMED' ? 'text-emerald-500' : 'text-amber-500'
+                                                        }`}>
+                                                            {tx.status} • {new Date(tx.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className={`text-sm font-black ${isSent ? 'text-white' : 'text-emerald-400'}`}>
+                                                        {isSent ? '-' : '+'}{tx.amount}
+                                                    </p>
+                                                    {tx.gasFee > 0 && <p className="text-[10px] text-zinc-500 mt-0.5 uppercase font-medium">Gas: {tx.gasFee}</p>}
+                                                </div>
                                             </div>
-                                        )}
-                                    </>
+                                        );
+                                    })
                                 )}
                             </div>
-
-                            {/* Quick Actions */}
-                            <div className="flex gap-3 flex-wrap">
-                                <button
-                                    onClick={() => setActiveTab('SEND')}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-maroon text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-maroon/20"
-                                >
-                                    <SendHorizonal className="w-3.5 h-3.5" />
-                                    Send
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('RECEIVE')}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-zinc-800 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-700 transition-all"
-                                >
-                                    <DownloadCloud className="w-3.5 h-3.5" />
-                                    Receive
-                                </button>
-                                <button
-                                    onClick={refreshBalances}
-                                    disabled={isRefreshing}
-                                    className="flex items-center gap-2 px-4 py-2.5 border border-zinc-800 text-zinc-400 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
-                                >
-                                    <RefreshCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-maroon' : ''}`} />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Right: Chain Selector + Stats */}
-                        <div className="flex flex-col gap-4 xl:items-end">
-                            <div className="flex gap-1.5 p-1.5 bg-zinc-900/80 border border-zinc-800 rounded-2xl">
-                                <ChainTab chain="ARG" active={activeChain === 'ARG'} onClick={() => setActiveChain('ARG')} />
-                                <ChainTab chain="ETH" active={activeChain === 'ETH'} onClick={() => setActiveChain('ETH')} />
-                            </div>
-
-                            {/* Truncated address pill */}
-                            <div
-                                className="flex items-center gap-2 px-4 py-2 bg-zinc-900/60 border border-zinc-800 rounded-xl cursor-pointer hover:border-zinc-700 transition-colors group"
-                                onClick={() => copyAddress(activeChain === 'ARG' ? 'arg' : 'eth')}
-                            >
-                                <span className="text-[9px] font-mono text-zinc-400 tracking-wider">
-                                    {activeChain === 'ARG'
-                                        ? `${addresses.arg.slice(0, 10)}...${addresses.arg.slice(-6)}`
-                                        : `${addresses.eth.slice(0, 8)}...${addresses.eth.slice(-6)}`}
-                                </span>
-                                {copyState === (activeChain === 'ARG' ? 'arg' : 'eth') ? (
-                                    <Check className="w-3 h-3 text-maroon" />
-                                ) : (
-                                    <Copy className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
-                                )}
-                            </div>
-
-                            {/* Mini stats */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="p-4 bg-zinc-900/40 border border-zinc-900 rounded-2xl">
-                                    <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-1">Transactions</p>
-                                    <p className="text-xl font-black text-white">{txHistory.length}</p>
-                                </div>
-                                <div className="p-4 bg-zinc-900/40 border border-zinc-900 rounded-2xl">
-                                    <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-1">Network</p>
-                                    <p className="text-xl font-black text-maroon">GhostDAG</p>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* ── Content Layout ──────────────────────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* ── Modals Overlay System ── */}
 
-                {/* Sidebar Nav */}
-                <div className="lg:col-span-3 space-y-1">
-                    {[
-                        { id: 'OVERVIEW', label: 'Overview', Icon: Zap },
-                        { id: 'SEND', label: 'Send', Icon: ArrowUpRight },
-                        { id: 'RECEIVE', label: 'Receive', Icon: ArrowDownLeft },
-                        { id: 'HISTORY', label: 'History', Icon: History },
-                    ].map(item => (
-                        <NavItem
-                            key={item.id}
-                            id={item.id}
-                            label={item.label}
-                            Icon={item.Icon}
-                            active={activeTab === item.id}
-                            onClick={() => setActiveTab(item.id as any)}
-                        />
-                    ))}
+            {activeModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4 px-0">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" onClick={() => setActiveModal(null)} />
+                    
+                    <div className="relative w-full h-full sm:h-auto sm:max-w-[400px] bg-zinc-900 sm:rounded-[2rem] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-200">
+                        {/* Shared Header */}
+                        <div className="flex items-center justify-between p-5 border-b border-zinc-800">
+                            <h2 className="text-xs font-black text-white uppercase tracking-widest ml-2">
+                                {activeModal === 'SEND' && `Send ${activeNetwork}`}
+                                {activeModal === 'RECEIVE' && `Receive ${activeNetwork}`}
+                                {activeModal === 'SWAP' && 'Swap Tokens'}
+                                {activeModal === 'BUY' && 'Buy Crypto'}
+                                {activeModal === 'TX_DETAIL' && 'Transaction Details'}
+                            </h2>
+                            <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
 
-                    {/* Security note */}
-                    <div className="mt-6 p-4 bg-zinc-950 border border-zinc-900 rounded-2xl space-y-2">
-                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Security</p>
-                        <p className="text-[9px] text-zinc-600 leading-relaxed">
-                            Your keys are derived deterministically. No private keys are stored on our servers.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Main Panel */}
-                <div className="lg:col-span-9 bg-zinc-950/50 border border-zinc-900 rounded-[2rem] p-8 md:p-10 relative overflow-hidden min-h-[480px]">
-                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-maroon/20 to-transparent" />
-
-                    {/* ── OVERVIEW ── */}
-                    {activeTab === 'OVERVIEW' && (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            <div>
-                                <h2 className="text-xl font-black text-white uppercase tracking-tight mb-1">Asset Overview</h2>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Multi-chain balance sheet</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* ARG Card */}
-                                <div className="group p-6 rounded-2xl border border-zinc-800 bg-zinc-900/20 hover:border-maroon/40 hover:bg-maroon/5 transition-all duration-500 cursor-pointer" onClick={() => setActiveChain('ARG')}>
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div className="w-10 h-10 bg-maroon rounded-xl flex items-center justify-center">
-                                            <ArgusLogo className="w-6 h-6 text-white" />
-                                        </div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">GhostDAG</span>
-                                            <span className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-black rounded uppercase ${tokenPrices.arg.change24h >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                                                {tokenPrices.arg.change24h >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
-                                                {tokenPrices.arg.change24h >= 0 ? '+' : ''}{tokenPrices.arg.change24h}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Argus Protocol</p>
-                                    <p className="text-3xl font-black text-white">
-                                        {(user?.points || balance.arg).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                        <span className="text-xs text-zinc-500 ml-1">ARG</span>
-                                    </p>
-                                    <p className="text-xs text-zinc-600 mt-1">≈ ${argUsd} USD</p>
-                                </div>
-
-                                {/* ETH Card */}
-                                <div className="group p-6 rounded-2xl border border-zinc-800 bg-zinc-900/20 hover:border-white/20 hover:bg-white/5 transition-all duration-500 cursor-pointer" onClick={() => setActiveChain('ETH')}>
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                                            <EthLogo className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <span className="px-2 py-0.5 bg-zinc-950 text-zinc-600 text-[8px] font-mono rounded border border-zinc-800">Ethereum</span>
-                                            {tokenPrices.eth.priceUsd > 0 && (
-                                                <span className={`flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-black rounded uppercase ${tokenPrices.eth.change24h >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                                                    {tokenPrices.eth.change24h >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
-                                                    {tokenPrices.eth.change24h >= 0 ? '+' : ''}{tokenPrices.eth.change24h}%
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Ether</p>
-                                    <p className="text-3xl font-black text-white">
-                                        {balance.eth}
-                                        <span className="text-xs text-zinc-500 ml-1">ETH</span>
-                                    </p>
-                                    <p className="text-xs text-zinc-600 mt-1">≈ ${(parseFloat(balance.eth) * tokenPrices.eth.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</p>
-
-                                </div>
-                            </div>
-
-                            {/* Recent activity preview */}
-                            {txHistory.length > 0 && (
-                                <div>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Recent Activity</p>
-                                        <button onClick={() => setActiveTab('HISTORY')} className="text-[9px] text-maroon font-bold uppercase hover:underline">View All</button>
+                        {/* Modal Content areas */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                            
+                            {/* SEND MODAL */}
+                            {activeModal === 'SEND' && (
+                                <form onSubmit={handleSend} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Send to</label>
+                                        <input
+                                            required
+                                            autoFocus
+                                            value={txForm.recipient}
+                                            onChange={e => { setTxForm({ ...txForm, recipient: e.target.value }); setTxError(''); }}
+                                            placeholder={activeNetwork === 'ARG' ? 'Search, public address (arg1...)' : 'Search, public address (0x...)'}
+                                            className="w-full bg-zinc-950 border border-zinc-800 text-white py-3 px-4 rounded-xl focus:border-maroon focus:ring-1 focus:ring-maroon/20 outline-none font-mono text-xs placeholder:text-zinc-600 transition-all"
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        {txHistory.slice(0, 3).map(tx => {
-                                            const isSent = tx.from === (tx.chain === 'ARG' ? addresses.arg : addresses.eth);
-                                            const typeLabel = isSent ? 'SEND' : 'RECEIVE';
-                                            return (
-                                                <div
-                                                    key={tx.id}
-                                                    onClick={() => setSelectedTx(tx)}
-                                                    className="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-900 rounded-xl cursor-pointer hover:bg-zinc-900/50 hover:border-zinc-800 transition-all"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`p-2 rounded-xl flex items-center justify-center ${isSent ? 'bg-orange-500/10 text-orange-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
-                                                            {tx.chain === 'ARG' ? <ArgusLogo className="w-3.5 h-3.5" /> : <EthLogo className="w-3.5 h-3.5" />}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] font-bold text-white uppercase">{typeLabel} · {tx.chain}</p>
-                                                            <p className="text-[8px] text-zinc-600 font-mono">{new Date(tx.createdAt).toLocaleDateString()}</p>
-                                                        </div>
-                                                    </div>
-                                                    <p className={`text-sm font-black ${isSent ? 'text-zinc-300' : 'text-maroon'}`}>
-                                                        {isSent ? '−' : '+'}{tx.amount} {tx.chain}
-                                                    </p>
-                                                </div>
-                                            );
-                                        })}
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Asset</label>
+                                        <div className="flex items-center gap-3 p-3 bg-zinc-950 border border-zinc-800 rounded-xl cursor-not-allowed opacity-80">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeNetwork === 'ARG' ? 'bg-maroon' : 'bg-white'}`}>
+                                                {activeNetwork === 'ARG' ? <ArgusLogo className="w-4 h-4 text-white" /> : <EthLogo className="w-4 h-4" />}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-bold text-white leading-tight">{activeNetwork}</p>
+                                                <p className="text-[10px] text-zinc-500 font-mono tracking-wider">Balance: {displayBalanceData.amount}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Amount</label>
+                                        <div className="relative">
+                                            <input
+                                                required
+                                                type="number"
+                                                step="any"
+                                                min="0"
+                                                value={txForm.amount}
+                                                onChange={e => { setTxForm({ ...txForm, amount: e.target.value }); setTxError(''); }}
+                                                placeholder="0"
+                                                className="w-full bg-zinc-950 border border-zinc-800 text-white py-4 px-4 pr-16 rounded-xl focus:border-maroon focus:ring-1 focus:ring-maroon/20 outline-none text-2xl font-black placeholder:text-zinc-700 transition-all text-center"
+                                            />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-500">{activeNetwork}</span>
+                                        </div>
+                                    </div>
+
+                                    {activeNetwork === 'ARG' && (
+                                        <div className="flex justify-between items-center p-4 rounded-xl bg-zinc-950/50 border border-zinc-800/50">
+                                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Network Gas Fee</span>
+                                            <span className="text-xs font-bold text-zinc-300">0.001 ARG</span>
+                                        </div>
+                                    )}
+
+                                    {txError && (
+                                        <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                                            <p className="text-[10px] text-red-400 font-medium">{txError}</p>
+                                        </div>
+                                    )}
+
+                                    <div className="pt-4">
+                                        <button
+                                            type="submit"
+                                            disabled={isProcessing}
+                                            className="w-full py-4 bg-maroon text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all flex justify-center items-center gap-2"
+                                        >
+                                            {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin"/> Processing</> : 'Next'}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* RECEIVE MODAL */}
+                            {activeModal === 'RECEIVE' && (
+                                <div className="flex flex-col items-center">
+                                    <div className="p-4 bg-white rounded-3xl w-48 h-48 flex-shrink-0 mb-6">
+                                        <QRCode data={currentAddress} />
+                                    </div>
+                                    <div className="w-full space-y-4">
+                                        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-center cursor-pointer hover:border-maroon/50 transition-colors group" onClick={copyAddress}>
+                                            <p className="text-sm font-mono text-zinc-300 break-all mb-2">{currentAddress}</p>
+                                            <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-maroon hover:text-white transition-colors">
+                                                <Copy className="w-3.5 h-3.5" /> Copy Address
+                                            </div>
+                                        </div>
+                                        <p className="text-center text-[10px] text-zinc-500 leading-relaxed font-medium">
+                                            Only send <strong className="text-white">{activeNetwork}</strong> to this address. Sending other assets may result in permanent loss.
+                                        </p>
                                     </div>
                                 </div>
                             )}
-                        </div>
-                    )}
 
-                    {/* ── SEND ── */}
-                    {activeTab === 'SEND' && (
-                        <div className="space-y-8 animate-in fade-in duration-500 max-w-lg mx-auto">
-                            <div>
-                                <h2 className="text-xl font-black text-white uppercase tracking-tight mb-1">Send Assets</h2>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Broadcast a signed transaction</p>
-                            </div>
-
-                            {/* Chain selector inline */}
-                            <div className="flex gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-2xl w-fit">
-                                <ChainTab chain="ARG" active={activeChain === 'ARG'} onClick={() => setActiveChain('ARG')} />
-                                <ChainTab chain="ETH" active={activeChain === 'ETH'} onClick={() => setActiveChain('ETH')} />
-                            </div>
-
-                            <form onSubmit={handleSend} className="space-y-5">
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Recipient Address</label>
-                                    <input
-                                        required
-                                        value={txForm.recipient}
-                                        onChange={e => { setTxForm({ ...txForm, recipient: e.target.value }); setTxError(''); }}
-                                        placeholder={activeChain === 'ARG' ? 'arg1...' : '0x...'}
-                                        className="w-full bg-zinc-900/50 border border-zinc-800 text-white py-4 px-5 rounded-2xl focus:border-maroon focus:ring-1 focus:ring-maroon/20 outline-none transition-all font-mono text-sm placeholder:text-zinc-700"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Amount</label>
-                                    <div className="relative">
-                                        <input
-                                            required
-                                            type="number"
-                                            step="any"
-                                            min="0"
-                                            value={txForm.amount}
-                                            onChange={e => { setTxForm({ ...txForm, amount: e.target.value }); setTxError(''); }}
-                                            placeholder="0.00"
-                                            className="w-full bg-zinc-900/50 border border-zinc-800 text-white py-4 px-5 pr-20 rounded-2xl focus:border-maroon focus:ring-1 focus:ring-maroon/20 outline-none transition-all font-mono text-sm placeholder:text-zinc-700"
-                                        />
-                                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[9px] font-black text-zinc-500 uppercase">{activeChain}</span>
+                            {/* MOCKED MODALS (SWAP/BUY) */}
+                            {(activeModal === 'SWAP' || activeModal === 'BUY') && (
+                                <div className="flex flex-col items-center justify-center h-full text-center py-10">
+                                    <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                                        <AlertCircle className="w-8 h-8 text-zinc-500" />
                                     </div>
-                                </div>
-
-                                {/* Fee notice */}
-                                <div className="flex items-start gap-2 p-3 bg-zinc-900/30 border border-zinc-800 rounded-xl">
-                                    <Zap className="w-3.5 h-3.5 text-maroon mt-0.5 flex-shrink-0" />
-                                    <p className="text-[9px] text-zinc-500 leading-relaxed">
-                                        Network fee: <span className="text-white font-bold">~0.001 {activeChain}</span> · Estimated confirmation in <span className="text-white font-bold">&lt;400ms</span> via GhostDAG.
+                                    <h3 className="text-lg font-black text-white mb-2">{activeModal === 'SWAP' ? 'Swap Unavailable' : 'Purchasing Disabled'}</h3>
+                                    <p className="text-xs text-zinc-500 leading-relaxed max-w-[250px]">
+                                        {activeModal === 'SWAP' 
+                                            ? 'The Argus DEX module is currently undergoing security audits. Check back later.' 
+                                            : 'Fiat on-ramp providers are currently disabled for your region.'}
                                     </p>
                                 </div>
+                            )}
 
-                                {txError && (
-                                    <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-                                        <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                                        <p className="text-[10px] text-red-400">{txError}</p>
-                                    </div>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    disabled={isProcessing}
-                                    className="w-full flex items-center justify-center gap-3 py-4 bg-maroon text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 focus:ring-2 focus:ring-maroon/50 outline-none transition-all shadow-lg shadow-maroon/20 disabled:opacity-60 disabled:cursor-wait"
-                                >
-                                    {isProcessing ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Broadcasting Transaction…
-                                        </>
-                                    ) : (
-                                        <>
-                                            <SendHorizonal className="w-4 h-4" />
-                                            Broadcast Transaction
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {/* ── RECEIVE ── */}
-                    {activeTab === 'RECEIVE' && (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            <div>
-                                <h2 className="text-xl font-black text-white uppercase tracking-tight mb-1">Receive Assets</h2>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Share your address to receive funds</p>
-                            </div>
-
-                            {/* Chain selector */}
-                            <div className="flex gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-2xl w-fit">
-                                <ChainTab chain="ARG" active={activeChain === 'ARG'} onClick={() => setActiveChain('ARG')} />
-                                <ChainTab chain="ETH" active={activeChain === 'ETH'} onClick={() => setActiveChain('ETH')} />
-                            </div>
-
-                            <div className="flex flex-col md:flex-row gap-8 items-start">
-                                {/* QR Code */}
-                                <div className="flex-shrink-0">
-                                    <div className="p-4 bg-white rounded-3xl shadow-2xl shadow-maroon/10 w-44 h-44">
-                                        <QRCode data={activeChain === 'ARG' ? addresses.arg : addresses.eth} />
-                                    </div>
-                                    <p className="text-center text-[9px] text-zinc-600 font-mono mt-3 uppercase tracking-widest">
-                                        {activeChain} · Scan to Pay
-                                    </p>
-                                </div>
-
-                                {/* Address details */}
-                                <div className="flex-1 space-y-4 w-full">
-                                    <div>
-                                        <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2">
-                                            Your {activeChain === 'ARG' ? 'Argus Protocol' : 'Ethereum'} Address
+                            {/* TX DETAIL MODAL */}
+                            {activeModal === 'TX_DETAIL' && selectedTx && (
+                                <div className="space-y-6">
+                                    <div className="text-center pb-6 border-b border-zinc-800">
+                                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Amount</p>
+                                        <p className="text-4xl font-black text-white">
+                                            {selectedTx.amount} <span className="text-sm text-zinc-500">{selectedTx.chain}</span>
                                         </p>
-                                        <div className="relative p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl group">
-                                            <p className="font-mono text-sm text-zinc-200 break-all leading-relaxed pr-10">
-                                                {activeChain === 'ARG' ? addresses.arg : addresses.eth}
-                                            </p>
-                                            <button
-                                                onClick={() => copyAddress(activeChain === 'ARG' ? 'arg' : 'eth')}
-                                                className="absolute top-4 right-4 p-2 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-500 hover:text-maroon hover:border-maroon/30 transition-all"
-                                            >
-                                                {copyState === (activeChain === 'ARG' ? 'arg' : 'eth')
-                                                    ? <Check className="w-3.5 h-3.5 text-maroon" />
-                                                    : <Copy className="w-3.5 h-3.5" />}
-                                            </button>
+                                    </div>
+                                    <div className="space-y-4 text-xs font-mono">
+                                        <div className="flex justify-between items-start gap-4">
+                                            <span className="text-zinc-500 pt-0.5">Status</span>
+                                            <span className={`px-2 py-0.5 rounded font-black tracking-widest uppercase text-[9px] ${selectedTx.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                                {selectedTx.status}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-start gap-4">
+                                            <span className="text-zinc-500">Date</span>
+                                            <span className="text-white text-right">{new Date(selectedTx.createdAt).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between items-start gap-4">
+                                            <span className="text-zinc-500">From</span>
+                                            <span className="text-zinc-300 break-all text-right ml-8">{selectedTx.from}</span>
+                                        </div>
+                                        <div className="flex justify-between items-start gap-4">
+                                            <span className="text-zinc-500">To</span>
+                                            <span className="text-zinc-300 break-all text-right ml-8">{selectedTx.to}</span>
+                                        </div>
+                                        {selectedTx.chain === 'ARG' && (
+                                            <div className="flex justify-between items-start gap-4">
+                                                <span className="text-zinc-500">Gas Fee</span>
+                                                <span className="text-white">{selectedTx.gasFee} ARG</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-start gap-4 pt-4 border-t border-zinc-800/50">
+                                            <span className="text-zinc-500">Hash</span>
+                                            <span className="text-zinc-500 break-all text-right ml-8 text-[10px]">{selectedTx.txHash}</span>
                                         </div>
                                     </div>
-
-                                    <button
-                                        onClick={() => copyAddress(activeChain === 'ARG' ? 'arg' : 'eth')}
-                                        className="w-full flex items-center justify-center gap-2 py-3.5 border border-zinc-800 text-zinc-400 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:border-maroon/40 hover:text-white transition-all"
-                                    >
-                                        <Copy className="w-3.5 h-3.5" />
-                                        Copy Full Address
-                                    </button>
-
-                                    <p className="text-[9px] text-zinc-600 leading-relaxed">
-                                        Only send <span className="text-white font-bold">{activeChain}</span> assets to this address. Sending other tokens may result in permanent loss of funds.
-                                    </p>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ── HISTORY ── */}
-                    {activeTab === 'HISTORY' && (
-                        <div className="space-y-6 animate-in fade-in duration-500">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h2 className="text-xl font-black text-white uppercase tracking-tight mb-1">Transaction History</h2>
-                                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest">On-chain activity log</p>
-                                </div>
-                                <span className="text-[8px] font-mono font-bold text-maroon bg-maroon/10 px-3 py-1 rounded-full uppercase border border-maroon/20">
-                                    {txHistory.length} TXs
-                                </span>
-                            </div>
-
-                            <div className="space-y-2">
-                                {txHistory.map(tx => {
-                                    const isSent = tx.from === (tx.chain === 'ARG' ? addresses.arg : addresses.eth);
-                                    const typeLabel = isSent ? 'SEND' : 'RECEIVE';
-                                    return (
-                                        <div
-                                            key={tx.id}
-                                            onClick={() => setSelectedTx(tx)}
-                                            className="flex items-center justify-between p-5 bg-zinc-900/20 border border-zinc-900 rounded-2xl cursor-pointer hover:bg-zinc-900/40 hover:border-zinc-800 transition-all group"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className={`p-2.5 rounded-xl border flex-shrink-0 ${isSent
-                                                    ? 'bg-orange-500/5 border-orange-500/20 text-orange-400'
-                                                    : 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400'
-                                                    }`}>
-                                                    {isSent ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownLeft className="w-4 h-4" />}
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-[10px] font-black text-white uppercase">{typeLabel} · {tx.chain}</span>
-                                                        <span className="text-[8px] font-mono text-zinc-600">{tx.txHash.slice(0, 14)}…</span>
-                                                    </div>
-                                                    <p className="text-[9px] text-zinc-600 mt-0.5">
-                                                        {new Date(tx.createdAt).toLocaleString()}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right flex-shrink-0">
-                                                <p className={`text-sm font-black ${isSent ? 'text-zinc-200' : 'text-maroon'}`}>
-                                                    {isSent ? '−' : '+'}{tx.amount} {tx.chain}
-                                                </p>
-                                                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded mt-1 inline-block ${tx.status === 'CONFIRMED' ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'
-                                                    }`}>
-                                                    {tx.status}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* ── Transaction Detail Modal ── */}
-            {selectedTx && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedTx(null)} />
-                    <div className="relative w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-300">
-                        <button
-                            onClick={() => setSelectedTx(null)}
-                            className="absolute top-6 right-6 p-2 bg-zinc-900 text-zinc-400 hover:text-white rounded-full transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-
-                        <div className="mb-8">
-                            <h3 className="text-lg font-black text-white uppercase tracking-tight">Transaction Details</h3>
-                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Confirmed on GhostDAG</p>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800/80 text-center">
-                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Amount</p>
-                                <p className="text-3xl font-black text-white">{selectedTx.amount} <span className="text-sm text-zinc-500 ml-1">{selectedTx.chain}</span></p>
-                            </div>
-
-                            <div className="space-y-4 text-sm mt-4">
-                                <div className="flex justify-between items-center py-2 border-b border-zinc-900">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Time</span>
-                                    <span className="text-xs text-zinc-300">{new Date(selectedTx.createdAt).toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2 border-b border-zinc-900">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Status</span>
-                                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded text-emerald-400 bg-emerald-500/10">{selectedTx.status}</span>
-                                </div>
-                                <div className="py-2 border-b border-zinc-900 space-y-1.5">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">From</span>
-                                    <span className="font-mono text-[10px] text-zinc-400 break-all">{selectedTx.from}</span>
-                                </div>
-                                <div className="py-2 border-b border-zinc-900 space-y-1.5">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">To</span>
-                                    <span className="font-mono text-[10px] text-zinc-400 break-all">{selectedTx.to}</span>
-                                </div>
-                                <div className="py-2 border-b border-zinc-900 space-y-1.5">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Network Fee</span>
-                                    <span className="font-mono text-xs text-white">{(selectedTx.chain === 'ARG' ? selectedTx.gasFee : 0)} {selectedTx.chain}</span>
-                                </div>
-                                <div className="py-2 space-y-1.5">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Transaction Hash</span>
-                                    <span className="font-mono text-[10px] text-zinc-400 break-all">{selectedTx.txHash}</span>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
