@@ -2020,14 +2020,18 @@ const AdminPanel = () => {
                                 </div>
                               </AccordionItem>
                             ))}
-                            <button onClick={() => addItem(setPrivacyConfig, ['sections'], { heading: "New Module", content: "" })} className="btn-primary w-full py-3">+ Add Section</button>
+                           <button onClick={() => addItem(setPrivacyConfig, ['sections'], { heading: "New Module", content: "" })} className="btn-primary w-full py-3">+ Add Section</button>
                           </div>
                         </>
                       )}
                     </div>
-                  </div>
+                  )}
+                </div>
               </div>
-              )}
+            </div>
+          )}
+
+          {activeTab === 'explorer' && (
 
               {activeTab === 'explorer' && (
                 <div className="space-y-8 animate-fade-in-up">
