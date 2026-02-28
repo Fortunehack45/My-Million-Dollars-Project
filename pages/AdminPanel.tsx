@@ -2030,40 +2030,62 @@ const AdminPanel = () => {
               </div>
             </div>
           )}
+<<<<<<< HEAD
+
+  {
+    activeTab === 'explorer' && (
+      <div className="space-y-8 animate-fade-in-up">
+        {/* Explorer Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                <Database className="w-6 h-6 text-amber-500" />
+=======
 
           {activeTab === 'explorer' && (
-            <div className="space-y-8 animate-fade-in-up">
-              {/* Explorer Header */}
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
-                      <Database className="w-6 h-6 text-amber-500" />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black text-white uppercase tracking-tighter">ArgusScan_Ledger</h2>
-                      <p className="text-[10px] text-zinc-500 font-mono tracking-[0.2em]">GLOBAL_TRANSACTION_ORBIT_OS</p>
-                    </div>
-                  </div>
-                </div>
+                  <div className="space-y-8 animate-fade-in-up">
 
-                {/* Treasury Card */}
-                <div className="bg-zinc-950/80 p-6 rounded-[2rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group min-w-[300px]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.03] to-transparent pointer-events-none"></div>
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Protocol_Treasury</p>
-                    <TrendingUp className="w-4 h-4 text-amber-500" />
-                  </div>
-                  <div className="flex items-end gap-3">
-                    <p className="text-4xl font-black text-white tracking-tighter">{treasuryBalance.toFixed(4)}</p>
-                    <p className="text-xs font-black text-amber-500 mb-1.5 uppercase">ARG_Gas_Fees</p>
-                  </div>
-                  <p className="text-[9px] text-zinc-600 mt-2 font-mono uppercase tracking-widest">Aggregate_Network_Revenue</p>
-                </div>
-              </div>
 
-              {/* Explorer Search / Filter (Mock for now) */}
-              <div className="relative group">
+                    {/* Explorer Header */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                            <Database className="w-6 h-6 text-amber-500" />
+                          </div>
+                          <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tighter">ArgusScan_Ledger</h2>
+                            <p className="text-[10px] text-zinc-500 font-mono tracking-[0.2em]">GLOBAL_TRANSACTION_ORBIT_OS</p>
+                          </div>
+                        </div>
+>>>>>>> origin/main
+                      </div>
+                      <div>
+                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter">ArgusScan_Ledger</h2>
+                        <p className="text-[10px] text-zinc-500 font-mono tracking-[0.2em]">GLOBAL_TRANSACTION_ORBIT_OS</p>
+                      </div>
+                    </div>
+                  </div>
+
+<<<<<<< HEAD
+                {/* Treasury Card */ }
+<div className="bg-zinc-950/80 p-6 rounded-[2rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group min-w-[300px]">
+  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.03] to-transparent pointer-events-none"></div>
+  <div className="flex items-center justify-between mb-4">
+    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Protocol_Treasury</p>
+    <TrendingUp className="w-4 h-4 text-amber-500" />
+  </div>
+  <div className="flex items-end gap-3">
+    <p className="text-4xl font-black text-white tracking-tighter">{treasuryBalance.toFixed(4)}</p>
+    <p className="text-xs font-black text-amber-500 mb-1.5 uppercase">ARG_Gas_Fees</p>
+  </div>
+  <p className="text-[9px] text-zinc-600 mt-2 font-mono uppercase tracking-widest">Aggregate_Network_Revenue</p>
+</div>
+              </div >
+
+  {/* Explorer Search / Filter (Mock for now) */ }
+  < div className = "relative group" >
                 <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
                   <Search className="w-4 h-4 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
                 </div>
@@ -2072,10 +2094,10 @@ const AdminPanel = () => {
                   placeholder="Search by TxID, Address, or Height..."
                   className="w-full bg-zinc-950/50 border border-zinc-900 text-sm p-5 pl-14 rounded-[1.5rem] focus:border-amber-500/30 outline-none transition-all font-mono"
                 />
-              </div>
+              </div >
 
-              {/* Transactions Table - Etherscan Style */}
-              <div className="silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl">
+  {/* Transactions Table - Etherscan Style */ }
+  < div className = "silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl" >
                 <div className="p-6 border-b border-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/30">
                   <div className="flex items-center gap-3">
                     <History className="w-4 h-4 text-zinc-500" />
@@ -2228,14 +2250,13 @@ const AdminPanel = () => {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            </div>
+              </div >
+            </div >
           )}
 
-        </div>
-      </main>
+        </div >
+      </main >
     </div >
   );
 };
-
 export default AdminPanel;
