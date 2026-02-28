@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import {
   Hexagon,
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   Activity,
   Globe,
@@ -18,6 +20,7 @@ import { NetworkStats } from '../types';
 
 const Login = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [netStats, setNetStats] = useState<NetworkStats>({ totalMined: 0, totalUsers: 0, activeNodes: 0 });
   const [isSignUp, setIsSignUp] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -155,7 +158,18 @@ const Login = () => {
 
       {/* Right Pane: Access Portal */}
       <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-12 relative bg-zinc-950">
-        <div className="w-full max-w-sm space-y-16">
+        <div className="w-full max-w-sm space-y-12">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-zinc-600 hover:text-white transition-all duration-300 group/back w-fit"
+          >
+            <div className="w-8 h-8 rounded-lg border border-zinc-900 flex items-center justify-center group-hover/back:border-maroon/50 group-hover/back:bg-maroon/5 transition-all">
+              <ArrowLeft className="w-4 h-4 group-hover/back:-translate-x-0.5 transition-transform" />
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">Return to Hub</span>
+          </button>
+
           <header className="space-y-4">
             <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-tight">
               Access_Authority

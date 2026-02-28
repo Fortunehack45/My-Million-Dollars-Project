@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { createInitialProfile, validateReferralCode, checkUsernameTaken, getUserData, getNetworkStats, DEFAULT_MAX_USERS_CAP } from '../services/firebase';
 import {
   Fingerprint,
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   Terminal,
   AlertCircle,
@@ -17,6 +18,7 @@ import {
 
 const ProfileSetup = () => {
   const { firebaseUser, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [refCode, setRefCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -167,6 +169,16 @@ const ProfileSetup = () => {
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none mix-blend-overlay"></div>
 
       <div className="w-full max-w-[420px] relative z-10 animate-fade-in-up">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/')}
+          className="mb-8 flex items-center gap-2 text-zinc-600 hover:text-white transition-all duration-300 group/back w-fit mx-auto sm:mx-0"
+        >
+          <div className="w-8 h-8 rounded-lg border border-zinc-900 flex items-center justify-center group-hover/back:border-maroon/50 group-hover/back:bg-maroon/5 transition-all">
+            <ArrowLeft className="w-4 h-4 group-hover/back:-translate-x-0.5 transition-transform" />
+          </div>
+          <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">Exit Setup</span>
+        </button>
 
         {/* Header Section */}
         <div className="text-center mb-10 space-y-3 px-4">
