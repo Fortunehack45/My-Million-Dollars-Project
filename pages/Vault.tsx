@@ -1,21 +1,20 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ArgusSynapseService } from '../services/ArgusSynapseService';
 import { EthereumService } from '../services/EthereumService';
 import {
     db,
+    saveUserAddresses,
+    transferARG,
 } from '../services/firebase';
 import { useTokenPrices } from '../services/TokenPriceService';
 import {
     collection,
-    addDoc,
     query,
     where,
     orderBy,
     onSnapshot,
-    serverTimestamp,
-    getDocs,
 } from 'firebase/firestore';
 import {
     ShieldCheck,
@@ -166,12 +165,14 @@ const Vault = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const refreshBalances = () => setRefreshTrigger(prev => prev + 1);
 
-    // Deterministic address derivation
+    // Deterministic address derivation + persist to Firestore for recipient lookup
     useEffect(() => {
         if (user?.uid) {
             const arg = ArgusSynapseService.generateAddress(user.uid);
             const eth = EthereumService.generateAddress(user.uid);
             setAddresses({ arg, eth });
+            // Save addresses to user profile so others can find us by address
+            saveUserAddresses(user.uid, arg, eth);
         }
     }, [user?.uid]);
 
@@ -208,20 +209,11 @@ const Vault = () => {
         return () => unsub();
     }, [user?.uid, addresses.arg, addresses.eth]);
 
-    // Compute genuine real-time ARG balance natively
+    // Sync ARG balance from Firestore user.points (source of truth after transferARG)
     useEffect(() => {
-        if (!user || !addresses.arg) return;
-        let argNet = 0;
-        txHistory.forEach(tx => {
-            if (tx.chain !== 'ARG' || tx.status !== 'CONFIRMED') return;
-            const amt = parseFloat(tx.amount);
-            if (tx.from === addresses.arg) argNet -= (amt + (tx.gasFee || 0));
-            // Only add if explicitly received and not self-transfer (though self is blocked)
-            else if (tx.to === addresses.arg) argNet += amt;
-        });
-        const genuineArg = (user.points || 0) + argNet;
-        setBalance(prev => ({ ...prev, arg: Math.max(0, genuineArg) }));
-    }, [user?.points, addresses.arg, txHistory]);
+        if (!user) return;
+        setBalance(prev => ({ ...prev, arg: Math.max(0, user.points || 0) }));
+    }, [user?.points]);
 
     const showToast = (msg: string) => {
         setToast({ msg, visible: true });
@@ -244,7 +236,7 @@ const Vault = () => {
         e.preventDefault();
         setTxError('');
 
-        // Validate
+        // Validate address format
         if (activeChain === 'ARG' && !ArgusSynapseService.isValidAddress(txForm.recipient)) {
             setTxError('Invalid Argus address. Must start with "arg..."');
             return;
@@ -259,56 +251,63 @@ const Vault = () => {
         }
 
         const amt = parseFloat(txForm.amount);
-        const requiredTotal = activeChain === 'ARG' ? amt + GAS_FEE_ARG : amt;
-
         if (isNaN(amt) || amt <= 0) {
             setTxError('Enter a valid amount greater than 0');
             return;
         }
 
+        const requiredTotal = activeChain === 'ARG' ? amt + GAS_FEE_ARG : amt;
+
         if (activeChain === 'ARG' && balance.arg < requiredTotal) {
-            setTxError(`Insufficient funds. You need ${requiredTotal} ARG (including ${GAS_FEE_ARG} ARG gas fee).`);
+            setTxError(`Insufficient funds. You need ${requiredTotal.toFixed(4)} ARG (incl. ${GAS_FEE_ARG} ARG gas).`);
             return;
         }
-
         if (activeChain === 'ETH' && parseFloat(balance.eth) < amt) {
-            setTxError(`Insufficient funds for ETH transfer.`);
+            setTxError('Insufficient ETH balance.');
             return;
         }
 
         setIsProcessing(true);
         try {
-            // Find recipient UID if they exist in our system
-            let toUid = '';
-            try {
-                const userSnap = await getDocs(query(
-                    collection(db, 'users'),
-                    where(activeChain === 'ARG' ? 'argAddress' : 'ethAddress', '==', txForm.recipient)
-                ));
-                if (!userSnap.empty) toUid = userSnap.docs[0].id;
-            } catch (e) { /* silent fail for external addresses */ }
-
             const txHash = '0x' + Math.random().toString(16).slice(2, 18) + Math.random().toString(16).slice(2, 18);
-            const fromAddr = activeChain === 'ARG' ? addresses.arg : addresses.eth;
-            const toAddr = txForm.recipient;
 
-            const tx: Omit<WalletTx, 'id'> = {
-                fromUid: user!.uid,
-                toUid: toUid || undefined,
-                chain: activeChain,
-                type: 'SEND',
-                amount: txForm.amount,
-                to: toAddr,
-                from: fromAddr,
-                status: 'CONFIRMED',
-                txHash,
-                createdAt: Date.now(),
-                participants: [fromAddr, toAddr],
-                gasFee: activeChain === 'ARG' ? GAS_FEE_ARG : 0,
-            };
-            await addDoc(collection(db, 'wallet_transactions'), tx);
+            if (activeChain === 'ARG') {
+                // ── ARG: atomic Firestore transaction (debit sender + credit receiver)
+                const result = await transferARG({
+                    senderUid: user!.uid,
+                    senderArgAddress: addresses.arg,
+                    recipientArgAddress: txForm.recipient,
+                    amount: amt,
+                    gasFee: GAS_FEE_ARG,
+                    txHash,
+                });
+
+                if (!result.success) {
+                    setTxError(result.error || 'Transfer failed. Please try again.');
+                    return;
+                }
+            } else {
+                // ── ETH: log-only (on-chain execution happens outside app scope)
+                const { addDoc: firestoreAddDoc } = await import('firebase/firestore');
+                await firestoreAddDoc(collection(db, 'wallet_transactions'), {
+                    uid: user!.uid,
+                    fromUid: user!.uid,
+                    toUid: null,
+                    chain: 'ETH',
+                    type: 'SEND',
+                    amount: String(amt),
+                    from: addresses.eth,
+                    to: txForm.recipient,
+                    status: 'CONFIRMED',
+                    txHash,
+                    createdAt: Date.now(),
+                    participants: [addresses.eth, txForm.recipient],
+                    gasFee: 0,
+                });
+            }
+
             setTxForm({ recipient: '', amount: '' });
-            showToast('Transaction broadcast successfully');
+            showToast('Transaction broadcast successfully ✓');
             setActiveTab('HISTORY');
         } catch (err) {
             setTxError('Broadcast failed. Please try again.');

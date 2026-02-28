@@ -47,7 +47,7 @@ import {
   Briefcase, Phone, HelpCircle, Share2, PieChart,
   ListPlus, ChevronDown, ChevronRight, Settings,
   Target, RefreshCw, MessageSquare, Maximize, Minimize,
-  Search, History, ExternalLink, Wallet, TrendingUp
+  Search, History, ExternalLink, Wallet, TrendingUp, Copy
 } from 'lucide-react';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
@@ -451,7 +451,7 @@ const AdminPanel = () => {
         <div className="p-8 border-b border-zinc-900/50">
           <div className="flex items-center gap-4 group cursor-pointer mb-6" onClick={() => navigate('/')}>
             <div className="w-12 h-12 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center transition-all duration-500 group-hover:border-maroon/40 shadow-inner">
-              <Logo className="w-7 h-7 text-maroon transition-transform duration-500 group-hover:scale-110" />
+              <ArgusLogo className="w-7 h-7 text-maroon transition-transform duration-500 group-hover:scale-110" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white uppercase tracking-tighter leading-none">Argus_Panel</h1>
@@ -2074,85 +2074,153 @@ const AdminPanel = () => {
                 />
               </div>
 
-              {/* Transactions Table */}
-              <div className="silk-panel rounded-[2.5rem] border-zinc-900 overflow-hidden">
-                <div className="p-8 border-b border-zinc-900 flex items-center justify-between">
+              {/* Transactions Table - Etherscan Style */}
+              <div className="silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl">
+                <div className="p-6 border-b border-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/30">
                   <div className="flex items-center gap-3">
-                    <History className="w-5 h-5 text-zinc-500" />
-                    <h3 className="text-sm font-black text-white uppercase tracking-widest">Live_Chain_Feed</h3>
+                    <History className="w-4 h-4 text-zinc-500" />
+                    <div>
+                      <h3 className="text-[11px] font-black text-white uppercase tracking-widest">Network_Transactions</h3>
+                      <p className="text-[9px] text-zinc-500 font-mono mt-0.5">Showing last {allTransactions.length} records</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Syncing_Nodes</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-[pulse_2s_ease-in-out_infinite]"></span>
+                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Live_Chain_Feed</span>
                   </div>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-zinc-900/20">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-zinc-900/30 border-b border-zinc-900/50">
                       <tr>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Transaction_ID</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Entity_Route</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Payload_Value</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Protocol_Fee</th>
-                        <th className="px-8 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Timestamp</th>
-                        <th className="px-8 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Status</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Txn Hash</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Method</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Block</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Age</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">From</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">To</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">Value</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">Txn Fee</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-900/50">
-                      {allTransactions.map((tx) => (
-                        <tr key={tx.id} className="group hover:bg-white/[0.01] transition-colors">
-                          <td className="px-8 py-6">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg ${tx.chain === 'ARG' ? 'bg-maroon/10' : 'bg-blue-500/10'}`}>
-                                {tx.chain === 'ARG' ? <ArgusLogo className="w-4 h-4 text-maroon" /> : <EthLogo className="w-4 h-4 text-blue-500" />}
+                    <tbody className="divide-y divide-zinc-900/30 bg-zinc-950/20">
+                      {allTransactions.map((tx) => {
+                        const isArg = tx.chain === 'ARG';
+                        const method = tx.type === 'SEND' ? 'Transfer' : tx.type;
+
+                        // Copy helper inline
+                        const copyToClipboard = (text: string) => {
+                          navigator.clipboard.writeText(text);
+                          // Could add a local toast here if needed
+                        };
+
+                        // Relative time helper
+                        const getAge = (timestamp: number) => {
+                          const seconds = Math.floor((Date.now() - timestamp) / 1000);
+                          if (seconds < 60) return `${seconds}s ago`;
+                          const minutes = Math.floor(seconds / 60);
+                          if (minutes < 60) return `${minutes}m ago`;
+                          const hours = Math.floor(minutes / 60);
+                          if (hours < 24) return `${hours}h ago`;
+                          return `${Math.floor(hours / 24)}d ago`;
+                        };
+
+                        return (
+                          <tr key={tx.id} className="group hover:bg-zinc-900/30 transition-colors text-[11px] font-mono whitespace-nowrap">
+                            {/* Txn Hash */}
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-1 h-3 rounded-full ${tx.status === 'CONFIRMED' ? 'bg-emerald-500' : tx.status === 'PENDING' ? 'bg-amber-500' : 'bg-red-500'}`}></span>
+                                <button
+                                  onClick={() => copyToClipboard(tx.txHash)}
+                                  className={`${isArg ? 'text-maroon/90 hover:text-maroon' : 'text-blue-400/90 hover:text-blue-400'} font-bold transition-colors flex items-center gap-1.5 group/copy`}
+                                >
+                                  {tx.txHash.slice(0, 14)}...
+                                  <Copy className="w-3 h-3 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
+                                </button>
                               </div>
-                              <span className="font-mono text-[10px] text-zinc-400 group-hover:text-white transition-colors cursor-pointer flex items-center gap-1.5">
-                                {tx.txHash.slice(0, 12)}...
-                                <ExternalLink className="w-3 h-3 text-zinc-700 opacity-0 group-hover:opacity-100 transition-all" />
+                            </td>
+
+                            {/* Method */}
+                            <td className="px-6 py-4">
+                              <span className="px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 text-[9px] border border-zinc-800 uppercase tracking-wider">
+                                {method}
                               </span>
-                            </div>
-                          </td>
-                          <td className="px-8 py-6">
-                            <div className="space-y-1">
-                              <p className="font-mono text-[9px] text-zinc-500 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800"></span>
-                                FROM: <span className="text-zinc-300">{tx.from.slice(0, 8)}...{tx.from.slice(-4)}</span>
-                              </p>
-                              <p className="font-mono text-[9px] text-zinc-500 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-maroon/40"></span>
-                                TO: <span className="text-zinc-300">{tx.to.slice(0, 8)}...{tx.to.slice(-4)}</span>
-                              </p>
-                            </div>
-                          </td>
-                          <td className="px-8 py-6">
-                            <p className={`text-sm font-black tracking-tight ${tx.chain === 'ARG' ? 'text-white' : 'text-blue-400'}`}>
-                              {tx.amount} {tx.chain}
-                            </p>
-                            <p className="text-[9px] text-zinc-600 uppercase font-bold">{tx.type}</p>
-                          </td>
-                          <td className="px-8 py-6">
-                            <p className="font-mono text-[10px] text-amber-500/80 font-bold">{tx.gasFee?.toFixed(4) || '0.0000'} ARG</p>
-                          </td>
-                          <td className="px-8 py-6 text-zinc-500 text-[10px] font-mono">
-                            {new Date(tx.createdAt).toLocaleString()}
-                          </td>
-                          <td className="px-8 py-6 text-right">
-                            <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${tx.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                              tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                                'bg-red-500/10 text-red-500 border border-red-500/20'
-                              }`}>
-                              {tx.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+
+                            {/* Block (Mocked via timestamp for visual effect) */}
+                            <td className="px-6 py-4 text-zinc-400">
+                              <span className="text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors block">
+                                {Math.floor(tx.createdAt / 10000)}
+                              </span>
+                            </td>
+
+                            {/* Age */}
+                            <td className="px-6 py-4 text-zinc-400" title={new Date(tx.createdAt).toLocaleString()}>
+                              {getAge(tx.createdAt)}
+                            </td>
+
+                            {/* From */}
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2 w-32">
+                                <button
+                                  onClick={() => copyToClipboard(tx.from)}
+                                  className="text-zinc-300 hover:text-white transition-colors truncate flex-1 text-left flex items-center justify-between group/copy"
+                                  title={tx.from}
+                                >
+                                  <span className="truncate">{tx.from}</span>
+                                  <Copy className="w-3 h-3 text-zinc-600 opacity-0 group-hover/copy:opacity-100 shrink-0" />
+                                </button>
+                              </div>
+                            </td>
+
+                            {/* To */}
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2 w-32">
+                                <span className="p-0.5 rounded bg-zinc-800/50 text-emerald-500 border border-emerald-500/20 shrink-0 mt-0.5">
+                                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </span>
+                                <button
+                                  onClick={() => copyToClipboard(tx.to)}
+                                  className="text-zinc-300 hover:text-white transition-colors truncate flex-1 text-left flex items-center justify-between group/copy"
+                                  title={tx.to}
+                                >
+                                  <span className="truncate">{tx.to}</span>
+                                  <Copy className="w-3 h-3 text-zinc-600 opacity-0 group-hover/copy:opacity-100 shrink-0" />
+                                </button>
+                              </div>
+                            </td>
+
+                            {/* Value */}
+                            <td className="px-6 py-4 text-right">
+                              <span className="font-bold text-zinc-200">
+                                {Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                                <span className={`ml-1 text-[9px] ${isArg ? 'text-maroon' : 'text-blue-500'}`}>{tx.chain}</span>
+                              </span>
+                            </td>
+
+                            {/* Txn Fee */}
+                            <td className="px-6 py-4 text-right">
+                              <span className="text-zinc-500">
+                                {tx.gasFee ? tx.gasFee.toFixed(4) : '0.0000'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+
                       {allTransactions.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="px-8 py-20 text-center">
-                            <div className="flex flex-col items-center gap-3 opacity-20">
-                              <Database className="w-12 h-12 text-zinc-700" />
-                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">No_Historical_Data_Synced</p>
+                          <td colSpan={8} className="px-6 py-24 text-center">
+                            <div className="flex flex-col items-center gap-4 opacity-30">
+                              <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                                <Search className="w-6 h-6 text-zinc-500" />
+                              </div>
+                              <div>
+                                <p className="text-[12px] font-bold text-white uppercase tracking-widest">No matching entries found</p>
+                                <p className="text-[10px] text-zinc-500 mt-1 font-sans">Awaiting network blocks synchronization</p>
+                              </div>
                             </div>
                           </td>
                         </tr>

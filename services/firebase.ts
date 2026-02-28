@@ -845,3 +845,109 @@ export const subscribeToLiveValidators = (callback: (count: number) => void) => 
     callback(Math.max(1, uids.length));
   });
 };
+
+// --- WALLET ADDRESS PERSISTENCE ---
+// Saves the deterministically-derived ARG and ETH addresses to the user's Firestore
+// profile so they can be found by other users when sending tokens.
+export const saveUserAddresses = async (
+  uid: string,
+  argAddress: string,
+  ethAddress: string
+): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) return;
+    const data = snap.data() as User;
+    // Only write if addresses have changed (avoids unnecessary writes)
+    if (data.argAddress === argAddress && data.ethAddress === ethAddress) return;
+    await updateDoc(userRef, { argAddress, ethAddress });
+  } catch (e) {
+    console.warn('[saveUserAddresses] Failed:', e);
+  }
+};
+
+// --- ARG ATOMIC TRANSFER ---
+// Executes a peer-to-peer ARG transfer using a single Firestore transaction so
+// the debit and credit are always consistent and can never partially succeed.
+//
+// Returns { success: true } on success, or { success: false, error: string } on failure.
+export const transferARG = async (params: {
+  senderUid: string;
+  senderArgAddress: string;
+  recipientArgAddress: string;
+  amount: number;   // amount in ARG (excluding gas)
+  gasFee: number;
+  txHash: string;
+}): Promise<{ success: boolean; error?: string }> => {
+  const { senderUid, senderArgAddress, recipientArgAddress, amount, gasFee, txHash } = params;
+  const totalDebit = amount + gasFee;
+
+  try {
+    // 1. Look up the recipient by their argAddress field
+    let recipientUid: string | null = null;
+    try {
+      const recipientSnap = await getDocs(
+        query(collection(db, 'users'), where('argAddress', '==', recipientArgAddress), limit(1))
+      );
+      if (!recipientSnap.empty) recipientUid = recipientSnap.docs[0].id;
+    } catch {
+      // External address — no recipient profile in system
+    }
+
+    const senderRef = doc(db, 'users', senderUid);
+    const txRef = doc(collection(db, 'wallet_transactions'));
+    const statsRef = doc(db, 'global_stats', 'network');
+
+    await runTransaction(db, async (transaction) => {
+      // Read sender inside transaction to get authoritative balance
+      const senderSnap = await transaction.get(senderRef);
+      if (!senderSnap.exists()) throw new Error('Sender profile not found.');
+
+      const senderData = senderSnap.data() as User;
+      const currentPoints = senderData.points || 0;
+
+      if (currentPoints < totalDebit) {
+        throw new Error(
+          `Insufficient balance. You have ${currentPoints.toFixed(4)} ARG but need ${totalDebit.toFixed(4)} ARG (${amount} + ${gasFee} gas).`
+        );
+      }
+
+      // Debit sender
+      transaction.update(senderRef, { points: increment(-totalDebit) });
+
+      // Credit receiver (internal transfer only)
+      if (recipientUid) {
+        const recipientRef = doc(db, 'users', recipientUid);
+        transaction.update(recipientRef, { points: increment(amount) });
+      }
+
+      // Write immutable tx record
+      const txRecord = {
+        id: txRef.id,
+        uid: senderUid,
+        fromUid: senderUid,
+        toUid: recipientUid || null,
+        chain: 'ARG' as const,
+        type: 'SEND' as const,
+        amount: String(amount),
+        from: senderArgAddress,
+        to: recipientArgAddress,
+        status: 'CONFIRMED' as const,
+        txHash,
+        createdAt: Date.now(),
+        participants: [senderArgAddress, recipientArgAddress],
+        gasFee,
+      };
+      transaction.set(txRef, txRecord);
+
+      // Update global stats — gas fee is "burned" (not credited), amount is neutral (moved, not created)
+      transaction.update(statsRef, { totalMined: increment(0) });
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('[transferARG] Transfer failed:', err);
+    return { success: false, error: err?.message || 'Transfer failed. Please try again.' };
+  }
+};

@@ -31,8 +31,19 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       
       allow create: if isOwner(userId);
-      allow update: if isAdmin() || (isOwner(userId) && 
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'ownedNFT', 'referralCount', 'registrationIP', 'uid']));
+
+      // Owner can update their own profile EXCEPT protected fields
+      // Also allows writing argAddress / ethAddress (address persistence)
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'ownedNFT', 'referralCount', 'registrationIP', 'uid'])
+      ) || (
+        // Allow any authenticated user to credit points to another user (receive side of a transfer)
+        // Strictly scoped: only the 'points' field may change, no other fields
+        isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points'])
+      );
+      
       allow delete: if isAdmin();
     }
 
