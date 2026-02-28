@@ -280,16 +280,16 @@ const Vault = () => {
         <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Toast msg={toast.msg} visible={toast.visible} />
 
-            {/* ── Alchemy not configured notice ─────────── */}
+            {/* ── Infura not configured notice ─────────── */}
             {!ethProviderReady && (
                 <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
                     <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                     <div className="space-y-1">
                         <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">ETH Live Balance — Setup Required</p>
                         <p className="text-[9px] text-amber-400/70 leading-relaxed">
-                            Set <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">VITE_ALCHEMY_API_KEY</code> in your <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">.env</code> file to fetch real Ethereum mainnet balances.
+                            Set <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">VITE_INFURA_API_KEY</code> in your <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">.env</code> file to fetch real Ethereum mainnet balances.
                             Get a free key at{' '}
-                            <a href="https://alchemy.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-300">alchemy.com</a>.
+                            <a href="https://infura.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-300">infura.io</a>.
                             ARG balance is always live via Argus Protocol.
                         </p>
                     </div>
