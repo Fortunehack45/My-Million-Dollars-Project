@@ -783,7 +783,6 @@ const Vault = () => {
                                     );
                                 })}
                             </div>
-                            )}
                         </div>
                     )}
                 </div>
