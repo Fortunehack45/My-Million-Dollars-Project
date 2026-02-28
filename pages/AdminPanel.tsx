@@ -451,7 +451,7 @@ const AdminPanel = () => {
         <div className="p-8 border-b border-zinc-900/50">
           <div className="flex items-center gap-4 group cursor-pointer mb-6" onClick={() => navigate('/')}>
             <div className="w-12 h-12 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center transition-all duration-500 group-hover:border-maroon/40 shadow-inner">
-              <Logo className="w-7 h-7 text-maroon transition-transform duration-500 group-hover:scale-110" />
+              <ArgusLogo className="w-7 h-7 text-maroon transition-transform duration-500 group-hover:scale-110" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white uppercase tracking-tighter leading-none">Argus_Panel</h1>
