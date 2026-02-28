@@ -102,10 +102,10 @@ const ChainTab = ({
     <button
         onClick={onClick}
         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all duration-300 ${active
-                ? chain === 'ARG'
-                    ? 'bg-maroon text-white shadow-lg shadow-maroon/30'
-                    : 'bg-white text-zinc-950 shadow-lg shadow-white/20'
-                : 'text-zinc-500 hover:text-zinc-300'
+            ? chain === 'ARG'
+                ? 'bg-maroon text-white shadow-lg shadow-maroon/30'
+                : 'bg-white text-zinc-950 shadow-lg shadow-white/20'
+            : 'text-zinc-500 hover:text-zinc-300'
             }`}
     >
         {chain === 'ARG' ? (
@@ -134,8 +134,8 @@ const NavItem = ({
     <button
         onClick={onClick}
         className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-300 group ${active
-                ? 'bg-zinc-900 border border-zinc-800 shadow-xl text-white'
-                : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
+            ? 'bg-zinc-900 border border-zinc-800 shadow-xl text-white'
+            : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
             }`}
     >
         <Icon
@@ -274,12 +274,28 @@ const Vault = () => {
 
     // ─── ARG USD value ──
     const argUsd = ((user?.points || balance.arg) * CURRENT_ARG_PRICE).toFixed(2);
+    const ethProviderReady = EthereumService.isProviderConfigured();
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Toast msg={toast.msg} visible={toast.visible} />
 
-            {/* ── Hero Balance Header ─────────────────────── */}
+            {/* ── Alchemy not configured notice ─────────── */}
+            {!ethProviderReady && (
+                <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                    <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">ETH Live Balance — Setup Required</p>
+                        <p className="text-[9px] text-amber-400/70 leading-relaxed">
+                            Set <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">VITE_ALCHEMY_API_KEY</code> in your <code className="bg-amber-500/20 px-1 py-0.5 rounded font-mono">.env</code> file to fetch real Ethereum mainnet balances.
+                            Get a free key at{' '}
+                            <a href="https://alchemy.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-300">alchemy.com</a>.
+                            ARG balance is always live via Argus Protocol.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="relative overflow-hidden rounded-[2.5rem] bg-zinc-950 border border-zinc-900 shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-maroon/10 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute -top-20 -right-20 w-80 h-80 bg-maroon/5 rounded-full blur-3xl pointer-events-none" />
@@ -674,10 +690,10 @@ const Vault = () => {
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className={`p-2.5 rounded-xl border flex-shrink-0 ${tx.type === 'SEND'
-                                                        ? 'bg-orange-500/5 border-orange-500/20 text-orange-400'
-                                                        : tx.type === 'RECEIVE'
-                                                            ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400'
-                                                            : 'bg-maroon/5 border-maroon/20 text-maroon'
+                                                    ? 'bg-orange-500/5 border-orange-500/20 text-orange-400'
+                                                    : tx.type === 'RECEIVE'
+                                                        ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400'
+                                                        : 'bg-maroon/5 border-maroon/20 text-maroon'
                                                     }`}>
                                                     {tx.type === 'SEND'
                                                         ? <ArrowUpRight className="w-4 h-4" />
