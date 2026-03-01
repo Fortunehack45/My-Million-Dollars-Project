@@ -10,7 +10,7 @@ import {
     AlertCircle, X, ChevronDown, CreditCard, Repeat,
     History, ExternalLink, RefreshCw, Send, Download,
     TrendingUp, Shield, Activity, Wallet, BarChart3, Clock,
-    CircleDot,
+    CircleDot, ScanLine, Camera,
 } from 'lucide-react';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
@@ -18,19 +18,8 @@ import { WalletTx } from '../types';
 
 export const GAS_FEE_ARG = 0.001;
 
-// ── QR Code ────────────────────────────────────────────────
-const QRCode = ({ data }: { data: string }) => {
-    const size = 9;
-    const hash = data.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    const cells = Array.from({ length: size * size }, (_, i) => ((hash * (i + 7) * 13) % 100) > 42);
-    [0, 1, 2, 18, 19, 20, 6, 15, 60, 61, 62, 78, 79, 80].forEach(i => (cells[i] = true));
-    return (
-        <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" shapeRendering="crispEdges">
-            <rect width={size} height={size} fill="white" />
-            {cells.map((on, i) => on ? <rect key={i} x={i % size} y={Math.floor(i / size)} width={1} height={1} fill="#111" /> : null)}
-        </svg>
-    );
-};
+import QRCode from 'react-qr-code';
+import { BrowserQRCodeReader } from '@zxing/browser';
 
 // ── Toast ───────────────────────────────────────────────────
 const Toast = ({ msg, visible }: { msg: string; visible: boolean }) => (
@@ -72,8 +61,35 @@ const Vault = () => {
     const [txError, setTxError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [refreshTick, setRefreshTick] = useState(0);
+    const [isScanning, setIsScanning] = useState(false);
+    const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
+    const [scannerError, setScannerError] = useState('');
     const tokenPrices = useTokenPrices();
     const { arg: argPrice, eth: ethPrice } = tokenPrices;
+
+    useEffect(() => {
+        let controls: any = null;
+        if (isScanning && videoElement) {
+            const scanner = new BrowserQRCodeReader();
+            setScannerError('');
+            scanner.decodeFromVideoDevice(undefined, videoElement, (result, err, ctrls) => {
+                controls = ctrls;
+                if (result) {
+                    setTxForm(prev => ({ ...prev, recipient: result.getText() }));
+                    setIsScanning(false);
+                    if (ctrls) ctrls.stop();
+                }
+                if (err && err.name === 'NotAllowedError') {
+                    setScannerError('Camera access denied. Please allow camera permissions.');
+                }
+            }).catch(e => {
+                setScannerError('Could not start camera. ' + e.message);
+            });
+        }
+        return () => {
+            if (controls) controls.stop();
+        };
+    }, [isScanning, videoElement]);
 
     useEffect(() => {
         if (!user?.uid) return;
@@ -342,7 +358,8 @@ const Vault = () => {
                             ) : (
                                 <div className="divide-y divide-zinc-900/40">
                                     {netTxs.map(tx => {
-                                        const isSent = tx.from === (tx.chain === 'ARG' ? addresses.arg : addresses.eth);
+                                        const myAddress = tx.chain === 'ARG' ? addresses.arg : addresses.eth;
+                                        const isSent = tx.from?.toLowerCase() === myAddress?.toLowerCase();
                                         const amt = Number(tx.amount);
                                         return (
                                             <div key={tx.id} onClick={() => { setSelectedTx(tx); setActiveModal('TX_DETAIL'); }} className="flex items-center gap-4 px-6 lg:px-8 py-4 hover:bg-zinc-900/20 transition-colors cursor-pointer group">
@@ -379,8 +396,8 @@ const Vault = () => {
                                 <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Receive {activeNetwork}</p>
                             </div>
                             <div className="p-6 flex flex-col items-center gap-4">
-                                <div className="w-40 h-40 p-3 bg-white rounded-2xl">
-                                    <QRCode data={currentAddr || 'loading'} />
+                                <div className="w-40 h-40 p-3 bg-white rounded-2xl flex items-center justify-center">
+                                    <QRCode value={currentAddr || 'loading'} size={136} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
                                 </div>
                                 <div className="w-full bg-zinc-900/60 border border-zinc-800 rounded-xl p-3 cursor-pointer hover:border-zinc-700 transition-colors group" onClick={() => copyAddr(currentAddr)}>
                                     <p className="text-[9px] font-mono text-zinc-500 break-all leading-relaxed">{currentAddr}</p>
@@ -431,36 +448,58 @@ const Vault = () => {
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
 
                             {activeModal === 'SEND' && (
-                                <form onSubmit={handleSend} className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Recipient</label>
-                                        <input required autoFocus value={txForm.recipient} onChange={e => { setTxForm({ ...txForm, recipient: e.target.value }); setTxError(''); }} placeholder={activeNetwork === 'ARG' ? 'arg1...' : '0x...'} className="w-full bg-zinc-950 border border-zinc-800 text-white py-3 px-4 rounded-xl focus:border-maroon outline-none font-mono text-xs placeholder:text-zinc-700 transition-all" />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div className="flex justify-between">
-                                            <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Amount</label>
-                                            <button type="button" onClick={() => setTxForm({ ...txForm, amount: String(Math.max(0, dispBal.amount - GAS_FEE_ARG)) })} className="text-[9px] text-maroon hover:underline font-bold">MAX</button>
+                                <div className="space-y-4">
+                                    {isScanning ? (
+                                        <div className="flex flex-col items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-4 animate-fade-in-up">
+                                            <div className="w-full aspect-square bg-zinc-900 rounded-xl overflow-hidden relative mb-4">
+                                                <video ref={setVideoElement} className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 pointer-events-none border-[1.5px] border-emerald-500/50 rounded-xl max-w-[70%] max-h-[70%] m-auto"></div>
+                                                <div className="absolute top-3 left-3 flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-zinc-800">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                                    <span className="text-[9px] font-bold text-white uppercase tracking-widest">Live Scanning</span>
+                                                </div>
+                                            </div>
+                                            {scannerError && <p className="text-[10px] text-red-400 text-center mb-4">{scannerError}</p>}
+                                            <button onClick={() => setIsScanning(false)} className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold transition-colors w-full">Cancel Scanner</button>
                                         </div>
-                                        <div className="relative">
-                                            <input required type="number" step="any" min="0" value={txForm.amount} onChange={e => { setTxForm({ ...txForm, amount: e.target.value }); setTxError(''); }} placeholder="0.00" className="w-full bg-zinc-950 border border-zinc-800 text-white py-4 px-4 pr-16 rounded-xl focus:border-maroon outline-none text-2xl font-black text-center placeholder:text-zinc-700 transition-all" />
-                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-500">{activeNetwork}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between px-1 text-xs">
-                                        <span className="text-zinc-600">Available</span>
-                                        <span className="text-zinc-300 font-mono font-bold">{dispBal.amount.toLocaleString(undefined, { minimumFractionDigits: dispBal.dec })} {activeNetwork}</span>
-                                    </div>
-                                    {activeNetwork === 'ARG' && <div className="flex justify-between px-3 py-2 bg-zinc-950/70 border border-zinc-800/50 rounded-xl text-xs"><span className="text-zinc-500">Gas fee</span><span className="text-zinc-300 font-mono">0.001 ARG</span></div>}
-                                    {txError && <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"><AlertCircle className="w-4 h-4 text-red-400 shrink-0" /><p className="text-[10px] text-red-400">{txError}</p></div>}
-                                    <button type="submit" disabled={isProcessing} className="w-full py-3.5 bg-maroon text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all flex justify-center items-center gap-2">
-                                        {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin" />Processing…</> : 'Confirm & Send'}
-                                    </button>
-                                </form>
+                                    ) : (
+                                        <form onSubmit={handleSend} className="space-y-4 animate-fade-in-up">
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between items-center">
+                                                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Recipient</label>
+                                                    <button type="button" onClick={() => setIsScanning(true)} className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors">
+                                                        <ScanLine className="w-3 h-3" /> Scan QR
+                                                    </button>
+                                                </div>
+                                                <input required autoFocus value={txForm.recipient} onChange={e => { setTxForm({ ...txForm, recipient: e.target.value }); setTxError(''); }} placeholder={activeNetwork === 'ARG' ? 'arg1...' : '0x...'} className="w-full bg-zinc-950 border border-zinc-800 text-white py-3 px-4 rounded-xl focus:border-maroon outline-none font-mono text-xs placeholder:text-zinc-700 transition-all" />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between">
+                                                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Amount</label>
+                                                    <button type="button" onClick={() => setTxForm({ ...txForm, amount: String(Math.max(0, dispBal.amount - GAS_FEE_ARG)) })} className="text-[9px] text-maroon hover:underline font-bold">MAX</button>
+                                                </div>
+                                                <div className="relative">
+                                                    <input required type="number" step="any" min="0" value={txForm.amount} onChange={e => { setTxForm({ ...txForm, amount: e.target.value }); setTxError(''); }} placeholder="0.00" className="w-full bg-zinc-950 border border-zinc-800 text-white py-4 px-4 pr-16 rounded-xl focus:border-maroon outline-none text-2xl font-black text-center placeholder:text-zinc-700 transition-all" />
+                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-500">{activeNetwork}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between px-1 text-xs">
+                                                <span className="text-zinc-600">Available</span>
+                                                <span className="text-zinc-300 font-mono font-bold">{dispBal.amount.toLocaleString(undefined, { minimumFractionDigits: dispBal.dec })} {activeNetwork}</span>
+                                            </div>
+                                            {activeNetwork === 'ARG' && <div className="flex justify-between px-3 py-2 bg-zinc-950/70 border border-zinc-800/50 rounded-xl text-xs"><span className="text-zinc-500">Gas fee</span><span className="text-zinc-300 font-mono">0.001 ARG</span></div>}
+                                            {txError && <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"><AlertCircle className="w-4 h-4 text-red-400 shrink-0" /><p className="text-[10px] text-red-400">{txError}</p></div>}
+                                            <button type="submit" disabled={isProcessing} className="w-full py-3.5 bg-maroon text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all flex justify-center items-center gap-2">
+                                                {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin" />Processing…</> : 'Confirm & Send'}
+                                            </button>
+                                        </form>
+                                    )}
+                                </div>
                             )}
 
                             {activeModal === 'RECEIVE' && (
                                 <div className="flex flex-col items-center gap-5">
-                                    <div className="p-4 bg-white rounded-2xl w-40 h-40"><QRCode data={currentAddr} /></div>
+                                    <div className="p-4 bg-white rounded-2xl w-40 h-40 flex items-center justify-center"><QRCode value={currentAddr} size={128} style={{ height: "auto", maxWidth: "100%", width: "100%" }} /></div>
                                     <div className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-zinc-700 transition-colors group" onClick={() => copyAddr(currentAddr)}>
                                         <p className="text-xs font-mono text-zinc-300 break-all text-center leading-relaxed">{currentAddr}</p>
                                         <div className="flex items-center justify-center gap-1.5 mt-3 text-[9px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-maroon">
