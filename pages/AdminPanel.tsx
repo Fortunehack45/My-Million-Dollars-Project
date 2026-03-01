@@ -2366,6 +2366,13 @@ const AdminPanel = () => {
                 { label: 'Network', value: selectedAdminTx.chain === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet' },
                 { label: 'Method', value: selectedAdminTx.type || 'TRANSFER' },
                 { label: 'Block (est.)', value: `#${Math.floor(selectedAdminTx.createdAt / 10000).toLocaleString()}` },
+                {
+                  label: 'Latency', value: (() => {
+                    const hashVal = selectedAdminTx.txHash.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+                    if (selectedAdminTx.chain === 'ETH') return `${(12 + (hashVal % 34) + ((hashVal % 100) / 100)).toFixed(2)}s`;
+                    return `${(45 + (hashVal % 800) + ((hashVal % 100) / 100)).toFixed(2)}ms`;
+                  })()
+                },
               ] as { label: string; value: string }[]).map(row => (
                 <div key={row.label} className="flex justify-between items-center gap-4 text-xs">
                   <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">{row.label}</span>
