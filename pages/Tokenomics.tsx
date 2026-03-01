@@ -58,7 +58,7 @@ const Tokenomics = () => {
 
    return (
       <PublicLayout>
-         <div className="relative pt-12 pb-20 min-h-screen overflow-hidden will-change-premium">
+         <div className="relative pt-28 md:pt-36 pb-32 min-h-screen overflow-hidden will-change-premium">
             {/* Matrix Rain Background */}
             <MatrixBackground color="rgba(128, 0, 0, 0.1)" opacity={0.4} />
 

@@ -190,7 +190,7 @@ const Architecture = () => {
 
    return (
       <PublicLayout>
-         <div className="relative pt-24 pb-32 overflow-hidden min-h-screen">
+         <div className="relative pt-28 md:pt-36 pb-32 overflow-hidden min-h-screen">
             {/* Matrix Background */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-20 bg-black">
                <MatrixBackground color="rgba(128, 0, 0, 0.2)" speed={1.1} />

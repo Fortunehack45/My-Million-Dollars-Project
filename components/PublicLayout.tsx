@@ -166,7 +166,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         </div>
       </nav>
 
-      <main className="flex-grow w-full relative z-10 pt-24 md:pt-32">
+      <main className="flex-grow w-full relative z-10">
         {children}
       </main>
 
