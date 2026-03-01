@@ -214,6 +214,7 @@ const AdminPanel = () => {
   const [treasuryBalance, setTreasuryBalance] = useState(0);
   const [selectedAdminTx, setSelectedAdminTx] = useState<WalletTx | null>(null);
   const [txSearchQuery, setTxSearchQuery] = useState('');
+  const [selectedAddressView, setSelectedAddressView] = useState<string | null>(null);
   const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy'>('landing');
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
@@ -2063,176 +2064,261 @@ const AdminPanel = () => {
                 </div>
               </div>
 
-              {/* Explorer Search / Filter (Mock for now) */}
+              {/* Explorer Search / Filter */}
               <div className="relative group">
                 <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
                   <Search className="w-4 h-4 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
                 </div>
                 <input
                   type="text"
-                  placeholder="Search by TxID, Address, or Height..."
+                  placeholder="Search by TxID or Address..."
+                  value={txSearchQuery}
+                  onChange={(e) => {
+                    setTxSearchQuery(e.target.value);
+                    if (selectedAddressView) setSelectedAddressView(null);
+                  }}
                   className="w-full bg-zinc-950/50 border border-zinc-900 text-sm p-5 pl-14 rounded-[1.5rem] focus:border-amber-500/30 outline-none transition-all font-mono"
                 />
               </div>
 
-              {/* Transactions Table - Etherscan Style */}
-              <div className="silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl">
-                <div className="p-6 border-b border-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/30">
-                  <div className="flex items-center gap-3">
-                    <History className="w-4 h-4 text-zinc-500" />
-                    <div>
-                      <h3 className="text-[11px] font-black text-white uppercase tracking-widest">Network_Transactions</h3>
-                      <p className="text-[9px] text-zinc-500 font-mono mt-0.5">Showing last {allTransactions.length} records</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-[pulse_2s_ease-in-out_infinite]"></span>
-                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Live_Chain_Feed</span>
-                  </div>
-                </div>
+              {(() => {
+                let filtered = allTransactions;
 
-                <div className="overflow-x-auto custom-scrollbar">
-                  <table className="w-full text-left border-collapse">
-                    <thead className="bg-zinc-900/30 border-b border-zinc-900/50">
-                      <tr>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Txn Hash</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Method</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Block</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Age</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">From</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">To</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">Value</th>
-                        <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">Txn Fee</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-900/30 bg-zinc-950/20">
-                      {allTransactions.map((tx) => {
-                        const isArg = tx.chain === 'ARG';
-                        const method = tx.type === 'SEND' ? 'Transfer' : tx.type;
+                // 1) Address View Filtering
+                if (selectedAddressView) {
+                  filtered = filtered.filter(tx => tx.from === selectedAddressView || tx.to === selectedAddressView);
+                }
 
-                        // Copy helper inline
-                        const copyToClipboard = (text: string) => {
-                          navigator.clipboard.writeText(text);
-                          // Could add a local toast here if needed
-                        };
+                // 2) Search Query Filtering
+                const q = txSearchQuery.toLowerCase();
+                if (q) {
+                  filtered = filtered.filter(tx =>
+                    tx.txHash.toLowerCase().includes(q) ||
+                    tx.from?.toLowerCase().includes(q) ||
+                    tx.to?.toLowerCase().includes(q)
+                  );
+                }
 
-                        // Relative time helper
-                        const getAge = (timestamp: number) => {
-                          const seconds = Math.floor((Date.now() - timestamp) / 1000);
-                          if (seconds < 60) return `${seconds}s ago`;
-                          const minutes = Math.floor(seconds / 60);
-                          if (minutes < 60) return `${minutes}m ago`;
-                          const hours = Math.floor(minutes / 60);
-                          if (hours < 24) return `${hours}h ago`;
-                          return `${Math.floor(hours / 24)}d ago`;
-                        };
+                // Calculate Address Balance if in Address View
+                let addressBalance = 0;
+                let addressSent = 0;
+                let addressReceived = 0;
+                if (selectedAddressView) {
+                  filtered.forEach(tx => {
+                    const amt = Number(tx.amount) || 0;
+                    if (tx.from === selectedAddressView) {
+                      addressSent += amt;
+                      if (tx.chain === 'ARG') addressSent += tx.gasFee || 0;
+                    } else if (tx.to === selectedAddressView) {
+                      addressReceived += amt;
+                    }
+                  });
+                  addressBalance = Math.max(0, addressReceived - addressSent); // Only true for hot wallets initially, but good representation for scan
+                }
 
-                        return (
-                          <tr key={tx.id} className="group hover:bg-zinc-900/30 transition-colors text-[11px] font-mono whitespace-nowrap">
-                            {/* Txn Hash - Clickable row */}
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-2 cursor-pointer" onClick={() => setSelectedAdminTx(tx)}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${tx.status === 'CONFIRMED' ? 'bg-emerald-500' :
-                                  tx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' :
-                                    'bg-red-500'
-                                  }`}></span>
-                                <button
-                                  onClick={() => copyToClipboard(tx.txHash)}
-                                  className={`${isArg ? 'text-maroon/90 hover:text-maroon' : 'text-blue-400/90 hover:text-blue-400'} font-bold transition-colors flex items-center gap-1.5 group/copy`}
-                                >
-                                  {tx.txHash.slice(0, 14)}...
-                                  <Copy className="w-3 h-3 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
-                                </button>
-                              </div>
-                            </td>
-
-                            {/* Method */}
-                            <td className="px-6 py-4">
-                              <span className="px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 text-[9px] border border-zinc-800 uppercase tracking-wider">
-                                {method}
-                              </span>
-                            </td>
-
-                            {/* Block (Mocked via timestamp for visual effect) */}
-                            <td className="px-6 py-4 text-zinc-400">
-                              <span className="text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors block">
-                                {Math.floor(tx.createdAt / 10000)}
-                              </span>
-                            </td>
-
-                            {/* Age */}
-                            <td className="px-6 py-4 text-zinc-400" title={new Date(tx.createdAt).toLocaleString()}>
-                              {getAge(tx.createdAt)}
-                            </td>
-
-                            {/* From */}
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-2 w-32">
-                                <button
-                                  onClick={() => copyToClipboard(tx.from)}
-                                  className="text-zinc-300 hover:text-white transition-colors truncate flex-1 text-left flex items-center justify-between group/copy"
-                                  title={tx.from}
-                                >
-                                  <span className="truncate">{tx.from}</span>
-                                  <Copy className="w-3 h-3 text-zinc-600 opacity-0 group-hover/copy:opacity-100 shrink-0" />
-                                </button>
-                              </div>
-                            </td>
-
-                            {/* To */}
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-2 w-32">
-                                <span className="p-0.5 rounded bg-zinc-800/50 text-emerald-500 border border-emerald-500/20 shrink-0 mt-0.5">
-                                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                </span>
-                                <button
-                                  onClick={() => copyToClipboard(tx.to)}
-                                  className="text-zinc-300 hover:text-white transition-colors truncate flex-1 text-left flex items-center justify-between group/copy"
-                                  title={tx.to}
-                                >
-                                  <span className="truncate">{tx.to}</span>
-                                  <Copy className="w-3 h-3 text-zinc-600 opacity-0 group-hover/copy:opacity-100 shrink-0" />
-                                </button>
-                              </div>
-                            </td>
-
-                            {/* Value */}
-                            <td className="px-6 py-4 text-right">
-                              <span className="font-bold text-zinc-200">
-                                {Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-                                <span className={`ml-1 text-[9px] ${isArg ? 'text-maroon' : 'text-blue-500'}`}>{tx.chain}</span>
-                              </span>
-                            </td>
-
-                            {/* Txn Fee */}
-                            <td className="px-6 py-4 text-right">
-                              <span className="text-zinc-500">
-                                {tx.gasFee ? tx.gasFee.toFixed(4) : '0.0000'}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-
-                      {allTransactions.length === 0 && (
-                        <tr>
-                          <td colSpan={8} className="px-6 py-24 text-center">
-                            <div className="flex flex-col items-center gap-4 opacity-30">
-                              <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                                <Search className="w-6 h-6 text-zinc-500" />
-                              </div>
-                              <div>
-                                <p className="text-[12px] font-bold text-white uppercase tracking-widest">No matching entries found</p>
-                                <p className="text-[10px] text-zinc-500 mt-1 font-sans">Awaiting network blocks synchronization</p>
-                              </div>
+                return (
+                  <>
+                    {/* Address Overview Dashboard */}
+                    {selectedAddressView && (
+                      <div className="bg-zinc-900/40 border border-zinc-800 rounded-[1.5rem] p-6 animate-fade-in-up">
+                        <div className="flex items-start justify-between mb-6">
+                          <div>
+                            <div className="flex items-center gap-3 mb-2">
+                              <Wallet className="w-5 h-5 text-zinc-400" />
+                              <h3 className="text-sm font-black text-white uppercase tracking-widest">Address Overview</h3>
                             </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div >
+                            <div className="flex items-center gap-2">
+                              <span className="text-zinc-300 font-mono text-xs">{selectedAddressView}</span>
+                              <button onClick={() => navigator.clipboard.writeText(selectedAddressView)} className="p-1 hover:bg-zinc-800 rounded">
+                                <Copy className="w-3 h-3 text-zinc-500 hover:text-white" />
+                              </button>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => { setSelectedAddressView(null); setTxSearchQuery(''); }}
+                            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors"
+                          >
+                            Close View
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-4">
+                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-4 min-w-[200px]">
+                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Net Balance (Estimated)</p>
+                            <p className="text-xl font-black text-white font-mono">{addressBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })} <span className="text-xs text-zinc-500">Unspecified</span></p>
+                          </div>
+                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-4 min-w-[140px]">
+                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Txs</p>
+                            <p className="text-xl font-black text-white font-mono">{filtered.length}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Transactions Table - Etherscan Style */}
+                    <div className="silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl">
+                      <div className="p-6 border-b border-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/30">
+                        <div className="flex items-center gap-3">
+                          <History className="w-4 h-4 text-zinc-500" />
+                          <div>
+                            <h3 className="text-[11px] font-black text-white uppercase tracking-widest">{selectedAddressView ? 'Address_Transactions' : 'Network_Transactions'}</h3>
+                            <p className="text-[9px] text-zinc-500 font-mono mt-0.5">Showing {filtered.length} records</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-[pulse_2s_ease-in-out_infinite]"></span>
+                          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Live_Chain_Feed</span>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-left border-collapse">
+                          <thead className="bg-zinc-900/30 border-b border-zinc-900/50">
+                            <tr>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Txn Hash</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Method</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Block</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Age</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">From</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">To</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">Value</th>
+                              <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">Txn Fee</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-zinc-900/30 bg-zinc-950/20">
+                            {filtered.map((tx) => {
+                              const isArg = tx.chain === 'ARG';
+                              const method = tx.type === 'SEND' ? 'Transfer' : tx.type;
+
+                              // Copy helper inline
+                              const copyToClipboard = (text: string) => {
+                                navigator.clipboard.writeText(text);
+                                // Could add a local toast here if needed
+                              };
+
+                              // Relative time helper
+                              const getAge = (timestamp: number) => {
+                                const seconds = Math.floor((Date.now() - timestamp) / 1000);
+                                if (seconds < 60) return `${seconds}s ago`;
+                                const minutes = Math.floor(seconds / 60);
+                                if (minutes < 60) return `${minutes}m ago`;
+                                const hours = Math.floor(minutes / 60);
+                                if (hours < 24) return `${hours}h ago`;
+                                return `${Math.floor(hours / 24)}d ago`;
+                              };
+
+                              return (
+                                <tr key={tx.id} className="group hover:bg-zinc-900/30 transition-colors text-[11px] font-mono whitespace-nowrap">
+                                  {/* Txn Hash - Clickable row */}
+                                  <td className="px-6 py-4">
+                                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => setSelectedAdminTx(tx)}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${tx.status === 'CONFIRMED' ? 'bg-emerald-500' :
+                                        tx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' :
+                                          'bg-red-500'
+                                        }`}></span>
+                                      <button
+                                        onClick={() => copyToClipboard(tx.txHash)}
+                                        className={`${isArg ? 'text-maroon/90 hover:text-maroon' : 'text-blue-400/90 hover:text-blue-400'} font-bold transition-colors flex items-center gap-1.5 group/copy`}
+                                      >
+                                        {tx.txHash.slice(0, 14)}...
+                                        <Copy className="w-3 h-3 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
+                                      </button>
+                                    </div>
+                                  </td>
+
+                                  {/* Method */}
+                                  <td className="px-6 py-4">
+                                    <span className="px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 text-[9px] border border-zinc-800 uppercase tracking-wider">
+                                      {method}
+                                    </span>
+                                  </td>
+
+                                  {/* Block (Mocked via timestamp for visual effect) */}
+                                  <td className="px-6 py-4 text-zinc-400">
+                                    <span className="text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors block">
+                                      {Math.floor(tx.createdAt / 10000)}
+                                    </span>
+                                  </td>
+
+                                  {/* Age */}
+                                  <td className="px-6 py-4 text-zinc-400" title={new Date(tx.createdAt).toLocaleString()}>
+                                    {getAge(tx.createdAt)}
+                                  </td>
+
+                                  {/* From */}
+                                  <td className="px-6 py-4">
+                                    <div className="flex items-center gap-2 w-32">
+                                      <button
+                                        onClick={() => setSelectedAddressView(tx.from)}
+                                        className="text-zinc-300 hover:text-white transition-colors truncate flex-1 text-left flex items-center justify-between group/copy"
+                                        title={tx.from}
+                                      >
+                                        <span className="truncate hover:underline decoration-zinc-500 underline-offset-4">{tx.from}</span>
+                                      </button>
+                                      <button onClick={() => copyToClipboard(tx.from)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Copy className="w-3 h-3 text-zinc-600 hover:text-white shrink-0" />
+                                      </button>
+                                    </div>
+                                  </td>
+
+                                  {/* To */}
+                                  <td className="px-6 py-4">
+                                    <div className="flex items-center gap-2 w-32">
+                                      <span className="p-0.5 rounded bg-zinc-800/50 text-emerald-500 border border-emerald-500/20 shrink-0 mt-0.5">
+                                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                      </span>
+                                      <button
+                                        onClick={() => setSelectedAddressView(tx.to)}
+                                        className="text-zinc-300 hover:text-white transition-colors truncate flex-1 text-left flex items-center justify-between group/copy"
+                                        title={tx.to}
+                                      >
+                                        <span className="truncate hover:underline decoration-zinc-500 underline-offset-4">{tx.to}</span>
+                                      </button>
+                                      <button onClick={() => copyToClipboard(tx.to)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Copy className="w-3 h-3 text-zinc-600 hover:text-white shrink-0" />
+                                      </button>
+                                    </div>
+                                  </td>
+
+                                  {/* Value */}
+                                  <td className="px-6 py-4 text-right">
+                                    <span className="font-bold text-zinc-200">
+                                      {Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                                      <span className={`ml-1 text-[9px] ${isArg ? 'text-maroon' : 'text-blue-500'}`}>{tx.chain}</span>
+                                    </span>
+                                  </td>
+
+                                  {/* Txn Fee */}
+                                  <td className="px-6 py-4 text-right">
+                                    <span className="text-zinc-500">
+                                      {tx.gasFee ? tx.gasFee.toFixed(4) : '0.0000'}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+
+                            {filtered.length === 0 && (
+                              <tr>
+                                <td colSpan={8} className="px-6 py-24 text-center">
+                                  <div className="flex flex-col items-center gap-4 opacity-50">
+                                    <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                                      <Search className="w-6 h-6 text-zinc-500" />
+                                    </div>
+                                    <div>
+                                      <p className="text-[12px] font-bold text-white uppercase tracking-widest">No matching entries found</p>
+                                      <p className="text-[10px] text-zinc-500 mt-1 font-sans">For query "{txSearchQuery}" or selected address</p>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div >
           )}
 
@@ -2267,8 +2353,8 @@ const AdminPanel = () => {
                 </p>
                 <div className="mt-3 flex justify-center">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${selectedAdminTx.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                      selectedAdminTx.status === 'PENDING' ? 'bg-amber-500/10  text-amber-400  border-amber-500/20' :
-                        'bg-red-500/10    text-red-400    border-red-500/20'
+                    selectedAdminTx.status === 'PENDING' ? 'bg-amber-500/10  text-amber-400  border-amber-500/20' :
+                      'bg-red-500/10    text-red-400    border-red-500/20'
                     }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${selectedAdminTx.status === 'CONFIRMED' ? 'bg-emerald-500' : selectedAdminTx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`} />
                     {selectedAdminTx.status}
@@ -2289,15 +2375,15 @@ const AdminPanel = () => {
               <div className="flex justify-between items-start gap-4 text-xs">
                 <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">From</span>
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-zinc-300 font-mono break-all text-[10px]">{selectedAdminTx.from}</span>
-                  <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.from)} className="shrink-0"><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button>
+                  <button onClick={() => { setSelectedAddressView(selectedAdminTx.from); setSelectedAdminTx(null); }} className="text-zinc-300 hover:text-white font-mono break-all text-[10px] text-left hover:underline underline-offset-4 decoration-zinc-600">{selectedAdminTx.from}</button>
+                  <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.from)} className="shrink-0 p-1 hover:bg-zinc-800 rounded"><Copy className="w-3 h-3 text-zinc-600 hover:text-white" /></button>
                 </div>
               </div>
               <div className="flex justify-between items-start gap-4 text-xs">
                 <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">To</span>
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-zinc-300 font-mono break-all text-[10px]">{selectedAdminTx.to}</span>
-                  <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.to)} className="shrink-0"><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button>
+                  <button onClick={() => { setSelectedAddressView(selectedAdminTx.to); setSelectedAdminTx(null); }} className="text-zinc-300 hover:text-white font-mono break-all text-[10px] text-left hover:underline underline-offset-4 decoration-zinc-600">{selectedAdminTx.to}</button>
+                  <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.to)} className="shrink-0 p-1 hover:bg-zinc-800 rounded"><Copy className="w-3 h-3 text-zinc-600 hover:text-white" /></button>
                 </div>
               </div>
               {selectedAdminTx.gasFee > 0 && (
