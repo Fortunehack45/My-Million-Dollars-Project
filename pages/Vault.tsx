@@ -185,18 +185,30 @@ const Vault = () => {
                     <span className="text-xs font-black text-white tracking-widest uppercase">Argus Vault</span>
                 </div>
                 {/* Network pill */}
-                <div className="relative">
-                    <button onClick={() => setNetDropOpen(!netDropOpen)} className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-full text-xs font-bold text-white transition-colors">
+                <div className="relative z-[60]">
+                    <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setNetDropOpen(!netDropOpen); }}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-full text-xs font-bold text-white transition-colors"
+                    >
                         {activeNetwork === 'ARG' ? <ArgusLogo className="w-3.5 h-3.5 text-maroon" /> : <EthLogo className="w-3.5 h-3.5 text-blue-400" />}
                         <span>{activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet'}</span>
-                        <ChevronDown className="w-3 h-3 text-zinc-500" />
+                        <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform duration-300 ${netDropOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {netDropOpen && (
                         <>
-                            <div className="fixed inset-0 z-40" onClick={() => setNetDropOpen(false)} />
-                            <div className="absolute top-full right-0 mt-2 w-52 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-50 py-1 overflow-hidden">
-                                {[{ id: 'ARG', label: 'Argus GhostDAG', icon: <ArgusLogo className="w-4 h-4 text-maroon" /> }, { id: 'ETH', label: 'Ethereum Mainnet', icon: <EthLogo className="w-4 h-4 text-blue-400" /> }].map(n => (
-                                    <button key={n.id} onClick={() => { setActiveNetwork(n.id as any); setNetDropOpen(false); }} className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ${activeNetwork === n.id ? 'bg-zinc-800/60' : ''}`}>
+                            <div className="fixed inset-0 z-[70]" onClick={() => setNetDropOpen(false)} />
+                            <div className="absolute top-full right-0 mt-2 w-52 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-[80] py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                {[
+                                    { id: 'ARG', label: 'Argus GhostDAG', icon: <ArgusLogo className="w-4 h-4 text-maroon" /> },
+                                    { id: 'ETH', label: 'Ethereum Mainnet', icon: <EthLogo className="w-4 h-4 text-blue-400" /> }
+                                ].map(n => (
+                                    <button
+                                        key={n.id}
+                                        type="button"
+                                        onClick={() => { setActiveNetwork(n.id as any); setNetDropOpen(false); }}
+                                        className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ${activeNetwork === n.id ? 'bg-zinc-800/60' : ''}`}
+                                    >
                                         {n.icon}{n.label}{activeNetwork === n.id && <Check className="w-3 h-3 text-maroon ml-auto" />}
                                     </button>
                                 ))}
@@ -245,7 +257,12 @@ const Vault = () => {
                                 { id: 'ARG', label: 'Argus', symbol: 'ARG', amount: balance.arg.toLocaleString(undefined, { minimumFractionDigits: 2 }), usd: (balance.arg * argPrice.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), icon: <ArgusLogo className="w-4 h-4 text-white" />, bg: 'bg-maroon' },
                                 { id: 'ETH', label: 'Ethereum', symbol: 'ETH', amount: parseFloat(balance.eth).toLocaleString(undefined, { minimumFractionDigits: 4 }), usd: (parseFloat(balance.eth) * ethPrice.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), icon: <EthLogo className="w-4 h-4" />, bg: 'bg-white' },
                             ].map(a => (
-                                <button key={a.id} onClick={() => setActiveNetwork(a.id as any)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${activeNetwork === a.id ? 'bg-zinc-800 border border-zinc-700' : 'hover:bg-zinc-900/50'}`}>
+                                <button
+                                    key={a.id}
+                                    type="button"
+                                    onClick={() => setActiveNetwork(a.id as any)}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${activeNetwork === a.id ? 'bg-zinc-800 border border-zinc-700' : 'hover:bg-zinc-900/50'}`}
+                                >
                                     <div className={`w-8 h-8 rounded-full ${a.bg} flex items-center justify-center shrink-0`}>{a.icon}</div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-bold text-white">{a.label}</p>
@@ -290,11 +307,19 @@ const Vault = () => {
                             </button>
                             {netDropOpen && (
                                 <>
-                                    <div className="fixed inset-0 z-40" onClick={() => setNetDropOpen(false)} />
-                                    <div className="absolute top-full left-0 mt-2 w-52 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-50 py-1">
-                                        {[{ id: 'ARG', label: 'Argus GhostDAG', icon: <ArgusLogo className="w-4 h-4 text-maroon" /> }, { id: 'ETH', label: 'Ethereum Mainnet', icon: <EthLogo className="w-4 h-4 text-blue-400" /> }].map(n => (
-                                            <button key={n.id} onClick={() => { setActiveNetwork(n.id as any); setNetDropOpen(false); }} className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-colors">
-                                                {n.icon}{n.label}
+                                    <div className="fixed inset-0 z-[70]" onClick={() => setNetDropOpen(false)} />
+                                    <div className="absolute top-full left-0 mt-2 w-52 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-[80] py-1">
+                                        {[
+                                            { id: 'ARG', label: 'Argus GhostDAG', icon: <ArgusLogo className="w-4 h-4 text-maroon" /> },
+                                            { id: 'ETH', label: 'Ethereum Mainnet', icon: <EthLogo className="w-4 h-4 text-blue-400" /> }
+                                        ].map(n => (
+                                            <button
+                                                key={n.id}
+                                                type="button"
+                                                onClick={() => { setActiveNetwork(n.id as any); setNetDropOpen(false); }}
+                                                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ${activeNetwork === n.id ? 'bg-zinc-800/60' : ''}`}
+                                            >
+                                                {n.icon}{n.label}{activeNetwork === n.id && <Check className="w-3 h-3 text-maroon ml-auto" />}
                                             </button>
                                         ))}
                                     </div>
