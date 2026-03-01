@@ -101,11 +101,18 @@ const Vault = () => {
 
     useEffect(() => {
         if (!addresses.eth) return;
-        setIsRefreshing(true);
-        EthereumService.getBalance(addresses.eth)
-            .then(b => setBalance(prev => ({ ...prev, eth: b })))
-            .catch(() => setBalance(prev => ({ ...prev, eth: '0.0000' })))
-            .finally(() => setIsRefreshing(false));
+
+        const fetchEthBalance = () => {
+            setIsRefreshing(true);
+            EthereumService.getBalance(addresses.eth)
+                .then(b => setBalance(prev => ({ ...prev, eth: b })))
+                .catch(() => setBalance(prev => ({ ...prev, eth: '0.0000' })))
+                .finally(() => setIsRefreshing(false));
+        };
+
+        fetchEthBalance();
+        const interval = setInterval(fetchEthBalance, 30000); // 30s background sync
+        return () => clearInterval(interval);
     }, [addresses.eth, refreshTick]);
 
     useEffect(() => {
@@ -339,9 +346,18 @@ const Vault = () => {
                         {/* Left content: Activity */}
                         <div className="flex-1 min-w-0">
                             <div className="px-6 lg:px-8 py-5 flex items-center justify-between border-b border-zinc-900/50">
-                                <div className="flex items-center gap-2">
-                                    <History className="w-4 h-4 text-zinc-600" />
-                                    <h2 className="text-xs font-black text-white uppercase tracking-widest">Transaction History</h2>
+                                <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                        <History className="w-4 h-4 text-zinc-600" />
+                                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse border-2 border-zinc-950"></div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <h2 className="text-xs font-black text-white uppercase tracking-widest">Transaction History</h2>
+                                        <div className="flex items-center gap-1">
+                                            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <span className="text-[7px] font-bold text-emerald-500 uppercase tracking-widest">Live_Sync_Active</span>
+                                        </div>
+                                    </div>
                                     {netTxs.length > 0 && <span className="px-1.5 py-0.5 bg-zinc-800 text-zinc-400 rounded text-[9px] font-bold">{netTxs.length}</span>}
                                 </div>
                                 <span className="text-[9px] text-zinc-600 font-mono uppercase">{activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet'}</span>
@@ -432,9 +448,9 @@ const Vault = () => {
 
             {/* ── MODALS ─────────────────────────────────────────────── */}
             {activeModal && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+                <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center sm:p-4">
                     <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
-                    <div className="relative w-full sm:max-w-md bg-zinc-900 sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+                    <div className="relative w-full sm:max-w-md bg-zinc-900 sm:rounded-[2rem] rounded-t-[3rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden max-h-[92vh] flex flex-col border-t border-zinc-800 sm:border-none">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
                             <h2 className="text-xs font-black text-white uppercase tracking-widest">
                                 {activeModal === 'SEND' && `Send ${activeNetwork}`}
@@ -445,7 +461,7 @@ const Vault = () => {
                             </h2>
                             <button onClick={() => setActiveModal(null)} className="p-1.5 hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors"><X className="w-4 h-4" /></button>
                         </div>
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 sm:pb-6">
 
                             {activeModal === 'SEND' && (
                                 <div className="space-y-4">
