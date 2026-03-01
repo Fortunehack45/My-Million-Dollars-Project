@@ -679,6 +679,18 @@ const AdminPanel = () => {
                               <td className="py-4 px-2 text-right">
                                 <div className="flex justify-end gap-2">
                                   <button
+                                    onClick={() => {
+                                      setActiveTab('explorer');
+                                      setExplorerView('ledger');
+                                      setSelectedAddressView(u.argAddress || u.ethAddress || '');
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="p-2 bg-maroon/5 border border-maroon/20 rounded-lg hover:bg-maroon/10 hover:border-maroon/40 transition-colors text-maroon/60 hover:text-maroon group/nav"
+                                    title="View in ArgusScan Explorer"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5 group-hover/nav:scale-110 transition-transform" />
+                                  </button>
+                                  <button
                                     onClick={() => setIsManaging({ ...isManaging, [u.uid]: !isManaging[u.uid] })}
                                     className="p-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
                                   >
@@ -2303,9 +2315,10 @@ const AdminPanel = () => {
                                   {/* Txn Hash - Clickable row */}
                                   <td className="px-6 py-4">
                                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => setSelectedAdminTx(tx)}>
-                                      <span className={`w-1.5 h-1.5 rounded-full ${tx.status === 'CONFIRMED' ? 'bg-emerald-500' :
-                                        tx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' :
-                                          'bg-red-500'
+                                      <span className={`w-1.5 h-1.5 rounded-full ${(tx.gasFee <= 0 && isArg) ? 'bg-red-500' :
+                                        tx.status === 'CONFIRMED' ? 'bg-emerald-500' :
+                                          tx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' :
+                                            'bg-red-500'
                                         }`}></span>
                                       <button
                                         onClick={() => copyToClipboard(tx.txHash)}
@@ -2314,6 +2327,9 @@ const AdminPanel = () => {
                                         {tx.txHash.slice(0, 14)}...
                                         <Copy className="w-3 h-3 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
                                       </button>
+                                      {(tx.gasFee <= 0 && isArg) && (
+                                        <span className="text-[7px] font-black text-red-500 border border-red-500/20 px-1 rounded animate-pulse">Zero_Gas_Fail</span>
+                                      )}
                                     </div>
                                   </td>
 

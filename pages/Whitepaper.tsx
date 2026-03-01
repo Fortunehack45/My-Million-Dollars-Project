@@ -45,7 +45,7 @@ const Whitepaper = () => {
 
    return (
       <PublicLayout>
-         <div className="relative pt-32 pb-48 overflow-hidden bg-[#050505]">
+         <div className="relative pt-16 pb-48 overflow-hidden bg-[#050505]">
             {/* Editorial Background Accents */}
             <div className="absolute top-0 right-0 w-[40%] h-full bg-gradient-to-l from-maroon/[0.02] to-transparent pointer-events-none"></div>
             <div className="absolute top-0 left-0 w-px h-full bg-zinc-900/50 ml-[5%] pointer-events-none hidden lg:block"></div>
@@ -78,7 +78,7 @@ const Whitepaper = () => {
                {/* Content Grid */}
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
                   {/* Table of Contents - Sidebar */}
-                  <div className="lg:col-span-3 sticky top-32 h-fit hidden lg:block">
+                  <div className="lg:col-span-3 sticky top-20 h-fit hidden lg:block">
                      <div className="space-y-6">
                         <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4">Index_Structure</p>
                         <nav className="space-y-4">

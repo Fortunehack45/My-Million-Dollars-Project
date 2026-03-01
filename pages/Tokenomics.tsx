@@ -58,7 +58,7 @@ const Tokenomics = () => {
 
    return (
       <PublicLayout>
-         <div className="relative pt-24 pb-32 min-h-screen overflow-hidden will-change-premium">
+         <div className="relative pt-12 pb-20 min-h-screen overflow-hidden will-change-premium">
             {/* Matrix Rain Background */}
             <MatrixBackground color="rgba(128, 0, 0, 0.1)" opacity={0.4} />
 
@@ -71,7 +71,7 @@ const Tokenomics = () => {
             <div className="max-w-7xl mx-auto px-6 relative z-10">
 
                {/* Header - Institutional Economic Model */}
-               <div className={`max-w-6xl mb-32 transition-all duration-[1500ms] ease-out-expo ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+               <div className={`max-w-6xl mb-20 transition-all duration-[1500ms] ease-out-expo ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                   <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/40 backdrop-blur-xl border border-white/[0.05] rounded-full mb-10 shadow-2xl">
                      <PieChart className="w-4 h-4 text-maroon animate-pulse-gentle" />
                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em] font-mono italic">Economic_Protocol_Ref: ARG_TOKEN_v2.0</span>
