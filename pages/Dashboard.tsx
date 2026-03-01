@@ -13,8 +13,16 @@ import {
   TOTAL_SUPPLY,
   BASE_MINING_RATE,
   REFERRAL_BOOST,
-  MAX_REFERRALS
+  MAX_REFERRALS,
+  db,
 } from '../services/firebase';
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from 'firebase/firestore';
+import { ArgusSynapseService } from '../services/ArgusSynapseService';
 import {
   Database, Activity, Cpu, Zap,
   AlertTriangle, GitMerge, Layers,
@@ -193,6 +201,7 @@ const Dashboard = () => {
   const [tps, setTps] = useState(0);
   const [hashrate, setHashrate] = useState(402.1);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [minedArg, setMinedArg] = useState<number | null>(null);
   const { arg } = useTokenPrices();
 
   const MAX_SESSION_TIME = 24 * 60 * 60;
@@ -219,6 +228,30 @@ const Dashboard = () => {
     });
     return () => { unsubStats(); unsubMiners(); unsubPresence(); };
   }, []);
+
+  // Compute Mined ARG = total points − net received (received − sent)
+  useEffect(() => {
+    if (!user?.uid || !user?.points) return;
+    const argAddress = ArgusSynapseService.generateAddress(user.uid);
+    const q = query(
+      collection(db, 'wallet_transactions'),
+      where('participants', 'array-contains', argAddress),
+    );
+    const unsub = onSnapshot(q, snapshot => {
+      let totalReceived = 0;
+      let totalSent = 0;
+      snapshot.docs.forEach(d => {
+        const tx = d.data();
+        if (tx.chain !== 'ARG') return;
+        const amt = parseFloat(tx.amount) || 0;
+        if (tx.from === argAddress) totalSent += amt + (tx.gasFee || 0);
+        else totalReceived += amt;
+      });
+      const netTransfers = Math.max(0, totalReceived - totalSent);
+      setMinedArg(Math.max(0, user.points - netTransfers));
+    }, () => setMinedArg(null));
+    return () => unsub();
+  }, [user?.uid, user?.points]);
 
   useEffect(() => {
     const update = () => {
@@ -311,13 +344,13 @@ const Dashboard = () => {
       {/* STATS GRID */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
         <StatCard
-          label="Node Balance"
-          value={`${user.points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
-          subValue={`≈ $${(user.points * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
+          label="Mined ARG"
+          value={`${(minedArg ?? user.points).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
+          subValue={`≈ $${((minedArg ?? user.points) * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
           icon={() => <ArgusLogo className="w-5 h-5 text-maroon" />}
           trend={`${arg.change24h >= 0 ? '+' : ''}${arg.change24h}%`}
           trendUp={arg.change24h >= 0}
-          tooltip="Total accumulated ARG credits from mining activity."
+          tooltip="ARG mined by your node (excludes received transfers)."
         />
         <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
         <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />

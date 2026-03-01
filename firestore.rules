@@ -108,7 +108,7 @@ service cloud.firestore {
 
     // Default Deny
     match /{document=**} {
-      allow read, write: if isAdmin();
+      allow read, write: if false;
     }
   }
 }

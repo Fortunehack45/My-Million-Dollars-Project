@@ -212,6 +212,8 @@ const AdminPanel = () => {
   const [lockedPages, setLockedPages] = useState<string[]>([]);
   const [allTransactions, setAllTransactions] = useState<WalletTx[]>([]);
   const [treasuryBalance, setTreasuryBalance] = useState(0);
+  const [selectedAdminTx, setSelectedAdminTx] = useState<WalletTx | null>(null);
+  const [txSearchQuery, setTxSearchQuery] = useState('');
   const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy'>('landing');
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
@@ -2089,7 +2091,7 @@ const AdminPanel = () => {
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-zinc-900/30 border-b border-zinc-900/50">
                       <tr>
@@ -2127,10 +2129,13 @@ const AdminPanel = () => {
 
                         return (
                           <tr key={tx.id} className="group hover:bg-zinc-900/30 transition-colors text-[11px] font-mono whitespace-nowrap">
-                            {/* Txn Hash */}
+                            {/* Txn Hash - Clickable row */}
                             <td className="px-6 py-4">
-                              <div className="flex items-center gap-2">
-                                <span className={`w-1 h-3 rounded-full ${tx.status === 'CONFIRMED' ? 'bg-emerald-500' : tx.status === 'PENDING' ? 'bg-amber-500' : 'bg-red-500'}`}></span>
+                              <div className="flex items-center gap-2 cursor-pointer" onClick={() => setSelectedAdminTx(tx)}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${tx.status === 'CONFIRMED' ? 'bg-emerald-500' :
+                                  tx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' :
+                                    'bg-red-500'
+                                  }`}></span>
                                 <button
                                   onClick={() => copyToClipboard(tx.txHash)}
                                   className={`${isArg ? 'text-maroon/90 hover:text-maroon' : 'text-blue-400/90 hover:text-blue-400'} font-bold transition-colors flex items-center gap-1.5 group/copy`}
@@ -2233,6 +2238,89 @@ const AdminPanel = () => {
 
         </div >
       </main >
+
+      {/* ── ArgusScan TX Detail Modal ── */}
+      {selectedAdminTx && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedAdminTx(null)} />
+          <div className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-[2rem] shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-950/60">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                  <Database className="w-4 h-4 text-amber-500" />
+                </div>
+                <div>
+                  <h2 className="text-xs font-black text-white uppercase tracking-widest">Transaction Detail</h2>
+                  <p className="text-[9px] text-zinc-600 font-mono mt-0.5">ArgusScan Ledger Record</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedAdminTx(null)} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4 overflow-y-auto max-h-[75vh] custom-scrollbar">
+              <div className="text-center pb-4 border-b border-zinc-800">
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Total Amount</p>
+                <p className="text-4xl font-black text-white tabular-nums">
+                  {Number(selectedAdminTx.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                  <span className="text-sm text-zinc-500 ml-2">{selectedAdminTx.chain}</span>
+                </p>
+                <div className="mt-3 flex justify-center">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${selectedAdminTx.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                      selectedAdminTx.status === 'PENDING' ? 'bg-amber-500/10  text-amber-400  border-amber-500/20' :
+                        'bg-red-500/10    text-red-400    border-red-500/20'
+                    }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${selectedAdminTx.status === 'CONFIRMED' ? 'bg-emerald-500' : selectedAdminTx.status === 'PENDING' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`} />
+                    {selectedAdminTx.status}
+                  </span>
+                </div>
+              </div>
+              {([
+                { label: 'Date / Time', value: new Date(selectedAdminTx.createdAt).toLocaleString() },
+                { label: 'Network', value: selectedAdminTx.chain === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet' },
+                { label: 'Method', value: selectedAdminTx.type || 'TRANSFER' },
+                { label: 'Block (est.)', value: `#${Math.floor(selectedAdminTx.createdAt / 10000).toLocaleString()}` },
+              ] as { label: string; value: string }[]).map(row => (
+                <div key={row.label} className="flex justify-between items-center gap-4 text-xs">
+                  <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">{row.label}</span>
+                  <span className="text-zinc-200 font-mono">{row.value}</span>
+                </div>
+              ))}
+              <div className="flex justify-between items-start gap-4 text-xs">
+                <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">From</span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-zinc-300 font-mono break-all text-[10px]">{selectedAdminTx.from}</span>
+                  <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.from)} className="shrink-0"><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button>
+                </div>
+              </div>
+              <div className="flex justify-between items-start gap-4 text-xs">
+                <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">To</span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-zinc-300 font-mono break-all text-[10px]">{selectedAdminTx.to}</span>
+                  <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.to)} className="shrink-0"><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button>
+                </div>
+              </div>
+              {selectedAdminTx.gasFee > 0 && (
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-zinc-500 font-bold uppercase tracking-wider">Gas Fee</span>
+                  <span className="text-zinc-300 font-mono">{selectedAdminTx.gasFee} ARG → Treasury</span>
+                </div>
+              )}
+              <div className="pt-3 border-t border-zinc-800/60">
+                <div className="flex justify-between items-start gap-4 text-xs">
+                  <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">Tx Hash</span>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-zinc-600 font-mono break-all text-[10px]">{selectedAdminTx.txHash}</span>
+                    <button onClick={() => navigator.clipboard.writeText(selectedAdminTx.txHash)} className="shrink-0"><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button>
+                  </div>
+                </div>
+              </div>
+              <p className="text-center text-[9px] text-zinc-700 font-mono uppercase tracking-widest pt-1">Argus Protocol — Immutable Ledger Record</p>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div >
   );
 };
