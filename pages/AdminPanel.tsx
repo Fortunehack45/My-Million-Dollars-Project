@@ -47,7 +47,7 @@ import {
   Briefcase, Phone, HelpCircle, Share2, PieChart,
   ListPlus, ChevronDown, ChevronRight, Settings,
   Target, RefreshCw, MessageSquare, Maximize, Minimize,
-  Search, History, ExternalLink, Wallet, TrendingUp, Copy
+  Search, History, ExternalLink, Wallet, TrendingUp, Copy, ArrowDownLeft, ArrowUpRight
 } from 'lucide-react';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
@@ -214,6 +214,7 @@ const AdminPanel = () => {
   const [treasuryBalance, setTreasuryBalance] = useState(0);
   const [selectedAdminTx, setSelectedAdminTx] = useState<WalletTx | null>(null);
   const [txSearchQuery, setTxSearchQuery] = useState('');
+  const [explorerView, setExplorerView] = useState<'ledger' | 'directory'>('ledger');
   const [selectedAddressView, setSelectedAddressView] = useState<string | null>(null);
   const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy'>('landing');
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
@@ -2099,63 +2100,154 @@ const AdminPanel = () => {
                   );
                 }
 
-                // Calculate Address Balance if in Address View
-                let addressBalance = 0;
-                let addressSent = 0;
-                let addressReceived = 0;
+                // Calculate Deep Address Metrics
+                let argSent = 0, argReceived = 0, argGasSpent = 0;
+                let ethSent = 0, ethReceived = 0;
+                let firstActive = Infinity;
+                let lastActive = 0;
+
                 if (selectedAddressView) {
                   filtered.forEach(tx => {
                     const amt = Number(tx.amount) || 0;
-                    if (tx.from === selectedAddressView) {
-                      addressSent += amt;
-                      if (tx.chain === 'ARG') addressSent += tx.gasFee || 0;
-                    } else if (tx.to === selectedAddressView) {
-                      addressReceived += amt;
+                    const time = tx.createdAt;
+                    if (time < firstActive) firstActive = time;
+                    if (time > lastActive) lastActive = time;
+
+                    if (tx.from?.toLowerCase() === selectedAddressView.toLowerCase()) {
+                      if (tx.chain === 'ARG') {
+                        argSent += amt;
+                        argGasSpent += tx.gasFee || 0;
+                      } else {
+                        ethSent += amt;
+                      }
+                    } else if (tx.to?.toLowerCase() === selectedAddressView.toLowerCase()) {
+                      if (tx.chain === 'ARG') {
+                        argReceived += amt;
+                      } else {
+                        ethReceived += amt;
+                      }
                     }
                   });
-                  addressBalance = Math.max(0, addressReceived - addressSent); // Only true for hot wallets initially, but good representation for scan
                 }
+
+                const netArg = Math.max(0, argReceived - argSent);
+                const netEth = Math.max(0, ethReceived - ethSent);
 
                 return (
                   <>
-                    {/* Address Overview Dashboard */}
+                    {/* Address Overview Dashboard - Etherscan Level */}
                     {selectedAddressView && (
                       <div className="bg-zinc-900/40 border border-zinc-800 rounded-[1.5rem] p-6 animate-fade-in-up">
-                        <div className="flex items-start justify-between mb-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-zinc-900/50">
                           <div>
                             <div className="flex items-center gap-3 mb-2">
                               <Wallet className="w-5 h-5 text-zinc-400" />
                               <h3 className="text-sm font-black text-white uppercase tracking-widest">Address Overview</h3>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-zinc-300 font-mono text-xs">{selectedAddressView}</span>
-                              <button onClick={() => navigator.clipboard.writeText(selectedAddressView)} className="p-1 hover:bg-zinc-800 rounded">
-                                <Copy className="w-3 h-3 text-zinc-500 hover:text-white" />
+                              <span className="text-zinc-300 font-mono text-xs break-all">{selectedAddressView}</span>
+                              <button onClick={() => navigator.clipboard.writeText(selectedAddressView)} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors">
+                                <Copy className="w-3.5 h-3.5 text-zinc-400 hover:text-white" />
                               </button>
                             </div>
+
+                            {/* Owner Profile Linkage */}
+                            {(() => {
+                              const owner = users.find(u =>
+                                u.argAddress?.toLowerCase() === selectedAddressView.toLowerCase() ||
+                                u.ethAddress?.toLowerCase() === selectedAddressView.toLowerCase()
+                              );
+                              if (!owner) return null;
+                              return (
+                                <div className="mt-4 flex items-center gap-3 p-3 bg-maroon/5 border border-maroon/20 rounded-2xl animate-in slide-in-from-left duration-500">
+                                  <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                                    {owner.photoURL ? <img src={owner.photoURL} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] text-zinc-600">{(owner.displayName || 'U')[0]}</span>}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-[10px] font-black text-maroon uppercase tracking-widest mb-0.5">Verified Account Holder</p>
+                                    <p className="text-xs font-bold text-white truncate">{owner.displayName || 'Anonymous User'}</p>
+                                    <p className="text-[9px] text-zinc-500 font-mono truncate">{owner.email}</p>
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </div>
                           <button
                             onClick={() => { setSelectedAddressView(null); setTxSearchQuery(''); }}
-                            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors"
+                            className="shrink-0 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-2"
                           >
-                            Close View
+                            <X className="w-3 h-3" /> Close View
                           </button>
                         </div>
-                        <div className="flex flex-wrap gap-4">
-                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-4 min-w-[200px]">
-                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Net Balance (Estimated)</p>
-                            <p className="text-xl font-black text-white font-mono">{addressBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })} <span className="text-xs text-zinc-500">Unspecified</span></p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {/* Balances */}
+                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-5 space-y-4">
+                            <div>
+                              <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><ArgusLogo className="w-3 h-3 text-maroon" /> Net Est. Balance (ARG)</p>
+                              <p className="text-xl font-black text-white font-mono">{netArg.toLocaleString(undefined, { maximumFractionDigits: 4 })} <span className="text-xs text-zinc-500 font-sans tracking-wide">ARG</span></p>
+                            </div>
+                            <div className="pt-4 border-t border-zinc-900/50">
+                              <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><EthLogo className="w-3 h-3 text-blue-500" /> Net Est. Balance (ETH)</p>
+                              <p className="textxl font-black text-white font-mono">{netEth.toLocaleString(undefined, { maximumFractionDigits: 4 })} <span className="text-xs text-zinc-500 font-sans tracking-wide">ETH</span></p>
+                            </div>
                           </div>
-                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-4 min-w-[140px]">
-                            <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Txs</p>
-                            <p className="text-xl font-black text-white font-mono">{filtered.length}</p>
+
+                          {/* Volumes */}
+                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-5 space-y-4">
+                            <div>
+                              <p className="text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1"><ArrowDownLeft className="w-3 h-3" /> Total Received</p>
+                              <div className="space-y-1">
+                                <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 font-mono">ARG</span><span className="text-zinc-200 font-mono font-bold">{argReceived.toLocaleString()}</span></div>
+                                <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 font-mono">ETH</span><span className="text-zinc-200 font-mono font-bold">{ethReceived.toLocaleString()}</span></div>
+                              </div>
+                            </div>
+                            <div className="pt-4 border-t border-zinc-900/50">
+                              <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1"><ArrowUpRight className="w-3 h-3" /> Total Sent</p>
+                              <div className="space-y-1">
+                                <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 font-mono">ARG</span><span className="text-zinc-200 font-mono font-bold">{argSent.toLocaleString()}</span></div>
+                                <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 font-mono">ETH</span><span className="text-zinc-200 font-mono font-bold">{ethSent.toLocaleString()}</span></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Metadata */}
+                          <div className="bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-5 space-y-3 flex flex-col justify-between">
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 uppercase tracking-widest text-[9px] font-bold">Total Txs</span><span className="text-white font-mono font-bold">{filtered.length}</span></div>
+                              <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 uppercase tracking-widest text-[9px] font-bold">Gas Spent</span><span className="text-zinc-300 font-mono">{argGasSpent.toFixed(4)} ARG</span></div>
+                            </div>
+                            <div className="pt-3 border-t border-zinc-900/50 space-y-3">
+                              <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 uppercase tracking-widest text-[9px] font-bold">First Tx</span><span className="text-zinc-400 font-mono text-[10px]">{firstActive !== Infinity ? new Date(firstActive).toLocaleDateString() : '—'}</span></div>
+                              <div className="flex justify-between items-center text-xs"><span className="text-zinc-500 uppercase tracking-widest text-[9px] font-bold">Last Tx</span><span className="text-zinc-400 font-mono text-[10px]">{lastActive ? new Date(lastActive).toLocaleDateString() : '—'}</span></div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     )}
 
+                    {/* Ledger / Directory View Toggle */}
+                    {!selectedAddressView && (
+                      <div className="flex justify-center mb-0">
+                        <div className="inline-flex p-1 bg-zinc-950 border border-zinc-900 rounded-2xl shadow-xl">
+                          <button
+                            onClick={() => setExplorerView('ledger')}
+                            className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 ${explorerView === 'ledger' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                          >
+                            <History className="w-3.5 h-3.5" /> Ledger
+                          </button>
+                          <button
+                            onClick={() => setExplorerView('directory')}
+                            className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 ${explorerView === 'directory' ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                          >
+                            <Users className="w-3.5 h-3.5" /> Addresses
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Transactions Table - Etherscan Style */}
-                    <div className="silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl">
+                    <div className={`${explorerView === 'ledger' || selectedAddressView ? 'block' : 'hidden'} silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl`}>
                       <div className="p-6 border-b border-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/30">
                         <div className="flex items-center gap-3">
                           <History className="w-4 h-4 text-zinc-500" />
@@ -2316,6 +2408,99 @@ const AdminPanel = () => {
                         </table>
                       </div>
                     </div>
+
+                    {/* Addresses Directory View */}
+                    {explorerView === 'directory' && !selectedAddressView && (
+                      <div className="silk-panel rounded-[1.5rem] border-zinc-900 overflow-hidden shadow-2xl animate-fade-in-up">
+                        <div className="p-6 border-b border-zinc-900/50 flex items-center justify-between bg-zinc-950/30">
+                          <div className="flex items-center gap-3">
+                            <Users className="w-4 h-4 text-zinc-500" />
+                            <div>
+                              <h3 className="text-[11px] font-black text-white uppercase tracking-widest">Protocol_Identity_Registry</h3>
+                              <p className="text-[9px] text-zinc-500 font-mono mt-0.5">Tracking all active protocol nodes</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="overflow-x-auto custom-scrollbar">
+                          <table className="w-full text-left border-collapse">
+                            <thead className="bg-zinc-900/30 border-b border-zinc-900/50">
+                              <tr>
+                                <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Address</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Associated User</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">ARG Volume</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-right">ETH Volume</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap text-center">Txs</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-900/30 bg-zinc-950/20">
+                              {(() => {
+                                const addressMap = new Map<string, any>();
+                                allTransactions.forEach(tx => {
+                                  [tx.from, tx.to].forEach((addr, i) => {
+                                    if (!addr) return;
+                                    const key = addr.toLowerCase();
+                                    if (!addressMap.has(key)) {
+                                      addressMap.set(key, {
+                                        raw: addr,
+                                        argVol: 0,
+                                        ethVol: 0,
+                                        count: 0,
+                                        owner: users.find(u => u.argAddress?.toLowerCase() === key || u.ethAddress?.toLowerCase() === key)
+                                      });
+                                    }
+                                    const data = addressMap.get(key);
+                                    data.count++;
+                                    const amt = Number(tx.amount) || 0;
+                                    if (tx.chain === 'ARG') data.argVol += amt;
+                                    else data.ethVol += amt;
+                                  });
+                                });
+
+                                let list = Array.from(addressMap.values());
+                                if (txSearchQuery) {
+                                  const q = txSearchQuery.toLowerCase();
+                                  list = list.filter(a => a.raw.toLowerCase().includes(q) || a.owner?.displayName?.toLowerCase().includes(q) || a.owner?.email?.toLowerCase().includes(q));
+                                }
+
+                                if (list.length === 0) return (
+                                  <tr>
+                                    <td colSpan={5} className="px-6 py-24 text-center opacity-30">No addresses discovered in ledger</td>
+                                  </tr>
+                                );
+
+                                return list.map(a => (
+                                  <tr key={a.raw} className="group hover:bg-zinc-900/30 transition-colors text-[11px] font-mono whitespace-nowrap">
+                                    <td className="px-6 py-4">
+                                      <button onClick={() => setSelectedAddressView(a.raw)} className="text-zinc-300 hover:text-maroon transition-colors truncate max-w-[200px] block">
+                                        {a.raw}
+                                      </button>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      {a.owner ? (
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-5 h-5 rounded-md bg-maroon/20 border border-maroon/20 flex items-center justify-center text-[8px] text-maroon font-black">
+                                            {a.owner.displayName?.[0] || 'U'}
+                                          </div>
+                                          <div>
+                                            <p className="text-white font-bold">{a.owner.displayName || 'User'}</p>
+                                            <p className="text-[8px] text-zinc-600 font-sans tracking-tight leading-none">{a.owner.email}</p>
+                                          </div>
+                                        </div>
+                                      ) : <span className="text-zinc-600">—</span>}
+                                    </td>
+                                    <td className="px-6 py-4 text-right font-bold text-zinc-400">{a.argVol.toLocaleString()} ARG</td>
+                                    <td className="px-6 py-4 text-right font-bold text-zinc-500">{a.ethVol.toLocaleString()} ETH</td>
+                                    <td className="px-6 py-4 text-center">
+                                      <span className="px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 text-[10px]">{a.count}</span>
+                                    </td>
+                                  </tr>
+                                ));
+                              })()}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </>
                 );
               })()}
