@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Argus",
-    "slug": "argus",
+    "name": "Argus Protocol",
+    "slug": "argus-protocol",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "argus",
+    "scheme": "argus-protocol",
     "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/images/splash-icon.png",

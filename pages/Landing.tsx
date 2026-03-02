@@ -736,10 +736,10 @@ const Landing = () => {
                         <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-widest">Mobile Experience</span>
                      </div>
                      <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
-                        Argus on the Go
+                        Argus Protocol on the Go
                      </h2>
                      <p className="text-zinc-400 text-sm md:text-lg leading-relaxed">
-                        Take full control of your node, manage your assets, and monitor network consensus from anywhere with the Argus mobile application.
+                        Take full control of your node, manage your assets, and monitor network consensus from anywhere with the Argus Protocol mobile application.
                      </p>
 
                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -792,15 +792,16 @@ const Landing = () => {
                            <div className="p-6 bg-white/[0.03] border border-white/[0.05] rounded-3xl space-y-4">
                               <div className="flex items-center gap-3">
                                  <SmartphoneNfc className="w-5 h-5 text-maroon" />
-                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest">Android Setup</h4>
+                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest">Alpha Protocol Preview</h4>
                               </div>
-                              <ol className="text-xs text-zinc-400 space-y-3 leading-relaxed">
-                                 <li className="flex gap-2"><span>1.</span> Download the .APK file</li>
-                                 <li className="flex gap-2"><span>2.</span> Enable "Install from Unknown Sources" in Settings</li>
-                                 <li className="flex gap-2"><span>3.</span> Open the file and follow prompts</li>
-                              </ol>
-                              <a href="/android-app-release.apk" className="flex items-center justify-center gap-2 w-full py-4 bg-maroon text-white rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-maroon/80 transition-all">
-                                 <Download size={14} /> Start Download
+                              <p className="text-[11px] text-zinc-400 leading-relaxed">
+                                 This download provides the **Alpha UI/UX Preview**. For the full functional node with synchronized consensus, please build from source:
+                              </p>
+                              <div className="bg-black/50 p-3 rounded-xl border border-white/5 font-mono text-[9px] text-maroon/80">
+                                 cd mobile && npx expo run:android
+                              </div>
+                              <a href="/argus-protocol.apk" className="flex items-center justify-center gap-2 w-full py-4 bg-maroon text-white rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-maroon/80 transition-all">
+                                 <Download size={14} /> Download Protocol Shell (APK)
                               </a>
                            </div>
 
@@ -810,7 +811,7 @@ const Landing = () => {
                                  <h4 className="font-bold text-white uppercase text-xs tracking-widest">Security Note</h4>
                               </div>
                               <p className="text-xs text-zinc-500 leading-relaxed">
-                                 Argus utilizes institutional-grade SHA-256G encryption. Ensure you only download the application from this verified domain to maintain protocol integrity.
+                                 Argus Protocol utilizes institutional-grade SHA-256G encryption. Ensure you only download the application from this verified domain to maintain protocol integrity.
                               </p>
                               <div className="flex items-center gap-2 p-3 bg-zinc-900/50 rounded-xl border border-zinc-800">
                                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
