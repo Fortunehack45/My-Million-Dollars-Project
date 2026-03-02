@@ -429,7 +429,7 @@ const Landing = () => {
                         </div>
 
                         <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.4rem] font-black text-white tracking-[-0.07em] uppercase leading-[0.8] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium" style={{ animationDelay: '0.2s' }}>
-                           Argus<br />Protocol
+                           Argus Protocol
                         </h1>
 
                         <div className="flex items-center gap-4 animate-fade-in opacity-0" style={{ animationDelay: '0.4s' }}>
@@ -750,9 +750,9 @@ const Landing = () => {
                            <Download className="w-4 h-4" />
                            Direct Download (APK)
                         </button>
-                        <a href="https://testflight.apple.com" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
+                        <a href="/argus-protocol.ipa" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
                            <Smartphone className="w-4 h-4 text-zinc-400" />
-                           iOS TestFlight
+                           Direct Download (IPA)
                         </a>
                      </div>
                   </div>
