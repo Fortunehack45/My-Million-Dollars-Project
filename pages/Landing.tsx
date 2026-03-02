@@ -736,23 +736,23 @@ const Landing = () => {
                         <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-widest">Mobile Experience</span>
                      </div>
                      <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
-                        Argus Protocol on the Go
+                        Access the Protocol
                      </h2>
                      <p className="text-zinc-400 text-sm md:text-lg leading-relaxed">
-                        Take full control of your node, manage your assets, and monitor network consensus from anywhere with the Argus Protocol mobile application.
+                        Deploy your own node or join the network using the official Argus Protocol mobile client. Built on React Native for institutional-grade reliability.
                      </p>
 
                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
                         <button
                            onClick={() => setShowInstallModal(true)}
-                           className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-black rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-200 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                           className="flex items-center justify-center gap-3 px-6 py-4 bg-maroon text-white rounded-xl font-bold uppercase tracking-wide hover:bg-maroon/80 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                         >
-                           <Download className="w-4 h-4" />
-                           Direct Download (APK)
+                           <TerminalIcon className="w-4 h-4" />
+                           Institutional Build Guide
                         </button>
-                        <a href="/argus-protocol.ipa" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
-                           <Smartphone className="w-4 h-4 text-zinc-400" />
-                           Direct Download (IPA)
+                        <a href="https://github.com/Fortunehack45/Argus-Protocol/releases" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
+                           <Code2 className="w-4 h-4 text-zinc-400" />
+                           GitHub Releases
                         </a>
                      </div>
                   </div>
@@ -791,18 +791,20 @@ const Landing = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                            <div className="p-6 bg-white/[0.03] border border-white/[0.05] rounded-3xl space-y-4">
                               <div className="flex items-center gap-3">
-                                 <SmartphoneNfc className="w-5 h-5 text-maroon" />
-                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest">Alpha Protocol Preview</h4>
+                                 <Code2 className="w-5 h-5 text-maroon" />
+                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest">Developer Build</h4>
                               </div>
                               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                                 This download provides the **Alpha UI/UX Preview**. For the full functional node with synchronized consensus, please build from source:
+                                 The protocol is built with **React Native**. Deploy your node locally using the official CLI:
                               </p>
-                              <div className="bg-black/50 p-3 rounded-xl border border-white/5 font-mono text-[9px] text-maroon/80">
-                                 cd mobile && npx expo run:android
+                              <div className="space-y-2">
+                                 <div className="bg-black/50 p-3 rounded-xl border border-white/5 font-mono text-[9px] text-maroon/80 flex justify-between items-center group">
+                                    <span>cd mobile && npx expo run:android</span>
+                                 </div>
+                                 <div className="bg-black/50 p-3 rounded-xl border border-white/5 font-mono text-[9px] text-zinc-500 flex justify-between items-center group">
+                                    <span>cd mobile && npx expo run:ios</span>
+                                 </div>
                               </div>
-                              <a href="/argus-protocol.apk" className="flex items-center justify-center gap-2 w-full py-4 bg-maroon text-white rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-maroon/80 transition-all">
-                                 <Download size={14} /> Download Protocol Shell (APK)
-                              </a>
                            </div>
 
                            <div className="p-6 bg-white/[0.03] border border-white/[0.05] rounded-3xl space-y-4">
