@@ -1,5 +1,7 @@
 # Argus Protocol
 
+[![Android Build](https://github.com/Fortunehack45/Argus-Protocol/actions/workflows/android-build.yml/badge.svg)](https://github.com/Fortunehack45/Argus-Protocol/actions/workflows/android-build.yml)
+
 **The Parallel Economy. Built on GhostDAG.**
 
 Argus Protocol is an institutional-grade decentralized synchronization layer designed for the next generation of digital assets. Utilizing a proprietary GhostDAG topology, Argus provides sub-second finality and institutional-level security for validator identities and cross-shard transactions.
