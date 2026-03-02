@@ -39,7 +39,7 @@ jobs:
       - name: 🏗 Build Android APK
         working-directory: ./mobile
         run: |
-          npx eas build --platform android --profile preview --non-interactive --local --output ./argus-protocol.apk
+          npx eas-cli build --platform android --profile preview --non-interactive --local --output ./argus-protocol.apk
 
       - name: 🚀 Create Release
         uses: softprops/action-gh-release@v2
