@@ -743,13 +743,15 @@ const Landing = () => {
                      </p>
 
                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                        <button
-                           onClick={() => setShowInstallModal(true)}
+                        <a
+                           href="https://github.com/Fortunehack45/Argus-Protocol/releases/latest"
+                           target="_blank"
+                           rel="noreferrer"
                            className="flex items-center justify-center gap-3 px-6 py-4 bg-maroon text-white rounded-xl font-bold uppercase tracking-wide hover:bg-maroon/80 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                         >
-                           <TerminalIcon className="w-4 h-4" />
-                           Institutional Build Guide
-                        </button>
+                           <Download className="w-4 h-4" />
+                           Direct Download (APK)
+                        </a>
                         <a href="https://github.com/Fortunehack45/Argus-Protocol/releases" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
                            <Code2 className="w-4 h-4 text-zinc-400" />
                            GitHub Releases
