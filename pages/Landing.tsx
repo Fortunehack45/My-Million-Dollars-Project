@@ -22,7 +22,11 @@ import {
    Milestone,
    Smartphone,
    Download,
-   QrCode
+   QrCode,
+   X,
+   ShieldCheck,
+   SmartphoneNfc,
+   Settings
 } from 'lucide-react';
 
 // Icon mapping for dynamic content
@@ -277,6 +281,7 @@ const Landing = () => {
    const [content, setContent] = useState<LandingConfig | null>(null);
    const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
    const [liveValidators, setLiveValidators] = useState(1);
+   const [showInstallModal, setShowInstallModal] = useState(false);
 
    useEffect(() => {
       const unsubscribe = subscribeToLandingConfig((newConfig) => {
@@ -738,10 +743,13 @@ const Landing = () => {
                      </p>
 
                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                        <a href="/android-app-release.apk" className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-black rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-200 transition-colors text-xs">
+                        <button
+                           onClick={() => setShowInstallModal(true)}
+                           className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-black rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-200 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                        >
                            <Download className="w-4 h-4" />
-                           Download APK
-                        </a>
+                           Direct Download (APK)
+                        </button>
                         <a href="https://testflight.apple.com" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
                            <Smartphone className="w-4 h-4 text-zinc-400" />
                            iOS TestFlight
@@ -751,7 +759,6 @@ const Landing = () => {
 
                   <div className="relative z-10 flex items-center justify-center lg:justify-end">
                      <div className="relative p-6 bg-white rounded-3xl shadow-[0_0_50px_rgba(128,0,0,0.15)] group-hover:shadow-[0_0_80px_rgba(128,0,0,0.3)] transition-shadow duration-700">
-                        {/* Placeholder QR Code visual */}
                         <div className="w-48 h-48 sm:w-64 sm:h-64 border-4 border-black rounded-xl p-2 bg-white flex flex-col items-center justify-center gap-4">
                            <QrCode className="w-24 h-24 text-black" />
                            <span className="text-[10px] font-mono font-bold text-black uppercase tracking-widest text-center">Scan to Install</span>
@@ -760,6 +767,61 @@ const Landing = () => {
                   </div>
                </div>
             </section>
+
+            {/* Installation Guide Modal */}
+            {showInstallModal && (
+               <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+                  <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setShowInstallModal(false)}></div>
+                  <div className="relative w-full max-w-2xl bg-zinc-950 border border-white/10 rounded-[2.5rem] p-8 md:p-12 overflow-hidden animate-fade-in-up">
+                     <button onClick={() => setShowInstallModal(false)} className="absolute top-8 right-8 text-zinc-500 hover:text-white transition-colors">
+                        <X size={24} />
+                     </button>
+
+                     <div className="space-y-8">
+                        <div className="flex items-center gap-4">
+                           <div className="w-12 h-12 bg-maroon/10 rounded-2xl flex items-center justify-center border border-maroon/20">
+                              <ShieldCheck className="w-6 h-6 text-maroon" />
+                           </div>
+                           <div>
+                              <h3 className="text-2xl font-black text-white uppercase tracking-tight">Direct Installation</h3>
+                              <p className="text-zinc-500 text-sm">Download the institutional-grade mobile node directly.</p>
+                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                           <div className="p-6 bg-white/[0.03] border border-white/[0.05] rounded-3xl space-y-4">
+                              <div className="flex items-center gap-3">
+                                 <SmartphoneNfc className="w-5 h-5 text-maroon" />
+                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest">Android Setup</h4>
+                              </div>
+                              <ol className="text-xs text-zinc-400 space-y-3 leading-relaxed">
+                                 <li className="flex gap-2"><span>1.</span> Download the .APK file</li>
+                                 <li className="flex gap-2"><span>2.</span> Enable "Install from Unknown Sources" in Settings</li>
+                                 <li className="flex gap-2"><span>3.</span> Open the file and follow prompts</li>
+                              </ol>
+                              <a href="/android-app-release.apk" className="flex items-center justify-center gap-2 w-full py-4 bg-maroon text-white rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-maroon/80 transition-all">
+                                 <Download size={14} /> Start Download
+                              </a>
+                           </div>
+
+                           <div className="p-6 bg-white/[0.03] border border-white/[0.05] rounded-3xl space-y-4">
+                              <div className="flex items-center gap-3">
+                                 <Settings className="w-5 h-5 text-zinc-500" />
+                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest">Security Note</h4>
+                              </div>
+                              <p className="text-xs text-zinc-500 leading-relaxed">
+                                 Argus utilizes institutional-grade SHA-256G encryption. Ensure you only download the application from this verified domain to maintain protocol integrity.
+                              </p>
+                              <div className="flex items-center gap-2 p-3 bg-zinc-900/50 rounded-xl border border-zinc-800">
+                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                 <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Domain_Verified</span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            )}
 
             {/* CTA Section */}
             {content.cta.isVisible && (

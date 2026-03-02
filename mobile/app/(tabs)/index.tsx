@@ -17,88 +17,108 @@ import { onSnapshot, doc, collection, query, where } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { ActivityIndicator } from 'react-native';
 import { Activity, Zap, Server, Layers, Cpu, Shield, TrendingUp, Clock, AlertTriangle } from 'lucide-react-native';
-import * as Haptics from 'expo-haptics';
+import haptics from '../../services/HapticService';
 import Svg, { Line, G, Circle as SvgCircle } from 'react-native-svg';
 import StatCard from '../../components/StatCard';
 import ProgressRing from '../../components/ProgressRing';
 import Toast from '../../components/Toast';
+import Skeleton from '../../components/Skeleton';
+import { useNotifications } from '../../context/NotificationContext';
+import { Bell } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 // ── GhostDAG SVG Visualizer (mobile-native) ──────────────────────────
 function GhostDAGViz() {
-  const animVal = useRef(new Animated.Value(0)).current;
-  const nodes = useRef<{ x: number; y: number; id: number; type: 'white' | 'red' }[]>([]);
-  const [tick, setTick] = useState(0);
+  const [nodes, setNodes] = useState<{ id: number; type: 'white' | 'red'; x: number; y: number }[]>([]);
+  const w = width - 32;
+  const h = 200;
 
   useEffect(() => {
-    // Initialize nodes
-    const h = 200, w = width - 32;
-    for (let i = 0; i < 8; i++) {
-      nodes.current.push({
-        x: Math.random() * w, y: Math.random() * h,
-        id: i, type: Math.random() > 0.85 ? 'red' : 'white',
-      });
-    }
+    // Initial nodes
+    const initial = Array.from({ length: 12 }).map((_, i) => ({
+      id: i,
+      type: Math.random() > 0.85 ? 'red' : 'white',
+      x: Math.random() * w,
+      y: Math.random() * h,
+    } as const));
+    setNodes(initial);
+
     const interval = setInterval(() => {
-      const w2 = width - 32, h2 = 200;
-      if (nodes.current.length > 35) nodes.current.shift();
-      nodes.current.push({
-        x: Math.random() * w2, y: Math.random() * h2,
-        id: Date.now(), type: Math.random() > 0.88 ? 'red' : 'white',
+      setNodes(prev => {
+        const next = [...prev];
+        if (next.length > 25) next.shift();
+        next.push({
+          id: Date.now(),
+          type: Math.random() > 0.9 ? 'red' : 'white',
+          x: Math.random() * w,
+          y: Math.random() * h,
+        });
+        return next;
       });
-      nodes.current.forEach(n => {
-        n.x = Math.max(0, Math.min(w2, n.x + (Math.random() - 0.5) * 8));
-        n.y = Math.max(0, Math.min(h2, n.y + (Math.random() - 0.5) * 5));
-      });
-      setTick(t => t + 1);
-    }, 800);
+    }, 1500);
+
     return () => clearInterval(interval);
   }, []);
 
   return (
     <View style={styles.ghostdagContainer}>
+      <BlurView intensity={5} tint="dark" style={StyleSheet.absoluteFill} />
       <View style={styles.ghostdagHeader}>
         <View style={styles.ghostdagTitleRow}>
           <View style={styles.pulseDot} />
           <Text style={styles.ghostdagTitle}>GhostDAG_Topology · Synchronized</Text>
         </View>
-        <Text style={styles.ghostdagLatency}>Latency: 12ms</Text>
+        <Text style={styles.ghostdagLatency}>Latency: 8.4ms</Text>
       </View>
-      <Svg height={200} width={width - 32} style={styles.ghostdagSvg}>
-        {/* Edges */}
-        {nodes.current.slice(0, -1).map((n, i) => {
-          const next = nodes.current[i + 1];
-          return (
-            <Line key={`e-${n.id}`}
-              x1={n.x} y1={n.y} x2={next.x} y2={next.y}
-              stroke="rgba(63,63,70,0.35)" strokeWidth={0.8}
+
+      <View style={{ height: h, width: w, overflow: 'hidden' }}>
+        <Svg height={h} width={w}>
+          {nodes.map((n, i) => {
+            if (i === 0) return null;
+            const prev = nodes[i - 1];
+            return (
+              <AnimatedLine
+                key={`e-${n.id}`}
+                x1={prev.x} y1={prev.y}
+                x2={n.x} y2={n.y}
+                stroke={n.type === 'red' ? 'rgba(128,0,0,0.2)' : 'rgba(255,255,255,0.05)'}
+                strokeWidth={1}
+                entering={FadeIn.delay(200)}
+              />
+            );
+          })}
+          {nodes.map((n) => (
+            <AnimatedCircle
+              key={n.id}
+              cx={n.x} cy={n.y}
+              r={n.type === 'red' ? 3 : 4}
+              fill={n.type === 'red' ? Colors.maroon : Colors.white}
+              opacity={0.6}
+              entering={FadeIn.duration(800)}
+              exiting={FadeOut}
             />
-          );
-        })}
-        {/* Nodes */}
-        {nodes.current.map(n => (
-          <SvgCircle key={n.id}
-            cx={n.x} cy={n.y}
-            r={n.type === 'red' ? 3.5 : 4.5}
-            fill={n.type === 'red' ? Colors.maroon : Colors.white}
-            opacity={n.type === 'red' ? 0.9 : 0.7}
-          />
-        ))}
-      </Svg>
+          ))}
+        </Svg>
+      </View>
+
       <View style={styles.ghostdagLegend}>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: Colors.white }]} />
-          <Text style={styles.legendLabel}>Sync Block</Text>
+          <Text style={styles.legendLabel}>Mainnet Block</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: Colors.maroon }]} />
-          <Text style={styles.legendLabel}>Red Block</Text>
+          <Text style={styles.legendLabel}>Orphan/Red</Text>
         </View>
       </View>
     </View>
   );
 }
+
+const AnimatedCircle = Animated.createAnimatedComponent(SvgCircle);
+const AnimatedLine = Animated.createAnimatedComponent(Line);
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 
 // ── Main Dashboard ─────────────────────────────────────────────────────
@@ -113,6 +133,7 @@ export default function DashboardScreen() {
   const [isClaiming, setIsClaiming] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const { unreadCount } = useNotifications();
 
   const MAX_SESSION_TIME = 24 * 60 * 60;
   const referrals = Math.min(user?.referralCount || 0, MAX_REFERRALS);
@@ -154,7 +175,7 @@ export default function DashboardScreen() {
 
   const handleStartMining = async () => {
     if (!user) return;
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    await haptics.medium();
     try {
       await argusSynapse.startMining(user.uid);
       refreshUser({ ...user, miningActive: true, miningStartTime: Date.now() });
@@ -168,7 +189,7 @@ export default function DashboardScreen() {
   const handleClaim = async () => {
     if (!user || pendingPoints === 0 || isClaiming) return;
     setIsClaiming(true);
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await haptics.premiumSuccess();
     try {
       await argusSynapse.stopMiningAndClaim(user.uid, pendingPoints);
       refreshUser({ ...user, miningActive: false, miningStartTime: null, points: user.points + pendingPoints });
@@ -192,9 +213,22 @@ export default function DashboardScreen() {
   const leftToMine = Math.max(0, TOTAL_SUPPLY - netStats.totalMined);
 
   if (!user) return (
-    <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-      <ActivityIndicator color={Colors.maroon} />
-    </View>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.headerRow}>
+          <Skeleton width={150} height={24} />
+          <Skeleton width={80} height={24} />
+        </View>
+        <View style={styles.statsGrid}>
+          <Skeleton width={CARD_W} height={100} />
+          <Skeleton width={CARD_W} height={100} />
+          <Skeleton width={CARD_W} height={100} />
+          <Skeleton width={CARD_W} height={100} />
+        </View>
+        <Skeleton width="100%" height={250} style={{ borderRadius: 24 }} />
+        <Skeleton width="100%" height={180} style={{ borderRadius: 24 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 
   return (
@@ -222,8 +256,17 @@ export default function DashboardScreen() {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <Text style={styles.headerMeta}># {blockHeight.toLocaleString()}</Text>
-            <Text style={styles.headerMetaSub}>Block</Text>
+            <TouchableOpacity
+              onPress={() => router.push('/notifications')}
+              style={styles.notificationBtn}
+            >
+              <Bell size={20} color={unreadCount > 0 ? Colors.maroon : Colors.zinc500} />
+              {unreadCount > 0 && <View style={styles.unreadBadge} />}
+            </TouchableOpacity>
+            <View style={{ alignItems: 'flex-end', marginLeft: Spacing.md }}>
+              <Text style={styles.headerMeta}># {blockHeight.toLocaleString()}</Text>
+              <Text style={styles.headerMetaSub}>Block</Text>
+            </View>
           </View>
         </View>
 
@@ -377,6 +420,27 @@ const styles = StyleSheet.create({
   headerRight: { alignItems: 'flex-end' },
   headerMeta: { fontFamily: 'monospace', fontSize: 12, fontWeight: '800', color: Colors.maroon },
   headerMetaSub: { ...Typography.label, color: Colors.zinc600, fontSize: 7, marginTop: 2 },
+
+  notificationBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  unreadBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.maroon,
+    borderWidth: 1.5,
+    borderColor: Colors.background,
+  },
 
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   statCard: {

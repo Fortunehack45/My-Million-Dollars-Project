@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { NotificationProvider } from '../context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 
@@ -72,7 +73,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <RootNavigation />
+        <NotificationProvider>
+          <RootNavigation />
+        </NotificationProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );

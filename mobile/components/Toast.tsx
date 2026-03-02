@@ -1,7 +1,18 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../theme';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    withTiming,
+    runOnJS,
+    FadeInDown,
+    FadeOutDown,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { BlurView } from 'expo-blur';
 import { Info, CheckCircle, AlertCircle, XCircle } from 'lucide-react-native';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../theme';
 
 const { width } = Dimensions.get('window');
 
@@ -18,101 +29,125 @@ export const Toast: React.FC<ToastProps> = ({
     message,
     type = 'info',
     onClose,
-    duration = 3000
+    duration = 3000,
 }) => {
-    const slideAnim = useRef(new Animated.Value(100)).current;
-    const opacityAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useSharedValue(0);
+    const opacity = useSharedValue(1);
 
     useEffect(() => {
-        Animated.parallel([
-            Animated.spring(slideAnim, {
-                toValue: 0,
-                useNativeDriver: true,
-                tension: 50,
-                friction: 8
-            }),
-            Animated.timing(opacityAnim, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-            })
-        ]).start();
-
         const timer = setTimeout(() => {
-            hide();
+            dismiss();
         }, duration);
 
         return () => clearTimeout(timer);
     }, []);
 
-    const hide = () => {
-        Animated.parallel([
-            Animated.timing(slideAnim, {
-                toValue: 100,
-                duration: 300,
-                useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-            })
-        ]).start(() => onClose());
+    const dismiss = () => {
+        opacity.value = withTiming(0, { duration: 200 }, () => {
+            runOnJS(onClose)();
+        });
     };
 
+    const gesture = Gesture.Pan()
+        .onUpdate((event) => {
+            if (event.translationY > 0) {
+                translateY.value = event.translationY;
+            }
+        })
+        .onEnd((event) => {
+            if (event.translationY > 50 || event.velocityY > 500) {
+                translateY.value = withTiming(200, { duration: 200 }, () => {
+                    runOnJS(onClose)();
+                });
+            } else {
+                translateY.value = withSpring(0);
+            }
+        });
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateY.value }],
+        opacity: opacity.value,
+    }));
+
     const icons = {
-        info: <Info size={18} color={Colors.white} />,
-        success: <CheckCircle size={18} color={Colors.white} />, // Might consider green if we add more colors
-        warning: <AlertCircle size={18} color={Colors.maroon} />,
-        error: <XCircle size={18} color={Colors.maroon} />,
+        info: <Info size={20} color={Colors.white} />,
+        success: <CheckCircle size={20} color={Colors.white} />,
+        warning: <AlertCircle size={20} color={Colors.maroon} />,
+        error: <XCircle size={20} color={Colors.maroon} />,
+    };
+
+    const bgColors = {
+        info: 'rgba(24, 24, 27, 0.8)',
+        success: 'rgba(16, 185, 129, 0.2)',
+        warning: 'rgba(245, 158, 11, 0.2)',
+        error: 'rgba(128, 0, 0, 0.2)',
     };
 
     return (
-        <Animated.View
-            style={[
-                styles.toastContainer,
-                {
-                    transform: [{ translateY: slideAnim }],
-                    opacity: opacityAnim
-                }
-            ]}
-        >
-            <View style={styles.toastContent}>
-                <View style={styles.iconBox}>
-                    {icons[type]}
-                </View>
-                <Text style={styles.messageText}>{message}</Text>
-            </View>
-        </Animated.View>
+        <GestureDetector gesture={gesture}>
+            <Animated.View
+                entering={FadeInDown.springify().damping(15)}
+                exiting={FadeOutDown}
+                style={[styles.container, animatedStyle]}
+            >
+                <BlurView intensity={20} tint="dark" style={styles.blur}>
+                    <View style={[styles.border, { borderColor: type === 'error' ? 'rgba(128,0,0,0.3)' : 'rgba(255,255,255,0.08)' }]} />
+                    <View style={[styles.content, { backgroundColor: bgColors[type] }]}>
+                        <View style={styles.iconContainer}>
+                            {icons[type]}
+                        </View>
+                        <Text style={styles.message}>{message}</Text>
+                    </View>
+                    <View style={styles.handle} />
+                </BlurView>
+            </Animated.View>
+        </GestureDetector>
     );
 };
 
 const styles = StyleSheet.create({
-    toastContainer: {
+    container: {
         position: 'absolute',
-        bottom: 40,
-        left: 20,
-        right: 20,
+        bottom: 50,
+        left: 16,
+        right: 16,
         zIndex: 9999,
-    },
-    toastContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: Colors.surface,
-        borderWidth: 1,
-        borderColor: Colors.zinc800,
-        borderRadius: BorderRadius.lg,
-        padding: Spacing.lg,
+        borderRadius: BorderRadius.xl,
+        overflow: 'hidden',
         ...Shadows.card,
     },
-    iconBox: {
+    blur: {
+        padding: 1,
+    },
+    border: {
+        ...StyleSheet.absoluteFillObject,
+        borderWidth: 1,
+        borderRadius: BorderRadius.xl,
+    },
+    content: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: Spacing.lg,
+        paddingRight: Spacing.xl,
+        borderRadius: BorderRadius.xl - 1,
+    },
+    iconContainer: {
         marginRight: Spacing.md,
     },
-    messageText: {
-        ...Typography.body,
-        fontSize: 13,
+    message: {
+        ...Typography.bodyLG,
         color: Colors.white,
         flex: 1,
+        lineHeight: 20,
+    },
+    handle: {
+        width: 32,
+        height: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 2,
+        alignSelf: 'center',
+        position: 'absolute',
+        bottom: 6,
     },
 });
 
