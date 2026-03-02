@@ -19,7 +19,10 @@ import {
    Terminal as TerminalIcon,
    Activity,
    Globe,
-   Milestone
+   Milestone,
+   Smartphone,
+   Download,
+   QrCode
 } from 'lucide-react';
 
 // Icon mapping for dynamic content
@@ -716,6 +719,47 @@ const Landing = () => {
                   </div>
                </section>
             )}
+
+            {/* Download App Section */}
+            <section id="download" className={`py-16 md:py-32 px-4 md:px-6 max-w-7xl mx-auto relative z-10 transition-all duration-1000 ${visibleSections.has('download') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center bg-zinc-950/80 backdrop-blur-xl border border-zinc-900 rounded-[3rem] p-8 md:p-16 overflow-hidden relative group hover:border-maroon/30 transition-colors duration-700">
+                  <div className="absolute inset-0 bg-gradient-to-br from-maroon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                  <div className="relative z-10 space-y-8">
+                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-maroon/10 border border-maroon/20 rounded-full">
+                        <Smartphone className="w-3 h-3 text-maroon" />
+                        <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-widest">Mobile Experience</span>
+                     </div>
+                     <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
+                        Argus on the Go
+                     </h2>
+                     <p className="text-zinc-400 text-sm md:text-lg leading-relaxed">
+                        Take full control of your node, manage your assets, and monitor network consensus from anywhere with the Argus mobile application.
+                     </p>
+
+                     <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                        <a href="/android-app-release.apk" className="flex items-center justify-center gap-3 px-6 py-4 bg-white text-black rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-200 transition-colors text-xs">
+                           <Download className="w-4 h-4" />
+                           Download APK
+                        </a>
+                        <a href="https://testflight.apple.com" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-zinc-800 border border-zinc-800 transition-colors text-xs">
+                           <Smartphone className="w-4 h-4 text-zinc-400" />
+                           iOS TestFlight
+                        </a>
+                     </div>
+                  </div>
+
+                  <div className="relative z-10 flex items-center justify-center lg:justify-end">
+                     <div className="relative p-6 bg-white rounded-3xl shadow-[0_0_50px_rgba(128,0,0,0.15)] group-hover:shadow-[0_0_80px_rgba(128,0,0,0.3)] transition-shadow duration-700">
+                        {/* Placeholder QR Code visual */}
+                        <div className="w-48 h-48 sm:w-64 sm:h-64 border-4 border-black rounded-xl p-2 bg-white flex flex-col items-center justify-center gap-4">
+                           <QrCode className="w-24 h-24 text-black" />
+                           <span className="text-[10px] font-mono font-bold text-black uppercase tracking-widest text-center">Scan to Install</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </section>
 
             {/* CTA Section */}
             {content.cta.isVisible && (
