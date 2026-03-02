@@ -36,10 +36,19 @@ jobs:
         working-directory: ./mobile
         run: npm install
 
-      - name: 🏗 Build Android APK
+      - name: 🏗 Prebuild native code
         working-directory: ./mobile
+        run: npx expo prebuild --platform android --no-install
+
+      - name: 🏗 Build Android APK (Release)
+        working-directory: ./mobile/android
         run: |
-          npx eas-cli build --platform android --profile preview --non-interactive --local --output ./argus-protocol.apk
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: 📦 Move APK for Release
+        run: |
+          cp mobile/android/app/build/outputs/apk/release/app-release.apk mobile/argus-protocol.apk
 
       - name: 🚀 Create Release
         uses: softprops/action-gh-release@v2
