@@ -34,17 +34,17 @@ jobs:
 
       - name: 📦 Install dependencies
         working-directory: ./mobile
-        run: npm install
+        run: npm ci
 
       - name: 🏗 Prebuild native code
         working-directory: ./mobile
-        run: npx expo prebuild --platform android --no-install
+        run: npx expo prebuild --platform android --clean
 
       - name: 🏗 Build Android APK (Release)
         working-directory: ./mobile/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease --no-daemon
 
       - name: 📦 Move APK for Release
         run: |
@@ -59,7 +59,7 @@ jobs:
           files: mobile/argus-protocol.apk
           body: |
             Institutional Alpha Release for Argus Protocol.
-            
+
             **Verification Markers:**
             - SHA-256G Protocol Integrity: Verified
             - Domain Authenticity: Verified
