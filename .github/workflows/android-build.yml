@@ -34,7 +34,7 @@ jobs:
 
       - name: 📦 Install dependencies
         working-directory: ./mobile
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: 🏗 Prebuild native code
         working-directory: ./mobile
