@@ -104,7 +104,7 @@ const AppRoutes = () => {
     <div className="min-h-screen bg-zinc-950">
       {isPublicPage ? (
         <PublicLayout>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0 })}>
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={
                 loading ? null : (
@@ -129,7 +129,7 @@ const AppRoutes = () => {
           </AnimatePresence>
         </PublicLayout>
       ) : (
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0 })}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={
               loading ? null : (

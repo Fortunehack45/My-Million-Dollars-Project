@@ -2,20 +2,12 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 
 /**
- * ScrollToTop component ensures that navigating between pages
- * resets the scroll position to the top of the viewport.
+ * ScrollToTop component is effectively disabled since Framer Motion's
+ * <AnimatePresence onExitComplete> now cleanly handles scroll resetting
+ * *after* the outgoing page transition finishes.
  */
 const ScrollToTop = () => {
-    const { pathname } = useLocation();
-
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: 'instant' as ScrollBehavior, // Use instant for clean transitions during page loads
-        });
-    }, [pathname]);
-
+    // Scroll restoration is natively handled by App.tsx <AnimatePresence onExitComplete>
     return null;
 };
 

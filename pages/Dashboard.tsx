@@ -88,12 +88,24 @@ const GhostDAGVisualizer = () => {
 
     const resize = () => {
       if (containerRef.current && canvas) {
-        canvas.width = containerRef.current.clientWidth;
-        canvas.height = containerRef.current.clientHeight;
+        // Prevent unnecessary repaints by only resizing if strictly necessary
+        if (canvas.width !== containerRef.current.clientWidth || canvas.height !== containerRef.current.clientHeight) {
+            canvas.width = containerRef.current.clientWidth;
+            canvas.height = containerRef.current.clientHeight;
+        }
       }
     };
+
+    // Use highly performant ResizeObserver instead of raw window resize events
+    const resizeObserver = new ResizeObserver(() => {
+        // requestAnimationFrame debounces the observer's callback to prevent layout thrashing
+        requestAnimationFrame(resize);
+    });
+
+    if (containerRef.current) {
+        resizeObserver.observe(containerRef.current);
+    }
     resize();
-    window.addEventListener('resize', resize);
 
     for (let i = 0; i < 6; i++) {
       nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, id: nextId++, type: 'white' });
@@ -149,7 +161,12 @@ const GhostDAGVisualizer = () => {
     };
     draw();
 
-    return () => { window.removeEventListener('resize', resize); clearInterval(interval); cancelAnimationFrame(animationFrameId); };
+    return () => { 
+        if (containerRef.current) resizeObserver.unobserve(containerRef.current);
+        resizeObserver.disconnect();
+        clearInterval(interval); 
+        cancelAnimationFrame(animationFrameId); 
+    };
   }, []);
 
   return <div ref={containerRef} className="absolute inset-0"><canvas ref={canvasRef} className="w-full h-full opacity-60" /></div>;
