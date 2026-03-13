@@ -17,12 +17,13 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   className = "" 
 }) => {
   const nodeRef = useRef<HTMLSpanElement>(null);
+  const prevValue = useRef(0);
 
   useEffect(() => {
     const node = nodeRef.current;
     if (node) {
-      const controls = animate(0, value, {
-        duration: 2,
+      const controls = animate(prevValue.current, value, {
+        duration: 0.8, // Faster duration to avoid overlapping with frequent updates
         ease: [0.16, 1, 0.3, 1], // Custom cinematic ease-out
         onUpdate: (v) => {
           node.textContent = `${prefix}${v.toLocaleString(undefined, { 
@@ -31,6 +32,7 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
           })}${suffix}`;
         }
       });
+      prevValue.current = value;
       return () => controls.stop();
     }
   }, [value, decimals, prefix, suffix]);
