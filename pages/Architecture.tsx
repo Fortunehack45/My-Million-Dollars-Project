@@ -189,7 +189,7 @@ const Architecture = () => {
    const featureIcons = [Lock, Zap, Globe];
 
    return (
-      <PublicLayout>
+      <>
          <div className="relative pt-28 md:pt-32 pb-32 overflow-hidden min-h-screen">
             {/* Matrix Background */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-20 bg-black">
@@ -317,7 +317,7 @@ const Architecture = () => {
 
             </div>
          </div>
-      </PublicLayout>
+      </>
    );
 };
 

@@ -22,6 +22,7 @@ import About from './pages/About';
 import Careers from './pages/Careers';
 import Contact from './pages/Contact';
 import Docs from './pages/Docs';
+import PublicLayout from './components/PublicLayout';
 import { Terms, Privacy } from './pages/Legal';
 import CookieConsent from './components/CookieConsent';
 import ScrollToTop from './components/ScrollToTop';
@@ -94,87 +95,97 @@ const AppRoutes = () => {
     }
   }, [searchParams]);
 
-  return (
+  // Determine if we are on a public page and should show the PublicLayout
+  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy'];
+  const isPublicPage = publicPaths.some(path => location.pathname === path) || (!firebaseUser && location.pathname === '/');
+
+  const routesContent = (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-      <Route path="/" element={
-        loading ? null : (
-          firebaseUser ? (
-            user ? (
-              <LockableRoute path="/" requireLogin={true}>
-                <PageTransition><Dashboard /></PageTransition>
+        <Route path="/" element={
+          loading ? null : (
+            firebaseUser ? (
+              user ? (
+                <LockableRoute path="/" requireLogin={true}>
+                  <PageTransition><Dashboard /></PageTransition>
+                </LockableRoute>
+              ) : <Navigate to="/setup" />
+            ) : (
+              <LockableRoute path="/" requireLogin={false}>
+                <PageTransition><Landing /></PageTransition>
               </LockableRoute>
-            ) : <Navigate to="/setup" />
-          ) : (
-            <LockableRoute path="/" requireLogin={false}>
-              <PageTransition><Landing /></PageTransition>
-            </LockableRoute>
+            )
           )
-        )
-      } />
+        } />
 
-      <Route path="/login" element={
-        <PublicRoute>
-          <PageTransition><Login /></PageTransition>
-        </PublicRoute>
-      } />
+        <Route path="/login" element={
+          <PublicRoute>
+            <PageTransition><Login /></PageTransition>
+          </PublicRoute>
+        } />
 
-      <Route path="/setup" element={
-        firebaseUser && !user ? <PageTransition><ProfileSetup /></PageTransition> : <Navigate to="/" />
-      } />
+        <Route path="/setup" element={
+          firebaseUser && !user ? <PageTransition><ProfileSetup /></PageTransition> : <Navigate to="/" />
+        } />
 
-      {/* App Routes */}
-      <Route path="/tasks" element={
-        <LockableRoute path="/tasks" requireLogin={true}>
-          <PageTransition><SocialTasks /></PageTransition>
-        </LockableRoute>
-      } />
+        {/* App Routes */}
+        <Route path="/tasks" element={
+          <LockableRoute path="/tasks" requireLogin={true}>
+            <PageTransition><SocialTasks /></PageTransition>
+          </LockableRoute>
+        } />
 
-      <Route path="/leaderboard" element={
-        <LockableRoute path="/leaderboard" requireLogin={true}>
-          <PageTransition><Leaderboard /></PageTransition>
-        </LockableRoute>
-      } />
+        <Route path="/leaderboard" element={
+          <LockableRoute path="/leaderboard" requireLogin={true}>
+            <PageTransition><Leaderboard /></PageTransition>
+          </LockableRoute>
+        } />
 
-      <Route path="/referrals" element={
-        <LockableRoute path="/referrals" requireLogin={true}>
-          <PageTransition><Referrals /></PageTransition>
-        </LockableRoute>
-      } />
+        <Route path="/referrals" element={
+          <LockableRoute path="/referrals" requireLogin={true}>
+            <PageTransition><Referrals /></PageTransition>
+          </LockableRoute>
+        } />
 
-      <Route path="/nft" element={
-        <LockableRoute path="/nft" requireLogin={true}>
-          <PageTransition><NFTSection /></PageTransition>
-        </LockableRoute>
-      } />
+        <Route path="/nft" element={
+          <LockableRoute path="/nft" requireLogin={true}>
+            <PageTransition><NFTSection /></PageTransition>
+          </LockableRoute>
+        } />
 
-      <Route path="/vault" element={
-        <LockableRoute path="/vault" requireLogin={true}>
-          <PageTransition><Vault /></PageTransition>
-        </LockableRoute>
-      } />
+        <Route path="/vault" element={
+          <LockableRoute path="/vault" requireLogin={true}>
+            <PageTransition><Vault /></PageTransition>
+          </LockableRoute>
+        } />
 
-      <Route path="/admin" element={
-        <AdminRoute>
-          <PageTransition><AdminPanel /></PageTransition>
-        </AdminRoute>
-      } />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <PageTransition><AdminPanel /></PageTransition>
+          </AdminRoute>
+        } />
 
-      {/* Public Routes */}
-      <Route path="/docs" element={<LockableRoute path="/docs" requireLogin={false}><PageTransition><Docs /></PageTransition></LockableRoute>} />
-      <Route path="/architecture" element={<LockableRoute path="/architecture" requireLogin={false}><PageTransition><Architecture /></PageTransition></LockableRoute>} />
-      <Route path="/whitepaper" element={<LockableRoute path="/whitepaper" requireLogin={false}><PageTransition><Whitepaper /></PageTransition></LockableRoute>} />
-      <Route path="/tokenomics" element={<LockableRoute path="/tokenomics" requireLogin={false}><PageTransition><Tokenomics /></PageTransition></LockableRoute>} />
-      <Route path="/about" element={<LockableRoute path="/about" requireLogin={false}><PageTransition><About /></PageTransition></LockableRoute>} />
-      <Route path="/careers" element={<LockableRoute path="/careers" requireLogin={false}><PageTransition><Careers /></PageTransition></LockableRoute>} />
-      <Route path="/contact" element={<LockableRoute path="/contact" requireLogin={false}><PageTransition><Contact /></PageTransition></LockableRoute>} />
-      <Route path="/terms" element={<LockableRoute path="/terms" requireLogin={false}><PageTransition><Terms /></PageTransition></LockableRoute>} />
-      <Route path="/privacy" element={<LockableRoute path="/privacy" requireLogin={false}><PageTransition><Privacy /></PageTransition></LockableRoute>} />
+        {/* Public Routes */}
+        <Route path="/docs" element={<LockableRoute path="/docs" requireLogin={false}><PageTransition><Docs /></PageTransition></LockableRoute>} />
+        <Route path="/architecture" element={<LockableRoute path="/architecture" requireLogin={false}><PageTransition><Architecture /></PageTransition></LockableRoute>} />
+        <Route path="/whitepaper" element={<LockableRoute path="/whitepaper" requireLogin={false}><PageTransition><Whitepaper /></PageTransition></LockableRoute>} />
+        <Route path="/tokenomics" element={<LockableRoute path="/tokenomics" requireLogin={false}><PageTransition><Tokenomics /></PageTransition></LockableRoute>} />
+        <Route path="/about" element={<LockableRoute path="/about" requireLogin={false}><PageTransition><About /></PageTransition></LockableRoute>} />
+        <Route path="/careers" element={<LockableRoute path="/careers" requireLogin={false}><PageTransition><Careers /></PageTransition></LockableRoute>} />
+        <Route path="/contact" element={<LockableRoute path="/contact" requireLogin={false}><PageTransition><Contact /></PageTransition></LockableRoute>} />
+        <Route path="/terms" element={<LockableRoute path="/terms" requireLogin={false}><PageTransition><Terms /></PageTransition></LockableRoute>} />
+        <Route path="/privacy" element={<LockableRoute path="/privacy" requireLogin={false}><PageTransition><Privacy /></PageTransition></LockableRoute>} />
 
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </AnimatePresence>
   );
+
+  if (isPublicPage) {
+    return <PublicLayout>{routesContent}</PublicLayout>;
+  }
+
+  return routesContent;
 };
 
 function App() {

@@ -57,8 +57,7 @@ const Tokenomics = () => {
    const activeItem = activeIndex !== null ? content.distribution[activeIndex] : null;
 
    return (
-      <PublicLayout>
-         <div className="relative pt-28 md:pt-32 pb-32 min-h-screen overflow-hidden will-change-premium">
+      <div className="relative pt-28 md:pt-32 pb-32 min-h-screen overflow-hidden will-change-premium">
             {/* Matrix Rain Background */}
             <MatrixBackground color="rgba(128, 0, 0, 0.1)" opacity={0.4} />
 
@@ -336,7 +335,6 @@ const Tokenomics = () => {
 
             </div>
          </div>
-      </PublicLayout>
    );
 };
 

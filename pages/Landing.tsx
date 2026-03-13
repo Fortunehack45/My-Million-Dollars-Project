@@ -4,7 +4,6 @@ import { useNavigate, Link } from 'react-router';
 import { useLocks } from '../context/LockContext';
 import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services/firebase';
 import { LandingConfig } from '../types';
-import PublicLayout from '../components/PublicLayout';
 import Logo from '../components/Logo';
 import {
    ArrowRight,
@@ -403,11 +402,10 @@ const Landing = () => {
    );
 
    return (
-      <PublicLayout>
-         <div
-            className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white"
-            onMouseMove={handleMouseMove}
-         >
+      <div
+         className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white"
+         onMouseMove={handleMouseMove}
+      >
 
             {/* MATRIX BACKGROUND */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
@@ -762,8 +760,7 @@ const Landing = () => {
                   </div>
                </section>
             )}
-         </div>
-      </PublicLayout>
+      </div>
    );
 };
 

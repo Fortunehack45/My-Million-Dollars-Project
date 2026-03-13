@@ -139,8 +139,7 @@ const Docs = () => {
   );
 
   return (
-    <PublicLayout>
-      <div className="min-h-screen bg-zinc-950 pt-28 md:pt-32 pb-24">
+    <div className="min-h-screen bg-zinc-950 pt-28 md:pt-32 pb-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex flex-col lg:flex-row gap-16">
 
@@ -480,7 +479,6 @@ uvicorn argus_gateway.main:app --host 0.0.0.0 --port 8080`}
           </div>
         </div>
       </div>
-    </PublicLayout>
   );
 };
 

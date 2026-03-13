@@ -44,7 +44,7 @@ const Whitepaper = () => {
    };
 
    return (
-      <PublicLayout>
+      <>
          <div className="relative pt-28 md:pt-32 pb-48 overflow-hidden bg-[#050505]">
             {/* Editorial Background Accents */}
             <div className="absolute top-0 right-0 w-[40%] h-full bg-gradient-to-l from-maroon/[0.02] to-transparent pointer-events-none"></div>
@@ -140,7 +140,7 @@ const Whitepaper = () => {
                </div>
             </div>
          </div>
-      </PublicLayout>
+      </>
    );
 };
 

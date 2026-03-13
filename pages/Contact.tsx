@@ -62,8 +62,7 @@ const Contact = () => {
    };
 
    return (
-      <PublicLayout>
-         <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 min-h-screen relative">
+      <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 min-h-screen relative">
             {/* Background Atmosphere */}
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(128,0,0,0.05),transparent_70%)] pointer-events-none" />
 
@@ -218,7 +217,6 @@ const Contact = () => {
                </div>
             </div>
          </div>
-      </PublicLayout>
    );
 };
 
