@@ -1103,9 +1103,14 @@ const AdminPanel = () => {
                     { path: '/referrals', label: 'Network Graph', desc: 'Referral tracking and topology' },
                     { path: '/leaderboard', label: 'Global Rankings', desc: 'Competitive leaderboard display' },
                     { path: '/architecture', label: 'Architecture Docs', desc: 'Technical protocol overview' },
+                    { path: '/whitepaper', label: 'Whitepaper', desc: 'Core protocol specifications' },
                     { path: '/tokenomics', label: 'Economic Specs', desc: 'Token distribution and schedules' },
+                    { path: '/about', label: 'About Us', desc: 'Organization background' },
+                    { path: '/docs', label: 'Documentation', desc: 'Developer and user guides' },
                     { path: '/careers', label: 'Talent Acquisition', desc: 'Open positions within the lab' },
-                    { path: '/contact', label: 'Comms Uplink', desc: 'Support and contact channels' }
+                    { path: '/contact', label: 'Comms Uplink', desc: 'Support and contact channels' },
+                    { path: '/terms', label: 'Terms of Service', desc: 'Legal terms and conditions' },
+                    { path: '/privacy', label: 'Privacy Policy', desc: 'Data handling policy' }
                   ].map((page) => (
                     <div key={page.path} className={`p-6 rounded-2xl border transition-all duration-500 ${lockedPages.includes(page.path) ? 'bg-red-500/5 border-red-500/20 shadow-lg shadow-red-500/5' : 'bg-zinc-900/30 border-zinc-800 hover:border-zinc-700'}`}>
                       <div className="flex items-center justify-between mb-4">

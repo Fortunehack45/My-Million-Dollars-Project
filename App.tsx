@@ -26,8 +26,8 @@ import CookieConsent from './components/CookieConsent';
 import ScrollToTop from './components/ScrollToTop';
 import { subscribeToLockedPages, ADMIN_EMAIL } from './services/firebase';
 
-// Registry Protected Route (Enforces Admin Locks)
-const RegistryProtectedRoute = ({ children, path }: { children: React.ReactNode, path: string }) => {
+// Lockable Route (Enforces Admin Locks and optionally requires login)
+const LockableRoute = ({ children, path, requireLogin = true }: { children?: React.ReactNode, path: string, requireLogin?: boolean }) => {
   const { user, firebaseUser, loading } = useAuth();
   const [lockedPages, setLockedPages] = React.useState<string[]>([]);
   const [checkingLocks, setCheckingLocks] = React.useState(true);
@@ -44,7 +44,7 @@ const RegistryProtectedRoute = ({ children, path }: { children: React.ReactNode,
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-8 h-8 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
-        <p className="label-meta animate-pulse">Verifying_Registry_Handshake</p>
+        <p className="label-meta animate-pulse">{requireLogin ? 'Synchronizing_State' : 'Verifying_Access'}</p>
       </div>
     </div>
   );
@@ -52,30 +52,18 @@ const RegistryProtectedRoute = ({ children, path }: { children: React.ReactNode,
   const isAuthorizedAdmin = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const isLocked = !isAuthorizedAdmin && lockedPages.includes(path);
 
-  if (isLocked) return <Navigate to="/" />;
-  if (!firebaseUser) return <Navigate to="/login" />;
-  if (!user) return <Navigate to="/setup" />;
+  if (isLocked) {
+    if (path === '/') return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
+  }
 
-  return <Layout>{children}</Layout>;
-};
+  if (requireLogin) {
+    if (!firebaseUser) return <Navigate to="/login" replace />;
+    if (!user) return <Navigate to="/setup" replace />;
+    return <Layout>{children}</Layout>;
+  }
 
-// Standard Protected Route
-const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
-  const { user, firebaseUser, loading } = useAuth();
-
-  if (loading) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-8 h-8 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
-        <p className="label-meta animate-pulse">Synchronizing_State</p>
-      </div>
-    </div>
-  );
-
-  if (!firebaseUser) return <Navigate to="/login" />;
-  if (!user) return <Navigate to="/setup" />;
-
-  return <Layout>{children}</Layout>;
+  return <>{children}</>;
 };
 
 const PublicRoute = ({ children }: { children?: React.ReactNode }) => {
@@ -124,11 +112,15 @@ const AppRoutes = () => {
         loading ? null : (
           firebaseUser ? (
             user ? (
-              <ProtectedRoute>
-        <PageTransition><Dashboard /></PageTransition>
-              </ProtectedRoute>
+              <LockableRoute path="/" requireLogin={true}>
+                <PageTransition><Dashboard /></PageTransition>
+              </LockableRoute>
             ) : <Navigate to="/setup" />
-          ) : <PageTransition><Landing /></PageTransition>
+          ) : (
+            <LockableRoute path="/" requireLogin={false}>
+              <PageTransition><Landing /></PageTransition>
+            </LockableRoute>
+          )
         )
       } />
 
@@ -144,33 +136,33 @@ const AppRoutes = () => {
 
       {/* App Routes */}
       <Route path="/tasks" element={
-        <ProtectedRoute>
+        <LockableRoute path="/tasks" requireLogin={true}>
           <PageTransition><SocialTasks /></PageTransition>
-        </ProtectedRoute>
+        </LockableRoute>
       } />
 
       <Route path="/leaderboard" element={
-        <ProtectedRoute>
+        <LockableRoute path="/leaderboard" requireLogin={true}>
           <PageTransition><Leaderboard /></PageTransition>
-        </ProtectedRoute>
+        </LockableRoute>
       } />
 
       <Route path="/referrals" element={
-        <ProtectedRoute>
+        <LockableRoute path="/referrals" requireLogin={true}>
           <PageTransition><Referrals /></PageTransition>
-        </ProtectedRoute>
+        </LockableRoute>
       } />
 
       <Route path="/nft" element={
-        <ProtectedRoute>
+        <LockableRoute path="/nft" requireLogin={true}>
           <PageTransition><NFTSection /></PageTransition>
-        </ProtectedRoute>
+        </LockableRoute>
       } />
 
       <Route path="/vault" element={
-        <RegistryProtectedRoute path="/vault">
+        <LockableRoute path="/vault" requireLogin={true}>
           <PageTransition><Vault /></PageTransition>
-        </RegistryProtectedRoute>
+        </LockableRoute>
       } />
 
       <Route path="/admin" element={
@@ -180,15 +172,15 @@ const AppRoutes = () => {
       } />
 
       {/* Public Routes */}
-      <Route path="/docs" element={<PageTransition><Docs /></PageTransition>} />
-      <Route path="/architecture" element={<PageTransition><Architecture /></PageTransition>} />
-      <Route path="/whitepaper" element={<PageTransition><Whitepaper /></PageTransition>} />
-      <Route path="/tokenomics" element={<PageTransition><Tokenomics /></PageTransition>} />
-      <Route path="/about" element={<PageTransition><About /></PageTransition>} />
-      <Route path="/careers" element={<PageTransition><Careers /></PageTransition>} />
-      <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
-      <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
-      <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+      <Route path="/docs" element={<LockableRoute path="/docs" requireLogin={false}><PageTransition><Docs /></PageTransition></LockableRoute>} />
+      <Route path="/architecture" element={<LockableRoute path="/architecture" requireLogin={false}><PageTransition><Architecture /></PageTransition></LockableRoute>} />
+      <Route path="/whitepaper" element={<LockableRoute path="/whitepaper" requireLogin={false}><PageTransition><Whitepaper /></PageTransition></LockableRoute>} />
+      <Route path="/tokenomics" element={<LockableRoute path="/tokenomics" requireLogin={false}><PageTransition><Tokenomics /></PageTransition></LockableRoute>} />
+      <Route path="/about" element={<LockableRoute path="/about" requireLogin={false}><PageTransition><About /></PageTransition></LockableRoute>} />
+      <Route path="/careers" element={<LockableRoute path="/careers" requireLogin={false}><PageTransition><Careers /></PageTransition></LockableRoute>} />
+      <Route path="/contact" element={<LockableRoute path="/contact" requireLogin={false}><PageTransition><Contact /></PageTransition></LockableRoute>} />
+      <Route path="/terms" element={<LockableRoute path="/terms" requireLogin={false}><PageTransition><Terms /></PageTransition></LockableRoute>} />
+      <Route path="/privacy" element={<LockableRoute path="/privacy" requireLogin={false}><PageTransition><Privacy /></PageTransition></LockableRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
