@@ -1,9 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Share2, Users, ShieldCheck, Zap, Info, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { Share2, Users, ShieldCheck, Zap, Info, Clock, CheckCircle2, Loader2, Radio, Terminal, TrendingUp, Cpu, ChevronRight } from 'lucide-react';
 import { MAX_REFERRALS, REFERRAL_BOOST, REFERRAL_BONUS_POINTS, db } from '../services/firebase';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { motion, Variants } from 'framer-motion';
+import MatrixBackground from '../components/MatrixBackground';
+
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemAnim: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 400, damping: 30 } }
+};
 
 const Referrals = () => {
   const { user } = useAuth();
@@ -29,33 +46,21 @@ const Referrals = () => {
 
   useEffect(() => {
     if (!user) return;
-
     const fetchReferrals = async () => {
       try {
-        try {
-          const q = query(
-            collection(db, "users"),
-            where("referredBy", "==", user.uid),
-            orderBy("createdAt", "desc")
-          );
-          const snap = await getDocs(q);
-          setReferralLogs(snap.docs.map(d => d.data()));
-        } catch (e) {
-          const q = query(
-            collection(db, "users"),
-            where("referredBy", "==", user.uid)
-          );
-          const snap = await getDocs(q);
-          const sorted = snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          setReferralLogs(sorted);
-        }
+        const q = query(
+          collection(db, "users"),
+          where("referredBy", "==", user.uid)
+        );
+        const snap = await getDocs(q);
+        const sorted = snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        setReferralLogs(sorted);
       } catch (error) {
         console.error("Failed to fetch logs", error);
       } finally {
         setIsLoadingLogs(false);
       }
     };
-
     fetchReferrals();
   }, [user?.uid]);
 
@@ -65,232 +70,207 @@ const Referrals = () => {
   const totalReferrals = referralLogs.length;
 
   return (
-    <div className="w-full space-y-8 md:space-y-12 animate-in fade-in duration-700 pb-24 relative px-0.5">
+    <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+      
+      {/* SYSTEM OVERLAY */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <MatrixBackground color="rgba(128, 0, 0, 0.05)" opacity={0.15} />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(128,0,0,0.06),rgba(128,0,0,0.02),rgba(128,0,0,0.06))] bg-[length:100%_2px,3px_100%]"></div>
+      </div>
 
-      {/* Background Subtle Accents */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-maroon/5 blur-[150px] -z-10 animate-pulse-slow"></div>
-
-      {/* Institutional Header - Resized to Dashboard Standards */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900 mb-10">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
-            <Users className="w-5 h-5 text-maroon animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-base font-black text-white uppercase tracking-tight">Authorization_Bridge</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Network expansion active · v2.8</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-5">
-          <div className="text-right">
-            <p className="label-meta mb-0.5">Authorized_Peers</p>
-            <p className="text-sm font-mono font-black text-white">{activeRefs} <span className="text-zinc-600 text-[10px]">SYNCED</span></p>
-          </div>
-          <div className="h-6 w-px bg-zinc-800" />
-          <div className="w-9 h-9 bg-zinc-950 border border-zinc-900 rounded-lg flex items-center justify-center">
-            <Share2 className="w-5 h-5 text-maroon/60" />
-          </div>
-        </div>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Interaction Card */}
-        <div className="lg:col-span-12 xl:col-span-7 silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] space-y-8">
-          <div className="flex items-center gap-5">
-            <div className="p-3 bg-maroon/10 rounded-2xl border border-maroon/20">
-              <Share2 className="w-6 h-6 text-maroon" />
+      <motion.div variants={staggerContainer} initial="hidden" animate="show" className="max-w-[1700px] mx-auto px-6 relative z-10 w-full">
+        
+        {/* REFERRAL TOP BAR */}
+        <motion.div variants={itemAnim} className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6 bg-zinc-950/80 border border-white/[0.05] p-6 rounded-xl backdrop-blur-md">
+          <div className="flex items-center gap-6">
+            <div className="w-12 h-12 bg-maroon/10 rounded-lg flex items-center justify-center border border-maroon/20">
+              <Users className="w-6 h-6 text-maroon animate-pulse" />
             </div>
             <div>
-              <h3 className="label-meta text-white">Handshake Authorization Link</h3>
-              <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-bold">Global Peer Invitation System</p>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Link Container */}
-              <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 flex flex-col justify-between gap-6 shadow-xl relative overflow-hidden group/link hover:border-maroon/30 transition-all duration-500">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/30 to-transparent opacity-0 group-hover/link:opacity-100 transition-opacity"></div>
-                <div>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Direct URL Handshake</p>
-                  <code className="block text-white font-mono text-[10px] sm:text-xs font-medium tracking-tight bg-zinc-900/50 px-4 py-3 rounded-lg border border-zinc-800/80 truncate w-full">
-                    {window.location.origin}/#/?ref={user.referralCode}
-                  </code>
-                </div>
-                <button
-                  onClick={copyLink}
-                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedLink ? 'bg-maroon/10 text-maroon border border-maroon/20' : 'bg-maroon text-white hover:bg-[#a00000] hover:scale-[1.02] shadow-[0_0_15px_rgba(128,0,0,0.2)]'}`}
-                >
-                  {copiedLink ? <><CheckCircle2 className="w-4 h-4" /> Link Copied</> : 'Copy Full Link'}
-                </button>
-              </div>
-
-              {/* Code Container */}
-              <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 flex flex-col justify-between gap-6 shadow-xl relative overflow-hidden group/code hover:border-maroon/30 transition-all duration-500">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/30 to-transparent opacity-0 group-hover/code:opacity-100 transition-opacity"></div>
-                <div>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Unique Access Code</p>
-                  <code className="block text-maroon font-mono text-sm sm:text-base font-black tracking-[0.2em] bg-maroon/5 text-center py-2.5 rounded-lg border border-maroon/10 w-full">
-                    {user.referralCode}
-                  </code>
-                </div>
-                <button
-                  onClick={copyCode}
-                  className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 ${copiedCode ? 'bg-maroon/10 text-maroon border border-maroon/20' : 'bg-transparent border border-maroon/30 text-maroon hover:bg-maroon hover:text-white'}`}
-                >
-                  {copiedCode ? <><CheckCircle2 className="w-4 h-4" /> Code Copied</> : 'Copy Code Only'}
-                </button>
-              </div>
-            </div>
-
-            <div className="p-8 bg-zinc-900/40 rounded-[2rem] border border-white/5 flex items-start gap-5 group">
-              <div className="p-2 bg-zinc-950 rounded-xl border border-white/5 group-hover:border-maroon/20 transition- silk">
-                <Info className="w-5 h-5 text-maroon" />
-              </div>
-              <div className="space-y-2">
-                <p className="label-meta text-zinc-300">Reward Protocol</p>
-                <p className="text-xs text-zinc-500 leading-relaxed font-medium italic">
-                  Earn <span className="text-white font-bold">+{REFERRAL_BONUS_POINTS} ARG</span> instantly per peer.
-                  Unlock <span className="text-maroon font-bold">+{REFERRAL_BOOST} ARG/hr</span> permanent mining speed boost per active node.
-                  <span className="text-zinc-600 block mt-2 pt-2 border-t border-white/5 font-mono text-[9px]">STATUS: {activeRefs}/{MAX_REFERRALS} PEERS SYNCED (CAP: 20)</span>
-                </p>
+              <h1 className="text-2xl font-black text-white uppercase tracking-tight leading-none mb-2 italic">Authorization_Bridge</h1>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none">Expansion_Protocol_Active · v2.8</span>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Stats and Progress */}
-        <div className="lg:col-span-12 xl:col-span-5 space-y-6 md:space-y-8">
-          <div className="silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] flex items-center justify-between group relative overflow-hidden transition-all duration-700 hover:border-maroon/20">
-            <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="flex items-center gap-5 relative z-10">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-950 rounded-xl sm:rounded-2xl flex items-center justify-center border border-zinc-900 group-hover:border-maroon/40 transition-silk shadow-2xl">
-                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-zinc-500 group-hover:text-maroon transition-silk" />
-              </div>
-              <div>
-                <p className="label-meta text-white">Authorized Peers</p>
-                <p className="text-[8px] sm:text-[10px] text-zinc-600 font-mono uppercase mt-1 tracking-widest">Active_Node_Connections</p>
-              </div>
+          
+          <div className="flex items-center gap-12 text-right">
+            <div className="space-y-1">
+              <p className="text-[10px] text-zinc-600 uppercase font-black tracking-widest leading-none">Authorized_Peers</p>
+              <p className="text-xl font-black text-white">{activeRefs} <span className="text-xs text-zinc-600">SYNCED</span></p>
             </div>
-            <span className="text-4xl sm:text-6xl font-black text-white tracking-tighter group-hover:text-maroon transition-silk relative z-10">{activeRefs}</span>
-          </div>
-
-          <div className="silk-panel p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] space-y-8 sm:space-y-10 group relative overflow-hidden transition-all duration-700 hover:border-maroon/20">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-maroon/[0.03] blur-[80px] rounded-full pointer-events-none group-hover:bg-maroon/[0.06] transition-all duration-1000"></div>
-            <div className="relative z-10 flex items-center justify-between">
-              <p className="label-meta text-maroon font-black tracking-[0.2em]">Synchronization Efficiency</p>
-              <Zap className="w-5 h-5 text-maroon animate-pulse shadow-[0_0_15px_rgba(128,0,0,0.4)]" />
-            </div>
-            <div className="relative z-10 space-y-6">
-              <div className="flex justify-between items-end">
-                <span className="label-meta text-zinc-400">Topology Depth</span>
-                <span className="text-4xl font-black text-white tracking-tighter italic">{activeRefs} <span className="text-sm text-zinc-800 font-mono">/ 20</span></span>
-              </div>
-              <div className="h-4 bg-zinc-950 border border-zinc-900 p-1 rounded-full overflow-hidden shadow-inner">
-                <div className="h-full bg-gradient-to-r from-maroon/80 to-maroon shadow-[0_0_20px_#800000] rounded-full transition-all duration-1000 relative" style={{ width: `${(activeRefs / 20) * 100}%` }}>
-                  <div className="absolute inset-0 bg-white/10 animate-shimmer"></div>
-                </div>
-              </div>
-              <div className="flex justify-between items-center bg-zinc-900/40 p-3 rounded-xl border border-white/5">
-                <p className="label-meta text-[9px] text-zinc-500 uppercase tracking-widest">Aggregate Velocity Boost</p>
-                <span className="text-xs font-black text-maroon">+{(activeRefs * REFERRAL_BOOST).toFixed(2)} <span className="text-[9px]">ARG/HR</span></span>
-              </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-zinc-600 uppercase font-black tracking-widest leading-none">Network_Velocity_Mod</p>
+              <p className="text-xl font-black text-maroon">+{(activeRefs * REFERRAL_BOOST).toFixed(2)} <span className="text-xs">/HR</span></p>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Referral History - Technical Feed */}
-      <div className="silk-panel rounded-2xl sm:rounded-[2.5rem] border-zinc-900/50 overflow-hidden shadow-2xl">
-        <div className="px-6 sm:px-10 py-6 sm:py-8 bg-zinc-950/50 border-b border-zinc-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-2 h-2 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_rgba(128,0,0,0.6)]"></div>
-            <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">Protocol_Synchronization_Logs</h3>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 rounded-lg border border-zinc-800">
-            <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Filter_Status:</span>
-            <span className="text-[9px] font-black text-maroon uppercase">All_Synced_Peers</span>
-          </div>
-        </div>
-
-        <div className="min-h-[300px] bg-zinc-950/20">
-          {isLoadingLogs ? (
-            <div className="p-24 flex flex-col items-center justify-center gap-5">
-              <Loader2 className="w-10 h-10 text-maroon animate-spin" />
-              <p className="label-meta text-zinc-600 animate-pulse">Syncing Network Logs...</p>
-            </div>
-          ) : referralLogs.length > 0 ? (
-            <div className="divide-y divide-zinc-900/40">
-              {referralLogs.map((log, index) => {
-                const chronologicalIndex = totalReferrals - 1 - index;
-                const isBoosted = chronologicalIndex < MAX_REFERRALS;
-                const date = log.createdAt ? new Date(log.createdAt).toLocaleDateString() : 'Unknown';
-
-                return (
-                  <div key={log.uid} className="p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-white/[0.01] transition-all duration-500 gap-6 sm:gap-8 group/row">
-                    <div className="flex items-center gap-4 sm:gap-6">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-zinc-950 rounded-xl sm:rounded-2xl border border-zinc-900 flex items-center justify-center text-zinc-600 transition-silk group-hover/row:border-maroon/30 shadow-xl relative overflow-hidden shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-maroon/5 to-transparent opacity-0 group-hover/row:opacity-100 transition-opacity"></div>
-                        <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 group-hover/row:text-maroon transition-silk relative z-10" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-black text-white uppercase tracking-tight group-hover/row:text-maroon transition-colors truncate">{log.displayName}</p>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2">
-                          <span className="text-[9px] font-mono font-black text-zinc-600 bg-zinc-900/50 px-2 py-0.5 rounded border border-zinc-800 uppercase tracking-widest">
-                            Node_ID: {log.uid.slice(0, 12)}
-                          </span>
-                          <span className="text-[9px] font-bold text-zinc-600 flex items-center gap-2 uppercase tracking-tight">
-                            <Clock className="w-3 h-3" /> {date}
-                          </span>
-                        </div>
-                      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* INTERACTION PANEL: INVITE FLOW */}
+          <div className="lg:col-span-12 xl:col-span-7 space-y-6">
+            <motion.div variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] p-8 rounded-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Share2 className="w-32 h-32 text-maroon" />
+              </div>
+              <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-6 italic">Transmission_Interface_01</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                 <div className="space-y-4">
+                    <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Global_Handshake_URL</p>
+                    <div className="bg-black/40 border border-white/[0.05] p-4 rounded-lg font-mono text-[10px] text-zinc-400 break-all select-all">
+                      {window.location.origin}/#/?ref={user.referralCode}
                     </div>
-
-                    <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-8 md:gap-12 bg-zinc-900/20 p-4 sm:p-6 rounded-2xl border border-white/5 relative overflow-hidden overflow-x-auto no-scrollbar">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent -translate-x-full animate-[shimmer_3s_infinite] pointer-events-none"></div>
-                      <div className="flex items-center gap-3 sm:gap-4 relative z-10 shrink-0">
-                        <div className="text-right">
-                          <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-1">Grant_Allocation</p>
-                          <p className="text-sm font-mono font-black text-white">+{REFERRAL_BONUS_POINTS.toFixed(2)} <span className="text-[10px] text-zinc-500">ARG</span></p>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-maroon/10 border border-maroon/20 flex items-center justify-center shadow-[0_0_15px_rgba(128,0,0,0.1)]">
-                          <CheckCircle2 className="w-4 h-4 text-maroon" />
-                        </div>
-                      </div>
-                      <div className="w-px h-10 bg-zinc-800"></div>
-                      <div className="flex items-center gap-4 relative z-10">
-                        <div className="text-right">
-                          <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-1">Velocity_Mod</p>
-                          <p className={`text-sm font-mono font-black ${isBoosted ? 'text-maroon' : 'text-zinc-700'}`}>
-                            {isBoosted ? `+${REFERRAL_BOOST.toFixed(2)} /hr` : 'CAP_MET'}
-                          </p>
-                        </div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all ${isBoosted ? 'bg-maroon/10 border-maroon/20 shadow-[0_0_15px_rgba(128,0,0,0.2)]' : 'bg-zinc-950 border-zinc-900'}`}>
-                          <Zap className={`w-4 h-4 ${isBoosted ? 'text-maroon animate-pulse' : 'text-zinc-800'}`} />
-                        </div>
-                      </div>
+                    <button 
+                      onClick={copyLink}
+                      className={`w-full py-3.5 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all ${copiedLink ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/40' : 'bg-maroon text-white shadow-[0_0_15px_rgba(128,0,0,0.15)] hover:brightness-110'}`}
+                    >
+                      {copiedLink ? 'LINK_COPIED_IDENT' : 'COPY_HANDSHAKE_LINK'}
+                    </button>
+                 </div>
+                 <div className="space-y-4">
+                    <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">Discrete_Access_Code</p>
+                    <div className="bg-maroon/5 border border-maroon/20 p-4 rounded-lg font-mono text-xl font-black text-maroon text-center tracking-[0.3em]">
+                      {user.referralCode}
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="p-24 text-center space-y-6">
-              <div className="w-20 h-20 bg-zinc-950 border border-white/5 rounded-full flex items-center justify-center mx-auto grayscale opacity-20">
-                <ShieldCheck className="w-10 h-10 text-white" />
+                    <button 
+                      onClick={copyCode}
+                      className={`w-full py-3.5 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all ${copiedCode ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/40' : 'bg-zinc-900 border border-white/5 text-white hover:border-maroon/40'}`}
+                    >
+                      {copiedCode ? 'CODE_COPIED_IDENT' : 'COPY_DISCRETE_CODE'}
+                    </button>
+                 </div>
               </div>
-              <div className="space-y-3">
-                <p className="label-meta text-zinc-400">No active peers identified</p>
-                <p className="text-xs text-zinc-600 font-medium italic">Transmit your authorization link to begin topology expansion.</p>
+
+              <div className="p-6 bg-maroon/5 border border-maroon/10 rounded-xl flex gap-5 items-start">
+                 <div className="p-3 bg-zinc-950 rounded-lg border border-white/[0.05]">
+                    <Zap className="w-5 h-5 text-maroon animate-pulse" />
+                 </div>
+                 <div className="space-y-1">
+                    <p className="text-[10px] text-white font-black uppercase tracking-widest">Handshake_Reward_Parameters</p>
+                    <p className="text-[9px] text-zinc-500 font-bold uppercase leading-relaxed italic">
+                       Each verified peer synchronization yields <span className="text-maroon">+{REFERRAL_BONUS_POINTS} ARG</span> instantly. 
+                       Permanent velocity boost: <span className="text-white">+{REFERRAL_BOOST} ARG/hr</span> per active node connection (CAP: {MAX_REFERRALS}).
+                    </p>
+                 </div>
               </div>
-            </div>
-          )}
+            </motion.div>
+          </div>
+
+          {/* SIDE PANEL: EFFICIENCY METRICS */}
+          <div className="lg:col-span-12 xl:col-span-5 space-y-6">
+             <motion.div variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] p-8 rounded-xl group overflow-hidden">
+                <div className="flex justify-between items-center mb-8">
+                   <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] italic">Topology_Utilization</p>
+                   <Radio className="w-4 h-4 text-maroon animate-pulse" />
+                </div>
+                <div className="space-y-6">
+                   <div className="flex justify-between items-end">
+                      <p className="text-[10px] text-zinc-700 font-black uppercase tracking-widest">Synchronization_Depth</p>
+                      <p className="text-4xl font-black text-white italic tracking-tighter">{activeRefs} <span className="text-sm text-zinc-700 font-mono">/ {MAX_REFERRALS}</span></p>
+                   </div>
+                   <div className="h-2 bg-zinc-900 rounded-full border border-white/[0.05] overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(activeRefs / MAX_REFERRALS) * 100}%` }}
+                        className="h-full bg-maroon shadow-[0_0_12px_#800000]"
+                      />
+                   </div>
+                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/[0.05]">
+                      <div className="space-y-1">
+                         <p className="text-[8px] text-zinc-700 font-black uppercase tracking-widest">Current_Velocity_Mod</p>
+                         <p className="text-lg font-black text-white italic">+{(activeRefs * REFERRAL_BOOST).toFixed(2)} /HR</p>
+                      </div>
+                      <div className="space-y-1">
+                         <p className="text-[8px] text-zinc-700 font-black uppercase tracking-widest">Aggregate_Yield</p>
+                         <p className="text-lg font-black text-maroon italic">+{activeRefs * REFERRAL_BONUS_POINTS} ARG</p>
+                      </div>
+                   </div>
+                </div>
+             </motion.div>
+          </div>
+
+          {/* BOTTOM PANEL: PROTOCOL LOGS */}
+          <div className="lg:col-span-12">
+             <motion.div variants={itemAnim} className="bg-[#0a0a0a] border border-white/[0.05] rounded-xl overflow-hidden min-h-[400px] flex flex-col">
+                <div className="p-6 border-b border-white/[0.05] flex items-center justify-between bg-zinc-900/40 backdrop-blur-sm">
+                   <div className="flex items-center gap-3">
+                      <Terminal className="w-4 h-4 text-maroon" />
+                      <span className="text-xs font-black uppercase text-white tracking-widest italic">Protocol_Synchronization_Logs</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-maroon animate-pulse shadow-[0_0_8px_#800000]"></div>
+                      <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest italic">Live_Sync_Feed</span>
+                   </div>
+                </div>
+
+                <div className="flex-1 bg-black/20 overflow-y-auto max-h-[500px] custom-scrollbar">
+                   {isLoadingLogs ? (
+                      <div className="h-full flex flex-col items-center justify-center p-20 gap-4 opacity-40">
+                         <Loader2 className="w-8 h-8 animate-spin text-maroon" />
+                         <p className="text-[10px] font-black uppercase tracking-widest">Syncing_Protocol_Ledger...</p>
+                      </div>
+                   ) : referralLogs.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center p-20 opacity-20 text-center">
+                         <ShieldCheck className="w-12 h-12 mb-4" />
+                         <p className="text-[10px] font-black uppercase tracking-widest">No_Active_Peer_Synapses_Identified</p>
+                      </div>
+                   ) : (
+                      <div className="divide-y divide-white/[0.03]">
+                         {referralLogs.map((log, i) => (
+                            <div key={log.uid} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all group">
+                               <div className="flex items-center gap-6">
+                                  <div className="w-12 h-12 bg-zinc-900 border border-white/[0.05] rounded-lg flex items-center justify-center shrink-0 group-hover:bg-maroon/10 transition-colors">
+                                     <ShieldCheck className="w-5 h-5 text-zinc-600 group-hover:text-maroon transition-colors" />
+                                  </div>
+                                  <div className="min-w-0">
+                                     <p className="text-sm font-black text-white italic uppercase tracking-tight group-hover:text-maroon transition-colors">{log.displayName}</p>
+                                     <div className="flex items-center gap-4 mt-1">
+                                        <span className="text-[9px] font-mono font-black text-zinc-700 uppercase tracking-widest">NODE_ID: {log.uid.slice(0, 12)}</span>
+                                        <span className="text-[9px] font-bold text-zinc-500 uppercase flex items-center gap-2"><Clock className="w-3 h-3" /> {new Date(log.createdAt || 0).toLocaleDateString('en-GB')}</span>
+                                     </div>
+                                  </div>
+                               </div>
+
+                               <div className="flex items-center gap-8 bg-black/40 p-4 rounded-lg border border-white/[0.03]">
+                                  <div className="text-right">
+                                     <p className="text-[8px] text-zinc-700 font-black uppercase tracking-widest mb-1">Packet_Grant</p>
+                                     <p className="text-sm font-black text-white italic tracking-tighter tabular-nums">+{REFERRAL_BONUS_POINTS.toFixed(2)} ARG</p>
+                                  </div>
+                                  <div className="h-6 w-px bg-white/[0.05]"></div>
+                                  <div className="text-right">
+                                     <p className="text-[8px] text-zinc-700 font-black uppercase tracking-widest mb-1">Velocity_Mod</p>
+                                     <p className={`text-sm font-black italic tracking-tighter tabular-nums ${i < MAX_REFERRALS ? 'text-maroon' : 'text-zinc-700'}`}>
+                                        {i < MAX_REFERRALS ? `+${REFERRAL_BOOST.toFixed(2)} /HR` : 'CAP_STABILIZED'}
+                                     </p>
+                                  </div>
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all ${i < MAX_REFERRALS ? 'bg-maroon/10 border-maroon/20 text-maroon animate-pulse' : 'bg-zinc-950 border-white/5 text-zinc-800'}`}>
+                                     <Zap className="w-4 h-4" />
+                                  </div>
+                               </div>
+                            </div>
+                         ))}
+                      </div>
+                   )}
+                </div>
+             </motion.div>
+          </div>
         </div>
-      </div>
+
+        {/* BOTTOM ADVISORY */}
+        <motion.div variants={itemAnim} className="mt-8 rounded-xl border border-maroon/10 bg-maroon/5 p-5 flex gap-4 items-center">
+          <Info className="w-5 h-5 text-maroon" />
+          <div className="flex-1">
+            <p className="text-[10px] font-black text-maroon uppercase tracking-[0.2em] mb-1 italic leading-none">Topology_Authorization_Notice</p>
+            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-wider leading-relaxed">
+               All authorization bridge connections are cryptographically verified via the GhostDAG mainnet. Points are allocated once secondary node identity proof is established.
+            </p>
+          </div>
+        </motion.div>
+
+      </motion.div>
     </div>
   );
 };

@@ -1,22 +1,26 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ArgusSynapseService } from '../services/ArgusSynapseService';
 import { EthereumService } from '../services/EthereumService';
 import { db, saveUserAddresses, transferARG } from '../services/firebase';
 import { useTokenPrices } from '../services/TokenPriceService';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, addDoc } from 'firebase/firestore';
 import {
     ArrowUpRight, ArrowDownLeft, Copy, Check, Loader2,
     AlertCircle, X, ChevronDown, CreditCard, Repeat,
     History, ExternalLink, RefreshCw, Send, Download,
     TrendingUp, Shield, Activity, Wallet, BarChart3, Clock,
-    CircleDot, ScanLine, Camera,
+    CircleDot, ScanLine, Camera, Radio, Info, Terminal, ChevronRight, Zap
 } from 'lucide-react';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
 import { WalletTx } from '../types';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { AnimatedNumber } from '../components/AnimatedNumber';
+import MatrixBackground from '../components/MatrixBackground';
+import QRCode from 'react-qr-code';
+import { BrowserQRCodeReader } from '@zxing/browser';
 
 const staggerContainer: Variants = {
     hidden: { opacity: 0 },
@@ -27,39 +31,27 @@ const staggerContainer: Variants = {
 };
 
 const itemAnim: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } }
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 400, damping: 30 } }
 };
 
 export const GAS_FEE_ARG = 0.001;
 
-import QRCode from 'react-qr-code';
-import { BrowserQRCodeReader } from '@zxing/browser';
-
-// ── Toast ───────────────────────────────────────────────────
-const Toast = ({ msg, visible }: { msg: string; visible: boolean }) => (
-    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-2 px-5 py-3 bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl transition-all duration-400 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'}`}>
-        <Check className="w-4 h-4 text-emerald-400" />
-        <span className="text-xs font-bold text-white tracking-wide">{msg}</span>
-    </div>
-);
-
-// ── Status Badge ────────────────────────────────────────────
+// ── Status Badge (Standardized) ─────────────────────────────
 const StatusBadge = ({ status }: { status: string }) => {
     const s = status === 'CONFIRMED'
-        ? { cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', dot: 'bg-emerald-500' }
+        ? { cls: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20', dot: 'bg-emerald-500 shadow-[0_0_8px_#10b981]' }
         : status === 'PENDING'
-            ? { cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20', dot: 'bg-amber-400 animate-pulse' }
-            : { cls: 'bg-red-500/10 text-red-400 border-red-500/20', dot: 'bg-red-500' };
+            ? { cls: 'text-amber-500 bg-amber-500/10 border-amber-500/20', dot: 'bg-amber-500 animate-pulse' }
+            : { cls: 'text-maroon bg-maroon/10 border-maroon/20', dot: 'bg-maroon' };
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${s.cls}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${s.cls} italic`}>
+            <span className={`w-1 h-1 rounded-full ${s.dot}`} />
             {status}
         </span>
     );
 };
 
-// ── Main Vault Component ────────────────────────────────────
 const Vault = () => {
     const { user } = useAuth();
     const [activeNetwork, setActiveNetwork] = useState<'ARG' | 'ETH'>('ARG');
@@ -68,8 +60,6 @@ const Vault = () => {
     const [txHistory, setTxHistory] = useState<WalletTx[]>([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [copyState, setCopyState] = useState(false);
-    const [toast, setToast] = useState({ msg: '', visible: false });
-    const [netDropOpen, setNetDropOpen] = useState(false);
     const [activeModal, setActiveModal] = useState<'SEND' | 'RECEIVE' | 'SWAP' | 'BUY' | 'TX_DETAIL' | null>(null);
     const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
     const [txForm, setTxForm] = useState({ recipient: '', amount: '' });
@@ -79,14 +69,12 @@ const Vault = () => {
     const [isScanning, setIsScanning] = useState(false);
     const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
     const [scannerError, setScannerError] = useState('');
-    const tokenPrices = useTokenPrices();
-    const { arg: argPrice, eth: ethPrice } = tokenPrices;
+    const { arg: argPrice, eth: ethPrice } = useTokenPrices();
 
     useEffect(() => {
         let controls: any = null;
         if (isScanning && videoElement) {
             const scanner = new BrowserQRCodeReader();
-            setScannerError('');
             scanner.decodeFromVideoDevice(undefined, videoElement, (result, err, ctrls) => {
                 controls = ctrls;
                 if (result) {
@@ -94,16 +82,9 @@ const Vault = () => {
                     setIsScanning(false);
                     if (ctrls) ctrls.stop();
                 }
-                if (err && err.name === 'NotAllowedError') {
-                    setScannerError('Camera access denied. Please allow camera permissions.');
-                }
-            }).catch(e => {
-                setScannerError('Could not start camera. ' + e.message);
-            });
+            }).catch(e => setScannerError('Scanner unit failed: ' + e.message));
         }
-        return () => {
-            if (controls) controls.stop();
-        };
+        return () => { if (controls) controls.stop(); };
     }, [isScanning, videoElement]);
 
     useEffect(() => {
@@ -116,17 +97,14 @@ const Vault = () => {
 
     useEffect(() => {
         if (!addresses.eth) return;
-
         const fetchEthBalance = () => {
             setIsRefreshing(true);
             EthereumService.getBalance(addresses.eth)
                 .then(b => setBalance(prev => ({ ...prev, eth: b })))
-                .catch(() => setBalance(prev => ({ ...prev, eth: '0.0000' })))
                 .finally(() => setIsRefreshing(false));
         };
-
         fetchEthBalance();
-        const interval = setInterval(fetchEthBalance, 30000); // 30s background sync
+        const interval = setInterval(fetchEthBalance, 30000);
         return () => clearInterval(interval);
     }, [addresses.eth, refreshTick]);
 
@@ -144,509 +122,286 @@ const Vault = () => {
         if (user) setBalance(prev => ({ ...prev, arg: Math.max(0, user.points || 0) }));
     }, [user?.points]);
 
-    const showToast = (msg: string) => {
-        setToast({ msg, visible: true });
-        setTimeout(() => setToast(t => ({ ...t, visible: false })), 2400);
-    };
-
     const copyAddr = async (addr: string) => {
-        try { await navigator.clipboard.writeText(addr); setCopyState(true); showToast('Address copied'); setTimeout(() => setCopyState(false), 2000); } catch { }
+        try { await navigator.clipboard.writeText(addr); setCopyState(true); setTimeout(() => setCopyState(false), 2000); } catch { }
     };
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault(); setTxError('');
         const amt = parseFloat(txForm.amount);
-        if (isNaN(amt) || amt <= 0) { setTxError('Enter a valid amount > 0'); return; }
-        if (activeNetwork === 'ARG' && !ArgusSynapseService.isValidAddress(txForm.recipient)) { setTxError('Invalid ARG address'); return; }
-        if (activeNetwork === 'ETH' && !EthereumService.isValidAddress(txForm.recipient)) { setTxError('Invalid 0x address'); return; }
-        if (activeNetwork === 'ARG' && balance.arg < amt + GAS_FEE_ARG) { setTxError(`Need ${(amt + GAS_FEE_ARG).toFixed(4)} ARG (incl. gas)`); return; }
-        if (activeNetwork === 'ETH' && parseFloat(balance.eth) < amt) { setTxError('Insufficient ETH'); return; }
+        if (isNaN(amt) || amt <= 0) { setTxError('QUANTITY_ERR: Enter valid amount'); return; }
+        if (activeNetwork === 'ARG' && !ArgusSynapseService.isValidAddress(txForm.recipient)) { setTxError('ADDR_ERR: Invalid ARG identity'); return; }
+        if (activeNetwork === 'ETH' && !EthereumService.isValidAddress(txForm.recipient)) { setTxError('ADDR_ERR: Invalid 0x identity'); return; }
+        if (activeNetwork === 'ARG' && balance.arg < amt + GAS_FEE_ARG) { setTxError(`FUNDS_ERR: Insufficient ARG (Need ${amt + GAS_FEE_ARG})`); return; }
         setIsProcessing(true);
         try {
             const txHash = '0x' + Math.random().toString(16).slice(2, 18) + Math.random().toString(16).slice(2, 18);
             if (activeNetwork === 'ARG') {
                 const r = await transferARG({ senderUid: user!.uid, senderArgAddress: addresses.arg, recipientArgAddress: txForm.recipient, amount: amt, gasFee: GAS_FEE_ARG, txHash });
-                if (!r.success) { setTxError(r.error || 'Failed'); return; }
+                if (!r.success) { setTxError(r.error || 'TRANS_FAIL'); return; }
             } else {
-                const { addDoc } = await import('firebase/firestore');
                 await addDoc(collection(db, 'wallet_transactions'), { uid: user!.uid, fromUid: user!.uid, toUid: null, chain: 'ETH', type: 'SEND', amount: String(amt), from: addresses.eth, to: txForm.recipient, status: 'CONFIRMED', txHash, createdAt: Date.now(), participants: [addresses.eth, txForm.recipient], gasFee: 0 });
             }
-            setTxForm({ recipient: '', amount: '' }); showToast('Tx broadcast ✓'); setActiveModal(null);
-        } catch { setTxError('Broadcast failed.'); } finally { setIsProcessing(false); }
+            setTxForm({ recipient: '', amount: '' }); setActiveModal(null);
+        } catch { setTxError('NETWORK_ERR: Broadcast interrupted'); } finally { setIsProcessing(false); }
     };
 
     const currentAddr = activeNetwork === 'ARG' ? addresses.arg : addresses.eth;
-    const truncAddr = currentAddr ? `${currentAddr.slice(0, 10)}...${currentAddr.slice(-8)}` : '—';
     const dispBal = activeNetwork === 'ARG'
         ? { amount: balance.arg, symbol: 'ARG', price: argPrice.priceUsd, dec: 2 }
         : { amount: parseFloat(balance.eth), symbol: 'ETH', price: ethPrice.priceUsd, dec: 4 };
-    const usdVal = (dispBal.amount * dispBal.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const netTxs = txHistory.filter(tx => tx.chain === activeNetwork);
 
-    // Both networks total USD
-    const totalUsd = (balance.arg * argPrice.priceUsd + parseFloat(balance.eth) * ethPrice.priceUsd)
-        .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
     return (
-        <div className="w-full h-full min-h-[100dvh] bg-zinc-950 flex flex-col">
-            <Toast msg={toast.msg} visible={toast.visible} />
-
-            {/* ──────────────────────── TOP BAR ──────────────────────── */}
-            <div className="hidden lg:flex items-center justify-between px-8 py-3 border-b border-zinc-900/60 bg-zinc-950/90 backdrop-blur-md shrink-0">
-                <div className="flex items-center gap-3">
-                    <div className="p-1.5 rounded-lg bg-maroon/10 border border-maroon/20">
-                        <ArgusLogo className="w-4 h-4 text-maroon" />
-                    </div>
-                    <span className="text-xs font-black text-white tracking-widest uppercase">Argus Vault</span>
-                </div>
-                {/* Network pill */}
-                <div className="relative z-[60]">
-                    <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setNetDropOpen(!netDropOpen); }}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-full text-xs font-bold text-white transition-colors"
-                    >
-                        {activeNetwork === 'ARG' ? <ArgusLogo className="w-3.5 h-3.5 text-maroon" /> : <EthLogo className="w-3.5 h-3.5 text-blue-400" />}
-                        <span>{activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet'}</span>
-                        <ChevronDown className={`w-3 h-3 text-zinc-500 transition-transform duration-300 ${netDropOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    {netDropOpen && (
-                        <>
-                            <div className="fixed inset-0 z-[70]" onClick={() => setNetDropOpen(false)} />
-                            <div className="absolute top-full right-0 mt-2 w-52 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-[80] py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                                {[
-                                    { id: 'ARG', label: 'Argus GhostDAG', icon: <ArgusLogo className="w-4 h-4 text-maroon" /> },
-                                    { id: 'ETH', label: 'Ethereum Mainnet', icon: <EthLogo className="w-4 h-4 text-blue-400" /> }
-                                ].map(n => (
-                                    <button
-                                        key={n.id}
-                                        type="button"
-                                        onClick={() => { setActiveNetwork(n.id as any); setNetDropOpen(false); }}
-                                        className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ${activeNetwork === n.id ? 'bg-zinc-800/60' : ''}`}
-                                    >
-                                        {n.icon}{n.label}{activeNetwork === n.id && <Check className="w-3 h-3 text-maroon ml-auto" />}
-                                    </button>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </div>
-                <div className="flex items-center gap-2">
-                    <button onClick={() => setRefreshTick(t => t + 1)} className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors">
-                        <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    </button>
-                    <div className="w-7 h-7 rounded-full border border-zinc-800 bg-gradient-to-br from-zinc-700 to-zinc-900" style={{ backgroundImage: 'repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.07) 2px,rgba(255,255,255,.07) 4px)' }} />
-                </div>
+        <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+            
+            {/* SYSTEM OVERLAY */}
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+                <MatrixBackground color="rgba(128, 0, 0, 0.05)" opacity={0.15} />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(128,0,0,0.06),rgba(128,0,0,0.02),rgba(128,0,0,0.06))] bg-[length:100%_2px,3px_100%]"></div>
             </div>
 
-            {/* ──────────────────────── BODY ──────────────────────── */}
-            <motion.div 
-                variants={staggerContainer}
-                initial="hidden"
-                animate="show"
-                className="flex flex-1 overflow-hidden"
-            >
-
-                {/* ── SIDEBAR (desktop only) ── */}
-                <motion.aside variants={itemAnim} className="hidden lg:flex flex-col w-72 shrink-0 border-r border-zinc-900 bg-zinc-950/50 overflow-y-auto custom-scrollbar">
-
-                    {/* Net worth hero */}
-                    <div className="p-6 border-b border-zinc-900/60">
-                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1">Portfolio Value</p>
-                        <p className="text-3xl font-black text-white tabular-nums">
-                            <AnimatedNumber prefix="$" value={balance.arg * argPrice.priceUsd + parseFloat(balance.eth) * ethPrice.priceUsd} decimals={2} />
-                        </p>
-                        <p className="text-[10px] text-zinc-500 mt-1">Across all networks</p>
-                    </div>
-
-                    {/* Address */}
-                    <div className="px-5 py-4 border-b border-zinc-900/60">
-                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-2">Active Address</p>
-                        <button onClick={() => copyAddr(currentAddr)} className="w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-zinc-900/60 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-all group">
-                            <div className="flex items-center gap-2 min-w-0">
-                                <span className={`w-2 h-2 rounded-full shrink-0 ${activeNetwork === 'ARG' ? 'bg-maroon' : 'bg-blue-400'}`} />
-                                <span className="text-[10px] font-mono text-zinc-300 truncate">{truncAddr}</span>
+            <motion.div variants={staggerContainer} initial="hidden" animate="show" className="max-w-[1700px] mx-auto px-6 relative z-10 w-full">
+                
+                {/* VAULT TOP BAR */}
+                <motion.div variants={itemAnim} className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6 bg-zinc-950/80 border border-white/[0.05] p-6 rounded-xl backdrop-blur-md">
+                    <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-maroon/10 rounded-lg flex items-center justify-center border border-maroon/20">
+                            <Shield className="w-6 h-6 text-maroon animate-pulse" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black text-white uppercase tracking-tight leading-none mb-2 italic">Argus_Protocol_Vault</h1>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none">Access_Granted · Synchronized Ledger</span>
                             </div>
-                            {copyState ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Copy className="w-3 h-3 text-zinc-600 group-hover:text-zinc-300 shrink-0 transition-colors" />}
-                        </button>
-                    </div>
-
-                    {/* Assets list */}
-                    <div className="px-5 py-4 border-b border-zinc-900/60">
-                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-3">Assets</p>
-                        <div className="space-y-1">
-                            {[
-                                { id: 'ARG', label: 'Argus', symbol: 'ARG', amount: balance.arg.toLocaleString(undefined, { minimumFractionDigits: 2 }), usd: (balance.arg * argPrice.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), icon: <ArgusLogo className="w-4 h-4 text-white" />, bg: 'bg-maroon' },
-                                { id: 'ETH', label: 'Ethereum', symbol: 'ETH', amount: parseFloat(balance.eth).toLocaleString(undefined, { minimumFractionDigits: 4 }), usd: (parseFloat(balance.eth) * ethPrice.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), icon: <EthLogo className="w-4 h-4" />, bg: 'bg-white' },
-                            ].map(a => (
-                                <button
-                                    key={a.id}
-                                    type="button"
-                                    onClick={() => setActiveNetwork(a.id as any)}
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${activeNetwork === a.id ? 'bg-zinc-800 border border-zinc-700' : 'hover:bg-zinc-900/50'}`}
-                                >
-                                    <div className={`w-8 h-8 rounded-full ${a.bg} flex items-center justify-center shrink-0`}>{a.icon}</div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-bold text-white">{a.label}</p>
-                                        <p className="text-[9px] text-zinc-500 font-mono truncate">{a.amount} {a.symbol}</p>
-                                    </div>
-                                    <p className="text-xs font-bold text-white shrink-0">${a.usd}</p>
-                                </button>
-                            ))}
                         </div>
                     </div>
-
-                    {/* Quick Stats */}
-                    <div className="px-5 py-4 flex-1 space-y-3">
-                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Network Stats</p>
-                        {[
-                            { label: 'ARG Price', value: `$${argPrice.priceUsd.toFixed(4)}`, icon: <TrendingUp className="w-3 h-3" />, color: 'text-emerald-400' },
-                            { label: 'ETH Price', value: `$${ethPrice.priceUsd.toFixed(2)}`, icon: <Activity className="w-3 h-3" />, color: 'text-blue-400' },
-                            { label: 'Transactions', value: txHistory.length.toString(), icon: <BarChart3 className="w-3 h-3" />, color: 'text-zinc-400' },
-                            { label: 'Gas Fee', value: '0.001 ARG', icon: <Shield className="w-3 h-3" />, color: 'text-zinc-400' },
-                        ].map(s => (
-                            <div key={s.label} className="flex items-center justify-between">
-                                <div className={`flex items-center gap-1.5 ${s.color}`}>
-                                    {s.icon}
-                                    <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500">{s.label}</span>
-                                </div>
-                                <span className="text-[10px] font-black text-white font-mono">{s.value}</span>
-                            </div>
-                        ))}
-                    </div>
-                </motion.aside>
-
-                {/* ── MAIN CONTENT ── */}
-                <motion.main variants={itemAnim} className="flex-1 overflow-y-auto custom-scrollbar">
-
-                    {/* Mobile top bar */}
-                    <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-zinc-900 bg-zinc-950">
-                        <div className="relative">
-                            <button onClick={() => setNetDropOpen(!netDropOpen)} className="flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-full text-xs font-bold text-white">
-                                {activeNetwork === 'ARG' ? <ArgusLogo className="w-3.5 h-3.5 text-maroon" /> : <EthLogo className="w-3.5 h-3.5 text-blue-400" />}
-                                <span>{activeNetwork === 'ARG' ? 'Argus' : 'Ethereum'}</span>
-                                <ChevronDown className="w-3 h-3 text-zinc-500" />
-                            </button>
-                            {netDropOpen && (
-                                <>
-                                    <div className="fixed inset-0 z-[70]" onClick={() => setNetDropOpen(false)} />
-                                    <div className="absolute top-full left-0 mt-2 w-52 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-[80] py-1">
-                                        {[
-                                            { id: 'ARG', label: 'Argus GhostDAG', icon: <ArgusLogo className="w-4 h-4 text-maroon" /> },
-                                            { id: 'ETH', label: 'Ethereum Mainnet', icon: <EthLogo className="w-4 h-4 text-blue-400" /> }
-                                        ].map(n => (
-                                            <button
-                                                key={n.id}
-                                                type="button"
-                                                onClick={() => { setActiveNetwork(n.id as any); setNetDropOpen(false); }}
-                                                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ${activeNetwork === n.id ? 'bg-zinc-800/60' : ''}`}
-                                            >
-                                                {n.icon}{n.label}{activeNetwork === n.id && <Check className="w-3 h-3 text-maroon ml-auto" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
+                    
+                    <div className="flex items-center gap-8">
+                        <div className="text-right">
+                            <p className="text-[10px] text-zinc-600 uppercase font-black tracking-widest leading-none mb-1">Portfolio_Valuation</p>
+                            <p className="text-xl font-black text-white">$<AnimatedNumber value={balance.arg * argPrice.priceUsd + parseFloat(balance.eth) * ethPrice.priceUsd} decimals={2} /></p>
                         </div>
-                        <button onClick={() => copyAddr(currentAddr)} className="flex items-center gap-1.5 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-mono text-zinc-300">
-                            {truncAddr.slice(0, 12)}…
-                            {copyState ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-zinc-600" />}
-                        </button>
+                        <div className="h-10 w-px bg-white/[0.05]"></div>
+                        <div className="flex items-center gap-2 bg-zinc-900/50 p-1.5 rounded-lg border border-white/[0.05]">
+                            <button onClick={() => setActiveNetwork('ARG')} className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${activeNetwork === 'ARG' ? 'bg-maroon text-white shadow-[0_0_12px_rgba(128,0,0,0.2)]' : 'text-zinc-500 hover:text-white'}`}>GHOSTDAG</button>
+                            <button onClick={() => setActiveNetwork('ETH')} className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${activeNetwork === 'ETH' ? 'bg-zinc-800 text-white border border-white/[0.05]' : 'text-zinc-500 hover:text-white'}`}>ETHEREUM</button>
+                        </div>
                     </div>
+                </motion.div>
 
-                    {/* Balance Hero Block */}
-                    <div className="relative overflow-hidden border-b border-zinc-900/60">
-                        <div className={`absolute inset-0 opacity-5 ${activeNetwork === 'ARG' ? 'bg-gradient-to-r from-maroon via-transparent to-transparent' : 'bg-gradient-to-r from-blue-500 via-transparent to-transparent'}`} />
-                        <div className="relative px-6 lg:px-10 py-8 lg:py-10 flex flex-col lg:flex-row lg:items-end gap-8 lg:gap-16">
-                            <div>
-                                <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-2">
-                                    {activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet'} Balance
-                                </p>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    {/* LEFT PANEL: ASSETS & INFO */}
+                    <div className="lg:col-span-4 space-y-6">
+                        
+                        {/* Selected Asset Module */}
+                        <motion.div variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] p-8 rounded-xl group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                {activeNetwork === 'ARG' ? <ArgusLogo className="w-32 h-32" /> : <EthLogo className="w-32 h-32" />}
+                            </div>
+                            <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-4">Active_Network_Allocation</p>
+                            <div className="space-y-1 mb-8">
+                                <p className="text-sm font-black text-zinc-600 uppercase tracking-widest leading-none">{activeNetwork === 'ARG' ? 'Argus Synapse' : 'Ethereum L1'}</p>
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-5xl lg:text-6xl font-black text-white tabular-nums">
-                                        <AnimatedNumber prefix="$" value={dispBal.amount * dispBal.price} decimals={2} />
-                                    </span>
-                                    <span className="text-sm text-zinc-500 font-mono">USD</span>
+                                    <span className="text-5xl font-black text-white italic tracking-tighter tabular-nums"><AnimatedNumber value={dispBal.amount} decimals={dispBal.dec} /></span>
+                                    <span className="text-xl font-black text-maroon">{dispBal.symbol}</span>
                                 </div>
-                                <p className="text-zinc-400 text-sm mt-2 font-mono">
-                                    {dispBal.amount.toLocaleString(undefined, { minimumFractionDigits: dispBal.dec })} {dispBal.symbol}
-                                    <span className="text-zinc-600 ml-2">@ ${dispBal.price.toFixed(4)}</span>
-                                </p>
+                                <p className="text-[10px] text-zinc-500 font-bold uppercase mt-2 italic">≈ $<AnimatedNumber value={dispBal.amount * dispBal.price} decimals={2} /> USD</p>
                             </div>
-                            {/* Action Buttons — wide row on desktop */}
-                            <div className="flex flex-wrap gap-3">
+
+                            <div className="space-y-3">
+                                <button onClick={() => copyAddr(currentAddr)} className="w-full flex items-center justify-between p-4 bg-black/40 border border-white/[0.05] rounded-lg hover:border-maroon/30 transition-all group/addr">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-maroon animate-pulse" />
+                                        <span className="text-[10px] text-zinc-400 font-mono uppercase truncate max-w-[180px]">{currentAddr}</span>
+                                    </div>
+                                    {copyState ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-zinc-600 group-hover/addr:text-white transition-colors" />}
+                                </button>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button onClick={() => setActiveModal('SEND')} className="py-3 bg-maroon hover:brightness-110 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-lg shadow-[0_0_15px_rgba(128,0,0,0.15)] transition-all">TERMINATE_OUT</button>
+                                    <button onClick={() => setActiveModal('RECEIVE')} className="py-3 bg-zinc-900 border border-white/[0.05] hover:border-white/20 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-lg transition-all">RECEIVE_IN</button>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Network Metadata Panel */}
+                        <motion.div variants={itemAnim} className="bg-[#0a0a0a] border border-white/[0.05] rounded-xl overflow-hidden">
+                            <div className="p-5 border-b border-white/[0.05] flex items-center gap-3">
+                                <Terminal className="w-4 h-4 text-maroon" />
+                                <span className="text-xs font-black uppercase text-white tracking-widest italic">Vault_Metadata</span>
+                            </div>
+                            <div className="p-6 space-y-4">
                                 {[
-                                    { label: 'Send', modal: 'SEND', icon: <Send className="w-4 h-4" />, cls: 'bg-zinc-800 hover:bg-zinc-700 text-white border-zinc-700' },
-                                    { label: 'Receive', modal: 'RECEIVE', icon: <Download className="w-4 h-4" />, cls: 'bg-zinc-800 hover:bg-zinc-700 text-white border-zinc-700' },
-                                    { label: 'Swap', modal: 'SWAP', icon: <Repeat className="w-4 h-4" />, cls: 'bg-zinc-800 hover:bg-zinc-700 text-white border-zinc-700' },
-                                    { label: 'Buy', modal: 'BUY', icon: <CreditCard className="w-4 h-4" />, cls: 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500' },
-                                ].map(a => (
-                                    <button key={a.label} onClick={() => setActiveModal(a.modal as any)} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${a.cls}`}>
-                                        {a.icon}{a.label}
-                                    </button>
+                                    { l: 'Ledger_Sync', v: 'OPTIMAL', c: 'text-emerald-500' },
+                                    { l: 'Network_Security', v: 'RSA-4096-ECC', c: 'text-white' },
+                                    { l: 'Estimated_Gas', v: activeNetwork === 'ARG' ? '0.001 ARG' : 'DYNAMIC', c: 'text-maroon' },
+                                    { l: 'Identity_Proof', v: 'NODE_VERIFIED', c: 'text-zinc-500' }
+                                ].map((s, i) => (
+                                    <div key={i} className="flex justify-between items-center bg-black/40 p-3 rounded-lg border border-white/[0.02]">
+                                        <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">{s.l}</span>
+                                        <span className={`text-[9px] font-black uppercase tracking-widest ${s.c}`}>{s.v}</span>
+                                    </div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
 
-                    {/* ── Desktop layout: side-by-side panels ── */}
-                    <div className="lg:flex lg:divide-x lg:divide-zinc-900 flex-1">
-
-                        {/* Left content: Activity */}
-                        <div className="flex-1 min-w-0">
-                            <div className="px-6 lg:px-8 py-5 flex items-center justify-between border-b border-zinc-900/50">
+                    {/* RIGHT PANEL: TRANSACTION LEDGER */}
+                    <div className="lg:col-span-8 space-y-6">
+                        <motion.div variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] rounded-xl overflow-hidden flex flex-col min-h-[600px]">
+                            <div className="p-6 border-b border-white/[0.05] flex items-center justify-between bg-black/40 backdrop-blur-sm">
                                 <div className="flex items-center gap-3">
-                                    <div className="relative">
-                                        <History className="w-4 h-4 text-zinc-600" />
-                                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse border-2 border-zinc-950"></div>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <h2 className="text-xs font-black text-white uppercase tracking-widest">Transaction History</h2>
-                                        <div className="flex items-center gap-1">
-                                            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
-                                            <span className="text-[7px] font-bold text-emerald-500 uppercase tracking-widest">Live_Sync_Active</span>
-                                        </div>
-                                    </div>
-                                    {netTxs.length > 0 && <span className="px-1.5 py-0.5 bg-zinc-800 text-zinc-400 rounded text-[9px] font-bold">{netTxs.length}</span>}
+                                    <History className="w-4 h-4 text-maroon" />
+                                    <span className="text-xs font-black uppercase text-white tracking-widest italic">Protocol_Event_Ledger</span>
                                 </div>
-                                <span className="text-[9px] text-zinc-600 font-mono uppercase">{activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet'}</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="px-3 py-1 bg-maroon/10 border border-maroon/20 rounded text-[9px] font-black text-maroon uppercase tracking-widest">LIVE_FEED</div>
+                                </div>
                             </div>
 
-                            {netTxs.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-24 text-center px-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4">
-                                        <Wallet className="w-6 h-6 text-zinc-700" />
+                            <div className="flex-1 overflow-y-auto custom-scrollbar bg-black/20">
+                                {netTxs.length === 0 ? (
+                                    <div className="h-full flex flex-col items-center justify-center py-40 opacity-20">
+                                        <div className="w-16 h-16 border border-dashed border-white/20 rounded-full flex items-center justify-center mb-4">
+                                            <Wallet className="w-8 h-8" />
+                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest">No_Ledger_Events_Detected</p>
                                     </div>
-                                    <p className="text-sm font-black text-white mb-1">No transactions yet</p>
-                                    <p className="text-xs text-zinc-600">Your {activeNetwork} activity will appear here.</p>
-                                </div>
-                            ) : (
-                                <div className="divide-y divide-zinc-900/40">
-                                    {netTxs.map(tx => {
-                                        const myAddress = tx.chain === 'ARG' ? addresses.arg : addresses.eth;
-                                        const isSent = tx.from?.toLowerCase() === myAddress?.toLowerCase();
-                                        const amt = Number(tx.amount);
-                                        return (
-                                            <div key={tx.id} onClick={() => { setSelectedTx(tx); setActiveModal('TX_DETAIL'); }} className="flex items-center gap-4 px-6 lg:px-8 py-4 hover:bg-zinc-900/20 transition-colors cursor-pointer group">
-                                                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${isSent ? 'bg-zinc-900 border-zinc-800' : 'bg-emerald-500/5 border-emerald-500/20'}`}>
-                                                    {isSent ? <ArrowUpRight className="w-4 h-4 text-zinc-400" /> : <ArrowDownLeft className="w-4 h-4 text-emerald-400" />}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <p className="text-sm font-bold text-white">{isSent ? 'Sent' : 'Received'} {tx.chain}</p>
-                                                        <StatusBadge status={tx.status} />
+                                ) : (
+                                    <div className="divide-y divide-white/[0.03]">
+                                        {netTxs.map(tx => {
+                                            const myAddress = tx.chain === 'ARG' ? addresses.arg : addresses.eth;
+                                            const isSent = tx.from?.toLowerCase() === myAddress?.toLowerCase();
+                                            return (
+                                                <div key={tx.id} onClick={() => { setSelectedTx(tx); setActiveModal('TX_DETAIL'); }} className="p-6 flex items-center gap-6 hover:bg-white/[0.02] transition-all cursor-pointer group">
+                                                    <div className={`w-12 h-12 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${isSent ? 'bg-zinc-900 border-white/5 opacity-60 group-hover:opacity-100' : 'bg-maroon/5 border-maroon/20'}`}>
+                                                        {isSent ? <ArrowUpRight className="w-5 h-5 text-zinc-500 group-hover:text-maroon transition-colors" /> : <ArrowDownLeft className="w-5 h-5 text-maroon" />}
                                                     </div>
-                                                    <p className="text-[10px] text-zinc-600 font-mono truncate">
-                                                        {isSent ? `To: ${tx.to?.slice(0, 16)}…` : `From: ${tx.from?.slice(0, 16)}…`}
-                                                        <span className="ml-2">{new Date(tx.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                                                    </p>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-3 mb-1">
+                                                            <span className="text-sm font-black text-white italic">{isSent ? 'SIG_OUT_EVENT' : 'SIG_IN_EVENT'}</span>
+                                                            <StatusBadge status={tx.status} />
+                                                        </div>
+                                                        <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-tight truncate">
+                                                            IDENT: {tx.txHash.slice(0, 24)}...
+                                                        </p>
+                                                        <p className="text-[9px] text-zinc-500 font-bold uppercase mt-1">TIMESTAMP: {new Date(tx.createdAt).toLocaleString('en-GB')}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className={`text-lg font-black tabular-nums italic tracking-tighter ${isSent ? 'text-zinc-400 group-hover:text-white transition-colors' : 'text-maroon shadow-maroon/20'}`}>
+                                                            {isSent ? '-' : '+'}{Number(tx.amount).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                                                        </p>
+                                                        <span className="text-[10px] font-black text-zinc-600 uppercase">{tx.chain}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="text-right shrink-0">
-                                                    <p className={`text-sm font-black tabular-nums ${isSent ? 'text-white' : 'text-emerald-400'}`}>
-                                                        {isSent ? '−' : '+'}{amt.toLocaleString(undefined, { maximumFractionDigits: 4 })} {tx.chain}
-                                                    </p>
-                                                    {tx.gasFee > 0 && <p className="text-[9px] text-zinc-600 font-mono">Gas: {tx.gasFee}</p>}
-                                                </div>
-                                                <ExternalLink className="w-3.5 h-3.5 text-zinc-700 group-hover:text-zinc-400 transition-colors shrink-0" />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Right panel: Receive QR + Network info (desktop inline) */}
-                        <div className="hidden lg:flex flex-col w-80 shrink-0">
-                            <div className="px-6 py-5 border-b border-zinc-900/50">
-                                <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Receive {activeNetwork}</p>
-                            </div>
-                            <div className="p-6 flex flex-col items-center gap-4">
-                                <div className="w-40 h-40 p-3 bg-white rounded-2xl flex items-center justify-center">
-                                    <QRCode value={currentAddr || 'loading'} size={136} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
-                                </div>
-                                <div className="w-full bg-zinc-900/60 border border-zinc-800 rounded-xl p-3 cursor-pointer hover:border-zinc-700 transition-colors group" onClick={() => copyAddr(currentAddr)}>
-                                    <p className="text-[9px] font-mono text-zinc-500 break-all leading-relaxed">{currentAddr}</p>
-                                    <div className="flex items-center gap-1.5 mt-2 text-[9px] font-bold uppercase tracking-widest text-zinc-600 group-hover:text-maroon transition-colors">
-                                        {copyState ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                                        {copyState ? 'Copied!' : 'Copy address'}
+                                            );
+                                        })}
                                     </div>
-                                </div>
-                                <p className="text-[9px] text-zinc-600 text-center leading-relaxed">Only send <strong className="text-zinc-400">{activeNetwork}</strong> assets to this address on the {activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum'} network.</p>
+                                )}
                             </div>
-
-                            {/* Price ticker */}
-                            <div className="mt-auto border-t border-zinc-900/60 px-6 py-5 space-y-3">
-                                <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Live Prices</p>
-                                {[
-                                    { sym: 'ARG', price: argPrice.priceUsd, change: argPrice.change24h, icon: <ArgusLogo className="w-3.5 h-3.5 text-maroon" /> },
-                                    { sym: 'ETH', price: ethPrice.priceUsd, change: ethPrice.change24h, icon: <EthLogo className="w-3.5 h-3.5 text-blue-400" /> },
-                                ].map(p => (
-                                    <div key={p.sym} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">{p.icon}<span className="text-xs font-bold text-white">{p.sym}</span></div>
-                                        <div className="text-right">
-                                            <p className="text-xs font-black text-white">${p.price.toFixed(p.sym === 'ETH' ? 2 : 4)}</p>
-                                            <p className={`text-[9px] font-bold ${p.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{p.change >= 0 ? '+' : ''}{p.change}% 24h</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        </motion.div>
                     </div>
-                </motion.main>
+                </div>
             </motion.div>
 
-            {/* ── MODALS ─────────────────────────────────────────────── */}
+            {/* MODALS (Standardized) */}
             <AnimatePresence>
-            {activeModal && (
-                <motion.div 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center sm:p-4"
-                >
-                    <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
-                    <motion.div 
-                        initial={{ y: "100%", opacity: 0, scale: 0.95 }}
-                        animate={{ y: 0, opacity: 1, scale: 1 }}
-                        exit={{ y: "100%", opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
-                        className="relative w-full sm:max-w-md bg-zinc-900 sm:rounded-[2rem] rounded-t-[3rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden max-h-[92vh] flex flex-col border-t border-zinc-800 sm:border-none"
-                    >
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
-                            <h2 className="text-xs font-black text-white uppercase tracking-widest">
-                                {activeModal === 'SEND' && `Send ${activeNetwork}`}
-                                {activeModal === 'RECEIVE' && `Receive ${activeNetwork}`}
-                                {activeModal === 'SWAP' && 'Swap'}
-                                {activeModal === 'BUY' && 'Buy Crypto'}
-                                {activeModal === 'TX_DETAIL' && 'Transaction Details'}
-                            </h2>
-                            <button onClick={() => setActiveModal(null)} className="p-1.5 hover:bg-zinc-800 rounded-full text-zinc-400 transition-colors"><X className="w-4 h-4" /></button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 sm:pb-6">
-
-                            {activeModal === 'SEND' && (
-                                <div className="space-y-4">
-                                    {isScanning ? (
-                                        <div className="flex flex-col items-center bg-zinc-950 border border-zinc-800 rounded-2xl p-4 animate-fade-in-up">
-                                            <div className="w-full aspect-square bg-zinc-900 rounded-xl overflow-hidden relative mb-4">
-                                                <video ref={setVideoElement} className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 pointer-events-none border-[1.5px] border-emerald-500/50 rounded-xl max-w-[70%] max-h-[70%] m-auto"></div>
-                                                <div className="absolute top-3 left-3 flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-zinc-800">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                                                    <span className="text-[9px] font-bold text-white uppercase tracking-widest">Live Scanning</span>
+                {activeModal && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[150] flex items-center justify-center p-6 sm:p-4 backdrop-blur-md bg-black/80">
+                        <div className="absolute inset-0" onClick={() => setActiveModal(null)} />
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative w-full max-w-lg bg-[#0a0a0a] border border-white/[0.05] rounded-xl shadow-2xl overflow-hidden flex flex-col">
+                            <div className="p-6 border-b border-white/[0.05] flex items-center justify-between bg-zinc-900/40">
+                                <h2 className="text-xs font-black text-white uppercase tracking-[0.3em] font-mono italic">
+                                    {activeModal === 'SEND' && 'Initiate_Transfer'}
+                                    {activeModal === 'RECEIVE' && 'Secure_Receive_Bridge'}
+                                    {activeModal === 'TX_DETAIL' && 'Ledger_Deep_Audit'}
+                                </h2>
+                                <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+                            </div>
+                            
+                            <div className="p-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                                {activeModal === 'SEND' && (
+                                    <form onSubmit={handleSend} className="space-y-6">
+                                        {isScanning ? (
+                                            <div className="space-y-4">
+                                                <div className="aspect-square bg-black rounded-xl border border-maroon/20 overflow-hidden relative">
+                                                    <video ref={setVideoElement} className="w-full h-full object-cover grayscale contrast-125" />
+                                                    <div className="absolute inset-0 border-[2px] border-maroon/40 m-auto w-[60%] h-[60%] animate-pulse rounded-lg shadow-[0_0_20px_#800000]"></div>
                                                 </div>
+                                                <button type="button" onClick={() => setIsScanning(false)} className="w-full py-3 bg-zinc-900 border border-white/5 rounded text-[10px] font-black uppercase tracking-widest">ABORT_SCAN</button>
                                             </div>
-                                            {scannerError && <p className="text-[10px] text-red-400 text-center mb-4">{scannerError}</p>}
-                                            <button onClick={() => setIsScanning(false)} className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold transition-colors w-full">Cancel Scanner</button>
+                                        ) : (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Recipient_Address</label>
+                                                        <button type="button" onClick={() => setIsScanning(true)} className="flex items-center gap-2 text-[9px] font-black uppercase text-maroon hover:brightness-125"><ScanLine className="w-4 h-4" /> SCAN_QR</button>
+                                                    </div>
+                                                    <input value={txForm.recipient} onChange={e => setTxForm({...txForm, recipient: e.target.value})} placeholder="ENTR_ID..." className="w-full bg-black border border-white/[0.05] p-4 text-xs font-mono text-white focus:border-maroon focus:outline-none transition-all rounded" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Transfer_Quantity</label>
+                                                    <div className="relative">
+                                                        <input type="number" step="any" value={txForm.amount} onChange={e => setTxForm({...txForm, amount: e.target.value})} placeholder="0.0000" className="w-full bg-black border border-white/[0.05] p-5 text-3xl font-black text-white italic focus:border-maroon focus:outline-none transition-all rounded text-center tracking-tighter" />
+                                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-maroon">{activeNetwork}</span>
+                                                    </div>
+                                                </div>
+                                                {txError && <div className="p-4 bg-maroon/10 border border-maroon/20 rounded flex items-center gap-3"><AlertCircle className="w-4 h-4 text-maroon" /><p className="text-[9px] font-black text-maroon uppercase">{txError}</p></div>}
+                                                <button type="submit" disabled={isProcessing} className="w-full py-4 bg-maroon text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-lg shadow-[0_0_20px_rgba(128,0,0,0.3)] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50">
+                                                    {isProcessing ? 'SYNCHRONIZING...' : 'EXECUTE_TRANSFER'}
+                                                </button>
+                                            </>
+                                        )}
+                                    </form>
+                                )}
+
+                                {activeModal === 'RECEIVE' && (
+                                    <div className="flex flex-col items-center gap-8 py-4">
+                                        <div className="p-6 bg-white rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.1)]"><QRCode value={currentAddr} size={180} /></div>
+                                        <div className="w-full p-4 bg-black border border-white/[0.05] rounded-lg text-center cursor-pointer hover:border-maroon/40 transition-all group" onClick={() => copyAddr(currentAddr)}>
+                                            <p className="text-xs font-mono text-zinc-300 break-all mb-3 px-4">{currentAddr}</p>
+                                            <div className="flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest text-zinc-600 group-hover:text-maroon transition-colors">
+                                                {copyState ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                {copyState ? 'IDENT_COPIED' : 'COPY_IDENTIFIER'}
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <form onSubmit={handleSend} className="space-y-4 animate-fade-in-up">
-                                            <div className="space-y-1.5">
-                                                <div className="flex justify-between items-center">
-                                                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Recipient</label>
-                                                    <button type="button" onClick={() => setIsScanning(true)} className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors">
-                                                        <ScanLine className="w-3 h-3" /> Scan QR
-                                                    </button>
-                                                </div>
-                                                <input required autoFocus value={txForm.recipient} onChange={e => { setTxForm({ ...txForm, recipient: e.target.value }); setTxError(''); }} placeholder={activeNetwork === 'ARG' ? 'arg1...' : '0x...'} className="w-full bg-zinc-950 border border-zinc-800 text-white py-3 px-4 rounded-xl focus:border-maroon outline-none font-mono text-xs placeholder:text-zinc-700 transition-all" />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <div className="flex justify-between">
-                                                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Amount</label>
-                                                    <button type="button" onClick={() => setTxForm({ ...txForm, amount: String(Math.max(0, dispBal.amount - GAS_FEE_ARG)) })} className="text-[9px] text-maroon hover:underline font-bold">MAX</button>
-                                                </div>
-                                                <div className="relative">
-                                                    <input required type="number" step="any" min="0" value={txForm.amount} onChange={e => { setTxForm({ ...txForm, amount: e.target.value }); setTxError(''); }} placeholder="0.00" className="w-full bg-zinc-950 border border-zinc-800 text-white py-4 px-4 pr-16 rounded-xl focus:border-maroon outline-none text-2xl font-black text-center placeholder:text-zinc-700 transition-all" />
-                                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-500">{activeNetwork}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex justify-between px-1 text-xs">
-                                                <span className="text-zinc-600">Available</span>
-                                                <span className="text-zinc-300 font-mono font-bold">{dispBal.amount.toLocaleString(undefined, { minimumFractionDigits: dispBal.dec })} {activeNetwork}</span>
-                                            </div>
-                                            {activeNetwork === 'ARG' && <div className="flex justify-between px-3 py-2 bg-zinc-950/70 border border-zinc-800/50 rounded-xl text-xs"><span className="text-zinc-500">Gas fee</span><span className="text-zinc-300 font-mono">0.001 ARG</span></div>}
-                                            {txError && <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"><AlertCircle className="w-4 h-4 text-red-400 shrink-0" /><p className="text-[10px] text-red-400">{txError}</p></div>}
-                                            <button type="submit" disabled={isProcessing} className="w-full py-3.5 bg-maroon text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all flex justify-center items-center gap-2">
-                                                {isProcessing ? <><Loader2 className="w-4 h-4 animate-spin" />Processing…</> : 'Confirm & Send'}
-                                            </button>
-                                        </form>
-                                    )}
-                                </div>
-                            )}
+                                        <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest max-w-[280px] text-center italic">Only initiate <span className="text-white">{activeNetwork}</span> bridge connections. Misalignment will result in permanent packet loss.</p>
+                                    </div>
+                                )}
 
-                            {activeModal === 'RECEIVE' && (
-                                <div className="flex flex-col items-center gap-5">
-                                    <div className="p-4 bg-white rounded-2xl w-40 h-40 flex items-center justify-center"><QRCode value={currentAddr} size={128} style={{ height: "auto", maxWidth: "100%", width: "100%" }} /></div>
-                                    <div className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-zinc-700 transition-colors group" onClick={() => copyAddr(currentAddr)}>
-                                        <p className="text-xs font-mono text-zinc-300 break-all text-center leading-relaxed">{currentAddr}</p>
-                                        <div className="flex items-center justify-center gap-1.5 mt-3 text-[9px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-maroon">
-                                            {copyState ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                            {copyState ? 'Copied!' : 'Copy Address'}
+                                {activeModal === 'TX_DETAIL' && selectedTx && (
+                                    <div className="space-y-6 py-2">
+                                        <div className="text-center pb-8 border-b border-white/[0.05]">
+                                            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Quantity_Verified</p>
+                                            <div className="flex items-center justify-center gap-3">
+                                                <p className="text-5xl font-black text-white italic tracking-tighter tabular-nums"><AnimatedNumber value={Number(selectedTx.amount)} decimals={4} /></p>
+                                                <span className="text-sm font-black text-maroon mt-4">{selectedTx.chain}</span>
+                                            </div>
+                                            <div className="mt-4 inline-block"><StatusBadge status={selectedTx.status} /></div>
                                         </div>
-                                    </div>
-                                    <p className="text-center text-[9px] text-zinc-600 leading-relaxed">Only send <strong className="text-zinc-400">{activeNetwork}</strong> to this address.</p>
-                                </div>
-                            )}
-
-                            {(activeModal === 'SWAP' || activeModal === 'BUY') && (
-                                <div className="flex flex-col items-center text-center py-10 gap-4">
-                                    <div className="w-14 h-14 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center">
-                                        {activeModal === 'SWAP' ? <Repeat className="w-6 h-6 text-zinc-500" /> : <CreditCard className="w-6 h-6 text-zinc-500" />}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-black text-white mb-1">{activeModal === 'SWAP' ? 'DEX Audit Underway' : 'On-Ramp Coming Soon'}</p>
-                                        <p className="text-xs text-zinc-500 max-w-xs leading-relaxed">{activeModal === 'SWAP' ? 'The Argus DEX swap module is under security audit. Available at mainnet launch.' : 'Fiat on-ramp integrations finalized at TGE.'}</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeModal === 'TX_DETAIL' && selectedTx && (
-                                <div className="space-y-4">
-                                    <div className="text-center pb-4 border-b border-zinc-800">
-                                        <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Amount</p>
-                                        <p className="text-4xl font-black text-white">
-                                            <AnimatedNumber value={Number(selectedTx.amount)} decimals={6} />
-                                            <span className="text-sm text-zinc-500 ml-2">{selectedTx.chain}</span>
-                                        </p>
-                                        <div className="mt-3 flex justify-center"><StatusBadge status={selectedTx.status} /></div>
-                                    </div>
-                                    {[
-                                        { l: 'Date', v: new Date(selectedTx.createdAt).toLocaleString() },
-                                        { l: 'Network', v: selectedTx.chain === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet' },
-                                        { l: 'Type', v: selectedTx.type || 'TRANSFER' },
-                                        {
-                                            l: 'Latency', v: (() => {
-                                                const hashVal = selectedTx.txHash.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-                                                if (selectedTx.chain === 'ETH') return `${(12 + (hashVal % 34) + ((hashVal % 100) / 100)).toFixed(2)}s`;
-                                                return `${(45 + (hashVal % 800) + ((hashVal % 100) / 100)).toFixed(2)}ms`;
-                                            })()
-                                        },
-                                    ].map(r => (
-                                        <div key={r.l} className="flex justify-between text-xs"><span className="text-zinc-500 font-bold uppercase tracking-wider">{r.l}</span><span className="text-zinc-200">{r.v}</span></div>
-                                    ))}
-                                    <div className="flex justify-between items-start gap-3 text-xs">
-                                        <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">From</span>
-                                        <div className="flex items-center gap-1.5"><span className="text-zinc-300 font-mono text-[9px] break-all">{selectedTx.from}</span><button onClick={() => navigator.clipboard.writeText(selectedTx.from)}><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button></div>
-                                    </div>
-                                    <div className="flex justify-between items-start gap-3 text-xs">
-                                        <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">To</span>
-                                        <div className="flex items-center gap-1.5"><span className="text-zinc-300 font-mono text-[9px] break-all">{selectedTx.to}</span><button onClick={() => navigator.clipboard.writeText(selectedTx.to)}><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button></div>
-                                    </div>
-                                    {selectedTx.gasFee > 0 && <div className="flex justify-between text-xs"><span className="text-zinc-500 font-bold uppercase tracking-wider">Gas</span><span className="text-zinc-300 font-mono">{selectedTx.gasFee} ARG</span></div>}
-                                    <div className="pt-3 border-t border-zinc-800/60">
-                                        <div className="flex justify-between items-start gap-3 text-xs">
-                                            <span className="text-zinc-500 font-bold uppercase tracking-wider shrink-0">Tx Hash</span>
-                                            <div className="flex items-center gap-1.5"><span className="text-zinc-600 font-mono text-[9px] break-all">{selectedTx.txHash}</span><button onClick={() => navigator.clipboard.writeText(selectedTx.txHash)}><Copy className="w-3 h-3 text-zinc-600 hover:text-zinc-300" /></button></div>
+                                        <div className="space-y-3 font-mono">
+                                            {[
+                                                { l: 'EVENT_CLOCK', v: new Date(selectedTx.createdAt).toLocaleString() },
+                                                { l: 'LEDGER_PATH', v: selectedTx.chain === 'ARG' ? 'GHOSTDAG_01' : 'ETH_MAINNET' },
+                                                { l: 'NODE_FROM', v: selectedTx.from.slice(0, 16) + '...' },
+                                                { l: 'NODE_TO', v: selectedTx.to.slice(0, 16) + '...' },
+                                                { l: 'TX_IDENTIFIER', v: selectedTx.txHash.slice(0, 32) + '...' }
+                                            ].map(r => (
+                                                <div key={r.l} className="flex justify-between items-center p-3 bg-white/[0.02] border border-white/[0.02] rounded">
+                                                    <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{r.l}</span>
+                                                    <span className="text-[10px] text-zinc-300 font-mono tracking-tight">{r.v}</span>
+                                                </div>
+                                            ))}
                                         </div>
+                                        <p className="text-center text-[8px] font-black text-zinc-700 uppercase tracking-[0.4em] pt-4">Argus_Protocol — Final_Settlement_Audit</p>
                                     </div>
-                                    <p className="text-center text-[9px] text-zinc-700 font-mono uppercase tracking-widest pt-1">Argus Protocol — Immutable Ledger</p>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        </motion.div>
                     </motion.div>
-                </motion.div>
-            )}
+                )}
             </AnimatePresence>
         </div>
     );

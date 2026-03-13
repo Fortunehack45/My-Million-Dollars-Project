@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -27,15 +26,16 @@ import {
   Database, Activity, Cpu, Zap,
   AlertTriangle, GitMerge, Layers,
   Server, Terminal, Globe, Info,
-  TrendingUp, Shield, Clock
+  TrendingUp, Shield, Clock, Radio, ChevronRight, Box, Share2
 } from 'lucide-react';
 import { NetworkStats } from '../types';
-import { motion, Variants } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Tooltip } from '../components/Tooltip';
 import Skeleton from '../components/Skeleton';
 import { useTokenPrices } from '../services/TokenPriceService';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { AnimatedNumber } from '../components/AnimatedNumber';
+import MatrixBackground from '../components/MatrixBackground';
 
 const staggerContainer: Variants = {
   hidden: { opacity: 0 },
@@ -48,46 +48,23 @@ const staggerContainer: Variants = {
 };
 
 const itemAnim: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } }
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 400, damping: 30 } }
 };
 
 const DashboardSkeleton = () => (
-  <div className="w-full space-y-5 pb-16">
-    <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900">
-      <div className="flex items-center gap-4">
-        <div className="skeleton w-10 h-10 rounded-xl" />
-        <div className="space-y-2">
-          <div className="skeleton h-4 w-32" />
-          <div className="skeleton h-3 w-48" />
-        </div>
-      </div>
-      <div className="flex items-center gap-5">
-        <div className="skeleton h-10 w-24" />
-        <div className="skeleton h-10 w-24" />
-      </div>
-    </header>
-
-    <div className="grid grid-cols-2 lg:grid-cols-4 border border-zinc-900 overflow-hidden rounded-2xl">
+  <div className="w-full space-y-6 pb-20 pt-32 px-6">
+    <div className="skeleton h-24 w-full rounded-xl mb-8" />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
       {[1, 2, 3, 4].map(i => (
-        <div key={i} className="h-36 bg-zinc-950 p-6 space-y-4 border-r border-zinc-900 last:border-r-0">
-          <div className="skeleton w-10 h-10 rounded-xl" />
-          <div className="space-y-2">
-            <div className="skeleton h-3 w-16" />
-            <div className="skeleton h-6 w-24" />
-          </div>
-        </div>
+        <div key={i} className="skeleton h-32 rounded-xl" />
       ))}
     </div>
-
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-      <div className="lg:col-span-8 space-y-5">
-        <div className="skeleton h-[380px] w-full rounded-2xl" />
-        <div className="skeleton h-[160px] w-full rounded-2xl" />
-      </div>
-      <div className="lg:col-span-4 space-y-5">
-        <div className="skeleton h-[340px] w-full rounded-2xl" />
-        <div className="skeleton h-[120px] w-full rounded-2xl" />
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+      <div className="lg:col-span-8 skeleton h-[400px] rounded-xl" />
+      <div className="lg:col-span-4 space-y-6">
+        <div className="skeleton h-[250px] rounded-xl" />
+        <div className="skeleton h-[134px] rounded-xl" />
       </div>
     </div>
   </div>
@@ -152,7 +129,7 @@ const GhostDAGVisualizer = () => {
           ctx.beginPath();
           ctx.moveTo(s.x, s.y);
           ctx.lineTo(t.x, t.y);
-          ctx.strokeStyle = 'rgba(63, 63, 70, 0.35)';
+          ctx.strokeStyle = 'rgba(128, 0, 0, 0.15)';
           ctx.stroke();
         }
       });
@@ -178,38 +155,6 @@ const GhostDAGVisualizer = () => {
   return <div ref={containerRef} className="absolute inset-0"><canvas ref={canvasRef} className="w-full h-full opacity-60" /></div>;
 };
 
-// Professional Stat Card
-const StatCard = ({ label, valueComponent, subValue, icon: Icon, trend, trendUp, tooltip }: any) => (
-  <motion.div variants={itemAnim} className="group relative transition-all duration-700 hover:-translate-y-1.5 h-full">
-    <div className="frosted-glass border border-white/5 h-full p-6 flex flex-col justify-between relative z-10 bg-zinc-950/90 shadow-2xl">
-      <div className="flex justify-between items-start mb-6 relative z-10">
-        <div className="p-2.5 bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-white/5 group-hover:border-maroon/30 transition-all duration-500">
-          <Icon className="w-4 h-4 text-zinc-500 group-hover:text-maroon transition-all duration-500" />
-        </div>
-        {trend && (
-          <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md border ${trendUp !== false ? 'text-maroon bg-white/5 border-maroon/20' : 'text-zinc-500 bg-zinc-800 border-zinc-700'}`}>
-            {trend}
-          </span>
-        )}
-      </div>
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <p className="label-meta">{label}</p>
-          <Tooltip text={tooltip} position="right">
-            <div className="p-1 -m-1 cursor-help group/info hover:scale-110 transition-transform duration-300">
-              <Info className="w-3.5 h-3.5 text-zinc-700 group-hover/info:text-maroon transition-colors" />
-            </div>
-          </Tooltip>
-        </div>
-        <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">
-          {valueComponent}
-        </p>
-        {subValue && <p className="text-[10px] text-zinc-600 mt-1.5 font-medium">{subValue}</p>}
-      </div>
-    </div>
-  </motion.div>
-);
-
 const Dashboard = () => {
   const { user, refreshUser, loading } = useAuth();
   const [miningTimer, setMiningTimer] = useState(0);
@@ -224,7 +169,6 @@ const Dashboard = () => {
   const { arg } = useTokenPrices();
 
   const MAX_SESSION_TIME = 24 * 60 * 60;
-
   const referrals = Math.min(user?.referralCount || 0, MAX_REFERRALS);
   const currentHourlyRate = BASE_MINING_RATE + (referrals * REFERRAL_BOOST);
   const ratePerSecond = currentHourlyRate / 3600;
@@ -239,7 +183,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const unsubStats = subscribeToNetworkStats(s => setNetStats(s));
-    // Live count from actual user documents — same source as Admin Panel
     const unsubMiners = subscribeToActiveMinerCount(setActiveMinerCount);
     const unsubPresence = subscribeToOnlineUsers((uids) => {
       const count = Math.max(1, uids.length);
@@ -248,17 +191,12 @@ const Dashboard = () => {
     return () => { unsubStats(); unsubMiners(); unsubPresence(); };
   }, []);
 
-  // Compute Mined ARG = total points − net received (received − sent)
   useEffect(() => {
     if (!user?.uid || !user?.points) return;
     const argAddress = ArgusSynapseService.generateAddress(user.uid);
-    const q = query(
-      collection(db, 'wallet_transactions'),
-      where('participants', 'array-contains', argAddress),
-    );
+    const q = query(collection(db, 'wallet_transactions'), where('participants', 'array-contains', argAddress));
     const unsub = onSnapshot(q, snapshot => {
-      let totalReceived = 0;
-      let totalSent = 0;
+      let totalReceived = 0, totalSent = 0;
       snapshot.docs.forEach(d => {
         const tx = d.data();
         if (tx.chain !== 'ARG') return;
@@ -266,9 +204,8 @@ const Dashboard = () => {
         if (tx.from === argAddress) totalSent += amt + (tx.gasFee || 0);
         else totalReceived += amt;
       });
-      const netTransfers = Math.max(0, totalReceived - totalSent);
-      setMinedArg(Math.max(0, user.points - netTransfers));
-    }, () => setMinedArg(null));
+      setMinedArg(Math.max(0, user.points - Math.max(0, totalReceived - totalSent)));
+    });
     return () => unsub();
   }, [user?.uid, user?.points]);
 
@@ -277,7 +214,6 @@ const Dashboard = () => {
       setBlockHeight(calculateCurrentBlockHeight());
       setTps(Math.floor(402000 + Math.sin(Date.now() / 2000) * 15000));
     };
-    update();
     const interval = setInterval(update, 100);
     return () => clearInterval(interval);
   }, []);
@@ -310,8 +246,7 @@ const Dashboard = () => {
     try {
       await claimPoints(user.uid, pendingPoints);
       refreshUser({ ...user, miningActive: false, miningStartTime: null, points: user.points + pendingPoints });
-      setPendingPoints(0);
-      setMiningTimer(0);
+      setPendingPoints(0); setMiningTimer(0);
     } catch (e) { console.error(e); }
     setIsClaiming(false);
   };
@@ -331,265 +266,226 @@ const Dashboard = () => {
   const progress = (miningTimer / MAX_SESSION_TIME) * 100;
 
   return (
-    <motion.div 
-      variants={staggerContainer}
-      initial="hidden"
-      animate="show"
-      className="w-full space-y-5 pb-16"
-    >
-
-      {/* HEADER */}
-      <motion.header variants={itemAnim} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
-            <Activity className="w-5 h-5 text-maroon" />
-          </div>
-          <div>
-            <h1 className="text-base font-black text-white uppercase tracking-tight">Network Operations</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]" />
-              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Active_Kernel · {activeMinerCount.toLocaleString()} Verified Nodes</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-5">
-          <div className="text-right">
-            <p className="label-meta mb-0.5">Hashrate</p>
-            <p className="text-sm font-mono font-black text-white">{hashrate.toFixed(1)} <span className="text-zinc-600 text-xs">PH/s</span></p>
-          </div>
-          <div className="h-6 w-px bg-zinc-800" />
-          <div className="text-right">
-            <p className="label-meta mb-0.5">Block Height</p>
-            <p className="text-sm font-mono font-black text-maroon">#{blockHeight.toLocaleString()}</p>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* STATS GRID */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
-        <StatCard
-          label="Mined ARG"
-          valueComponent={<><AnimatedNumber value={minedArg ?? user.points} decimals={2} /> ARG</>}
-          subValue={`≈ $${((minedArg ?? user.points) * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
-          icon={() => <ArgusLogo className="w-5 h-5 text-maroon" />}
-          trend={`${arg.change24h >= 0 ? '+' : ''}${arg.change24h}%`}
-          trendUp={arg.change24h >= 0}
-          tooltip="ARG mined by your node (excludes received transfers)."
-        />
-        <StatCard 
-          label="Unmined Supply" 
-          valueComponent={<AnimatedNumber value={leftToMine} decimals={0} />} 
-          subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} 
-          icon={Layers} 
-          tooltip="Remaining ARG pool for Genesis Epoch distribution." 
-        />
-        <StatCard 
-          label="Network Throughput" 
-          valueComponent={<><AnimatedNumber value={tps} decimals={0} /> TPS</>} 
-          subValue="Finality: < 400ms" 
-          icon={Zap} 
-          trend="Stable" 
-          trendUp={null} 
-          tooltip="Aggregate transactions per second across all global shards." 
-        />
-        <StatCard 
-          label="Active Miners" 
-          valueComponent={<AnimatedNumber value={activeMinerCount} decimals={0} />} 
-          subValue={`Mining Now · Shards: ${Math.max(1, Math.floor(activeMinerCount / 50))}`} 
-          icon={Server} 
-          tooltip="Live count of verified nodes currently securing the GhostDAG and mining ARG." 
-        />
+    <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white">
+      
+      {/* DASHBOARD SYSTEM OVERLAY */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <MatrixBackground color="rgba(128, 0, 0, 0.05)" opacity={0.15} />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(128,0,0,0.06),rgba(128,0,0,0.02),rgba(128,0,0,0.06))] bg-[length:100%_2px,3px_100%]"></div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="max-w-[1700px] mx-auto px-6 relative z-10"
+      >
+        
+        {/* TOP BAR: NETWORK OPERATIONS (Standardized) */}
+        <motion.div variants={itemAnim} className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6 bg-zinc-950/80 border border-white/[0.05] p-6 rounded-xl backdrop-blur-md">
+          <div className="flex items-center gap-6">
+            <div className="w-12 h-12 bg-maroon/10 rounded-lg flex items-center justify-center border border-maroon/20">
+              <Radio className="w-6 h-6 text-maroon animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black text-white uppercase tracking-tight leading-none mb-2 italic">Network Operations</h1>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none">System Operational — {activeMinerCount.toLocaleString()} Verified Nodes</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-12 text-right">
+            <div className="space-y-1">
+              <p className="text-[10px] text-zinc-600 uppercase font-black tracking-widest leading-none">Hashrate_Throughput</p>
+              <p className="text-xl font-black text-white">{hashrate.toFixed(1)} <span className="text-xs text-zinc-600">PH/s</span></p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-zinc-600 uppercase font-black tracking-widest leading-none">Protocol_Block_Height</p>
+              <p className="text-xl font-black text-maroon">#{blockHeight.toLocaleString()}</p>
+            </div>
+          </div>
+        </motion.div>
 
-        {/* LEFT COLUMN */}
-        <div className="lg:col-span-8 space-y-5">
+        {/* CORE METRICS GRID (Standardized) */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {[
+            { label: "Mined ARG", value: minedArg ?? user.points, unit: "ARG", sub: `≈ $${((minedArg ?? user.points) * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`, icon: ArgusLogo, color: "text-white" },
+            { label: "Unmined Supply", value: fmt(leftToMine), sub: `Cap: ${fmt(TOTAL_SUPPLY)} ARG`, icon: Layers, color: "text-white" },
+            { label: "Network TPS", value: fmt(tps), sub: "Finality: < 400ms", icon: Zap, color: "text-white" },
+            { label: "Active Nodes", value: fmt(activeMinerCount), sub: `Synchronization: Optimal`, icon: Share2, color: "text-white" }
+          ].map((m, i) => (
+            <motion.div key={i} variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] p-6 rounded-xl hover:border-maroon/30 transition-all duration-500 group relative overflow-hidden">
+               <div className="flex items-center justify-between mb-6">
+                  <div className="w-10 h-10 bg-zinc-900 rounded-lg flex items-center justify-center border border-white/[0.05] group-hover:bg-maroon/10 transition-colors">
+                     <m.icon className="w-5 h-5 text-zinc-500 group-hover:text-maroon transition-colors" />
+                  </div>
+                  {i === 2 && <span className="text-[10px] text-emerald-500 font-black px-2 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20">Stable</span>}
+                  {i === 0 && <span className="text-[10px] text-emerald-500 font-black">+{arg.change24h}%</span>}
+               </div>
+               <div className="space-y-1">
+                  <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">{m.label}</p>
+                  <div className="flex items-baseline gap-2">
+                     <span className={`text-3xl font-black ${m.color} tabular-nums tracking-tighter`}>{typeof m.value === 'number' ? <AnimatedNumber value={m.value} decimals={i === 0 ? 2 : 0} /> : m.value}</span>
+                     {m.unit && <span className="text-xs font-black text-zinc-500">{m.unit}</span>}
+                  </div>
+                  {m.sub && <p className="text-[9px] text-zinc-700 font-bold uppercase tracking-wider">{m.sub}</p>}
+               </div>
+            </motion.div>
+          ))}
+        </div>
 
-          {/* GHOSTDAG VISUALIZER */}
-          <motion.div variants={itemAnim} className="h-[340px] md:h-[380px] rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col frosted-glass bg-zinc-950/90 group/viz shadow-2xl">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(24,24,27,0.2),rgba(3,3,5,1)_80%)]" />
-            <div className="relative z-10 px-5 py-3.5 border-b border-white/[0.04] flex justify-between items-center bg-black/60 backdrop-blur-md">
+        {/* MIDDLE SECTION: TOPOLOGY & CONTROLLER */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+          
+          {/* Topology Panel (Standardized) */}
+          <motion.div variants={itemAnim} className="lg:col-span-8 bg-zinc-950/50 border border-white/[0.05] rounded-xl relative overflow-hidden group">
+            <div className="p-6 border-b border-white/[0.05] flex items-center justify-between bg-black/40 backdrop-blur-sm relative z-20">
               <div className="flex items-center gap-3">
-                <GitMerge className="w-3.5 h-3.5 text-maroon animate-pulse" />
-                <span className="label-meta text-zinc-400">GhostDAG_Topology · Synchronized</span>
+                <GitMerge className="w-4 h-4 text-maroon animate-pulse" />
+                <span className="text-xs font-black uppercase text-white tracking-widest italic">GhostDAG_Topology_Live</span>
               </div>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-white opacity-80" />
-                  <span className="text-[8px] font-mono text-zinc-600">Sync Block</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-maroon" />
-                  <span className="text-[8px] font-mono text-zinc-600">Red Block</span>
-                </div>
-                <span className="label-meta opacity-40">Latency: 12ms</span>
+                 <div className="flex items-center gap-1.5 opacity-40">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                    <span className="text-[8px] font-black uppercase tracking-widest">Nodes</span>
+                 </div>
+                 <div className="flex items-center gap-1.5 opacity-40 mr-4">
+                    <div className="w-1.5 h-1.5 rounded-full bg-maroon" />
+                    <span className="text-[8px] font-black uppercase tracking-widest">Blocks</span>
+                 </div>
+                 <span className="text-[10px] text-zinc-700 font-bold uppercase tracking-widest">Latency: 12ms</span>
               </div>
             </div>
-            <div className="relative flex-1 w-full overflow-hidden">
-              <GhostDAGVisualizer />
+            <div className="relative h-[420px] bg-black/20">
+               <GhostDAGVisualizer />
+               <div className="absolute inset-x-0 bottom-0 p-8 z-20 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent">
+                  <div className="grid grid-cols-3 gap-8">
+                     <div className="space-y-1">
+                        <p className="text-[9px] text-zinc-700 uppercase font-black tracking-widest">Global_Consensus</p>
+                        <p className="text-xl font-black text-white">99.98%</p>
+                     </div>
+                     <div className="space-y-1">
+                        <p className="text-[9px] text-zinc-700 uppercase font-black tracking-widest">Synapse_Integrity</p>
+                        <p className="text-xl font-black text-emerald-500">TRUSTED</p>
+                     </div>
+                     <div className="space-y-1">
+                        <p className="text-[9px] text-zinc-700 uppercase font-black tracking-widest">Active_Kernel</p>
+                        <p className="text-xl font-black text-white">SHA-256G</p>
+                     </div>
+                  </div>
+               </div>
             </div>
           </motion.div>
 
-          {/* MINING CONTROLLER */}
-          <motion.div variants={itemAnim} className="rounded-[2.5rem] border border-white/5 frosted-glass bg-zinc-950/90 p-6 md:p-8 relative overflow-hidden shadow-2xl group/mining">
-            <div className="absolute top-0 right-0 w-72 h-72 bg-maroon/[0.04] blur-[100px] rounded-full pointer-events-none" />
-
-            <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start md:items-center">
-              <div className="flex-1 w-full space-y-5">
-                {/* Header row */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-base font-black text-white uppercase tracking-tight mb-2">Consensus Engine</h3>
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-1.5 h-1.5 rounded-full ${user.miningActive ? 'bg-maroon shadow-[0_0_8px_#800000] animate-pulse' : 'bg-zinc-700'}`} />
-                      <span className="label-meta">{user.miningActive ? 'KERNEL_ACTIVE · SHA-256G' : 'NODE_STANDBY'}</span>
+          {/* Controller/Kernel Log Panel (Standardized) */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {/* System Kernel Log */}
+            <motion.div variants={itemAnim} className="bg-[#0a0a0a] border border-white/[0.05] rounded-xl flex-1 flex flex-col group overflow-hidden">
+               <div className="p-5 border-b border-white/[0.05] flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                     <Terminal className="w-4 h-4 text-maroon" />
+                     <span className="text-xs font-black uppercase text-white tracking-widest italic">System_Kernel</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                     <div className="w-2 h-2 rounded-full bg-maroon shadow-[0_0_8px_#800000] animate-pulse"></div>
+                  </div>
+               </div>
+               <div className="flex-1 p-6 space-y-3 font-mono text-[9px] overflow-y-auto max-h-[280px] custom-scrollbar bg-black/40">
+                  {[
+                    { type: 'sys', msg: 'Kernel initialization sequence...', time: '00:00:01' },
+                    { type: 'ok', msg: `Miners synced: ${activeMinerCount} [OK]`, time: '00:00:02' },
+                    { type: 'info', msg: `Tracking block: #${blockHeight.toLocaleString()}`, time: '00:00:05' },
+                    { type: 'warn', msg: 'Mempool weight: High load transition', time: '00:00:12' },
+                    { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },
+                    user.miningActive ? { type: 'ok', msg: `Yield: +${ratePerSecond.toFixed(6)} ARG/s`, time: 'LIVE' } : null,
+                  ].filter(Boolean).map((log: any, i) => (
+                    <div key={i} className="flex gap-4 opacity-80 hover:opacity-100 transition-opacity">
+                      <span className="text-zinc-700 shrink-0">[{log.time}]</span>
+                      <span className={`${log.type === 'ok' ? 'text-white' : log.type === 'warn' ? 'text-maroon' : 'text-zinc-500'}`}>{log.msg}</span>
                     </div>
+                  ))}
+                  <div className="flex gap-4 animate-pulse">
+                     <span className="text-zinc-700">[{new Date().toLocaleTimeString('en-GB', { hour12: false })}]</span>
+                     <span className="text-maroon font-black">➜ STANDBY_KERNEL_WAIT</span>
                   </div>
-                  <div className="text-right">
-                    <p className="label-meta mb-1">Session Yield</p>
-                    <p className="text-2xl md:text-3xl font-mono font-black text-white tabular-nums">
-                      <AnimatedNumber value={pendingPoints} decimals={4} /> <span className="text-xs text-zinc-600">ARG</span>
-                    </p>
-                    <p className="text-[10px] font-mono text-zinc-400 mt-1 uppercase tracking-wider">
-                      ≈ $<AnimatedNumber value={pendingPoints * 0.5} decimals={4} /> USD
-                    </p>
-                  </div>
-                </div>
+               </div>
+            </motion.div>
 
-                {/* Progress Bar */}
-                <div className="space-y-2">
-                  <div className="h-2 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ${isSessionComplete ? 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.3)]' : 'bg-maroon shadow-[0_0_12px_rgba(128,0,0,0.35)]'}`}
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between">
-                    <Tooltip text="Base 0.06 ARG/h + 0.1 per referral" position="top">
-                      <span className="label-meta cursor-help hover:text-zinc-300 transition-colors">Rate: {currentHourlyRate.toFixed(2)} ARG/h</span>
-                    </Tooltip>
-                    <span className="label-meta">{isSessionComplete ? 'Session Complete ✓' : `T-minus: ${formatCountdown(miningTimer)}`}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Button */}
-              <div className="w-full md:w-52 shrink-0">
-                {user.miningActive ? (
-                  <button
-                    onClick={handleClaim}
-                    disabled={isClaiming}
-                    className={`w-full h-14 btn-silk ${isSessionComplete ? 'btn-silk' : 'btn-ghost'} text-[10px]`}
-                  >
-                    {isClaiming ? 'Claiming...' : isSessionComplete ? '⚡ Secure Block' : 'Terminate & Claim'}
-                  </button>
-                ) : (
-                  <button onClick={handleStartMining} className="w-full h-14 btn-silk-inv text-[10px]">
-                    Initialize Node
-                  </button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div className="lg:col-span-4 space-y-5">
-
-          {/* SYSTEM LOG — macOS Style */}
-          <motion.div variants={itemAnim} className="rounded-2xl border border-white/[0.05] bg-black/80 backdrop-blur-2xl flex flex-col h-[292px] md:h-[340px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group/terminal">
-            <div className="px-4 py-3 border-b border-white/[0.03] flex items-center justify-between bg-zinc-900/40 relative">
-              <div className="flex gap-1.5 group/controls">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] border border-[#E0443E]/50" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] border border-[#DEA123]/50" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F] border border-[#1AAB29]/50" />
-              </div>
-              <span className="absolute left-1/2 -translate-x-1/2 label-meta flex items-center gap-2 text-zinc-500 opacity-60 text-[8px] font-bold tracking-widest uppercase">
-                <Terminal className="w-2.5 h-2.5 text-maroon/70" /> argus_kernel — 80×24
-              </span>
-              <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/30 animate-pulse" />
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-2 font-mono text-[9px] bg-black/40 relative">
-              {/* Terminal scanline effect */}
-              <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_2px]" />
-
-              {[
-                { type: 'sys', msg: 'Mounting /ghost_dag volume...', time: '00:00:01' },
-                { type: 'ok', msg: `Nodes synchronized: ${activeMinerCount} [OK]`, time: '00:00:02' },
-                { type: 'info', msg: `Syncing block: #${blockHeight.toLocaleString()}`, time: '00:00:05' },
-                { type: 'warn', msg: 'Mempool state: High consensus load', time: '00:00:12' },
-                { type: 'ok', msg: 'Consensus achieved (k=18)', time: '00:00:15' },
-                { type: 'info', msg: `Network TPS: ${tps.toLocaleString()}`, time: '00:00:20' },
-                user.miningActive ? { type: 'ok', msg: `Mining: +${ratePerSecond.toFixed(6)} ARG/s`, time: 'NOW' } : null,
-              ].filter(Boolean).map((log: any, i) => (
-                <div key={`${log.time}-${i}`} className="flex gap-3 opacity-90 hover:opacity-100 transition-opacity">
-                  <span className="text-zinc-600 shrink-0 w-14 text-right">[{log.time}]</span>
-                  <span className={`${log.type === 'ok' ? 'text-white font-bold' : log.type === 'warn' ? 'text-maroon' : log.type === 'sys' ? 'text-maroon font-bold' : 'text-zinc-300'}`}>
-                    {log.msg}
-                  </span>
-                </div>
-              ))}
-              <div className="flex gap-3 pt-1">
-                <span className="text-zinc-600 shrink-0 w-14 text-right">[{new Date().toLocaleTimeString('en-GB', { hour12: false })}]</span>
-                <div className="text-maroon animate-pulse font-black flex items-center">
-                  <span className="mr-2">➜</span>
-                  <span className="w-1.5 h-3 bg-maroon ml-1"></span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* CORE CAPABILITIES — Elevated Visual Polish */}
-          <motion.div variants={itemAnim} className="grid grid-cols-2 gap-4">
-            {[
-              { label: 'Security', value: 'RSA-4096-AES', icon: Shield, tooltip: 'End-to-end encrypted packet transmission with rotating keys.' },
-              { label: 'Referrals', value: `${referrals}/${MAX_REFERRALS} ACTIVE`, icon: TrendingUp, tooltip: 'Network growth contribution and active referral count.' },
-              { label: 'Node Version', value: 'PROTOCOL_v2.4', icon: Cpu, tooltip: 'Current operational kernel version of the Argus client.' },
-              { label: 'Tasks Done', value: `${user.completedTasks?.length || 0} COMPLETE`, icon: Clock, tooltip: 'Total network verification and social tasks completed.' }
-            ].map((cap, i) => (
-              <div key={cap.label} className="group relative transition-all duration-500 hover:-translate-y-1">
-                <div className="frosted-glass border border-white/5 p-4 rounded-3xl bg-zinc-950/90 relative overflow-hidden h-full">
-                  {/* Subtle refractive highlight */}
-                  <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="p-2 bg-zinc-900/50 rounded-xl border border-white/5 group-hover:border-maroon/30 transition-colors duration-500">
-                      <cap.icon className="w-3.5 h-3.5 text-zinc-500 group-hover:text-maroon transition-colors" />
-                    </div>
-                    <Tooltip text={cap.tooltip} position="top">
-                      <Info className="w-3 h-3 text-zinc-800 hover:text-maroon transition-colors cursor-help" />
-                    </Tooltip>
-                  </div>
-
+            {/* Mining Status Quick Panel */}
+            <motion.div variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] rounded-xl p-6 relative overflow-hidden group">
+               <div className="flex justify-between items-start mb-6">
                   <div className="space-y-1">
-                    <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{cap.label}</p>
-                    <p className="text-[10px] font-mono font-black text-white group-hover:text-maroon transition-colors duration-500 truncate">{cap.value}</p>
+                     <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest leading-none">Yield_Session</p>
+                     <p className="text-2xl font-black text-white tabular-nums tracking-tighter italic">
+                        <AnimatedNumber value={pendingPoints} decimals={4} /> <span className="text-xs text-zinc-600">ARG</span>
+                     </p>
                   </div>
-
-                  {/* Glass shimmer effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.02] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* PROTOCOL ADVISORY */}
-          <motion.div variants={itemAnim} className="rounded-xl border border-amber-900/25 bg-amber-950/10 p-4 flex gap-3 items-start">
-            <AlertTriangle className="w-4 h-4 text-maroon shrink-0 mt-0.5" />
-            <div>
-              <p className="text-[10px] font-black text-maroon uppercase tracking-widest mb-1">Protocol Advisory</p>
-              <p className="text-[9px] text-zinc-500 leading-relaxed font-mono">
-                Verification blocks require absolute consensus. Maintain continuous connectivity to optimize GhostDAG performance.
-              </p>
-            </div>
-          </motion.div>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${user.miningActive ? 'bg-maroon/10 border-maroon/20' : 'bg-zinc-900 border-white/[0.05]'}`}>
+                     <Radio className={`w-4 h-4 ${user.miningActive ? 'text-maroon animate-pulse' : 'text-zinc-700'}`} />
+                  </div>
+               </div>
+               <div className="space-y-2 mb-6">
+                  <div className="h-1 bg-zinc-900 rounded-full overflow-hidden border border-white/[0.03]">
+                     <div className={`h-full bg-maroon transition-all duration-1000 shadow-[0_0_8px_#800000]`} style={{ width: `${progress}%` }} />
+                  </div>
+                  <div className="flex justify-between items-center text-[8px] font-black uppercase text-zinc-600 tracking-widest">
+                     <span>Time: {formatCountdown(miningTimer)}</span>
+                     <span className="text-maroon">{isSessionComplete ? 'COMPLETE' : 'ACTIVE_SYNC'}</span>
+                  </div>
+               </div>
+               <button 
+                  onClick={user.miningActive ? handleClaim : handleStartMining}
+                  disabled={isClaiming}
+                  className={`w-full py-3 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-500 active:scale-95 ${user.miningActive ? 'bg-zinc-900 border border-white/[0.05] hover:border-maroon/40 text-white' : 'bg-maroon hover:brightness-110 text-white shadow-[0_0_20px_rgba(128,0,0,0.2)]'}`}
+               >
+                  {isClaiming ? 'PROCESSING...' : user.miningActive ? (isSessionComplete ? 'SECURE_BLOCK_CLAIM' : 'TERMINATE_CLAIM') : 'INITIALIZE_KERNEL'}
+               </button>
+            </motion.div>
+          </div>
         </div>
 
-      </div>
-    </motion.div>
+        {/* BOTTOM SECTION: OPERATIONAL MODULES */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { label: 'Security_Level', value: 'RSA-4096-AES', icon: Shield, extra: 'ACTIVE_GUARD' },
+              { label: 'Referral_Bridge', value: `${referrals}/${MAX_REFERRALS} PEERS`, icon: TrendingUp, extra: `+${(referrals * REFERRAL_BOOST).toFixed(2)}/HR` },
+              { label: 'Protocol_Version', value: 'v2.8_PRODUCTION', icon: Cpu, extra: 'LATEST' },
+              { label: 'Cloud_Sovereignty', value: 'GLOBAL_MESH', icon: Globe, extra: 'CONNECTED' }
+            ].map((cap, i) => (
+              <motion.div key={cap.label} variants={itemAnim} className="p-6 bg-zinc-950/50 border border-white/[0.05] rounded-xl hover:bg-zinc-900/40 transition-all group">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center border border-white/[0.05] group-hover:bg-maroon/10 transition-colors">
+                    <cap.icon className="w-4 h-4 text-zinc-600 group-hover:text-maroon transition-colors" />
+                  </div>
+                  <span className="text-[9px] text-zinc-700 font-bold uppercase tracking-widest">{cap.extra}</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{cap.label}</p>
+                  <p className="text-sm font-black text-white group-hover:text-maroon transition-colors tracking-tight">{cap.value}</p>
+                </div>
+              </motion.div>
+            ))}
+        </div>
+
+        {/* PROTOCOL ADVISORY PANEL */}
+        <motion.div variants={itemAnim} className="mt-8 rounded-xl border border-maroon/10 bg-maroon/5 p-5 flex gap-4 items-center">
+          <AlertTriangle className="w-5 h-5 text-maroon animate-pulse" />
+          <div className="flex-1">
+            <p className="text-[10px] font-black text-maroon uppercase tracking-[0.2em] mb-1 italic leading-none">Institutional Protocol Advisory</p>
+            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-wider leading-relaxed">
+               Argus GhostDAG requires contiguous node alignment. All session data is cryptographically hashed via the local synapse bridge before claiming.
+            </p>
+          </div>
+          <div className="hidden md:flex gap-4">
+             <button className="text-[8px] font-black border border-white/[0.05] px-3 py-1.5 rounded uppercase tracking-widest hover:bg-white hover:text-black transition-all">Doc_01</button>
+             <button className="text-[8px] font-black border border-white/[0.05] px-3 py-1.5 rounded uppercase tracking-widest hover:bg-white hover:text-black transition-all">Doc_02</button>
+          </div>
+        </motion.div>
+
+      </motion.div>
+    </div>
   );
 };
 
