@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { animate } from 'framer-motion';
 
 interface AnimatedNumberProps {
   value: number;
@@ -17,25 +16,48 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   className = "" 
 }) => {
   const nodeRef = useRef<HTMLSpanElement>(null);
-  const prevValue = useRef(0);
+  const currentVal = useRef(value);
 
   useEffect(() => {
-    const node = nodeRef.current;
-    if (node) {
-      const controls = animate(prevValue.current, value, {
-        duration: 0.8, // Faster duration to avoid overlapping with frequent updates
-        ease: [0.16, 1, 0.3, 1], // Custom cinematic ease-out
-        onUpdate: (v) => {
-          node.textContent = `${prefix}${v.toLocaleString(undefined, { 
-            minimumFractionDigits: decimals, 
-            maximumFractionDigits: decimals 
-          })}${suffix}`;
-        }
-      });
-      prevValue.current = value;
-      return () => controls.stop();
-    }
+    let startTimestamp: number | null = null;
+    const duration = 500; // Smooth 500ms transition
+    const startValue = currentVal.current;
+    let animationFrame: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      
+      // Cinematic ease-out (expo)
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      const nowValue = startValue + (value - startValue) * easeProgress;
+      currentVal.current = nowValue;
+      
+      if (nodeRef.current) {
+        nodeRef.current.textContent = `${prefix}${nowValue.toLocaleString(undefined, { 
+          minimumFractionDigits: decimals, 
+          maximumFractionDigits: decimals 
+        })}${suffix}`;
+      }
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(step);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(animationFrame);
   }, [value, decimals, prefix, suffix]);
 
-  return <span ref={nodeRef} className={className} />;
+  // Initial render content
+  return (
+    <span ref={nodeRef} className={className}>
+      {`${prefix}${currentVal.current.toLocaleString(undefined, { 
+        minimumFractionDigits: decimals, 
+        maximumFractionDigits: decimals 
+      })}${suffix}`}
+    </span>
+  );
 };
