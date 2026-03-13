@@ -1,6 +1,6 @@
 # Argus Protocol
 
-[![Android Build](https://github.com/Fortunehack45/Argus-Protocol/actions/workflows/android-build.yml/badge.svg)](https://github.com/Fortunehack45/Argus-Protocol/actions/workflows/android-build.yml)
+
 
 **The Parallel Economy. Built on GhostDAG.**
 
