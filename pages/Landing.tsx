@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
+import { useLocks } from '../context/LockContext';
 import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services/firebase';
 import { LandingConfig } from '../types';
 import PublicLayout from '../components/PublicLayout';
@@ -277,6 +278,7 @@ const MobileStatusCard = () => (
 
 const Landing = () => {
    const navigate = useNavigate();
+   const { isLocked } = useLocks();
    const [openFaq, setOpenFaq] = useState<number | null>(null);
    const [content, setContent] = useState<LandingConfig | null>(null);
    const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
@@ -447,10 +449,18 @@ const Landing = () => {
                      </div>
 
                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 animate-fade-in opacity-0 will-change-premium" style={{ animationDelay: '0.6s' }}>
-                        <button onClick={() => navigate('/login')} className="btn-premium-maroon text-[10px]">
+                        <button 
+                           onClick={() => !isLocked('/') && navigate('/login')} 
+                           disabled={isLocked('/')}
+                           className={`btn-premium-maroon text-[10px] ${isLocked('/') ? 'opacity-50 grayscale cursor-not-allowed pointer-events-none' : ''}`}
+                        >
                            <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                         </button>
-                        <Link to="/whitepaper" className="btn-premium text-[10px]">
+                        <Link 
+                           to={isLocked('/whitepaper') ? '#' : '/whitepaper'} 
+                           onClick={isLocked('/whitepaper') ? (e) => e.preventDefault() : undefined}
+                           className={`btn-premium text-[10px] ${isLocked('/whitepaper') ? 'opacity-30 grayscale cursor-not-allowed pointer-events-none' : ''}`}
+                        >
                            {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
                         </Link>
                      </div>

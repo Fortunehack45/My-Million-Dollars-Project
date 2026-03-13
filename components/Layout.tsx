@@ -3,26 +3,18 @@ import { useLocation, Link, Navigate } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useAuth } from '../context/AuthContext';
-import { ADMIN_EMAIL, subscribeToLockedPages } from '../services/firebase';
+import { useLocks } from '../context/LockContext';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { loading: authLoading } = useAuth();
+  const { isLocked, loading: locksLoading } = useLocks();
   const location = useLocation();
-  const [lockedPages, setLockedPages] = React.useState<string[]>([]);
 
-  React.useEffect(() => {
-    const unsub = subscribeToLockedPages(setLockedPages);
-    return () => unsub();
-  }, []);
-
-  const isAuthorizedAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  const isLocked = lockedPages.includes(location.pathname) && !isAuthorizedAdmin;
-
-  if (isLocked) {
+  if (isLocked(location.pathname)) {
     return <Navigate to="/" replace />;
   }
 
-  if (loading) {
+  if (authLoading || locksLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">

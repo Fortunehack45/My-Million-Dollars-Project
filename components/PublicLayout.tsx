@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { useLocks } from '../context/LockContext';
 import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
@@ -30,6 +31,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const [landingConfig, setLandingConfig] = useState<LandingConfig>(DEFAULT_LANDING_CONFIG);
+  const { isLocked } = useLocks();
 
   useEffect(() => {
     const unsub = subscribeToLandingConfig(setLandingConfig);
@@ -91,11 +93,14 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 {navLinks.map((item) => (
                   <Link
                     key={item.path}
-                    to={item.path}
-                    className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-500 relative py-1 px-1 group/item ${location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
+                    to={isLocked(item.path) ? '#' : item.path}
+                    onClick={isLocked(item.path) ? (e) => e.preventDefault() : undefined}
+                    className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-500 relative py-1 px-1 group/item ${isLocked(item.path) ? 'opacity-30 grayscale cursor-not-allowed' : location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
                   >
                     {item.label}
-                    <span className={`absolute -bottom-1 left-0 h-[1.5px] bg-maroon transition-all duration-500 ${location.pathname === item.path ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></span>
+                    {!isLocked(item.path) && (
+                      <span className={`absolute -bottom-1 left-0 h-[1.5px] bg-maroon transition-all duration-500 ${location.pathname === item.path ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></span>
+                    )}
                   </Link>
                 ))}
               </div>
@@ -137,10 +142,10 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             {navLinks.map((item, index) => (
               <Link
                 key={item.path}
-                to={item.path}
-                onClick={() => setIsMobileMenuOpen(false)}
+                to={isLocked(item.path) ? '#' : item.path}
+                onClick={isLocked(item.path) ? (e) => { e.preventDefault(); } : () => setIsMobileMenuOpen(false)}
                 style={{ transitionDelay: `${index * 50 + 100}ms` }}
-                className={`text-3xl font-black uppercase tracking-tighter text-white hover:text-maroon transition-all transform ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                className={`text-3xl font-black uppercase tracking-tighter transition-all transform ${isLocked(item.path) ? 'opacity-20 grayscale cursor-not-allowed' : 'text-white hover:text-maroon'} ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
               >
                 {item.label}
               </Link>
@@ -211,10 +216,17 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                   <ul className="space-y-5">
                     {col.links?.map((link, lIdx) => (
                       <li key={lIdx}>
-                        <Link to={link.url} className="text-zinc-500 hover:text-white text-[13px] font-medium transition-all duration-300 flex items-center gap-3 group/link">
-                          <ArrowUpRight className="w-3.5 h-3.5 text-zinc-700 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 group-hover/link:text-maroon transition-all" />
-                          {link.label}
-                        </Link>
+                        {isLocked(link.url) ? (
+                          <span className="text-zinc-800 text-[13px] font-medium flex items-center gap-3 cursor-not-allowed opacity-50">
+                            <ArrowUpRight className="w-3.5 h-3.5 opacity-0" />
+                            {link.label}
+                          </span>
+                        ) : (
+                          <Link to={link.url} className="text-zinc-500 hover:text-white text-[13px] font-medium transition-all duration-300 flex items-center gap-3 group/link">
+                            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-700 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 group-hover/link:text-maroon transition-all" />
+                            {link.label}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>

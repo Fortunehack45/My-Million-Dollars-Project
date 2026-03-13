@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LockProvider, useLocks } from './context/LockContext';
 import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
 import PageTransition from './components/PageTransition';
@@ -28,19 +29,10 @@ import { subscribeToLockedPages, ADMIN_EMAIL } from './services/firebase';
 
 // Lockable Route (Enforces Admin Locks and optionally requires login)
 const LockableRoute = ({ children, path, requireLogin = true }: { children?: React.ReactNode, path: string, requireLogin?: boolean }) => {
-  const { user, firebaseUser, loading } = useAuth();
-  const [lockedPages, setLockedPages] = React.useState<string[]>([]);
-  const [checkingLocks, setCheckingLocks] = React.useState(true);
+  const { user, firebaseUser, loading: authLoading } = useAuth();
+  const { isLocked, loading: locksLoading } = useLocks();
 
-  React.useEffect(() => {
-    const unsub = subscribeToLockedPages((locks) => {
-      setLockedPages(locks);
-      setCheckingLocks(false);
-    });
-    return () => unsub();
-  }, []);
-
-  if (loading || checkingLocks) return (
+  if (authLoading || locksLoading) return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-8 h-8 border-2 border-maroon border-t-transparent rounded-full animate-spin"></div>
@@ -49,10 +41,7 @@ const LockableRoute = ({ children, path, requireLogin = true }: { children?: Rea
     </div>
   );
 
-  const isAuthorizedAdmin = firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  const isLocked = !isAuthorizedAdmin && lockedPages.includes(path);
-
-  if (isLocked) {
+  if (isLocked(path)) {
     if (path === '/') return <Navigate to="/login" replace />;
     return <Navigate to="/" replace />;
   }
@@ -191,11 +180,13 @@ const AppRoutes = () => {
 function App() {
   return (
     <AuthProvider>
-      <HashRouter>
-        <ScrollToTop />
-        <CookieConsent />
-        <AppRoutes />
-      </HashRouter>
+      <LockProvider>
+        <HashRouter>
+          <ScrollToTop />
+          <CookieConsent />
+          <AppRoutes />
+        </HashRouter>
+      </LockProvider>
     </AuthProvider>
   );
 }

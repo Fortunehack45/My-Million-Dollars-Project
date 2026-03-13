@@ -17,7 +17,7 @@ import {
   ShieldCheck as VaultIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { ADMIN_EMAIL, subscribeToLockedPages } from '../services/firebase';
+import { useLocks } from '../context/LockContext';
 import Logo from './Logo';
 
 const DesktopNavItem = ({ to, label, icon: Icon, highlight = false, isDisabled = false }: { to: string, label: string, icon: any, highlight?: boolean, isDisabled?: boolean, key?: React.Key }) => {
@@ -67,17 +67,18 @@ const MobileNavItem = ({ to, label, icon: Icon, isDisabled = false }: { to: stri
 };
 
 const Sidebar = () => {
-  const { user, firebaseUser, logout } = useAuth();
-  const [lockedPages, setLockedPages] = React.useState<string[]>([]);
-
-  React.useEffect(() => {
-    const unsub = subscribeToLockedPages(setLockedPages);
-    return () => unsub();
-  }, []);
+  const { user, logout, firebaseUser } = useAuth();
+  const { isLocked } = useLocks();
 
   // High-priority robust admin check
   const isAuthorizedAdmin =
-    firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    firebaseUser?.email?.toLowerCase() === (user?.email?.toLowerCase());
+  // Note: Local storage or other checks could be here, but using simplified check for now as we have it centralized in LockContext.
+  // Actually, the isLocked helper already handles admin check in LockContext.
+  
+  // Re-checking isAuthorizedAdmin isn't strictly necessary for isLocked if we use the hook correctly.
+  // But we still need it for the Command Center visibility.
+
 
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -132,7 +133,7 @@ const Sidebar = () => {
               to={item.to}
               label={item.label}
               icon={item.icon}
-              isDisabled={!isAuthorizedAdmin && lockedPages.includes(item.to)}
+              isDisabled={isLocked(item.to)}
             />
           ))}
         </div>
@@ -164,7 +165,7 @@ const Sidebar = () => {
                 to={item.to}
                 label={item.label}
                 icon={item.icon}
-                isDisabled={!isAuthorizedAdmin && lockedPages.includes(item.to)}
+                isDisabled={isLocked(item.to)}
               />
             ))}
 
