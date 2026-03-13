@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLocks } from '../context/LockContext';
+import { ADMIN_EMAIL } from '../services/firebase';
 import Logo from './Logo';
 
 const DesktopNavItem = ({ to, label, icon: Icon, highlight = false, isDisabled = false }: { to: string, label: string, icon: any, highlight?: boolean, isDisabled?: boolean, key?: React.Key }) => {
@@ -70,14 +71,9 @@ const Sidebar = () => {
   const { user, logout, firebaseUser } = useAuth();
   const { isLocked } = useLocks();
 
-  // High-priority robust admin check
+  // High-priority robust admin check against the actual ADMIN_EMAIL
   const isAuthorizedAdmin =
-    firebaseUser?.email?.toLowerCase() === (user?.email?.toLowerCase());
-  // Note: Local storage or other checks could be here, but using simplified check for now as we have it centralized in LockContext.
-  // Actually, the isLocked helper already handles admin check in LockContext.
-  
-  // Re-checking isAuthorizedAdmin isn't strictly necessary for isLocked if we use the hook correctly.
-  // But we still need it for the Command Center visibility.
+    user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
 
   const navItems = [
