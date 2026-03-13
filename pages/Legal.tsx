@@ -15,7 +15,7 @@ export const Terms = () => {
 
   return (
     <PublicLayout>
-      <div className="max-w-5xl mx-auto px-6 py-40 space-y-24 relative">
+      <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 space-y-24 relative">
         {/* Background Atmospheric Glow */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-maroon/[0.03] blur-[150px] -z-10 animate-pulse-slow"></div>
 
@@ -106,7 +106,7 @@ export const Privacy = () => {
 
   return (
     <PublicLayout>
-      <div className="max-w-5xl mx-auto px-6 py-40 space-y-24 relative">
+      <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 space-y-24 relative">
         {/* Background Subtle Accents */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-maroon/[0.03] blur-[150px] -z-10 animate-pulse-slow"></div>
 

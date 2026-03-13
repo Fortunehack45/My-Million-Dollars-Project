@@ -58,7 +58,7 @@ const Tokenomics = () => {
 
    return (
       <PublicLayout>
-         <div className="relative pt-28 md:pt-36 pb-32 min-h-screen overflow-hidden will-change-premium">
+         <div className="relative pt-28 md:pt-32 pb-32 min-h-screen overflow-hidden will-change-premium">
             {/* Matrix Rain Background */}
             <MatrixBackground color="rgba(128, 0, 0, 0.1)" opacity={0.4} />
 
@@ -68,7 +68,7 @@ const Tokenomics = () => {
                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-maroon/5 rounded-full blur-[100px] mix-blend-screen"></div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
 
                {/* Header - Institutional Economic Model */}
                <div className={`max-w-6xl mb-20 transition-all duration-[1500ms] ease-out-expo ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>

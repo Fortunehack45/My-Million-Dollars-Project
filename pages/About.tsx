@@ -15,7 +15,7 @@ const About = () => {
 
    return (
       <PublicLayout>
-         <div className="pt-32 pb-48 max-w-7xl mx-auto px-6 min-h-screen relative">
+         <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 min-h-screen relative">
             {/* Background Atmosphere */}
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_0%,rgba(128,0,0,0.03),transparent_70%)] pointer-events-none" />
 

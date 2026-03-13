@@ -45,12 +45,12 @@ const Whitepaper = () => {
 
    return (
       <PublicLayout>
-         <div className="relative pt-28 md:pt-36 pb-48 overflow-hidden bg-[#050505]">
+         <div className="relative pt-28 md:pt-32 pb-48 overflow-hidden bg-[#050505]">
             {/* Editorial Background Accents */}
             <div className="absolute top-0 right-0 w-[40%] h-full bg-gradient-to-l from-maroon/[0.02] to-transparent pointer-events-none"></div>
             <div className="absolute top-0 left-0 w-px h-full bg-zinc-900/50 ml-[5%] pointer-events-none hidden lg:block"></div>
 
-            <div className="max-w-5xl mx-auto px-8 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
                {/* Document Header */}
                <div className="mb-24 border-l-2 border-maroon pl-12 py-4">
                   <div className="flex items-center gap-4 mb-8">
