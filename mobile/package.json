@@ -29,6 +29,7 @@
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
     "expo-secure-store": "~14.0.1",
+    "expo-modules-core": "~2.2.3",
     "expo-web-browser": "~14.0.2",
     "firebase": "^10.14.1",
     "lucide-react-native": "^0.525.0",
