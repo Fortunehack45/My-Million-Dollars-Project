@@ -15,6 +15,21 @@ import {
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
 import { WalletTx } from '../types';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { AnimatedNumber } from '../components/AnimatedNumber';
+
+const staggerContainer: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+};
+
+const itemAnim: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } }
+};
 
 export const GAS_FEE_ARG = 0.001;
 
@@ -225,15 +240,22 @@ const Vault = () => {
             </div>
 
             {/* ──────────────────────── BODY ──────────────────────── */}
-            <div className="flex flex-1 overflow-hidden">
+            <motion.div 
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+                className="flex flex-1 overflow-hidden"
+            >
 
                 {/* ── SIDEBAR (desktop only) ── */}
-                <aside className="hidden lg:flex flex-col w-72 shrink-0 border-r border-zinc-900 bg-zinc-950/50 overflow-y-auto custom-scrollbar">
+                <motion.aside variants={itemAnim} className="hidden lg:flex flex-col w-72 shrink-0 border-r border-zinc-900 bg-zinc-950/50 overflow-y-auto custom-scrollbar">
 
                     {/* Net worth hero */}
                     <div className="p-6 border-b border-zinc-900/60">
                         <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mb-1">Portfolio Value</p>
-                        <p className="text-3xl font-black text-white tabular-nums">${totalUsd}</p>
+                        <p className="text-3xl font-black text-white tabular-nums">
+                            <AnimatedNumber prefix="$" value={balance.arg * argPrice.priceUsd + parseFloat(balance.eth) * ethPrice.priceUsd} decimals={2} />
+                        </p>
                         <p className="text-[10px] text-zinc-500 mt-1">Across all networks</p>
                     </div>
 
@@ -292,10 +314,10 @@ const Vault = () => {
                             </div>
                         ))}
                     </div>
-                </aside>
+                </motion.aside>
 
                 {/* ── MAIN CONTENT ── */}
-                <main className="flex-1 overflow-y-auto custom-scrollbar">
+                <motion.main variants={itemAnim} className="flex-1 overflow-y-auto custom-scrollbar">
 
                     {/* Mobile top bar */}
                     <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-zinc-900 bg-zinc-950">
@@ -341,7 +363,9 @@ const Vault = () => {
                                     {activeNetwork === 'ARG' ? 'Argus GhostDAG' : 'Ethereum Mainnet'} Balance
                                 </p>
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-5xl lg:text-6xl font-black text-white tabular-nums">${usdVal}</span>
+                                    <span className="text-5xl lg:text-6xl font-black text-white tabular-nums">
+                                        <AnimatedNumber prefix="$" value={dispBal.amount * dispBal.price} decimals={2} />
+                                    </span>
                                     <span className="text-sm text-zinc-500 font-mono">USD</span>
                                 </div>
                                 <p className="text-zinc-400 text-sm mt-2 font-mono">
@@ -468,14 +492,27 @@ const Vault = () => {
                             </div>
                         </div>
                     </div>
-                </main>
-            </div>
+                </motion.main>
+            </motion.div>
 
             {/* ── MODALS ─────────────────────────────────────────────── */}
+            <AnimatePresence>
             {activeModal && (
-                <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center sm:p-4">
+                <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center sm:p-4"
+                >
                     <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
-                    <div className="relative w-full sm:max-w-md bg-zinc-900 sm:rounded-[2rem] rounded-t-[3rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden max-h-[92vh] flex flex-col border-t border-zinc-800 sm:border-none">
+                    <motion.div 
+                        initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: "100%", opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}
+                        className="relative w-full sm:max-w-md bg-zinc-900 sm:rounded-[2rem] rounded-t-[3rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden max-h-[92vh] flex flex-col border-t border-zinc-800 sm:border-none"
+                    >
                         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
                             <h2 className="text-xs font-black text-white uppercase tracking-widest">
                                 {activeModal === 'SEND' && `Send ${activeNetwork}`}
@@ -568,7 +605,10 @@ const Vault = () => {
                                 <div className="space-y-4">
                                     <div className="text-center pb-4 border-b border-zinc-800">
                                         <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-2">Amount</p>
-                                        <p className="text-4xl font-black text-white">{Number(selectedTx.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}<span className="text-sm text-zinc-500 ml-2">{selectedTx.chain}</span></p>
+                                        <p className="text-4xl font-black text-white">
+                                            <AnimatedNumber value={Number(selectedTx.amount)} decimals={6} />
+                                            <span className="text-sm text-zinc-500 ml-2">{selectedTx.chain}</span>
+                                        </p>
                                         <div className="mt-3 flex justify-center"><StatusBadge status={selectedTx.status} /></div>
                                     </div>
                                     {[
@@ -604,9 +644,10 @@ const Vault = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             )}
+            </AnimatePresence>
         </div>
     );
 };

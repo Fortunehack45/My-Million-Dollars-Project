@@ -382,16 +382,22 @@ body {
    ============================================= */
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
+  height: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+  margin: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(39, 39, 42, 0.5);
+  background-color: rgba(255, 255, 255, 0.05); /* Very subtle by default */
   border-radius: 9999px;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15); /* More visible when container hovered */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -467,11 +473,12 @@ body {
 }
 
 .scale-ripple {
-  transition: transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
 }
 
 .scale-ripple:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 /* =============================================

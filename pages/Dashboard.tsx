@@ -30,10 +30,27 @@ import {
   TrendingUp, Shield, Clock
 } from 'lucide-react';
 import { NetworkStats } from '../types';
+import { motion, Variants } from 'framer-motion';
 import { Tooltip } from '../components/Tooltip';
 import Skeleton from '../components/Skeleton';
 import { useTokenPrices } from '../services/TokenPriceService';
 import { ArgusLogo } from '../components/ArgusLogo';
+import { AnimatedNumber } from '../components/AnimatedNumber';
+
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemAnim: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 25 } }
+};
 
 const DashboardSkeleton = () => (
   <div className="w-full space-y-5 pb-16">
@@ -162,8 +179,8 @@ const GhostDAGVisualizer = () => {
 };
 
 // Professional Stat Card
-const StatCard = ({ label, value, subValue, icon: Icon, trend, trendUp, tooltip }: any) => (
-  <div className="group relative transition-all duration-700 hover:-translate-y-1.5 h-full">
+const StatCard = ({ label, valueComponent, subValue, icon: Icon, trend, trendUp, tooltip }: any) => (
+  <motion.div variants={itemAnim} className="group relative transition-all duration-700 hover:-translate-y-1.5 h-full">
     <div className="frosted-glass border border-white/5 h-full p-6 flex flex-col justify-between relative z-10 bg-zinc-950/90 shadow-2xl">
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div className="p-2.5 bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-white/5 group-hover:border-maroon/30 transition-all duration-500">
@@ -184,11 +201,13 @@ const StatCard = ({ label, value, subValue, icon: Icon, trend, trendUp, tooltip 
             </div>
           </Tooltip>
         </div>
-        <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">{value}</p>
+        <p className="text-2xl font-mono font-black text-white tracking-tight group-hover:text-maroon/90 transition-all duration-500">
+          {valueComponent}
+        </p>
         {subValue && <p className="text-[10px] text-zinc-600 mt-1.5 font-medium">{subValue}</p>}
       </div>
     </div>
-  </div>
+  </motion.div>
 );
 
 const Dashboard = () => {
@@ -312,10 +331,15 @@ const Dashboard = () => {
   const progress = (miningTimer / MAX_SESSION_TIME) * 100;
 
   return (
-    <div className="w-full space-y-5 pb-16">
+    <motion.div 
+      variants={staggerContainer}
+      initial="hidden"
+      animate="show"
+      className="w-full space-y-5 pb-16"
+    >
 
       {/* HEADER */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900">
+      <motion.header variants={itemAnim} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-zinc-950 border border-zinc-800 flex items-center justify-center rounded-xl">
             <Activity className="w-5 h-5 text-maroon" />
@@ -339,22 +363,42 @@ const Dashboard = () => {
             <p className="text-sm font-mono font-black text-maroon">#{blockHeight.toLocaleString()}</p>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* STATS GRID */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
         <StatCard
           label="Mined ARG"
-          value={`${(minedArg ?? user.points).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ARG`}
+          valueComponent={<><AnimatedNumber value={minedArg ?? user.points} decimals={2} /> ARG</>}
           subValue={`≈ $${((minedArg ?? user.points) * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`}
           icon={() => <ArgusLogo className="w-5 h-5 text-maroon" />}
           trend={`${arg.change24h >= 0 ? '+' : ''}${arg.change24h}%`}
           trendUp={arg.change24h >= 0}
           tooltip="ARG mined by your node (excludes received transfers)."
         />
-        <StatCard label="Unmined Supply" value={fmt(leftToMine)} subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} icon={Layers} tooltip="Remaining ARG pool for Genesis Epoch distribution." />
-        <StatCard label="Network Throughput" value={`${tps.toLocaleString()} TPS`} subValue="Finality: < 400ms" icon={Zap} trend="Stable" trendUp={null} tooltip="Aggregate transactions per second across all global shards." />
-        <StatCard label="Active Miners" value={activeMinerCount.toLocaleString()} subValue={`Mining Now · Shards: ${Math.max(1, Math.floor(activeMinerCount / 50))}`} icon={Server} tooltip="Live count of verified nodes currently securing the GhostDAG and mining ARG." />
+        <StatCard 
+          label="Unmined Supply" 
+          valueComponent={<AnimatedNumber value={leftToMine} decimals={0} />} 
+          subValue={`Cap: ${fmt(TOTAL_SUPPLY)} ARG`} 
+          icon={Layers} 
+          tooltip="Remaining ARG pool for Genesis Epoch distribution." 
+        />
+        <StatCard 
+          label="Network Throughput" 
+          valueComponent={<><AnimatedNumber value={tps} decimals={0} /> TPS</>} 
+          subValue="Finality: < 400ms" 
+          icon={Zap} 
+          trend="Stable" 
+          trendUp={null} 
+          tooltip="Aggregate transactions per second across all global shards." 
+        />
+        <StatCard 
+          label="Active Miners" 
+          valueComponent={<AnimatedNumber value={activeMinerCount} decimals={0} />} 
+          subValue={`Mining Now · Shards: ${Math.max(1, Math.floor(activeMinerCount / 50))}`} 
+          icon={Server} 
+          tooltip="Live count of verified nodes currently securing the GhostDAG and mining ARG." 
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -363,7 +407,7 @@ const Dashboard = () => {
         <div className="lg:col-span-8 space-y-5">
 
           {/* GHOSTDAG VISUALIZER */}
-          <div className="h-[340px] md:h-[380px] rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col frosted-glass bg-zinc-950/90 group/viz shadow-2xl">
+          <motion.div variants={itemAnim} className="h-[340px] md:h-[380px] rounded-[2.5rem] border border-white/5 relative overflow-hidden flex flex-col frosted-glass bg-zinc-950/90 group/viz shadow-2xl">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(24,24,27,0.2),rgba(3,3,5,1)_80%)]" />
             <div className="relative z-10 px-5 py-3.5 border-b border-white/[0.04] flex justify-between items-center bg-black/60 backdrop-blur-md">
               <div className="flex items-center gap-3">
@@ -385,10 +429,10 @@ const Dashboard = () => {
             <div className="relative flex-1 w-full overflow-hidden">
               <GhostDAGVisualizer />
             </div>
-          </div>
+          </motion.div>
 
           {/* MINING CONTROLLER */}
-          <div className="rounded-[2.5rem] border border-white/5 frosted-glass bg-zinc-950/90 p-6 md:p-8 relative overflow-hidden shadow-2xl group/mining">
+          <motion.div variants={itemAnim} className="rounded-[2.5rem] border border-white/5 frosted-glass bg-zinc-950/90 p-6 md:p-8 relative overflow-hidden shadow-2xl group/mining">
             <div className="absolute top-0 right-0 w-72 h-72 bg-maroon/[0.04] blur-[100px] rounded-full pointer-events-none" />
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start md:items-center">
@@ -405,10 +449,10 @@ const Dashboard = () => {
                   <div className="text-right">
                     <p className="label-meta mb-1">Session Yield</p>
                     <p className="text-2xl md:text-3xl font-mono font-black text-white tabular-nums">
-                      {pendingPoints.toFixed(4)} <span className="text-xs text-zinc-600">ARG</span>
+                      <AnimatedNumber value={pendingPoints} decimals={4} /> <span className="text-xs text-zinc-600">ARG</span>
                     </p>
                     <p className="text-[10px] font-mono text-zinc-400 mt-1 uppercase tracking-wider">
-                      ≈ ${(pendingPoints * 0.5).toFixed(4)} USD
+                      ≈ $<AnimatedNumber value={pendingPoints * 0.5} decimals={4} /> USD
                     </p>
                   </div>
                 </div>
@@ -447,14 +491,14 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="lg:col-span-4 space-y-5">
 
           {/* SYSTEM LOG — macOS Style */}
-          <div className="rounded-2xl border border-white/[0.05] bg-black/80 backdrop-blur-2xl flex flex-col h-[292px] md:h-[340px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group/terminal">
+          <motion.div variants={itemAnim} className="rounded-2xl border border-white/[0.05] bg-black/80 backdrop-blur-2xl flex flex-col h-[292px] md:h-[340px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group/terminal">
             <div className="px-4 py-3 border-b border-white/[0.03] flex items-center justify-between bg-zinc-900/40 relative">
               <div className="flex gap-1.5 group/controls">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] border border-[#E0443E]/50" />
@@ -496,10 +540,10 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* CORE CAPABILITIES — Elevated Visual Polish */}
-          <div className="grid grid-cols-2 gap-4">
+          <motion.div variants={itemAnim} className="grid grid-cols-2 gap-4">
             {[
               { label: 'Security', value: 'RSA-4096-AES', icon: Shield, tooltip: 'End-to-end encrypted packet transmission with rotating keys.' },
               { label: 'Referrals', value: `${referrals}/${MAX_REFERRALS} ACTIVE`, icon: TrendingUp, tooltip: 'Network growth contribution and active referral count.' },
@@ -530,10 +574,10 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           {/* PROTOCOL ADVISORY */}
-          <div className="rounded-xl border border-amber-900/25 bg-amber-950/10 p-4 flex gap-3 items-start">
+          <motion.div variants={itemAnim} className="rounded-xl border border-amber-900/25 bg-amber-950/10 p-4 flex gap-3 items-start">
             <AlertTriangle className="w-4 h-4 text-maroon shrink-0 mt-0.5" />
             <div>
               <p className="text-[10px] font-black text-maroon uppercase tracking-widest mb-1">Protocol Advisory</p>
@@ -541,11 +585,11 @@ const Dashboard = () => {
                 Verification blocks require absolute consensus. Maintain continuous connectivity to optimize GhostDAG performance.
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
       </div>
-    </div>
+    </motion.div>
   );
 };
 

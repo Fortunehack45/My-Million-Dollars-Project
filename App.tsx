@@ -1,8 +1,9 @@
-
 import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useSearchParams } from 'react-router';
+import { HashRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
+import PageTransition from './components/PageTransition';
 import Dashboard from './pages/Dashboard';
 import SocialTasks from './pages/SocialTasks';
 import Leaderboard from './pages/Leaderboard';
@@ -106,6 +107,7 @@ const AdminRoute = ({ children }: { children?: React.ReactNode }) => {
 const AppRoutes = () => {
   const { firebaseUser, user, loading } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   // Capture referral code from URL and persist it
   useEffect(() => {
@@ -116,79 +118,81 @@ const AppRoutes = () => {
   }, [searchParams]);
 
   return (
-    <Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
       <Route path="/" element={
         loading ? null : (
           firebaseUser ? (
             user ? (
               <ProtectedRoute>
-                <Dashboard />
+        <PageTransition><Dashboard /></PageTransition>
               </ProtectedRoute>
             ) : <Navigate to="/setup" />
-          ) : <Landing />
+          ) : <PageTransition><Landing /></PageTransition>
         )
       } />
 
       <Route path="/login" element={
         <PublicRoute>
-          <Login />
+          <PageTransition><Login /></PageTransition>
         </PublicRoute>
       } />
 
       <Route path="/setup" element={
-        firebaseUser && !user ? <ProfileSetup /> : <Navigate to="/" />
+        firebaseUser && !user ? <PageTransition><ProfileSetup /></PageTransition> : <Navigate to="/" />
       } />
 
       {/* App Routes */}
       <Route path="/tasks" element={
         <ProtectedRoute>
-          <SocialTasks />
+          <PageTransition><SocialTasks /></PageTransition>
         </ProtectedRoute>
       } />
 
       <Route path="/leaderboard" element={
         <ProtectedRoute>
-          <Leaderboard />
+          <PageTransition><Leaderboard /></PageTransition>
         </ProtectedRoute>
       } />
 
       <Route path="/referrals" element={
         <ProtectedRoute>
-          <Referrals />
+          <PageTransition><Referrals /></PageTransition>
         </ProtectedRoute>
       } />
 
       <Route path="/nft" element={
         <ProtectedRoute>
-          <NFTSection />
+          <PageTransition><NFTSection /></PageTransition>
         </ProtectedRoute>
       } />
 
       <Route path="/vault" element={
         <RegistryProtectedRoute path="/vault">
-          <Vault />
+          <PageTransition><Vault /></PageTransition>
         </RegistryProtectedRoute>
       } />
 
       <Route path="/admin" element={
         <AdminRoute>
-          <AdminPanel />
+          <PageTransition><AdminPanel /></PageTransition>
         </AdminRoute>
       } />
 
       {/* Public Routes */}
-      <Route path="/docs" element={<Docs />} />
-      <Route path="/architecture" element={<Architecture />} />
-      <Route path="/whitepaper" element={<Whitepaper />} />
-      <Route path="/tokenomics" element={<Tokenomics />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/careers" element={<Careers />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/docs" element={<PageTransition><Docs /></PageTransition>} />
+      <Route path="/architecture" element={<PageTransition><Architecture /></PageTransition>} />
+      <Route path="/whitepaper" element={<PageTransition><Whitepaper /></PageTransition>} />
+      <Route path="/tokenomics" element={<PageTransition><Tokenomics /></PageTransition>} />
+      <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+      <Route path="/careers" element={<PageTransition><Careers /></PageTransition>} />
+      <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+      <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+      <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
+    </AnimatePresence>
   );
 };
 
