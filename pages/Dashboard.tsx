@@ -436,13 +436,13 @@ const Dashboard = () => {
                   </div>
                </div>
                <button 
-                  onClick={user.miningActive ? (isSessionComplete ? handleClaim : undefined) : handleStartMining}
-                  disabled={isClaiming || (user.miningActive && !isSessionComplete)}
+                  onClick={user.miningActive ? handleClaim : handleStartMining}
+                  disabled={isClaiming}
                   className={`w-full py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 shadow-2xl relative overflow-hidden group/btn disabled:pointer-events-none disabled:hover:translate-y-0 ${
                      user.miningActive 
                         ? (isSessionComplete 
                            ? 'bg-emerald-500 text-white hover:brightness-110 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.5)]' 
-                           : 'bg-zinc-900 border border-white/[0.05] text-zinc-600') 
+                           : 'bg-zinc-900 border border-white/[0.05] text-white hover:border-maroon/40') 
                         : 'bg-maroon text-white hover:brightness-110 shadow-[0_10px_30px_-10px_rgba(128,0,0,0.5)]'
                   }`}
                >
@@ -451,7 +451,7 @@ const Dashboard = () => {
                      {isClaiming 
                         ? 'PROCESSING_TRANSACTION...' 
                         : user.miningActive 
-                           ? (isSessionComplete ? 'SECURE_BLOCK_CLAIM' : 'ACTIVE_SYNC_IN_PROGRESS...') 
+                           ? (isSessionComplete ? 'SECURE_BLOCK_CLAIM' : 'TERMINATE_CLAIM') 
                            : 'INITIALIZE_KERNEL'}
                   </span>
                </button>
