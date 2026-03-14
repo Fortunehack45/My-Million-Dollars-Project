@@ -17,7 +17,6 @@ import {
 } from '../services/supabase';
 import {
   CURRENT_ARG_PRICE, calculateCurrentBlockHeight,
-  AVG_BLOCK_TIME_MS,
 } from '../services/firebase';
 import { ArgusSynapseService } from '../services/ArgusSynapseService';
 import type { LaunchpadCoin, LaunchpadTrade, PriceAlert } from '../types';
