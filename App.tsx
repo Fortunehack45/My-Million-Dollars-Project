@@ -114,7 +114,7 @@ const AppRoutes = () => {
   }, [searchParams]);
 
   // Determine if we are on a public page and should show the PublicLayout
-  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy', '/launchpad'];
+  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy'];
   const isPublicPage = publicPaths.some(path => location.pathname === path) || (!firebaseUser && location.pathname === '/');
 
   // Wrap content with the correct layout - Stabilized to prevent flickering
@@ -144,7 +144,6 @@ const AppRoutes = () => {
                 <Route path="/terms" element={<LockableRoute path="/terms" requireLogin={false}><PageTransition><Terms /></PageTransition></LockableRoute>} />
                 <Route path="/privacy" element={<LockableRoute path="/privacy" requireLogin={false}><PageTransition><Privacy /></PageTransition></LockableRoute>} />
                 <Route path="/argusscan" element={<LockableRoute path="/argusscan" requireLogin={false}><PageTransition><ArgusScan /></PageTransition></LockableRoute>} />
-                <Route path="/launchpad" element={<LockableRoute path="/launchpad" requireLogin={false}><PageTransition><ArgusLaunchpad /></PageTransition></LockableRoute>} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </AnimatePresence>
@@ -172,7 +171,7 @@ const AppRoutes = () => {
                 <Route path="/nft" element={<LockableRoute path="/nft" requireLogin={true}><PageTransition><NFTSection /></PageTransition></LockableRoute>} />
                 <Route path="/vault" element={<LockableRoute path="/vault" requireLogin={true}><PageTransition><Vault /></PageTransition></LockableRoute>} />
                 <Route path="/admin" element={<AdminRoute><PageTransition><AdminPanel /></PageTransition></AdminRoute>} />
-                <Route path="/launchpad" element={<LockableRoute path="/launchpad" requireLogin={false}><PageTransition><ArgusLaunchpad /></PageTransition></LockableRoute>} />
+                <Route path="/launchpad" element={<LockableRoute path="/launchpad" requireLogin={true}><PageTransition><ArgusLaunchpad /></PageTransition></LockableRoute>} />
                 <Route path="/argusscan" element={<LockableRoute path="/argusscan" requireLogin={false}><PageTransition><ArgusScan /></PageTransition></LockableRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
