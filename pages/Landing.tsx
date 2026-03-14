@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { useLocks } from '../context/LockContext';
 import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services/firebase';
 import { LandingConfig } from '../types';
+import MatrixBackground from '../components/MatrixBackground';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
 import {
@@ -48,7 +49,7 @@ interface LogEntry {
    timestamp: string;
 }
 
-const Terminal = () => {
+const Terminal = React.memo(() => {
    const [logs, setLogs] = useState<LogEntry[]>([]);
    const [currentLine, setCurrentLine] = useState('');
    const scrollRef = useRef<HTMLDivElement>(null);
@@ -242,10 +243,10 @@ const Terminal = () => {
          </div>
       </div>
    );
-};
+});
 
 // Simplified Network Activity Indicator
-const NetworkStatus = () => (
+const NetworkStatus = React.memo(() => (
    <div className="flex items-center gap-6 px-6 py-3 bg-zinc-950/50 border border-white/[0.03] backdrop-blur-xl rounded-2xl">
       <div className="flex -space-x-2">
          {[1, 2, 3].map(i => (
@@ -264,9 +265,9 @@ const NetworkStatus = () => (
          <span className="text-[10px] font-mono text-zinc-600">402k_TPS</span>
       </div>
    </div>
-);
+));
 
-const MobileStatusCard = () => (
+const MobileStatusCard = React.memo(() => (
    <div className="w-full bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 flex items-center justify-between mb-8 animate-fade-in-up">
       <div className="flex items-center gap-3">
          <div className="w-10 h-10 bg-zinc-950 rounded-lg flex items-center justify-center border border-zinc-800">
@@ -285,7 +286,7 @@ const MobileStatusCard = () => (
          <p className="text-sm font-mono font-bold text-white">402,192</p>
       </div>
    </div>
-);
+));
 
 const Landing = () => {
    const navigate = useNavigate();
@@ -327,83 +328,11 @@ const Landing = () => {
       return () => observer.disconnect();
    }, [content]);
 
-   // Mouse & Matrix Effect Logic
+   // Mouse interaction for the beam effect
    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-   const canvasRef = useRef<HTMLCanvasElement>(null);
-   const requestRef = useRef<number>(null);
-
    const handleMouseMove = useCallback((e: React.MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
    }, []);
-
-   useEffect(() => {
-      if (!canvasRef.current) return;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const resize = () => {
-         canvas.width = window.innerWidth;
-         canvas.height = window.innerHeight;
-      };
-      resize();
-      window.addEventListener('resize', resize);
-
-      const isMobile = window.innerWidth < 768;
-      const fontSize = isMobile ? 12 : 14;
-      const chars = "01";
-      let columns = Math.floor(canvas.width / fontSize);
-      let drops: number[] = new Array(columns).fill(1).map(() => Math.random() * (canvas.height / fontSize));
-
-      let lastTime = 0;
-      const fps = 30; // Stabilized framerate
-      const interval = 1000 / fps;
-
-      const draw = (timestamp: number) => {
-         requestRef.current = requestAnimationFrame(draw);
-
-         const delta = timestamp - lastTime;
-         if (delta < interval) return;
-         lastTime = timestamp - (delta % interval);
-
-         ctx.fillStyle = "rgba(9, 9, 11, 0.05)";
-         ctx.fillRect(0, 0, canvas.width, canvas.height);
-         ctx.font = fontSize + "px 'JetBrains Mono', monospace";
-
-         const beamX = mousePos.x;
-         const beamY = mousePos.y;
-         const radius = 400;
-
-         for (let i = 0; i < drops.length; i++) {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            const x = i * fontSize;
-            const y = drops[i] * fontSize;
-
-            let alpha = 0.02; // Reduced baseline for professional feel
-            if (!isMobile) {
-               const dx = x - beamX;
-               const dy = y - beamY;
-               const dist = Math.sqrt(dx * dx + dy * dy);
-               if (dist < radius) {
-                  const intensity = 1 - (dist / radius);
-                  alpha = Math.max(alpha, intensity * 0.4); // Softer beam
-               }
-            }
-
-            ctx.fillStyle = `rgba(128, 0, 0, ${alpha})`;
-            ctx.fillText(char, x, y);
-
-            if (y > canvas.height && Math.random() > 0.995) drops[i] = 0; // Much slower reset
-            drops[i] += 0.5; // Half speed falling
-         }
-      };
-
-      requestRef.current = requestAnimationFrame(draw);
-      return () => {
-         if (requestRef.current) cancelAnimationFrame(requestRef.current);
-         window.removeEventListener('resize', resize);
-      };
-   }, [mousePos]);
 
    const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
 
@@ -424,9 +353,9 @@ const Landing = () => {
          onMouseMove={handleMouseMove}
       >
 
-            {/* MATRIX BACKGROUND */}
+            {/* OPTIMIZED MATRIX BACKGROUND */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
-               <canvas ref={canvasRef} className="absolute inset-0" />
+               <MatrixBackground color="rgba(128, 0, 0, 0.12)" opacity={0.4} />
                <div
                   className="absolute w-[600px] h-[600px] bg-maroon/5 blur-[120px] rounded-full will-change-transform pointer-events-none transition-transform duration-75 ease-out hidden md:block"
                   style={{ transform: `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)` }}

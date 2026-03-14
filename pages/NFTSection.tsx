@@ -114,6 +114,7 @@ const NFTSection = () => {
                         <img
                            src={NFT_IMAGE_URL}
                            alt="Argus Genesis License"
+                           loading="lazy"
                            className="w-full h-full object-cover opacity-80 group-hover/asset:opacity-100 group-hover/asset:scale-110 transition-all duration-[2000ms] ease-out-expo"
                         />
 

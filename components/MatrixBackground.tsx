@@ -40,9 +40,21 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({
         let lastTime = 0;
         const fps = 30; // Cap FPS for smoother perception and battery life
         const interval = 1000 / fps;
+        let isVisible = true;
+
+        const observer = new IntersectionObserver(([entry]) => {
+            isVisible = entry.isIntersecting;
+        }, { threshold: 0.1 });
+        observer.observe(canvas);
+
+        const handleVisibilityChange = () => {
+            isVisible = document.visibilityState === 'visible';
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         const draw = (timestamp: number) => {
             animationId = requestAnimationFrame(draw);
+            if (!isVisible) return;
 
             const delta = timestamp - lastTime;
             if (delta < interval) return;
@@ -86,6 +98,8 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({
         return () => {
             cancelAnimationFrame(animationId);
             window.removeEventListener('resize', resize);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            observer.disconnect();
         };
     }, [color, fontSize, speed, chars]);
 

@@ -189,7 +189,7 @@ const Sidebar = () => {
             <div className="mt-auto pt-6 border-t border-zinc-900">
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors cursor-default group">
                 <div className="relative">
-                  <img src={user.photoURL || ''} className="w-9 h-9 rounded-xl grayscale group-hover:grayscale-0 transition-all duration-500 border border-zinc-800" alt="" />
+                  <img src={user.photoURL || ''} className="w-9 h-9 rounded-xl grayscale group-hover:grayscale-0 transition-all duration-500 border border-zinc-800" alt="" loading="lazy" />
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-zinc-950 rounded-full flex items-center justify-center">
                     <div className="w-1.5 h-1.5 bg-maroon rounded-full animate-pulse shadow-[0_0_8px_#800000]"></div>
                   </div>

@@ -178,7 +178,7 @@ const RiskAnalysisModal = ({ ip, users, onClose }: { ip: string, users: User[], 
               <div key={u.uid} className="flex items-center justify-between p-4 bg-zinc-900/20 border border-zinc-900 rounded-xl group hover:border-maroon/30 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden">
-                    {u.photoURL ? <img src={u.photoURL} alt="" /> : <span className="text-[10px] text-zinc-700">{(u.displayName || 'U')[0]}</span>}
+                    {u.photoURL ? <img src={u.photoURL} alt="" loading="lazy" /> : <span className="text-[10px] text-zinc-700">{(u.displayName || 'U')[0]}</span>}
                   </div>
                   <div>
                     <p className="text-xs font-bold text-white group-hover:text-maroon transition-colors">{u.displayName || 'Anonymous'}</p>
