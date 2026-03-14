@@ -67,7 +67,7 @@ const LockableRoute = ({ children, path, requireLogin = true }: { children?: Rea
   if (requireLogin) {
     if (!firebaseUser) return <Navigate to="/login" replace />;
     if (!user) return <Navigate to="/setup" replace />;
-    return <Layout>{children}</Layout>;
+    return <>{children}</>;
   }
 
   return <>{children}</>;
@@ -148,31 +148,32 @@ const AppRoutes = () => {
             </AnimatePresence>
           </PublicLayout>
         ) : (
-          <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0 })}>
-            <Routes location={location} key={location.pathname}>
-              <Route path="/" element={
-                loading ? null : (
-                  firebaseUser ? (
-                    user ? (
-                      <LockableRoute path="/" requireLogin={true}>
-                        <PageTransition><Dashboard /></PageTransition>
-                      </LockableRoute>
-                    ) : <Navigate to="/setup" />
-                  ) : <Navigate to="/" />
-                )
-              } />
-              <Route path="/login" element={<PublicRoute><PageTransition><Login /></PageTransition></PublicRoute>} />
-              <Route path="/setup" element={firebaseUser && !user ? <PageTransition><ProfileSetup /></PageTransition> : <Navigate to="/" />} />
-              <Route path="/tasks" element={<LockableRoute path="/tasks" requireLogin={true}><PageTransition><SocialTasks /></PageTransition></LockableRoute>} />
-              <Route path="/leaderboard" element={<LockableRoute path="/leaderboard" requireLogin={true}><PageTransition><Leaderboard /></PageTransition></LockableRoute>} />
-              <Route path="/referrals" element={<LockableRoute path="/referrals" requireLogin={true}><PageTransition><Referrals /></PageTransition></LockableRoute>} />
-              <Route path="/nft" element={<LockableRoute path="/nft" requireLogin={true}><PageTransition><NFTSection /></PageTransition></LockableRoute>} />
-              <Route path="/vault" element={<LockableRoute path="/vault" requireLogin={true}><PageTransition><Vault /></PageTransition></LockableRoute>} />
-              <Route path="/admin" element={<AdminRoute><PageTransition><AdminPanel /></PageTransition></AdminRoute>} />
-              {/* Fallback for public routes if they accidentally end up here without PublicLayout (shouldn't happen with redirect) */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </AnimatePresence>
+          <Layout>
+            <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0 })}>
+              <Routes location={location} key={location.pathname}>
+                <Route path="/" element={
+                  loading ? null : (
+                    firebaseUser ? (
+                      user ? (
+                        <LockableRoute path="/" requireLogin={true}>
+                          <PageTransition><Dashboard /></PageTransition>
+                        </LockableRoute>
+                      ) : <Navigate to="/setup" replace />
+                    ) : <Navigate to="/" replace />
+                  )
+                } />
+                <Route path="/login" element={<PublicRoute><PageTransition><Login /></PageTransition></PublicRoute>} />
+                <Route path="/setup" element={firebaseUser && !user ? <PageTransition><ProfileSetup /></PageTransition> : <Navigate to="/" replace />} />
+                <Route path="/tasks" element={<LockableRoute path="/tasks" requireLogin={true}><PageTransition><SocialTasks /></PageTransition></LockableRoute>} />
+                <Route path="/leaderboard" element={<LockableRoute path="/leaderboard" requireLogin={true}><PageTransition><Leaderboard /></PageTransition></LockableRoute>} />
+                <Route path="/referrals" element={<LockableRoute path="/referrals" requireLogin={true}><PageTransition><Referrals /></PageTransition></LockableRoute>} />
+                <Route path="/nft" element={<LockableRoute path="/nft" requireLogin={true}><PageTransition><NFTSection /></PageTransition></LockableRoute>} />
+                <Route path="/vault" element={<LockableRoute path="/vault" requireLogin={true}><PageTransition><Vault /></PageTransition></LockableRoute>} />
+                <Route path="/admin" element={<AdminRoute><PageTransition><AdminPanel /></PageTransition></AdminRoute>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AnimatePresence>
+          </Layout>
         )}
       </Suspense>
     </div>
