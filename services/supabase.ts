@@ -61,6 +61,7 @@ function mapCoin(row: any): LaunchpadCoin {
     volume24h: Number(row.volume_24h || 0),
     priceChange24h: Number(row.price_change_24h || 0),
     marketCap: Number(row.market_cap || 0),
+    price: Number(row.price || 0.0001),
     isBoosted: row.is_boosted || false,
     boostExpiry: row.boost_expiry ? Number(row.boost_expiry) : undefined,
     createdAt: new Date(row.created_at).getTime(),
@@ -117,7 +118,7 @@ export const createCoin = async (payload: {
   const risk_score = computeRiskScore({ liquidity: payload.liquidity, createdAt: Date.now() });
   const { data, error } = await supabase
     .from('coins')
-    .insert([{ ...payload, risk_score, volume_24h: 0, price_change_24h: 0, market_cap: 0, is_boosted: false }])
+    .insert([{ ...payload, risk_score, volume_24h: 0, price_change_24h: 0, market_cap: 0, price: payload.liquidity / (payload.total_supply * 0.2), is_boosted: false }])
     .select()
     .single();
   if (error) { console.error('createCoin:', error); return null; }
@@ -173,6 +174,7 @@ export const recordTransaction = async (tx: Omit<LaunchpadTrade, 'id'>): Promise
     // Update coin price, liquidity, and volume
     await supabase.from('coins').update({
       liquidity: newLiquidity,
+      price: newPrice,
       market_cap: newPrice * Number(coin.total_supply),
       volume_24h: Number(coin.volume_24h || 0) + (tx.price * tx.amount)
     }).eq('contract_address', tx.coinAddress);
@@ -385,6 +387,7 @@ create table if not exists coins (
   social_links jsonb default '{}',
   risk_score numeric default 50,
   market_cap numeric default 0,
+  price numeric default 0.0001,
   volume_24h numeric default 0,
   price_change_24h numeric default 0,
   is_boosted boolean default false,

@@ -209,6 +209,7 @@ export interface LaunchpadCoin {
   volume24h: number;
   priceChange24h: number;
   marketCap: number; // total valuation in AGR
+  price: number; // current price in AGR
   isBoosted: boolean;
   boostExpiry?: number;
   createdAt: number;

@@ -186,13 +186,15 @@ const PriceChart: React.FC<{ coin: LaunchpadCoin; tf: string }> = ({ coin, tf })
 
 // ─── TRADING PANEL ────────────────────────────────────────────────────────────
 const TradingPanel: React.FC<{ coin: LaunchpadCoin; userWallet: string; onTrade: (trade: LaunchpadTrade) => void }> = ({ coin, userWallet, onTrade }) => {
+  const { user } = useAuth();
   const [side, setSide] = useState<'BUY' | 'SELL'>('BUY');
   const [amount, setAmount] = useState('');
   const [tp, setTp] = useState('');
   const [sl, setSl] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const price = getBasePrice(coin);
+  const price = coin.price || 0.0001;
+  const userBalance = user?.points || 0;
   const [supabaseStatus, setSupabaseStatus] = useState('Checking...');
 
   useEffect(() => {
@@ -206,13 +208,18 @@ const TradingPanel: React.FC<{ coin: LaunchpadCoin; userWallet: string; onTrade:
 
   const execute = async () => {
     if (!amount || !userWallet) return;
+    const numAmt = parseFloat(amount);
+    if (side === 'BUY' && (numAmt * price) > userBalance) {
+      setMsg({ ok: false, text: 'Insufficient AGR balance in Vault.' });
+      return;
+    }
     setBusy(true);
     setMsg(null);
     const blockHeight = calculateCurrentBlockHeight();
     const txHash = `0xargus${blockHeight.toString(16)}${Date.now().toString(16)}`;
     const trade: LaunchpadTrade = {
       id: txHash, coinAddress: coin.address, walletAddress: userWallet,
-      type: side, amount: parseFloat(amount), price, timestamp: Date.now(), txHash,
+      type: side, amount: numAmt, price, timestamp: Date.now(), txHash,
     };
     const ok = await recordTransaction(trade);
     if (ok) {
@@ -244,7 +251,12 @@ const TradingPanel: React.FC<{ coin: LaunchpadCoin; userWallet: string; onTrade:
               className="w-full bg-black/60 border border-white/5 rounded-xl px-4 py-3 text-sm font-black text-white outline-none focus:border-maroon/40 transition-all" />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-zinc-600 font-black">{coin.ticker}</span>
           </div>
-          {amount && <p className="text-[9px] text-zinc-600 mt-1">≈ {PA(parseFloat(amount) * price)}</p>}
+          {amount && <div className="flex justify-between items-center mt-1">
+            <p className="text-[9px] text-zinc-600">≈ {PA(parseFloat(amount) * price)}</p>
+            {side === 'BUY' && (parseFloat(amount) * price) > userBalance && (
+              <p className="text-[9px] text-red-500 font-black animate-pulse">Insufficient AGR</p>
+            )}
+          </div>}
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
