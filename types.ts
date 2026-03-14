@@ -186,3 +186,80 @@ export interface WalletTx {
   fromUid: string;
   toUid?: string;
 }
+
+// --- Launchpad Types ---
+
+export interface LaunchpadCoin {
+  address: string; // Contract address on Argus
+  name: string;
+  ticker: string;
+  description: string;
+  iconUrl: string;
+  totalSupply: number;
+  circulatingSupply: number;
+  liquidity: number; // in AGR
+  creatorWallet: string;
+  commissionRate: number; // percentage fee for creator on buy
+  socials: {
+    twitter?: string;
+    telegram?: string;
+    discord?: string;
+  };
+  riskScore: number;
+  volume24h: number;
+  priceChange24h: number;
+  marketCap: number; // total valuation in AGR
+  isBoosted: boolean;
+  boostExpiry?: number;
+  createdAt: number;
+}
+
+export interface LaunchpadTrade {
+  id: string;
+  coinAddress: string;
+  walletAddress: string;
+  socialHandle?: string;
+  type: 'BUY' | 'SELL';
+  amount: number;
+  price: number;
+  timestamp: number;
+  txHash: string;
+}
+
+export interface PriceAlert {
+  id: string;
+  userWallet: string;
+  coinAddress: string;
+  targetPrice: number;
+  direction: 'ABOVE' | 'BELOW';
+  triggered: boolean;
+  createdAt: number;
+}
+
+export interface WatchlistEntry {
+  userWallet: string;
+  coinAddress: string;
+  addedAt: number;
+}
+
+export interface CoinBoost {
+  coinAddress: string;
+  boostedBy: string;
+  amount: number;
+  expiresAt: number;
+  tier: 'BASIC' | 'PREMIUM' | 'ELITE';
+}
+
+export interface LaunchpadStats {
+  volume1m: number;
+  volume5m: number;
+  volume1h: number;
+  volume6h: number;
+  volume24h: number;
+  txnsCount: number;
+  priceHigh24h: number;
+  priceLow24h: number;
+  holdersCount: number;
+  buyersCount: number;
+  sellersCount: number;
+}

@@ -26,6 +26,7 @@ const Careers = lazy(() => import('./pages/Careers'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Docs = lazy(() => import('./pages/Docs'));
 const ArgusScan = lazy(() => import('./pages/ArgusScan'));
+const ArgusLaunchpad = lazy(() => import('./pages/ArgusLaunchpad'));
 
 import PublicLayout from './components/PublicLayout';
 const Terms = lazy(() => import('./pages/Legal').then(m => ({ default: m.Terms })));
@@ -113,7 +114,7 @@ const AppRoutes = () => {
   }, [searchParams]);
 
   // Determine if we are on a public page and should show the PublicLayout
-  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy'];
+  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy', '/launchpad'];
   const isPublicPage = publicPaths.some(path => location.pathname === path) || (!firebaseUser && location.pathname === '/');
 
   // Wrap content with the correct layout - Stabilized to prevent flickering
@@ -143,6 +144,7 @@ const AppRoutes = () => {
                 <Route path="/terms" element={<LockableRoute path="/terms" requireLogin={false}><PageTransition><Terms /></PageTransition></LockableRoute>} />
                 <Route path="/privacy" element={<LockableRoute path="/privacy" requireLogin={false}><PageTransition><Privacy /></PageTransition></LockableRoute>} />
                 <Route path="/argusscan" element={<LockableRoute path="/argusscan" requireLogin={false}><PageTransition><ArgusScan /></PageTransition></LockableRoute>} />
+                <Route path="/launchpad" element={<LockableRoute path="/launchpad" requireLogin={false}><PageTransition><ArgusLaunchpad /></PageTransition></LockableRoute>} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </AnimatePresence>
