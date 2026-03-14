@@ -684,7 +684,7 @@ const ArgusLaunchpad: React.FC = () => {
 
   if (selected) {
     return (
-      <div className="min-h-screen bg-[#020202] text-zinc-300 font-mono pt-32 pb-40 px-6">
+      <div className="text-zinc-300 font-mono animate-in fade-in duration-500">
         <div className="max-w-[1400px] mx-auto">
           <CoinDetailView coin={selected} userWallet={userWallet} watchlist={watchlist} onToggleWatch={toggleWatch} onBack={() => setSelected(null)} />
         </div>
@@ -693,7 +693,7 @@ const ArgusLaunchpad: React.FC = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#020202] text-zinc-300 font-mono pt-32 pb-40 px-6 overflow-hidden">
+    <div className="relative text-zinc-300 font-mono animate-in fade-in duration-500">
       {/* Notification Toast */}
       <AnimatePresence>
         {notification && (
