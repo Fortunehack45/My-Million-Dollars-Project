@@ -616,13 +616,13 @@ const AdminPanel = () => {
           {/* Dashboard View */}
           {activeTab === 'dashboard' && (
             <div className="space-y-8 relative z-10">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <div className="lg:col-span-3 space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+                <div className="lg:col-span-4 space-y-8">
 
                   {/* Metrics Overview */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group hover:border-zinc-800 transition-all duration-700">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none"></div>
+                    <div className="p-8 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-700">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none"></div>
                       <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mb-4 font-mono">Total_Validators</p>
                       <div className="flex items-end justify-between">
                         <p className="text-5xl font-black text-white group-hover:scale-110 transition-transform duration-700 origin-left italic leading-none">{users.length.toLocaleString()}</p>
@@ -631,8 +631,8 @@ const AdminPanel = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-maroon/30 shadow-2xl relative overflow-hidden group hover:border-maroon/30 transition-all duration-700">
-                      <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.03] to-transparent pointer-events-none"></div>
+                    <div className="p-8 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] border border-maroon/30 shadow-2xl relative overflow-hidden group hover:border-maroon/50 transition-all duration-700">
+                      <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.05] to-transparent pointer-events-none"></div>
                       <div className="absolute top-8 right-8 w-2 h-2 rounded-full bg-maroon animate-pulse shadow-[0_0_15px_#800000]"></div>
                       <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mb-4 font-mono">Active_Nodes</p>
                       <div className="flex items-end justify-between">
@@ -642,8 +642,8 @@ const AdminPanel = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group hover:border-zinc-800 transition-all duration-700">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none"></div>
+                    <div className="p-8 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-700">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none"></div>
                       <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mb-4 font-mono">Registry_Units</p>
                       <div className="flex items-end justify-between">
                         <p className="text-5xl font-black text-white group-hover:scale-110 transition-transform duration-700 origin-left italic leading-none">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
@@ -652,8 +652,8 @@ const AdminPanel = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700 bg-gradient-to-br from-amber-500/[0.01] to-transparent">
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent pointer-events-none"></div>
+                    <div className="p-8 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700 bg-gradient-to-br from-amber-500/[0.01] to-transparent">
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.08] to-transparent pointer-events-none"></div>
                       <div className="flex items-start justify-between mb-4">
                         <p className="text-[10px] text-amber-500/60 font-black uppercase tracking-[0.25em] font-mono">Cap_Delta</p>
                         <span className="bg-amber-500/10 text-amber-500 px-2 py-1 rounded-lg text-[8px] font-black animate-pulse border border-amber-500/20">LOW_LATENCY</span>
@@ -664,7 +664,7 @@ const AdminPanel = () => {
                   </div>
 
                   {/* User Directory */}
-                  <div className="silk-panel p-10 rounded-[3rem] border-zinc-900/50 shadow-[0_40px_100px_rgba(0,0,0,0.6)] overflow-hidden">
+                  <div className="silk-panel !bg-zinc-950/40 backdrop-blur-2xl p-10 rounded-[3rem] border-zinc-900/50 shadow-[0_40px_100px_rgba(0,0,0,0.6)] overflow-hidden">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 border-b border-zinc-900 pb-10">
                       <div className="flex items-center gap-5">
                         <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center shadow-2xl group transition-all duration-500 hover:border-maroon/30">
@@ -1019,13 +1019,13 @@ const AdminPanel = () => {
                       <span className="text-[10px] font-bold text-white uppercase tracking-widest">Active Directives</span>
                     </div>
                     <div className="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1">
-                      {tasks.map(t => {
+                      {tasks.length > 0 ? tasks.map(t => {
                         const isExpired = t.expiresAt && t.expiresAt < Date.now();
                         const participantCount = users.filter(u => u.completedTasks?.includes(t.id)).length;
                         return (
-                          <div key={t.id} className={`flex justify-between items-center p-4 bg-zinc-950/40 rounded-xl border border-zinc-900 group ${isExpired ? 'opacity-50' : ''}`}>
+                          <div key={t.id} className={`flex justify-between items-center p-4 bg-zinc-950/60 backdrop-blur-md rounded-xl border border-zinc-900 group hover:border-maroon/30 transition-all ${isExpired ? 'opacity-50' : ''}`}>
                             <div className="space-y-1">
-                              <p className="text-white text-xs font-bold leading-tight">{t.title}</p>
+                              <p className="text-white text-xs font-bold leading-tight uppercase italic">{t.title}</p>
                               <div className="flex items-center gap-2">
                                 <span className="text-maroon text-[9px] font-mono font-bold uppercase tracking-widest">{t.points} ARG</span>
                                 <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
@@ -1033,14 +1033,24 @@ const AdminPanel = () => {
                                   <Users className="w-2.5 h-2.5" /> {participantCount} Active
                                 </span>
                               </div>
-                              {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1">EXPIRED_SEQUENCE</p>}
+                              {isExpired && <p className="text-[9px] text-red-500 font-bold uppercase mt-1 opacity-60">EXPIRED_SEQUENCE</p>}
                             </div>
                             <button onClick={() => deleteTask(t.id)} className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         )
-                      })}
+                      }) : (
+                        <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center space-y-4">
+                          <div className="w-16 h-16 bg-zinc-900 rounded-3xl border border-zinc-800 flex items-center justify-center">
+                            <Shield className="w-8 h-8 text-zinc-600" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">No Active Directives</p>
+                            <p className="text-[8px] text-zinc-500 mt-1 uppercase font-mono">Deploy a new sequence to begin synchronization</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
