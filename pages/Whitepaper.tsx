@@ -87,7 +87,7 @@ const Whitepaper = () => {
                      <div className="space-y-6">
                         <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4">Index_Structure</p>
                         <nav className="space-y-4">
-                           {content.sections.map((section, idx) => (
+                           {content.sections.filter(sec => sec.isVisible !== false).map((section, idx) => (
                               <a
                                  key={idx}
                                  href={`#section-${idx}`}
@@ -104,7 +104,7 @@ const Whitepaper = () => {
 
                   {/* Main Text Area */}
                   <div className="lg:col-span-9 space-y-32">
-                     {content.sections.map((section, idx) => (
+                     {content.sections.filter(sec => sec.isVisible !== false).map((section, idx) => (
                         <section
                            key={idx}
                            id={`section-${idx}`}
@@ -120,7 +120,7 @@ const Whitepaper = () => {
                               <div className="space-y-12">
                                  <ContentRenderer html={section.content} className="text-zinc-400 text-lg" />
 
-                                 {section.subsections?.map((sub, sIdx) => (
+                                 {section.subsections?.filter(sub => (sub as any).isVisible !== false).map((sub, sIdx) => (
                                     <div key={sIdx} className="ml-10 pl-8 border-l border-zinc-900 space-y-6">
                                        <h4 className="text-2xl font-black text-white uppercase tracking-tight">{sub.title}</h4>
                                        <ContentRenderer html={sub.content} className="text-zinc-500 text-base" />

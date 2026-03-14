@@ -250,11 +250,11 @@ const Architecture = () => {
                <GhostDAGExplainer />
 
                {/* Core Layers Diagram - Vertical Integration */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-64 relative">
-                  <div className="hidden lg:block absolute top-[60px] left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-maroon/20 to-transparent z-0"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-64 relative">
+                   <div className="hidden lg:block absolute top-[60px] left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-maroon/20 to-transparent z-0"></div>
 
-                  {content.layers.map((layer, i) => {
-                     const Icon = layerIcons[i] || Layers;
+                   {content.layers.filter(layer => layer.isVisible !== false).map((layer, i) => {
+                      const Icon = layerIcons[i] || Layers;
                      return (
                         <div
                            key={i}
@@ -300,9 +300,9 @@ const Architecture = () => {
                   <BenchmarkChart />
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {content.features.map((feat, i) => {
-                     const Icon = featureIcons[i] || Shield;
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                   {content.features.filter(feat => feat.isVisible !== false).map((feat, i) => {
+                      const Icon = featureIcons[i] || Shield;
                      return (
                         <div
                            key={i}

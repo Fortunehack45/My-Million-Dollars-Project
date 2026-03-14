@@ -33,7 +33,7 @@ const Tokenomics = () => {
    const CIRCUMFERENCE = 100;
    let cumulativePercent = 0;
 
-   const chartData = content.distribution.map((item, index) => {
+   const chartData = content.distribution.filter(item => item.isVisible !== false).map((item, index) => {
       const startOffset = cumulativePercent;
       cumulativePercent += item.percentage;
       const gap = content.distribution.length > 1 ? 0.3 : 0;
@@ -220,7 +220,7 @@ const Tokenomics = () => {
                      </div>
                   </div>
                   <div className="flex-1 p-6 space-y-4 custom-scrollbar overflow-y-auto max-h-[400px]">
-                     {content.distribution.map((item, i) => (
+                     {content.distribution.filter(item => item.isVisible !== false).map((item, i) => (
                         <div
                            key={i}
                            onMouseEnter={() => setActiveIndex(i)}
@@ -237,7 +237,7 @@ const Tokenomics = () => {
                                  <p className="text-[8px] text-zinc-700 font-bold uppercase tracking-widest">{item.value.split(' ')[0]}</p>
                               </div>
                            </div>
-                           <p className={`text-sm font-black tabular-nums transition-colors ${activeIndex === i ? 'text-maroon' : 'text-zinc-800'}`}>{item.percentage}%</p>
+                           <p className="text-sm font-black tabular-nums transition-colors ${activeIndex === i ? 'text-maroon' : 'text-zinc-800'}">{item.percentage}%</p>
                         </div>
                      ))}
                   </div>
@@ -253,7 +253,7 @@ const Tokenomics = () => {
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {content.utility.map((u, i) => {
+                  {content.utility.filter(u => u.isVisible !== false).map((u, i) => {
                      const Icon = IconMap[u.icon] || Zap;
                      return (
                         <div key={i} className="bg-zinc-950/50 border border-white/[0.05] p-8 rounded-xl hover:border-maroon/20 hover:bg-zinc-900/30 transition-all duration-500 group relative overflow-hidden">
@@ -300,7 +300,7 @@ const Tokenomics = () => {
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-white/[0.03]">
-                        {content.schedule.map((row, i) => (
+                        {content.schedule.filter(row => row.isVisible !== false).map((row, i) => (
                            <tr key={i} className="group hover:bg-white/[0.02] transition-colors">
                               <td className="p-6 pl-10">
                                  <div className="flex items-center gap-6">

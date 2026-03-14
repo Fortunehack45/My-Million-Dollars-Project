@@ -36,7 +36,7 @@ export interface ContactMessage {
   id: string;
   uid?: string | null; // Null if submitted anonymously
   name: string;
-  email: string;
+  email?: string;
   payload: string;
   createdAt: number;
   status: 'pending' | 'resolved';
@@ -81,11 +81,11 @@ export interface FooterConfig extends LandingSection {
 export interface LandingConfig {
   hero: LandingSection & { ctaPrimary: string; ctaSecondary: string };
   socials: { twitter: string; discord: string; github: string };
-  partners: LandingSection & { items: string[] };
-  architecture: LandingSection & { layers: Array<{ title: string, desc: string }> };
-  features: LandingSection & { items: Array<{ title: string, desc: string, icon: string }> };
-  roadmap: LandingSection & { phases: Array<{ phase: string, title: string, period: string, status: string, desc: string, features: string[] }> };
-  faq: LandingSection & { items: Array<{ q: string, a: string }> };
+  partners: LandingSection & { items: Array<string | { label: string, isVisible?: boolean }> };
+  architecture: LandingSection & { layers: Array<{ title: string, desc: string, isVisible?: boolean }> };
+  features: LandingSection & { items: Array<{ title: string, desc: string, icon: string, isVisible?: boolean }> };
+  roadmap: LandingSection & { phases: Array<{ phase: string, title: string, period: string, status: string, desc: string, features: string[], isVisible?: boolean }> };
+  faq: LandingSection & { items: Array<{ q: string, a: string, isVisible?: boolean }> };
   cta: LandingSection & { buttonText: string };
   footer: FooterConfig;
 }
@@ -96,7 +96,8 @@ export interface LegalConfig {
   sections: Array<{
     heading: string;
     content: string; // rich text/html
-    subsections?: Array<{ heading: string; content: string }>;
+    isVisible?: boolean;
+    subsections?: Array<{ heading: string; content: string; isVisible?: boolean }>;
   }>;
 }
 
@@ -116,15 +117,16 @@ export interface WhitepaperConfig {
   sections: Array<{
     title: string;
     content: string; // rich text/html
-    subsections?: Array<{ title: string; content: string }>;
+    isVisible?: boolean;
+    subsections?: Array<{ title: string; content: string; isVisible?: boolean }>;
   }>;
 }
 
 export interface ArchitecturePageConfig {
   heroTitle: string;
   heroSubtitle: string;
-  layers: Array<{ title: string; desc: string; stat: string }>;
-  features: Array<{ title: string; desc: string }>;
+  layers: Array<{ title: string; desc: string; stat: string, isVisible?: boolean }>;
+  features: Array<{ title: string; desc: string, isVisible?: boolean }>;
 }
 
 export interface TokenomicsItem {
@@ -132,6 +134,7 @@ export interface TokenomicsItem {
   percentage: number;
   color: string;
   value: string;
+  isVisible?: boolean;
 }
 
 export interface TokenomicsConfig {
@@ -140,9 +143,9 @@ export interface TokenomicsConfig {
   totalSupply: string;
   circulatingSupply: string;
   distribution: TokenomicsItem[];
-  utility: Array<{ title: string; desc: string; icon: string }>;
-  schedule: Array<{ phase: string; date: string; allocation: string; action: string }>;
-  sections?: Array<{ title: string; content: string }>;
+  utility: Array<{ title: string, desc: string, icon: string, isVisible?: boolean }>;
+  schedule: Array<{ phase: string, date: string, allocation: string, action: string, isVisible?: boolean }>;
+  sections?: Array<{ title: string, content: string, isVisible?: boolean }>;
 }
 
 export interface JobPosition {
@@ -151,6 +154,7 @@ export interface JobPosition {
   location: string;
   type: string;
   description: string;
+  isVisible?: boolean;
 }
 
 export interface CareersConfig {
@@ -162,7 +166,6 @@ export interface CareersConfig {
 export interface ContactConfig {
   title: string;
   subtitle: string;
-  email: string;
   address: string;
   supportHours: string;
 }

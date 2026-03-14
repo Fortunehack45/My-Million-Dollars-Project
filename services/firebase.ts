@@ -310,7 +310,6 @@ export const DEFAULT_CAREERS_CONFIG: CareersConfig = {
 export const DEFAULT_CONTACT_CONFIG: ContactConfig = {
   title: "Contact Protocol",
   subtitle: "Our communication channels are open. For partnership inquiries, technical support, or press requests, please use the channels below.",
-  email: "hello@argus.network",
   address: "Decentralized Autonomous Org.\nZug, Switzerland",
   supportHours: "24/7 Node Operations"
 };

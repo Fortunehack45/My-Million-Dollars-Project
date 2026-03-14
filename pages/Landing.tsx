@@ -506,9 +506,12 @@ const Landing = () => {
                            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{content.partners.title}</p>
                         </div>
                         <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 md:gap-24 opacity-40 md:opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
-                           {content.partners.items.map((name, i) => (
-                              <h3 key={name} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
-                           ))}
+                           {content.partners.items.filter(item => typeof item === 'string' || item.isVisible !== false).map((item, i) => {
+                               const name = typeof item === 'string' ? item : item.label;
+                               return (
+                                  <h3 key={name} style={{ transitionDelay: `${i * 100}ms` }} className={`text-xs md:text-lg font-black text-white uppercase tracking-tighter transition-all duration-700 ${visibleSections.has('partners') ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-sm translate-y-4'}`}>{name.replace('_', ' ')}</h3>
+                               );
+                            })}
                         </div>
                      </div>
                   </div>
@@ -524,7 +527,7 @@ const Landing = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                     {content.features.items.map((feature, i) => {
+                     {content.features.items.filter(item => item.isVisible !== false).map((feature, i) => {
                         const Icon = IconMap[feature.icon] || Globe;
                         return (
                            <div
@@ -561,7 +564,7 @@ const Landing = () => {
                            </p>
                         </div>
                         <div className="space-y-6 md:space-y-8">
-                           {content.architecture.layers.map((layer, i) => (
+                           {content.architecture.layers.filter(layer => layer.isVisible !== false).map((layer, i) => (
                               <div key={layer.title} style={{ transitionDelay: `${300 + (i * 150)}ms` }} className={`flex gap-6 md:gap-8 group transition-all duration-700 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
                                  <div className="w-12 h-12 md:w-16 md:h-16 border border-zinc-800 bg-zinc-900/30 backdrop-blur-md flex items-center justify-center rounded-2xl shrink-0 group-hover:border-maroon/50 transition-colors">
                                     <Layers className="w-6 h-6 md:w-7 md:h-7 text-zinc-600 group-hover:text-maroon transition-colors" />
@@ -623,7 +626,7 @@ const Landing = () => {
                         </div>
 
                         <div className="space-y-12 md:space-y-32">
-                           {content.roadmap.phases.map((phase, i) => {
+                           {content.roadmap.phases.filter(phase => phase.isVisible !== false).map((phase, i) => {
                               const isEven = i % 2 === 0;
                               return (
                                  <div
@@ -727,7 +730,7 @@ const Landing = () => {
                <section id="faq" className="py-16 md:py-32 px-4 md:px-6 max-w-4xl mx-auto relative z-10 border-t border-zinc-900/50">
                   <h2 className={`text-3xl font-black text-white uppercase tracking-tighter mb-12 md:mb-16 text-center transition-all duration-1000 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>{content.faq.title}</h2>
                   <div className="space-y-4">
-                     {content.faq.items.map((item, i) => (
+                     {content.faq.items.filter(item => item.isVisible !== false).map((item, i) => (
                         <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className={`border border-zinc-900 bg-black/40 backdrop-blur-md rounded-xl overflow-hidden hover:border-zinc-700 transition-all duration-700 ${visibleSections.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                            <button
                               onClick={() => toggleFaq(i)}

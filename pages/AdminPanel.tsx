@@ -1250,13 +1250,32 @@ const AdminPanel = () => {
                           <div className="space-y-4">
                             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Partner Logos (Text)</span>
                             {(landingConfig.partners.items || []).map((item, idx) => (
-                              <div key={`${item}-${idx}`} className="flex gap-4">
-                                <InputGroup value={item} onChange={(v: string) => {
-                                  const newItems = [...(landingConfig.partners.items || [])];
-                                  newItems[idx] = v;
-                                  updateState(setLandingConfig, ['partners', 'items'], newItems);
-                                }} />
-                                <button onClick={() => removeItem(setLandingConfig, ['partners', 'items'], idx)} className="text-red-500 hover:bg-red-500/10 p-2 rounded"><Trash2 className="w-4 h-4" /></button>
+                              <div key={`${typeof item === 'string' ? item : item.label}-${idx}`} className="flex flex-col gap-2 p-4 bg-zinc-900/30 rounded-xl border border-zinc-800">
+                                <div className="flex gap-4 items-center">
+                                  <InputGroup value={typeof item === 'string' ? item : item.label} onChange={(v: string) => {
+                                    const newItems = [...(landingConfig.partners.items || [])];
+                                    if (typeof newItems[idx] === 'string') {
+                                      newItems[idx] = { label: v, isVisible: true };
+                                    } else {
+                                      (newItems[idx] as any).label = v;
+                                    }
+                                    updateState(setLandingConfig, ['partners', 'items'], newItems);
+                                  }} />
+                                  <button onClick={() => removeItem(setLandingConfig, ['partners', 'items'], idx)} className="text-red-500 hover:bg-red-500/10 p-2 rounded"><Trash2 className="w-4 h-4" /></button>
+                                </div>
+                                <Toggle 
+                                  label="Partner Visible" 
+                                  checked={typeof item === 'string' ? true : (item.isVisible !== false)} 
+                                  onChange={(v: boolean) => {
+                                    const newItems = [...(landingConfig.partners.items || [])];
+                                    if (typeof newItems[idx] === 'string') {
+                                      newItems[idx] = { label: newItems[idx] as string, isVisible: v };
+                                    } else {
+                                      (newItems[idx] as any).isVisible = v;
+                                    }
+                                    updateState(setLandingConfig, ['partners', 'items'], newItems);
+                                  }} 
+                                />
                               </div>
                             ))}
                             <button onClick={() => addItem(setLandingConfig, ['partners', 'items'], "NEW_PARTNER")} className="text-maroon text-xs font-bold uppercase hover:underline">+ Add Partner</button>
@@ -1273,6 +1292,11 @@ const AdminPanel = () => {
                           <div className="space-y-4 pt-6">
                             {(landingConfig.features.items || []).map((item, idx) => (
                               <AccordionItem key={`${item.title}-${idx}`} title={item.title || 'New Feature'} onDelete={() => removeItem(setLandingConfig, ['features', 'items'], idx)}>
+                                <Toggle label="Item Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
+                                  const newItems = [...(landingConfig.features.items || [])];
+                                  newItems[idx].isVisible = v;
+                                  updateState(setLandingConfig, ['features', 'items'], newItems);
+                                }} />
                                 <InputGroup label="Title" value={item.title} onChange={(v: string) => {
                                   const newItems = [...(landingConfig.features.items || [])];
                                   newItems[idx].title = v;
@@ -1304,6 +1328,11 @@ const AdminPanel = () => {
                           <div className="space-y-4 pt-6">
                             {landingConfig.roadmap.phases.map((phase, idx) => (
                               <AccordionItem key={`${phase.phase}-${idx}`} title={`Phase ${phase.phase}: ${phase.title}`} onDelete={() => removeItem(setLandingConfig, ['roadmap', 'phases'], idx)}>
+                                <Toggle label="Phase Visible" checked={phase.isVisible !== false} onChange={(v: boolean) => {
+                                  const newPhases = [...landingConfig.roadmap.phases];
+                                  newPhases[idx].isVisible = v;
+                                  updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
+                                }} />
                                 <div className="grid grid-cols-2 gap-4">
                                   <InputGroup label="Phase Number" value={phase.phase} onChange={(v: string) => {
                                     const newPhases = [...landingConfig.roadmap.phases];
@@ -1358,6 +1387,11 @@ const AdminPanel = () => {
                           <div className="space-y-4 pt-6">
                             {landingConfig.faq.items.map((item, idx) => (
                               <AccordionItem key={idx} title={item.q} onDelete={() => removeItem(setLandingConfig, ['faq', 'items'], idx)}>
+                                <Toggle label="Item Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
+                                  const newItems = [...landingConfig.faq.items];
+                                  newItems[idx].isVisible = v;
+                                  updateState(setLandingConfig, ['faq', 'items'], newItems);
+                                }} />
                                 <InputGroup label="Question" value={item.q} onChange={(v: string) => {
                                   const newItems = [...landingConfig.faq.items];
                                   newItems[idx].q = v;
@@ -1450,6 +1484,11 @@ const AdminPanel = () => {
                         <span className="text-xs font-bold text-zinc-500 uppercase">Tech Layers</span>
                         {(archConfig.layers || []).map((layer: any, idx: number) => (
                           <AccordionItem key={idx} title={layer.title} onDelete={() => removeItem(setArchConfig, ['layers'], idx)}>
+                            <Toggle label="Layer Visible" checked={layer.isVisible !== false} onChange={(v: boolean) => {
+                              const newLayers = [...(archConfig.layers || [])];
+                              newLayers[idx].isVisible = v;
+                              updateState(setArchConfig, ['layers'], newLayers);
+                            }} />
                             <InputGroup label="Layer Title" value={layer.title} onChange={(v: string) => {
                               const newLayers = [...(archConfig.layers || [])];
                               newLayers[idx].title = v;
@@ -1474,6 +1513,11 @@ const AdminPanel = () => {
                         <span className="text-xs font-bold text-zinc-500 uppercase">Features</span>
                         {archConfig.features.map((feat, idx) => (
                           <AccordionItem key={idx} title={feat.title} onDelete={() => removeItem(setArchConfig, ['features'], idx)}>
+                            <Toggle label="Feature Visible" checked={feat.isVisible !== false} onChange={(v: boolean) => {
+                              const newFeats = [...archConfig.features];
+                              newFeats[idx].isVisible = v;
+                              updateState(setArchConfig, ['features'], newFeats);
+                            }} />
                             <InputGroup label="Feature Title" value={feat.title} onChange={(v: string) => {
                               const newFeats = [...archConfig.features];
                               newFeats[idx].title = v;
@@ -1547,7 +1591,7 @@ const AdminPanel = () => {
                       <div className="space-y-4">
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Distribution Chart</span>
                         {(tokenomicsConfig.distribution || []).map((item, idx) => (
-                          <div key={idx} className="grid grid-cols-4 gap-4 items-end">
+                          <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-zinc-900/20 p-4 rounded-xl border border-zinc-800/50">
                             <InputGroup label="Label" value={item.label} onChange={(v: string) => {
                               const newDist = [...(tokenomicsConfig.distribution || [])];
                               newDist[idx].label = v;
@@ -1568,6 +1612,20 @@ const AdminPanel = () => {
                               newDist[idx].color = v;
                               updateState(setTokenomicsConfig, ['distribution'], newDist);
                             }} />
+                            <div className="flex flex-col gap-1 pb-1">
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Visible</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newDist = [...(tokenomicsConfig.distribution || [])];
+                                    newDist[idx].isVisible = !(item.isVisible !== false);
+                                    updateState(setTokenomicsConfig, ['distribution'], newDist);
+                                  }}
+                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${item.isVisible !== false ? 'bg-maroon' : 'bg-zinc-800'}`}
+                                >
+                                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${item.isVisible !== false ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1576,6 +1634,11 @@ const AdminPanel = () => {
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Utility Cards</span>
                         {(tokenomicsConfig.utility || []).map((item, idx) => (
                           <AccordionItem key={idx} title={item.title} onDelete={() => removeItem(setTokenomicsConfig, ['utility'], idx)}>
+                            <Toggle label="Utility Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
+                              const newUtil = [...(tokenomicsConfig.utility || [])];
+                              newUtil[idx].isVisible = v;
+                              updateState(setTokenomicsConfig, ['utility'], newUtil);
+                            }} />
                             <InputGroup label="Title" value={item.title} onChange={(v: string) => {
                               const newUtil = [...(tokenomicsConfig.utility || [])];
                               newUtil[idx].title = v;
@@ -1600,6 +1663,11 @@ const AdminPanel = () => {
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Release Schedule</span>
                         {(tokenomicsConfig.schedule || []).map((item, idx) => (
                           <AccordionItem key={idx} title={item.phase} onDelete={() => removeItem(setTokenomicsConfig, ['schedule'], idx)}>
+                            <Toggle label="Phase Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
+                              const newSched = [...(tokenomicsConfig.schedule || [])];
+                              newSched[idx].isVisible = v;
+                              updateState(setTokenomicsConfig, ['schedule'], newSched);
+                            }} />
                             <div className="grid grid-cols-2 gap-4">
                               <InputGroup label="Phase Protocol" value={item.phase} onChange={(v: string) => {
                                 const newSched = [...(tokenomicsConfig.schedule || [])];
@@ -1633,6 +1701,11 @@ const AdminPanel = () => {
                         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Economic Analysis Sections</span>
                         {(tokenomicsConfig.sections || []).map((sec, idx) => (
                           <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setTokenomicsConfig, ['sections'], idx)}>
+                            <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
+                              const newSecs = [...(tokenomicsConfig.sections || [])];
+                              newSecs[idx].isVisible = v;
+                              updateState(setTokenomicsConfig, ['sections'], newSecs);
+                            }} />
                             <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
                               const newSecs = [...(tokenomicsConfig.sections || [])];
                               newSecs[idx].title = v;
@@ -1695,6 +1768,11 @@ const AdminPanel = () => {
                             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Document Sections</span>
                             {whitepaperConfig.sections.map((sec, idx) => (
                               <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setWhitepaperConfig, ['sections'], idx)}>
+                                <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
+                                  const newSecs = [...whitepaperConfig.sections];
+                                  newSecs[idx].isVisible = v;
+                                  updateState(setWhitepaperConfig, ['sections'], newSecs);
+                                }} />
                                 <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
                                   const newSecs = [...whitepaperConfig.sections];
                                   newSecs[idx].title = v;
@@ -1778,6 +1856,11 @@ const AdminPanel = () => {
                       <div className="space-y-4 pt-6">
                         {careersConfig.positions.map((job, idx) => (
                           <AccordionItem key={idx} title={job.title} onDelete={() => removeItem(setCareersConfig, ['positions'], idx)}>
+                            <Toggle label="Job Visible" checked={job.isVisible !== false} onChange={(v: boolean) => {
+                              const newPos = [...careersConfig.positions];
+                              newPos[idx].isVisible = v;
+                              updateState(setCareersConfig, ['positions'], newPos);
+                            }} />
                             <div className="grid grid-cols-2 gap-4">
                               <InputGroup label="Job Title" value={job.title} onChange={(v: string) => {
                                 const newPos = [...careersConfig.positions];
@@ -1821,10 +1904,9 @@ const AdminPanel = () => {
                       <InputGroup label="Main Title" value={contactConfig.title} onChange={(v: string) => updateState(setContactConfig, ['title'], v)} />
                       <InputGroup label="Subtitle" type="textarea" value={contactConfig.subtitle} onChange={(v: string) => updateState(setContactConfig, ['subtitle'], v)} />
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InputGroup label="Email Address" value={contactConfig.email} onChange={(v: string) => updateState(setContactConfig, ['email'], v)} />
                         <InputGroup label="Support Hours" value={contactConfig.supportHours} onChange={(v: string) => updateState(setContactConfig, ['supportHours'], v)} />
+                        <InputGroup label="Physical Address" value={contactConfig.address} onChange={(v: string) => updateState(setContactConfig, ['address'], v)} />
                       </div>
-                      <InputGroup label="Physical Address" type="textarea" value={contactConfig.address} onChange={(v: string) => updateState(setContactConfig, ['address'], v)} />
                     </div>
                   )}
 
@@ -1865,6 +1947,11 @@ const AdminPanel = () => {
                             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Governance Clauses</span>
                             {termsConfig.sections.map((sec, idx) => (
                               <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setTermsConfig, ['sections'], idx)}>
+                                <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
+                                  const newSecs = [...termsConfig.sections];
+                                  newSecs[idx].isVisible = v;
+                                  updateState(setTermsConfig, ['sections'], newSecs);
+                                }} />
                                 <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
                                   const newSecs = [...termsConfig.sections];
                                   newSecs[idx].heading = v;
@@ -1975,6 +2062,11 @@ const AdminPanel = () => {
                             <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Privacy Modules</span>
                             {privacyConfig.sections.map((sec, idx) => (
                               <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setPrivacyConfig, ['sections'], idx)}>
+                                <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
+                                  const newSecs = [...privacyConfig.sections];
+                                  newSecs[idx].isVisible = v;
+                                  updateState(setPrivacyConfig, ['sections'], newSecs);
+                                }} />
                                 <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
                                   const newSecs = [...privacyConfig.sections];
                                   newSecs[idx].heading = v;

@@ -61,7 +61,7 @@ export const Terms = () => {
         <div className="silk-panel p-1.5 rounded-[4rem] border-zinc-900/50 shadow-2xl relative overflow-hidden bg-zinc-950">
           <div className="bg-zinc-950 h-full rounded-[3.9rem] p-10 md:p-24 space-y-24 border border-zinc-900 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(128,0,0,0.03),transparent_80%)]" />
-            {config.sections.map((section, index) => (
+            {config.sections.filter(sec => sec.isVisible !== false).map((section, index) => (
               <div key={index} className="group/section relative z-10">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                   <div className="flex items-center gap-6">
@@ -77,7 +77,7 @@ export const Terms = () => {
                 <div className="space-y-12 border-l border-white/[0.03] pl-10 group-hover/section:border-maroon/30 transition-all duration-1000">
                   <ContentRenderer html={section.content} className="text-zinc-500 text-lg md:text-xl leading-relaxed italic" />
 
-                  {section.subsections?.map((sub, sIdx) => (
+                  {section.subsections?.filter(sub => (sub as any).isVisible !== false).map((sub, sIdx) => (
                     <div key={sIdx} className="space-y-6 pt-4 border-t border-zinc-900/50">
                       <h4 className="text-xl font-black text-white uppercase tracking-tight italic">{sub.heading.replace(' ', '_')}</h4>
                       <ContentRenderer html={sub.content} className="text-zinc-600 text-base italic" />
@@ -139,7 +139,7 @@ export const Privacy = () => {
         <div className="silk-panel p-1.5 rounded-[4rem] border-zinc-900/50 shadow-2xl relative overflow-hidden bg-zinc-950">
           <div className="bg-zinc-950 h-full rounded-[3.9rem] p-10 md:p-24 space-y-24 border border-zinc-900 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(128,0,0,0.03),transparent_80%)]" />
-            {config.sections.map((section, index) => (
+            {config.sections.filter(sec => sec.isVisible !== false).map((section, index) => (
               <div key={index} className="group/section relative z-10">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                   <div className="flex items-center gap-6">
@@ -155,7 +155,7 @@ export const Privacy = () => {
                 <div className="space-y-12 border-l border-white/[0.02] pl-10 group-hover/section:border-maroon/30 transition-all duration-1000">
                   <ContentRenderer html={section.content} className="text-zinc-500 text-base md:text-lg leading-relaxed italic" />
 
-                  {section.subsections?.map((sub, sIdx) => (
+                  {section.subsections?.filter(sub => (sub as any).isVisible !== false).map((sub, sIdx) => (
                     <div key={sIdx} className="space-y-6 pt-4 border-t border-zinc-900/50">
                       <h4 className="text-xl font-black text-white uppercase tracking-tight italic">{sub.heading.replace(' ', '_')}</h4>
                       <ContentRenderer html={sub.content} className="text-zinc-600 text-sm italic" />
