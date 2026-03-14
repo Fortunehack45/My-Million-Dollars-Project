@@ -5,7 +5,6 @@ import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services
 import { LandingConfig } from '../types';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
-import CustomCursor from '../components/CustomCursor';
 import {
    ArrowRight,
    Code2,
@@ -421,10 +420,9 @@ const Landing = () => {
         description="Argus Protocol is the premier institutional-grade compute layer for the decentralized web. Deploy high-performance validator nodes and secure the multi-chain economy."
       />
       <div
-         className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white cursor-none"
+         className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white"
          onMouseMove={handleMouseMove}
       >
-         <CustomCursor />
 
             {/* MATRIX BACKGROUND */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
