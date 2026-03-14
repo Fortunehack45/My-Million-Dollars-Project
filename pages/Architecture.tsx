@@ -67,7 +67,7 @@ const GhostDAGExplainer = () => {
                            <div key={i} className="flex flex-col items-center gap-10">
                               <div className="w-20 h-20 bg-zinc-950 border border-zinc-900 flex items-center justify-center rounded-3xl relative shadow-2xl group-hover:border-maroon/50 transition-all duration-1000">
                                  <Box className="w-8 h-8 text-zinc-700 group-hover:text-white transition-colors" />
-                                 {i === 2 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-maroon rounded-full animate-pulse shadow-[0_0_15px_rgba(128,0,0,0.6)]"></div>}
+                                 {i === 2 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-maroon rounded-full animate-pulse shadow-[0_0_10px_rgba(128,0,0,0.4)]"></div>}
                               </div>
                               <div className="h-32 w-px bg-gradient-to-b from-zinc-800 via-maroon/20 to-transparent"></div>
                               <div className="w-16 h-16 bg-zinc-950/40 border border-white/[0.02] flex items-center justify-center rounded-2xl">
@@ -117,7 +117,7 @@ const BenchmarkChart = () => {
                         <span className="text-white">{metric.argus}</span>
                      </div>
                      <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
-                        <div className="h-full bg-maroon w-full shadow-[0_0_15px_#800000]"></div>
+                        <div className="h-full bg-maroon w-full shadow-[0_0_10px_rgba(128,0,0,0.4)]"></div>
                      </div>
                   </div>
 

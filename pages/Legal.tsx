@@ -46,7 +46,7 @@ export const Terms = () => {
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-maroon/20 to-transparent pointer-events-none"></div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-maroon/[0.05] blur-[100px] rounded-full pointer-events-none"></div>
             <div className="flex gap-10 relative z-10 items-center">
-              <div className="shrink-0 w-2 h-24 bg-maroon rounded-full blur-[2px] animate-pulse shadow-[0_0_30px_rgba(128,0,0,0.8)]" />
+              <div className="shrink-0 w-2 h-24 bg-maroon rounded-full blur-[2px] animate-pulse shadow-[0_0_15px_rgba(128,0,0,0.4)]" />
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-maroon uppercase tracking-[0.5em] font-mono italic">Institutional_Mandate</h4>
                 <p className="text-3xl md:text-4xl text-zinc-200 font-black leading-tight tracking-tighter group-hover:text-white transition-all uppercase italic">

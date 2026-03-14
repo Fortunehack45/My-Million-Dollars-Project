@@ -72,7 +72,7 @@ const Tokenomics = () => {
                   <div>
                      <h1 className="text-2xl font-black text-white uppercase tracking-tight leading-none mb-2">Network Operations</h1>
                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]"></div>
                         <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">System Operational — {stats.activeNodes} Peers</span>
                      </div>
                   </div>
@@ -151,7 +151,7 @@ const Tokenomics = () => {
                                     className={`
                                        ${item.color.includes('bg-') ? item.color.replace('bg-', 'text-') : 'text-zinc-800'} 
                                        transition-all duration-500 ease-out-expo cursor-pointer origin-center
-                                       ${isActive ? 'brightness-125 saturate-150 drop-shadow-[0_0_15px_currentColor]' : 'opacity-20 hover:opacity-40'}
+                                       ${isActive ? 'brightness-110 saturate-125 drop-shadow-[0_0_10px_currentColor]' : 'opacity-20 hover:opacity-40'}
                                     `}
                                     style={{ color: !item.color.startsWith('bg-') ? item.color : undefined }}
                                     onMouseEnter={() => setActiveIndex(i)}

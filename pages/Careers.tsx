@@ -33,7 +33,7 @@ const Careers = () => {
                   <Terminal className="w-4 h-4 text-maroon animate-pulse" />
                   <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] italic">Argus_Collective_v2.4</span>
                </div>
-               <h1 className="text-6xl md:text-[10rem] font-black text-white uppercase tracking-tighter leading-[0.8] mb-12 drop-shadow-2xl italic">
+               <h1 className="text-6xl md:text-[8rem] font-black text-white uppercase tracking-tighter leading-[0.8] mb-12 drop-shadow-2xl italic">
                   Build the<br />
                   <span className="text-maroon italic">Frontier.</span>
                </h1>

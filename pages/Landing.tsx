@@ -446,7 +446,7 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.4rem] font-black text-white tracking-[-0.07em] uppercase leading-[0.8] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium animate-text-shimmer" style={{ animationDelay: '0.2s' }}>
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.4rem] font-black text-white tracking-[-0.07em] uppercase leading-[0.8] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium" style={{ animationDelay: '0.2s' }}>
                            Argus Protocol
                         </h1>
 

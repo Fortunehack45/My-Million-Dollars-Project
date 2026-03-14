@@ -40,14 +40,14 @@ const CustomCursor: React.FC = () => {
         >
             <div className={`
                 absolute -translate-x-1/2 -translate-y-1/2
-                w-4 h-4 rounded-full border border-white
-                transition-all duration-300 ease-out
-                ${isPointer ? 'scale-[2.5] bg-white opacity-20' : 'scale-100 bg-transparent'}
+                w-4 h-4 rounded-full border border-white/40
+                transition-all duration-500 ease-out
+                ${isPointer ? 'scale-[1.8] bg-white opacity-10' : 'scale-100 bg-transparent'}
             `} />
             <div className={`
                 absolute -translate-x-1/2 -translate-y-1/2
                 w-1 h-1 bg-white rounded-full
-                transition-transform duration-150
+                transition-transform duration-200
                 ${isPointer ? 'scale-0' : 'scale-100'}
             `} />
         </div>

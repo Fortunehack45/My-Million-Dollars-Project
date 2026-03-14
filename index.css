@@ -45,7 +45,7 @@
   --easing-premium: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Global Grainy Atmospheric Overlay */
+/* Global Subtle Texture Overlay */
 body::after {
   content: "";
   position: fixed;
@@ -53,7 +53,7 @@ body::after {
   width: 100%;
   height: 100%;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.04;
+  opacity: 0.015; /* Professional reduction */
   pointer-events: none;
   z-index: 9999;
   mix-blend-mode: overlay;
@@ -139,7 +139,7 @@ body {
   position: absolute;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.03;
+  opacity: 0.015;
   pointer-events: none;
   z-index: 1;
   mix-blend-mode: soft-light;
@@ -192,14 +192,14 @@ body {
 }
 
 .silk-panel:hover {
-  border-color: rgba(128, 0, 0, 0.2);
-  background-color: rgba(9, 9, 11, 0.6);
-  transform: translateY(-6px) scale(1.005);
-  box-shadow: var(--shadow-silk-lg), 0 0 20px -5px rgba(128, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(12, 12, 14, 0.95);
+  transform: translateY(-2px); /* Subtler professional lift */
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 .silk-panel:hover::before {
-  opacity: 1;
+  opacity: 0.4;
 }
 
 /* Professional Human Button - Primary */
@@ -226,10 +226,10 @@ body {
 }
 
 .btn-premium:hover {
-  border-color: rgba(128, 0, 0, 0.3);
-  background-color: #050505;
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(128, 0, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: #0c0c0e;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* Professional Human Button - Maroon CTA */
@@ -336,8 +336,8 @@ body {
 }
 
 @keyframes text-shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% { background-position: -100% center; }
+  100% { background-position: 100% center; }
 }
 
 .animate-text-shimmer {
