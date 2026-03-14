@@ -12,10 +12,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   subscribeToNetworkStats, 
-  subscribeToAllTransactions, 
   calculateCurrentBlockHeight,
   subscribeToActiveMinerCount,
-  db
+  db,
+  AVG_BLOCK_TIME_MS,
+  BASE_MINING_RATE
 } from '../services/firebase';
 import { ArgusSynapseService } from '../services/ArgusSynapseService';
 import { NetworkStats } from '../types';
