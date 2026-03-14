@@ -7,10 +7,18 @@
 import { createClient } from '@supabase/supabase-js';
 import type { LaunchpadCoin, LaunchpadTrade, PriceAlert, WatchlistEntry, CoinBoost } from '../types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_key';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Prevent app crash on invalid URL formatting if user enters wrong ENV vars on host
+let validUrl = SUPABASE_URL;
+try {
+  new URL(SUPABASE_URL);
+} catch (e) {
+  validUrl = 'https://placeholder.supabase.co';
+}
+
+export const supabase = createClient(validUrl, SUPABASE_ANON_KEY);
 
 // ─── COIN HELPERS ───────────────────────────────────────────────────────────
 
