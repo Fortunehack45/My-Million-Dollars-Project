@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import {
   LayoutDashboard,
@@ -73,6 +72,8 @@ const MobileNavItem = ({ to, label, icon: Icon, isDisabled = false }: { to: stri
 const Sidebar = () => {
   const { user, logout, firebaseUser } = useAuth();
   const { isLocked } = useLocks();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   // High-priority robust admin check against the actual ADMIN_EMAIL
   const isAuthorizedAdmin = user?.email ? user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() : false;
@@ -124,10 +125,10 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* MOBILE: Bottom Navigation Bar - Professional & Simple */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/80 backdrop-blur-xl border-t border-zinc-900 z-[100] px-2">
-        <div className="flex justify-around items-center h-full relative z-10">
-          {navItems.map((item) => (
+      {/* MOBILE: Bottom Navigation Bar - Professional & Native Style */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-950/95 backdrop-blur-2xl border-t border-white/[0.05] z-[100] pb-[env(safe-area-inset-bottom)]">
+        <div className="flex justify-around items-center h-16 relative z-10 w-full px-1">
+          {navItems.slice(0, 4).map((item) => (
             <MobileNavItem
               key={item.to}
               to={item.to}
@@ -136,6 +137,52 @@ const Sidebar = () => {
               isDisabled={isLocked(item.to)}
             />
           ))}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative transition-all duration-300 ${isMobileMenuOpen ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+          >
+            <Menu className={`w-5 h-5 transition-transform duration-300 ${isMobileMenuOpen ? 'scale-110' : ''}`} />
+            <span className="text-[8px] font-bold uppercase tracking-[0.2em] transition-colors duration-300">Menu</span>
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE: Slide-up App drawer for extra tools */}
+      <div className={`md:hidden fixed inset-0 z-[150] bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsMobileMenuOpen(false)}>
+        <div 
+          className={`absolute bottom-0 left-0 right-0 bg-zinc-950 border-t border-white/[0.05] rounded-t-[2.5rem] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-transform duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-full'}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-8 px-2">
+            <span className="font-black text-xl text-white uppercase tracking-tighter italic">Terminal_Menu</span>
+            <button onClick={() => setIsMobileMenuOpen(false)} className="p-3 bg-zinc-900/50 rounded-full border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-3">
+             {navItems.map((item) => (
+                <Link
+                  key={`menu-${item.to}`}
+                  to={item.to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all ${location.pathname === item.to ? 'bg-maroon/20 text-maroon border-maroon/30 shadow-[0_0_15px_rgba(128,0,0,0.15)]' : 'bg-zinc-900/40 text-zinc-400 border-white/5 hover:bg-zinc-900 hover:text-white'}`}
+                >
+                  <item.icon className={`w-6 h-6 ${location.pathname === item.to ? 'animate-pulse' : ''}`} />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-center leading-tight">{item.label}</span>
+                </Link>
+             ))}
+             {isAuthorizedAdmin && (
+               <Link
+                 to="/admin"
+                 onClick={() => setIsMobileMenuOpen(false)}
+                 className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all bg-maroon/5 text-maroon/80 border-maroon/20 hover:bg-maroon/20`}
+               >
+                 <ShieldAlert className="w-6 h-6" />
+                 <span className="text-[9px] font-black uppercase tracking-widest text-center leading-tight">Admin</span>
+               </Link>
+             )}
+          </div>
         </div>
       </div>
 
@@ -158,7 +205,7 @@ const Sidebar = () => {
             </div>
           </div>
 
-          <nav className="flex-1 space-y-1.5">
+          <nav className="flex-1 space-y-1.5 overflow-y-auto custom-scrollbar pr-2">
             {navItems.map((item) => (
               <DesktopNavItem
                 key={item.to}
@@ -189,7 +236,7 @@ const Sidebar = () => {
             )}
           </nav>
 
-          {user && (
+          {user ? (
             <div className="mt-auto pt-6 border-t border-zinc-900">
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors cursor-default group">
                 <div className="relative">
@@ -211,6 +258,16 @@ const Sidebar = () => {
                 <LogOut className="w-3 h-3" />
                 <span className="text-[9px] font-bold uppercase tracking-widest">Disconnect</span>
               </button>
+            </div>
+          ) : (
+            <div className="mt-auto pt-6 border-t border-zinc-900">
+              <Link
+                to="/login"
+                className="flex items-center justify-center gap-3 w-full py-4 bg-maroon hover:bg-maroon/90 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-maroon/20 hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <Users className="w-4 h-4" />
+                Establish_Connection
+              </Link>
             </div>
           )}
         </div>

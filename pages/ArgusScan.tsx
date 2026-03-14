@@ -24,7 +24,7 @@ import MatrixBackground from '../components/MatrixBackground';
 import SEO from '../components/SEO';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import { ArgusLogo } from '../components/ArgusLogo';
-import { collection, query, orderBy, limit, onSnapshot, where } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, where, getDocs } from 'firebase/firestore';
 
 // --- STYLING CONSTANTS ---
 const PANEL_GLASS = "bg-zinc-950/40 backdrop-blur-3xl border border-white/[0.05] rounded-[2rem] shadow-2xl overflow-hidden group";
@@ -535,183 +535,6 @@ const GasTrackerView = () => (
   </div>
 );
 
-const MempoolView = () => {
-  const [filter, setFilter] = useState<'all' | 'high' | 'stuck'>('all');
-  
-  return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">Pending_Transmission_Pool</h2>
-            <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.2em]">642 Transmissions awaiting consensus validation.</p>
-          </div>
-          <div className="flex items-center gap-3 p-1 bg-zinc-950 border border-white/5 rounded-2xl">
-             {['all', 'high', 'stuck'].map(f => (
-               <button 
-                key={f} 
-                onClick={() => setFilter(f as any)}
-                className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:text-white'}`}
-               >
-                 {f}_Signals
-               </button>
-             ))}
-          </div>
-       </div>
-
-       <div className={PANEL_GLASS}>
-          <div className="px-8 py-5 border-b border-white/[0.03] bg-black/40 flex items-center justify-between">
-             <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-maroon animate-ping" />
-                <span className="text-[9px] font-black text-maroon uppercase tracking-widest">Live_Surveillance_Active</span>
-             </div>
-             <span className="text-[8px] text-zinc-700 font-bold uppercase tracking-widest">Kernel_Mempool_Sector_04</span>
-          </div>
-          <div className="overflow-x-auto">
-             <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[9px] text-zinc-600 font-black uppercase tracking-widest border-b border-white/5">
-                    <th className="px-8 py-5">TXN_ID</th>
-                    <th className="px-8 py-5">Source_Vector</th>
-                    <th className="px-8 py-5 text-center">Gas_Oracle_Price</th>
-                    <th className="px-8 py-5 text-right">Payload_Value</th>
-                    <th className="px-8 py-5 text-right">Wait_Time</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.02]">
-                  {recentTxs.filter(tx => tx.status === 'PENDING').map((tx: any, i: number) => (
-                    <tr key={i} className="group/row hover:bg-white/[0.01] transition-all cursor-crosshair">
-                      <td className="px-8 py-5 font-mono text-xs text-maroon font-bold opacity-60 group-hover/row:opacity-100 transition-opacity italic">{shortenHash(tx.txHash || tx.id)}</td>
-                      <td className="px-8 py-5 font-mono text-xs text-zinc-500">{shortenHash(tx.from)}</td>
-                      <td className="px-8 py-5 text-center">
-                         <span className="text-[10px] font-black tracking-widest text-white">4.2 Gwei</span>
-                      </td>
-                      <td className="px-8 py-5 font-black text-white text-right text-xs">{(tx.amount || 0).toFixed(4)} ARG</td>
-                      <td className="px-8 py-5 text-right">
-                         <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest">{formatTime(tx.createdAt)}</span>
-                      </td>
-                    </tr>
-                  ))}
-                  {recentTxs.filter(tx => tx.status === 'PENDING').length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-8 py-20 text-center text-[10px] text-zinc-700 font-black uppercase tracking-widest italic leading-none">
-                        No_Pending_Signals_In_Pool
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-             </table>
-          </div>
-       </div>
-    </div>
-  );
-};
-
-// BADGE_MAROON defined globally above
-
-const TokenExplorerView = () => {
-  const [selectedToken, setSelectedToken] = useState<any>(null);
-
-  const tokens = [
-    { symbol: 'ARG', name: 'Argus Protocol', price: '$0.50', change: '---', marketCap: `$${((netStats?.totalMined || 0) * 0.5).toLocaleString()}`, holders: netStats?.totalUsers?.toLocaleString() || '---', supply: '1B', contract: '0xkernel_main' }
-  ];
-
-  if (selectedToken) {
-    return (
-      <div className="space-y-8 animate-in fade-in duration-500">
-        <button onClick={() => setSelectedToken(null)} className="flex items-center gap-2 text-[10px] font-black text-zinc-600 uppercase tracking-widest hover:text-white transition-colors">
-          <ArrowRight className="w-3 h-3 rotate-180" /> Back_To_Ledger
-        </button>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 bg-maroon/10 rounded-2xl flex items-center justify-center font-black text-maroon text-2xl italic border border-maroon/20">{selectedToken.symbol[0]}</div>
-            <div>
-              <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">{selectedToken.name} <span className="text-zinc-700 not-italic">({selectedToken.symbol})</span></h2>
-              <div className="flex items-center gap-4 mt-2">
-                <span className={BADGE_MAROON}>CONTRACT: {selectedToken.contract}</span>
-                <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">{selectedToken.price} ({selectedToken.change})</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {[
-            { label: 'Market_Cap', val: selectedToken.marketCap, icon: TrendingUp },
-            { label: 'Total_Supply', val: selectedToken.supply, icon: Database },
-            { label: 'Unique_Holders', val: selectedToken.holders, icon: User },
-            { label: 'Transfers_24H', val: '1,420', icon: Activity }
-          ].map((stat, i) => (
-            <div key={i} className={PANEL_GLASS + " p-6 space-y-2"}>
-               <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">{stat.label}</p>
-               <p className="text-xl font-black text-white tracking-tight">{stat.val}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           <div className={PANEL_GLASS + " lg:col-span-2 p-8 h-[400px] flex flex-col"}>
-              <p className="text-[10px] font-black text-white uppercase tracking-widest mb-6 italic">Price_Trajectory_Visualizer</p>
-              <div className="flex-grow flex items-end gap-1 pb-4">
-                 {[...Array(40)].map((_, i) => (
-                    <div key={i} className="flex-grow bg-maroon/20 hover:bg-maroon/60 transition-colors rounded-t-sm" style={{ height: `${20 + (i * 3) % 70}%` }} />
-                 ))}
-              </div>
-              <div className="flex justify-between text-[8px] text-zinc-800 font-black uppercase tracking-widest border-t border-white/5 pt-4">
-                <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
-              </div>
-           </div>
-           <div className={PANEL_GLASS + " p-8 h-[400px] flex flex-col"}>
-              <p className="text-[10px] font-black text-white uppercase tracking-widest mb-6 italic">Top_Capital_Holders</p>
-              <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2">
-                 {[1, 2, 3, 4, 5, 6].map(i => (
-                   <div key={i} className="flex items-center justify-between p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-mono text-zinc-500 italic">Indexing_Genesis_Holders...</p>
-                        <div className="w-24 h-1 bg-zinc-900 rounded-full overflow-hidden">
-                           <div className="h-full bg-maroon/40" style={{ width: `${100 - i * 15}%` }} />
-                        </div>
-                      </div>
-                      <p className="text-[10px] font-black text-white tracking-widest">{(10 - i * 1.2).toFixed(2)}%</p>
-                   </div>
-                 ))}
-              </div>
-           </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-       <div className={PANEL_GLASS + " p-12 text-center space-y-6 relative overflow-hidden"}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-maroon/5 blur-[100px] rounded-full -mr-32 -mt-32"></div>
-          <div className="w-24 h-24 bg-maroon/5 rounded-[2rem] border border-maroon/10 flex items-center justify-center mx-auto relative z-10 transition-transform hover:scale-110 duration-700">
-             <Database className="w-10 h-10 text-maroon" />
-          </div>
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic relative z-10">Multi-Asset_Ledger</h2>
-          <p className="text-zinc-600 text-[10px] uppercase font-bold tracking-[0.4em] max-w-xl mx-auto relative z-10">Real-time valuation and distribution analytics for protocol-integrated assets.</p>
-       </div>
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {tokens.map((token, idx) => (
-             <div key={idx} onClick={() => setSelectedToken(token)} className={PANEL_GLASS + " p-8 flex items-center justify-between hover:border-maroon/20 hover:bg-maroon/[0.02] transition-all cursor-pointer group/token"}>
-                <div className="flex items-center gap-6">
-                   <div className="w-14 h-14 bg-zinc-900 rounded-2xl flex items-center justify-center font-black text-maroon text-xl italic group-hover/token:text-white transition-colors">{token.symbol[0]}</div>
-                   <div>
-                      <h4 className="text-lg font-black text-white uppercase tracking-tight italic flex items-center gap-3">
-                        {token.name} 
-                        <span className="text-[9px] text-maroon font-black not-italic px-2 py-0.5 border border-maroon/20 rounded bg-maroon/5">{token.change}</span>
-                      </h4>
-                      <p className="text-[9px] text-zinc-700 font-bold uppercase tracking-widest mt-1">Market Cap: {token.marketCap} | Holders: {token.holders}</p>
-                   </div>
-                </div>
-                <MoveRight className="w-5 h-5 text-zinc-800 group-hover/token:text-maroon group-hover/token:translate-x-2 transition-all" />
-             </div>
-          ))}
-       </div>
-    </div>
-  );
-};
-
 const NFTExplorerView = () => {
   const [selectedNFT, setSelectedNFT] = useState<any>(null);
 
@@ -1134,13 +957,182 @@ contract Argus_Kernel_Validator {
 // --- MAIN ARYUS SCAN COMPONENT ---
 const ArgusScan = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'blocks' | 'txs' | 'tokens' | 'nfts' | 'gas' | 'mempool'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'nfts' | 'blocks' | 'txs' | 'tokens' | 'gas' | 'mempool' | 'contracts' | 'tools'>('dashboard');
   const [searchResult, setSearchResult] = useState<any>(null);
   const [netStats, setNetStats] = useState<NetworkStats | null>(null);
   const [recentBlocks, setRecentBlocks] = useState<any[]>([]);
   const [recentTxs, setRecentTxs] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [activeNodes, setActiveNodes] = useState(0);
+  const [activeNodes, setActiveNodes] = useState(0); 
+
+  // --- SUB-COMPONENTS (Defined inside to access state) ---
+
+  const MempoolView = () => {
+    const [filter, setFilter] = useState<'PRIORITY' | 'STANDARD' | 'STALE'>('PRIORITY');
+    
+    return (
+      <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-x-hidden">
+            <div className="space-y-1">
+               <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">Kernel_Mempool_Monitor</h2>
+               <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-none">Packet_Queue_Density: Phase_04</p>
+            </div>
+            <div className="flex items-center gap-1 p-1 bg-zinc-950 border border-white/5 rounded-2xl w-fit">
+               {['PRIORITY', 'STANDARD', 'STALE'].map(f => (
+                  <button 
+                   key={f} 
+                   onClick={() => setFilter(f as any)}
+                   className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:text-white'}`}
+                  >
+                    {f}_Signals
+                  </button>
+                ))}
+             </div>
+          </div>
+  
+          <div className={PANEL_GLASS}>
+             <div className="px-8 py-5 border-b border-white/[0.03] bg-black/40 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                   <div className="w-2 h-2 rounded-full bg-maroon animate-ping" />
+                   <span className="text-[9px] font-black text-maroon uppercase tracking-widest">Live_Surveillance_Active</span>
+                </div>
+                <span className="text-[8px] text-zinc-700 font-bold uppercase tracking-widest">Kernel_Mempool_Sector_04</span>
+             </div>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                   <thead>
+                     <tr className="text-[9px] text-zinc-600 font-black uppercase tracking-widest border-b border-white/5">
+                       <th className="px-8 py-5">TXN_ID</th>
+                       <th className="px-8 py-5">Source_Vector</th>
+                       <th className="px-8 py-5 text-center">Gas_Oracle_Price</th>
+                       <th className="px-8 py-5 text-right">Payload_Value</th>
+                       <th className="px-8 py-5 text-right">Wait_Time</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-white/[0.02]">
+                     {recentTxs.filter(tx => tx.status === 'PENDING').map((tx: any, i: number) => (
+                       <tr key={i} className="group/row hover:bg-white/[0.01] transition-all cursor-crosshair">
+                         <td className="px-8 py-5 font-mono text-xs text-maroon font-bold opacity-60 group-hover/row:opacity-100 transition-opacity italic">{shortenHash(tx.txHash || tx.id)}</td>
+                         <td className="px-8 py-5 font-mono text-xs text-zinc-500">{shortenHash(tx.from)}</td>
+                         <td className="px-8 py-5 text-center">
+                            <span className="text-[10px] font-black tracking-widest text-white">4.2 Gwei</span>
+                         </td>
+                         <td className="px-8 py-5 font-black text-white text-right text-xs">{(tx.amount || 0).toFixed(4)} ARG</td>
+                         <td className="px-8 py-5 text-right">
+                            <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest">{formatTime(tx.createdAt)}</span>
+                         </td>
+                       </tr>
+                     ))}
+                     {recentTxs.filter(tx => tx.status === 'PENDING').length === 0 && (
+                       <tr>
+                         <td colSpan={5} className="px-8 py-20 text-center text-[10px] text-zinc-700 font-black uppercase tracking-widest italic leading-none">
+                           No_Pending_Signals_In_Pool
+                         </td>
+                       </tr>
+                     )}
+                   </tbody>
+                </table>
+             </div>
+          </div>
+       </div>
+    );
+  };
+
+  const TokenExplorerView = () => {
+    const [selectedToken, setSelectedToken] = useState<any>(null);
+  
+    const tokens = [
+      { symbol: 'ARG', name: 'Argus Protocol', price: '$0.50', change: '---', marketCap: `$${((netStats?.totalMined || 0) * 0.5).toLocaleString()}`, holders: netStats?.totalUsers?.toLocaleString() || '---', supply: '1B', contract: '0xkernel_main' }
+    ];
+  
+    if (selectedToken) {
+      return (
+        <div className="space-y-8 animate-in fade-in duration-500">
+          <button onClick={() => setSelectedToken(null)} className="flex items-center gap-2 text-[10px] font-black text-zinc-600 uppercase tracking-widest hover:text-white transition-colors">
+            <ArrowRight className="w-3 h-3 rotate-180" /> Back_To_Ledger
+          </button>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-maroon/10 rounded-2xl flex items-center justify-center font-black text-maroon text-2xl italic border border-maroon/20">{selectedToken.symbol[0]}</div>
+              <div>
+                <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">{selectedToken.name} <span className="text-zinc-700 not-italic">({selectedToken.symbol})</span></h2>
+                <div className="flex items-center gap-4 mt-2">
+                  <span className={BADGE_MAROON}>CONTRACT: {selectedToken.contract}</span>
+                  <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">{selectedToken.price} ({selectedToken.change})</span>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {[
+              { label: 'Market_Cap', val: selectedToken.marketCap, icon: TrendingUp },
+              { label: 'Total_Supply', val: selectedToken.supply, icon: Database },
+              { label: 'Unique_Holders', val: selectedToken.holders, icon: User },
+              { label: 'Transfers_24H', val: '1,420', icon: Activity }
+            ].map((stat, i) => (
+              <div key={i} className={PANEL_GLASS + " p-6 space-y-2"}>
+                 <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">{stat.label}</p>
+                 <p className="text-xl font-black text-white tracking-tight">{stat.val}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+  
+    return (
+       <div className="space-y-10 animate-in fade-in duration-700">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-1">
+               <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">Protocol_Asset_Registry</h2>
+               <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-none">Security_Audit_Status: Verified</p>
+            </div>
+          </div>
+  
+          <div className={PANEL_GLASS}>
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                   <thead>
+                     <tr className="text-[9px] text-zinc-700 font-black uppercase tracking-widest border-b border-white/5">
+                       <th className="px-8 py-5">Asset_Ticker</th>
+                       <th className="px-8 py-5 text-right">Oracle_Price</th>
+                       <th className="px-8 py-5 text-right font-black">Mark_Cap</th>
+                       <th className="px-8 py-5 text-right">Operators</th>
+                       <th className="px-8 py-5 text-right">Circulating</th>
+                       <th className="px-8 py-5"></th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-white/[0.02]">
+                     {tokens.map((token, i) => (
+                        <tr key={i} className="group/row hover:bg-white/[0.01] transition-all">
+                           <td className="px-8 py-5">
+                              <div className="flex items-center gap-4">
+                                 <div className="w-9 h-9 bg-maroon/10 rounded-xl flex items-center justify-center font-black text-maroon italic text-sm border border-maroon/20 group-hover/row:scale-110 transition-transform">{token.symbol[0]}</div>
+                                 <div>
+                                    <p className="text-xs font-black text-white uppercase italic">{token.name}</p>
+                                    <p className="text-[9px] font-mono text-zinc-600 group-hover/row:text-maroon transition-colors">{token.symbol}</p>
+                                 </div>
+                              </div>
+                           </td>
+                           <td className="px-8 py-5 text-right font-black text-white text-xs tracking-tight">{token.price}</td>
+                           <td className="px-8 py-5 text-right font-black text-zinc-400 text-xs tracking-tighter">{token.marketCap}</td>
+                           <td className="px-8 py-5 text-right font-black text-zinc-500 text-xs tracking-widest">{token.holders}</td>
+                           <td className="px-8 py-5 text-right">
+                              <span className="text-[10px] font-black text-zinc-800 uppercase tracking-widest">{token.supply}</span>
+                           </td>
+                           <td className="px-8 py-5 text-right">
+                              <button onClick={() => setSelectedToken(token)} className="px-4 py-1.5 bg-zinc-900 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-maroon hover:text-white transition-all">Registry_Info</button>
+                           </td>
+                        </tr>
+                     ))}
+                   </tbody>
+                </table>
+             </div>
+          </div>
+       </div>
+    );
+  };
 
   // --- DATA SUB ---
   useEffect(() => {
@@ -1171,35 +1163,35 @@ const ArgusScan = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
+     setIsSearching(true);
     setTimeout(() => {
       setIsSearching(false);
-      const query = searchQuery.trim().toLowerCase();
+      const searchStr = searchQuery.trim().toLowerCase();
       
       // Logic to determine if search is Hash, Block, Address, ENS, or Token
-      if (query.startsWith('0x') && query.length > 50) {
+      if (searchStr.startsWith('0x') && searchStr.length > 50) {
         setSearchResult({ type: 'tx', data: { hash: searchQuery, status: 'CONFIRMED', chain: 'ARG' } });
-      } else if (!isNaN(Number(query))) {
-        setSearchResult({ type: 'block', data: { height: Number(query) } });
-      } else if (query.startsWith('arg') || (query.startsWith('0x') && query.length === 42)) {
+      } else if (!isNaN(Number(searchStr))) {
+        setSearchResult({ type: 'block', data: { height: Number(searchStr) } });
+      } else if (searchStr.startsWith('arg') || (searchStr.startsWith('0x') && searchStr.length === 42)) {
         // Real Address Lookup
-        const userQ = query(collection(db, 'users'), where('displayName', '==', searchQuery), limit(1));
-        const addressDoc = query(collection(db, 'users'), where('uid', '==', searchQuery), limit(1));
-        
         getDocs(query(collection(db, 'users'))).then(snapshot => {
-           const found = snapshot.docs.find(d => d.id === searchQuery || d.data().displayName === searchQuery || d.data().referralCode === searchQuery.toUpperCase());
+           const found = snapshot.docs.find(d => {
+             const data = d.data() as any;
+             return d.id === searchQuery || data.displayName === searchQuery || data.referralCode === searchQuery.toUpperCase();
+           });
+           
            if (found) {
-              setSearchResult({ type: 'address', data: { address: found.id, ...found.data() } });
+              setSearchResult({ type: 'address', data: { address: found.id, ...(found.data() as any) } });
            } else {
               setSearchResult({ type: 'address', data: { address: searchQuery, points: 0, label: 'UNREGISTERED_IDENTITY' } });
            }
         });
-      } else if (query.endsWith('.ens') || query.endsWith('.arg')) {
-        setSearchResult({ type: 'address', data: { address: 'arg1...ens_resolved', label: query } });
-      } else if (query.length < 6) {
+      } else if (searchStr.endsWith('.ens') || searchStr.endsWith('.arg')) {
+        setSearchResult({ type: 'address', data: { address: 'arg1...ens_resolved', label: searchStr } });
+      } else if (searchStr.length < 6) {
         // Token ticker search
-        setSearchResult({ type: 'token', data: { symbol: query.toUpperCase(), name: 'Argus Asset' } });
+        setSearchResult({ type: 'token', data: { symbol: searchStr.toUpperCase(), name: 'Argus Asset' } });
       } else {
         // General search leads to dashboard/stats for now
         setActiveTab('dashboard');

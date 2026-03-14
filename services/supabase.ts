@@ -7,6 +7,15 @@
 import { createClient } from '@supabase/supabase-js';
 import type { LaunchpadCoin, LaunchpadTrade, PriceAlert, WatchlistEntry, CoinBoost } from '../types';
 
+export interface ChatMessage {
+  id: string;
+  coin_address: string;
+  wallet_address: string;
+  username: string;
+  message: string;
+  created_at: number;
+}
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_key';
 
@@ -19,6 +28,18 @@ try {
 }
 
 export const supabase = createClient(validUrl, SUPABASE_ANON_KEY);
+
+/** Simple health check for the Supabase connection */
+export const checkSupabaseConnection = async (): Promise<string> => {
+  try {
+    const { error } = await supabase.from('coins').select('id').limit(1);
+    if (error) throw error;
+    return 'ONLINE';
+  } catch (err) {
+    console.error('Supabase Connection Error:', err);
+    return 'OFFLINE';
+  }
+};
 
 // ─── COIN HELPERS ───────────────────────────────────────────────────────────
 
@@ -116,7 +137,28 @@ export const subscribeToCoin = (address: string, callback: (coin: LaunchpadCoin)
 // ─── TRANSACTIONS ────────────────────────────────────────────────────────────
 
 export const recordTransaction = async (tx: Omit<LaunchpadTrade, 'id'>): Promise<boolean> => {
-  const { error } = await supabase.from('transactions').insert([{
+  // Algorithmic Price Impact Logic (Constant Product Simulation)
+  const { data: coin } = await supabase.from('coins').select('*').eq('contract_address', tx.coinAddress).single();
+  if (!coin) return false;
+
+  const currentLiquidity = Number(coin.liquidity);
+  let newLiquidity = currentLiquidity;
+  let newPrice = Number(tx.price);
+
+  if (tx.type === 'BUY') {
+    newLiquidity += tx.price * tx.amount;
+  } else {
+    newLiquidity -= tx.price * tx.amount;
+  }
+  
+  // Minimal liquidity floor
+  newLiquidity = Math.max(0.1, newLiquidity);
+  
+  // Price moves with liquidity relative to a virtual token pool (simulating 20% of total supply)
+  const virtualPool = Number(coin.total_supply) * 0.2;
+  newPrice = newLiquidity / virtualPool;
+
+  const { error: txErr } = await supabase.from('transactions').insert([{
     tx_hash: tx.txHash,
     coin_address: tx.coinAddress,
     wallet_address: tx.walletAddress,
@@ -126,7 +168,17 @@ export const recordTransaction = async (tx: Omit<LaunchpadTrade, 'id'>): Promise
     timestamp: new Date(tx.timestamp).toISOString(),
     social_handle: tx.socialHandle || null,
   }]);
-  if (error) { console.error('recordTransaction:', error); return false; }
+
+  if (!txErr) {
+    // Update coin price, liquidity, and volume
+    await supabase.from('coins').update({
+      liquidity: newLiquidity,
+      market_cap: newPrice * Number(coin.total_supply),
+      volume_24h: Number(coin.volume_24h || 0) + (tx.price * tx.amount)
+    }).eq('contract_address', tx.coinAddress);
+  }
+
+  if (txErr) { console.error('recordTransaction:', txErr); return false; }
   return true;
 };
 
@@ -271,6 +323,40 @@ export const fetchLaunchpadUser = async (wallet: string) => {
   return data;
 };
 
+// ─── CHAT ────────────────────────────────────────────────────────────────────
+
+export const sendChatMessage = async (coinAddress: string, wallet: string, username: string, message: string): Promise<boolean> => {
+  const { error } = await supabase.from('chat_messages').insert([{
+    coin_address: coinAddress,
+    wallet_address: wallet,
+    username,
+    message
+  }]);
+  return !error;
+};
+
+export const fetchChatMessages = async (coinAddress: string, limitN = 100): Promise<ChatMessage[]> => {
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .select('*')
+    .eq('coin_address', coinAddress)
+    .order('created_at', { ascending: false })
+    .limit(limitN);
+  if (error) return [];
+  return (data || []).map(r => ({ ...r, created_at: new Date(r.created_at).getTime() }));
+};
+
+export const subscribeToChat = (coinAddress: string, callback: (msg: ChatMessage) => void) => {
+  const channel = supabase
+    .channel(`chat_${coinAddress}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `coin_address=eq.${coinAddress}` }, payload => {
+      const r = payload.new as any;
+      callback({ ...r, created_at: new Date(r.created_at).getTime() });
+    })
+    .subscribe();
+  return () => supabase.removeChannel(channel);
+};
+
 // ─── SUPABASE SQL SCHEMA (for documentation / migrations) ────────────────────
 export const SCHEMA_SQL = `
 -- Run this in your Supabase SQL editor to initialise the Argus Launchpad database.
@@ -352,7 +438,17 @@ create table if not exists holders (
   primary key (coin_address, wallet_address)
 );
 
+create table if not exists chat_messages (
+  id uuid primary key default gen_random_uuid(),
+  coin_address text references coins(contract_address) on delete cascade,
+  wallet_address text not null,
+  username text not null,
+  message text not null,
+  created_at timestamptz default now()
+);
+
 -- Enable realtime on key tables
 alter publication supabase_realtime add table coins;
 alter publication supabase_realtime add table transactions;
+alter publication supabase_realtime add table chat_messages;
 `;

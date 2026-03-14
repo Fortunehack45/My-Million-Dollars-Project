@@ -29,12 +29,12 @@ const ArgusScan = lazy(() => import('./pages/ArgusScan'));
 const ArgusLaunchpad = lazy(() => import('./pages/ArgusLaunchpad'));
 
 import PublicLayout from './components/PublicLayout';
-const Terms = lazy(() => import('./pages/Legal').then(m => ({ default: m.Terms })));
-const Privacy = lazy(() => import('./pages/Legal').then(m => ({ default: m.Privacy })));
-
 import CookieConsent from './components/CookieConsent';
 import ScrollToTop from './components/ScrollToTop';
 import { subscribeToLockedPages, ADMIN_EMAIL } from './services/firebase';
+
+const Terms = lazy(() => import('./pages/Legal').then(m => ({ default: m.Terms })));
+const Privacy = lazy(() => import('./pages/Legal').then(m => ({ default: m.Privacy })));
 
 // Optimized Loading Fallback
 const LoadingFallback = () => (
@@ -113,9 +113,12 @@ const AppRoutes = () => {
     }
   }, [searchParams]);
 
-  // Determine if we are on a public page and should show the PublicLayout
+  // Determine if we are on a public-facing path
   const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy', '/argusscan'];
-  const isPublicPage = publicPaths.some(path => location.pathname === path) || (!firebaseUser && location.pathname === '/');
+  const isMatchPublic = publicPaths.includes(location.pathname);
+  
+  // A page is only rendered in "Public Mode" if the user is NOT logged in and it's either a public path or the landing page
+  const isPublicPage = !firebaseUser && (isMatchPublic || location.pathname === '/');
 
   // Wrap content with the correct layout - Stabilized to prevent flickering
   return (

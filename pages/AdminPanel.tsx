@@ -47,8 +47,18 @@ import {
   Briefcase, Phone, HelpCircle, Share2, PieChart,
   ListPlus, ChevronDown, ChevronRight, Settings,
   Target, RefreshCw, MessageSquare, Maximize, Minimize,
-  Search, History, ExternalLink, Wallet, TrendingUp, Copy, ArrowDownLeft, ArrowUpRight
+  Search, Terminal as TerminalIcon, Mail, AlertCircle, ArrowRight,
+  Plus, Edit, Clock, BarChart3, Bell,
+  Filter, Download, ShieldCheck, Upload, Scale, Calculator, Hash, User as UserIcon,
+  List, Grid, Eye, PenTool, Tag, RotateCcw, Box, MoveRight,
+  History, ExternalLink, Wallet, TrendingUp, Copy, ArrowDownLeft, ArrowUpRight
 } from 'lucide-react';
+import {
+  collection, query, orderBy, limit, getDocs,
+  onSnapshot, updateDoc, doc, setDoc, deleteDoc,
+  where, increment, serverTimestamp, getDoc
+} from 'firebase/firestore';
+import { db, auth } from '../services/firebase';
 import { ArgusLogo } from '../components/ArgusLogo';
 import { EthLogo } from '../components/EthLogo';
 import { AdvancedEditor } from '../components/AdvancedEditor';

@@ -13,7 +13,8 @@ import {
   fetchTransactions, subscribeToTrades, subscribeToCoin,
   fetchWatchlist, addToWatchlist, removeFromWatchlist,
   fetchAlerts, createAlert, deleteAlert, triggerAlert,
-  boostCoin, fetchHolders, BOOST_TIERS,
+  boostCoin, fetchHolders, BOOST_TIERS, checkSupabaseConnection,
+  fetchChatMessages, sendChatMessage, subscribeToChat,
 } from '../services/supabase';
 import {
   CURRENT_ARG_PRICE, calculateCurrentBlockHeight,
@@ -32,8 +33,7 @@ const VAL = 'text-sm font-black text-white tracking-tight';
 
 // ─── STUB: Simulated price oracle (replaces real DEX until mainnet) ───────────
 function getBasePrice(coin: LaunchpadCoin): number {
-  const seed = coin.address.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return (seed % 1000) / 10000 + 0.0001;
+  return coin.price || 0.0001;
 }
 
 function generateCandles(count: number, basePrice: number) {
@@ -193,6 +193,16 @@ const TradingPanel: React.FC<{ coin: LaunchpadCoin; userWallet: string; onTrade:
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const price = getBasePrice(coin);
+  const [supabaseStatus, setSupabaseStatus] = useState('Checking...');
+
+  useEffect(() => {
+    const checkInit = async () => {
+       const status = await checkSupabaseConnection();
+       setSupabaseStatus(status);
+       console.log("Argus Genesis Protocol - Supabase Status:", status);
+    };
+    checkInit();
+  }, []);
 
   const execute = async () => {
     if (!amount || !userWallet) return;
@@ -281,13 +291,32 @@ const CoinDetailView: React.FC<{ coin: LaunchpadCoin; userWallet: string; watchl
   const price = getBasePrice(coin);
   const inWatch = watchlist.includes(coin.address);
 
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [newMsg, setNewMsg] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetchTransactions(coin.address).then(setTrades);
     fetchHolders(coin.address).then(setHolders);
+    fetchChatMessages(coin.address).then(setChatMessages);
+    
     if (userWallet) fetchAlerts(userWallet).then(a => setAlerts(a.filter(x => x.coinAddress === coin.address)));
-    const unsub = subscribeToTrades(coin.address, t => setTrades(prev => [t, ...prev.slice(0, 49)]));
-    return unsub;
+    
+    const unsubTrades = subscribeToTrades(coin.address, t => setTrades(prev => [t, ...prev.slice(0, 49)]));
+    const unsubChat = subscribeToChat(coin.address, m => setChatMessages(prev => [...prev, m]));
+    
+    return () => { unsubTrades(); unsubChat(); };
   }, [coin.address, userWallet]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const handleSendMessage = async () => {
+    if (!newMsg.trim() || !userWallet) return;
+    const ok = await sendChatMessage(coin.address, userWallet, userWallet.slice(0, 8), newMsg);
+    if (ok) setNewMsg('');
+  };
 
   const addAlert = async () => {
     if (!alertPrice || !userWallet) return;
@@ -470,35 +499,75 @@ const CoinDetailView: React.FC<{ coin: LaunchpadCoin; userWallet: string; watchl
         </div>
       )}
 
-      {/* Live Trade Feed */}
-      <div className={`${PANEL} p-6`}>
-        <p className={`${LABEL} mb-4`}>Live_Activity_Feed</p>
-        {trades.length === 0 ? (
-          <p className="text-center text-zinc-700 text-xs py-8 italic">No transactions yet. Be the first to trade!</p>
-        ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-            {trades.map(t => (
-              <motion.div key={t.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between p-3 bg-black/40 border border-white/[0.03] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className={`w-8 h-5 flex items-center justify-center rounded text-[8px] font-black ${t.type === 'BUY' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                    {t.type}
-                  </span>
-                  <div>
-                    <p className="text-[9px] font-mono text-zinc-500">{t.socialHandle || SHORTEN(t.walletAddress)}</p>
-                    <p className="text-[8px] text-zinc-700">{new Date(t.timestamp).toLocaleTimeString()}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Live Trade Feed */}
+        <div className={`${PANEL} p-6`}>
+          <p className={`${LABEL} mb-4`}>Live_Activity_Feed</p>
+          {trades.length === 0 ? (
+            <p className="text-center text-zinc-700 text-xs py-8 italic">No transactions yet. Be the first to trade!</p>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar">
+              {trades.map(t => (
+                <motion.div key={t.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center justify-between p-3 bg-black/40 border border-white/[0.03] rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-8 h-5 flex items-center justify-center rounded text-[8px] font-black ${t.type === 'BUY' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                      {t.type}
+                    </span>
+                    <div>
+                      <p className="text-[9px] font-mono text-zinc-500">{t.socialHandle || SHORTEN(t.walletAddress)}</p>
+                      <p className="text-[8px] text-zinc-700">{new Date(t.timestamp).toLocaleTimeString()}</p>
+                    </div>
                   </div>
+                  <div className="text-right">
+                    <p className={`text-[10px] font-black ${t.type === 'BUY' ? 'text-emerald-500' : 'text-red-500'}`}>
+                      {t.type === 'BUY' ? '+' : '-'}{P(t.amount, 2)} {coin.ticker}
+                    </p>
+                    <p className="text-[8px] text-zinc-700">{PA(t.price)}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Real-time Chat */}
+        <div className={`${PANEL} p-6 flex flex-col h-[400px]`}>
+          <p className={`${LABEL} mb-4`}>Alpha_Chat</p>
+          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 mb-4 pr-2">
+            {chatMessages.length === 0 ? (
+              <p className="text-center text-zinc-700 text-xs py-8 italic">Silence is golden. Start the conversation.</p>
+            ) : (
+              chatMessages.map((m, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-black text-maroon">{m.username}</span>
+                    <span className="text-[7px] text-zinc-700">{new Date(m.created_at).toLocaleTimeString()}</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-300 leading-relaxed bg-white/[0.02] p-2 rounded-lg border border-white/[0.03]">{m.message}</p>
                 </div>
-                <div className="text-right">
-                  <p className={`text-[10px] font-black ${t.type === 'BUY' ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {t.type === 'BUY' ? '+' : '-'}{P(t.amount, 2)} {coin.ticker}
-                  </p>
-                  <p className="text-[8px] text-zinc-700">{PA(t.price)}</p>
-                </div>
-              </motion.div>
-            ))}
+              ))
+            )}
+            <div ref={chatEndRef} />
           </div>
-        )}
+          <div className="flex gap-2">
+            <input 
+              value={newMsg} 
+              onChange={e => setNewMsg(e.target.value)} 
+              onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+              placeholder={userWallet ? "Send a message..." : "Connect to chat"} 
+              disabled={!userWallet}
+              className="flex-1 bg-black/60 border border-white/5 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-maroon/40" 
+            />
+            <button 
+              onClick={handleSendMessage} 
+              disabled={!userWallet || !newMsg.trim()}
+              className="px-4 py-2 bg-maroon text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-maroon/80 transition-all disabled:opacity-40"
+            >
+              Send
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Boost Modal */}
