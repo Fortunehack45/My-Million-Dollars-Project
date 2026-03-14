@@ -70,7 +70,7 @@ const Referrals = () => {
   const totalReferrals = referralLogs.length;
 
   return (
-    <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+    <div className="relative space-y-6 text-zinc-300 font-mono selection:bg-maroon selection:text-white pb-10 overflow-x-hidden">
       
       {/* SYSTEM OVERLAY */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
@@ -87,7 +87,7 @@ const Referrals = () => {
               <Users className="w-6 h-6 text-maroon animate-pulse" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white uppercase tracking-tight leading-none mb-2 italic">Authorization_Bridge</h1>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none mb-2 italic">Authorization_Bridge</h1>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none">Expansion_Protocol_Active · v2.8</span>
@@ -221,7 +221,7 @@ const Referrals = () => {
                       <div className="divide-y divide-white/[0.03]">
                          {referralLogs.map((log, i) => (
                             <div key={log.uid} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all group">
-                               <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-6">
                                   <div className="w-12 h-12 bg-zinc-900 border border-white/[0.05] rounded-lg flex items-center justify-center shrink-0 group-hover:bg-maroon/10 transition-colors">
                                      <ShieldCheck className="w-5 h-5 text-zinc-600 group-hover:text-maroon transition-colors" />
                                   </div>

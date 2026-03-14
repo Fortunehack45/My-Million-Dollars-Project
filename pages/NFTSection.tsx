@@ -82,7 +82,7 @@ const NFTSection = () => {
    ];
 
    return (
-      <div className="w-full min-h-[90vh] py-12 px-6 flex flex-col items-center relative overflow-hidden">
+      <div className="w-full py-6 md:py-12 flex flex-col items-center relative overflow-hidden pb-10">
 
          {/* Premium Ambient Background */}
          <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -100,7 +100,7 @@ const NFTSection = () => {
                   <div className="absolute -inset-24 bg-maroon/20 blur-[150px] rounded-full opacity-40 group-hover:opacity-70 transition-all duration-1000 scale-90 group-hover:scale-110" />
 
                   {/* Premium Institutional Frame */}
-                  <div className="w-[320px] md:w-[420px] aspect-[3/4.2] bg-zinc-950 rounded-[3.5rem] p-6 relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] transition-all duration-1000 hover:scale-[1.03] border border-white/5 ring-1 ring-white/5 hover:ring-maroon/30 group">
+                  <div className="w-[280px] sm:w-[320px] md:w-[420px] aspect-[3/4.2] bg-zinc-950 rounded-[3.5rem] p-4 sm:p-6 relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] transition-all duration-1000 hover:scale-[1.03] border border-white/5 ring-1 ring-white/5 hover:ring-maroon/30 group">
 
                      {/* Inner Obsidian Bezel */}
                      <div className="absolute inset-2 border border-white/[0.03] rounded-[3rem] pointer-events-none" />
@@ -180,7 +180,7 @@ const NFTSection = () => {
                         <Zap className="w-4 h-4 text-maroon animate-pulse" />
                         <span className="text-[10px] font-mono font-black text-zinc-500 uppercase tracking-[0.25em]">Registry_Locked</span>
                      </div>
-                     <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.85]">
+                     <h1 className="text-4xl sm:text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.85]">
                         Institutional<br />
                         <span className="text-maroon">Licenses</span>
                      </h1>

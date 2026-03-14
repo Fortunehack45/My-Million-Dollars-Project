@@ -66,7 +66,7 @@ const TaskItem: React.FC<{ task: Task, user: any, onComplete: (task: Task) => vo
   return (
     <div className={`group relative overflow-hidden rounded-[2.5rem] silk-panel transition-silk ${isCompleted ? 'opacity-40 grayscale pointer-events-none' : 'hover:-translate-y-1'}`}>
 
-      <div className="flex flex-col md:flex-row p-6 md:p-8 gap-6 md:items-center relative z-10">
+      <div className="flex flex-col md:flex-row p-5 sm:p-6 md:p-8 gap-4 md:gap-6 md:items-center relative z-10">
         {/* Status Icon */}
         <div className={`hidden md:flex w-16 h-16 rounded-2xl border flex items-center justify-center shrink-0 transition-silk ${isCompleted ? 'bg-maroon/10 border border-maroon/20 text-maroon' : 'bg-zinc-950 border-white/5 text-zinc-500 group-hover:text-maroon group-hover:border-maroon/20 group-hover:bg-maroon/5'}`}>
           {isCompleted ? <ShieldCheck className="w-7 h-7" /> : (task.icon === 'twitter' ? <Twitter className="w-7 h-7" /> : task.icon === 'telegram' ? <Send className="w-7 h-7" /> : <Globe className="w-7 h-7" />)}
@@ -159,7 +159,7 @@ const SocialTasks = () => {
   if (!user) return null;
 
   return (
-    <div className="w-full space-y-12 animate-in fade-in duration-500 will-change-premium">
+    <div className="w-full space-y-6 sm:space-y-8 animate-in fade-in duration-500 will-change-premium pb-10">
       {/* Institutional Header - Resized to Dashboard Standards */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-900 mb-10">
         <div className="flex items-center gap-4">

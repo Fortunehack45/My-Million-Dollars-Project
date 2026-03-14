@@ -283,7 +283,7 @@ const Dashboard = () => {
   const progress = (miningTimer / MAX_SESSION_TIME) * 100;
 
   return (
-    <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white">
+    <div className="relative space-y-6 text-zinc-300 font-mono selection:bg-maroon selection:text-white pb-10">
       
       {/* DASHBOARD SYSTEM OVERLAY */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
@@ -299,7 +299,7 @@ const Dashboard = () => {
       >
         
         {/* TOP BAR: NETWORK OPERATIONS (Standardized) */}
-        <motion.div variants={itemAnim} className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6 bg-zinc-950/80 border border-white/[0.05] p-6 rounded-xl backdrop-blur-md">
+        <motion.div variants={itemAnim} className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 sm:gap-6 bg-zinc-950/80 border border-white/[0.05] p-4 sm:p-6 rounded-xl backdrop-blur-md">
           <div className="flex items-center gap-6">
             <div className="w-12 h-12 bg-maroon/10 rounded-lg flex items-center justify-center border border-maroon/20">
               <Radio className="w-6 h-6 text-maroon animate-pulse" />
@@ -333,7 +333,7 @@ const Dashboard = () => {
             { label: "Network TPS", value: fmt(tps), sub: "Finality: < 400ms", icon: Zap, color: "text-white" },
             { label: "Active Nodes", value: fmt(activeMinerCount), sub: `Synchronization: Optimal`, icon: Share2, color: "text-white" }
           ].map((m, i) => (
-            <motion.div key={i} variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] p-6 rounded-xl hover:border-maroon/30 transition-all duration-500 group relative overflow-hidden">
+            <motion.div key={i} variants={itemAnim} className="bg-zinc-950/50 border border-white/[0.05] p-4 sm:p-6 rounded-xl hover:border-maroon/30 transition-all duration-500 group relative overflow-hidden">
                <div className="flex items-center justify-between mb-6">
                   <div className="w-10 h-10 bg-zinc-900 rounded-lg flex items-center justify-center border border-white/[0.05] group-hover:bg-maroon/10 transition-colors">
                      <m.icon className="w-5 h-5 text-zinc-500 group-hover:text-maroon transition-colors" />
@@ -484,7 +484,7 @@ const Dashboard = () => {
               { label: 'Protocol_Version', value: 'v2.8_PRODUCTION', icon: Cpu, extra: 'LATEST' },
               { label: 'Cloud_Sovereignty', value: 'GLOBAL_MESH', icon: Globe, extra: 'CONNECTED' }
             ].map((cap, i) => (
-              <motion.div key={cap.label} variants={itemAnim} className="p-6 bg-zinc-950/50 border border-white/[0.05] rounded-xl hover:bg-zinc-900/40 transition-all group">
+              <motion.div key={cap.label} variants={itemAnim} className="p-4 sm:p-6 bg-zinc-950/50 border border-white/[0.05] rounded-xl hover:bg-zinc-900/40 transition-all group">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center border border-white/[0.05] group-hover:bg-maroon/10 transition-colors">
                     <cap.icon className="w-4 h-4 text-zinc-600 group-hover:text-maroon transition-colors" />

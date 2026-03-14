@@ -26,7 +26,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="w-full space-y-12 animate-in fade-in duration-700 pb-20 relative">
+    <div className="w-full space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-10 relative">
 
       {/* Background Subtle Accents */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-maroon/5 blur-[150px] -z-10 animate-pulse-slow"></div>

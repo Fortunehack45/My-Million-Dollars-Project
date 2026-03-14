@@ -153,7 +153,7 @@ const Vault = () => {
     const netTxs = txHistory.filter(tx => tx.chain === activeNetwork);
 
     return (
-        <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+        <div className="relative space-y-6 text-zinc-300 font-mono selection:bg-maroon selection:text-white pb-10 overflow-x-hidden">
             
             {/* SYSTEM OVERLAY */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
