@@ -469,14 +469,14 @@ const Landing = () => {
                         <button 
                            onClick={() => !isLocked('/') && navigate('/login')} 
                            disabled={isLocked('/')}
-                           className={`btn-premium-maroon text-[10px] ${isLocked('/') ? 'opacity-50 grayscale cursor-not-allowed pointer-events-none' : ''}`}
+                           className={`btn-premium-maroon text-[10px] glass-shine ${isLocked('/') ? 'opacity-50 grayscale cursor-not-allowed pointer-events-none' : ''}`}
                         >
                            <span className="relative z-10 flex items-center gap-3">{content.hero.ctaPrimary} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
                         </button>
                         <Link 
                            to={isLocked('/whitepaper') ? '#' : '/whitepaper'} 
                            onClick={isLocked('/whitepaper') ? (e) => e.preventDefault() : undefined}
-                           className={`btn-premium text-[10px] ${isLocked('/whitepaper') ? 'opacity-30 grayscale cursor-not-allowed pointer-events-none' : ''}`}
+                           className={`btn-premium text-[10px] glass-shine ${isLocked('/whitepaper') ? 'opacity-30 grayscale cursor-not-allowed pointer-events-none' : ''}`}
                         >
                            {content.hero.ctaSecondary} <Code2 className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
                         </Link>
@@ -771,7 +771,7 @@ const Landing = () => {
                      </div>
 
                      <div className="flex flex-col items-center gap-8 pt-6">
-                        <button onClick={() => navigate('/login')} className="h-14 md:h-24 px-8 md:px-20 bg-maroon text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(128,0,0,0.4)] hover:shadow-[0_0_100px_rgba(128,0,0,0.7)] hover:-translate-y-2 flex items-center gap-4 group">
+                        <button onClick={() => navigate('/login')} className="h-14 md:h-24 px-8 md:px-20 bg-maroon text-white text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl transition-all shadow-[0_20px_80px_rgba(128,0,0,0.4)] hover:shadow-[0_0_100px_rgba(128,0,0,0.7)] hover:-translate-y-2 flex items-center gap-4 group glass-shine">
                            {content.cta.buttonText}
                            <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-3 transition-transform duration-500" />
                         </button>
