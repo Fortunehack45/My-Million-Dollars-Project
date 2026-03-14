@@ -114,7 +114,7 @@ const AppRoutes = () => {
   }, [searchParams]);
 
   // Determine if we are on a public page and should show the PublicLayout
-  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy'];
+  const publicPaths = ['/docs', '/architecture', '/whitepaper', '/tokenomics', '/about', '/careers', '/contact', '/terms', '/privacy', '/argusscan'];
   const isPublicPage = publicPaths.some(path => location.pathname === path) || (!firebaseUser && location.pathname === '/');
 
   // Wrap content with the correct layout - Stabilized to prevent flickering

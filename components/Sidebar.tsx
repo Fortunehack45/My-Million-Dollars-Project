@@ -75,8 +75,7 @@ const Sidebar = () => {
   const { isLocked } = useLocks();
 
   // High-priority robust admin check against the actual ADMIN_EMAIL
-  const isAuthorizedAdmin =
-    user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const isAuthorizedAdmin = user?.email ? user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() : false;
 
 
   const navItems = [
