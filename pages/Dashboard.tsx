@@ -328,7 +328,7 @@ const Dashboard = () => {
         {/* CORE METRICS GRID (Standardized) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {[
-            { label: "Mined ARG", value: minedArg ?? user.points, unit: "ARG", sub: `≈ $${((minedArg ?? user.points) * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`, icon: ArgusLogo, color: "text-white" },
+            { label: "Mined ARG", value: minedArg !== null ? minedArg : 0, unit: "ARG", sub: minedArg !== null ? `≈ $${(minedArg * arg.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD` : 'Syncing_Balance...', icon: ArgusLogo, color: "text-white" },
             { label: "Unmined Supply", value: fmt(leftToMine), sub: `Cap: ${fmt(TOTAL_SUPPLY)} ARG`, icon: Layers, color: "text-white" },
             { label: "Network TPS", value: fmt(tps), sub: "Finality: < 400ms", icon: Zap, color: "text-white" },
             { label: "Active Nodes", value: fmt(activeMinerCount), sub: `Synchronization: Optimal`, icon: Share2, color: "text-white" }

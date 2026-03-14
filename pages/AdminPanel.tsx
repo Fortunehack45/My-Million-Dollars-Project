@@ -56,16 +56,16 @@ import { ContentRenderer } from '../components/ContentRenderer';
 
 // --- Helper Components ---
 
-const INPUT_STYLES = "w-full bg-zinc-950 border border-zinc-800 text-zinc-200 p-3 rounded-lg focus:border-maroon/50 focus:bg-zinc-900 outline-none transition-all text-xs font-mono placeholder:text-zinc-700";
+const INPUT_STYLES = "w-full bg-zinc-950/40 border border-zinc-900 text-zinc-200 p-4 rounded-2xl focus:border-maroon/40 focus:bg-zinc-900/60 focus:shadow-[0_0_20px_rgba(128,0,0,0.1)] outline-none transition-all text-xs font-mono placeholder:text-zinc-800 shadow-inner";
 
 const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", className = "" }: any) => (
-  <div className={`space-y-2 w-full ${className}`}>
-    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</label>
+  <div className={`space-y-3 w-full ${className}`}>
+    <label className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] ml-2">{label}</label>
     {type === 'textarea' ? (
       <textarea
         value={value || ''}
         onChange={e => onChange(e.target.value)}
-        className={`${INPUT_STYLES} min-h-[100px] resize-y`}
+        className={`${INPUT_STYLES} min-h-[120px] resize-y leading-relaxed`}
         placeholder={placeholder}
       />
     ) : (
@@ -81,49 +81,59 @@ const InputGroup = ({ label, value, onChange, type = "text", placeholder = "", c
 );
 
 const Toggle = ({ label, checked, onChange }: any) => (
-  <div className="flex items-center justify-between p-4 bg-zinc-950/50 rounded-xl border border-zinc-800 mb-6 cursor-pointer hover:border-zinc-700 transition-colors" onClick={() => onChange(!checked)}>
-    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{label}</span>
+  <div 
+    className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-zinc-950/20 rounded-[1.5rem] border border-zinc-900/50 hover:border-maroon/20 hover:bg-zinc-900/30 transition-all cursor-pointer shadow-sm mb-4" 
+    onClick={() => onChange(!checked)}
+  >
+    <div className="mb-4 sm:mb-0">
+      <span className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.15em] group-hover:text-zinc-300 transition-colors">{label}</span>
+      <p className="text-[9px] text-zinc-700 font-mono mt-1 opacity-60">Status: {checked ? 'SYNC_ACTIVE' : 'SYNC_DISABLED'}</p>
+    </div>
     <button
       type="button"
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-maroon' : 'bg-zinc-800'}`}
+      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-500 ${checked ? 'bg-maroon shadow-[0_0_15px_rgba(128,0,0,0.3)]' : 'bg-zinc-800'}`}
     >
-      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+      <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-xl transition-all duration-500 ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   </div>
 );
 
 const SectionHeader = ({ title, icon: Icon, description }: any) => (
-  <div className="mb-8 border-b border-zinc-800 pb-6">
-    <div className="flex items-center gap-3 mb-2">
-      <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
-        <Icon className="w-5 h-5 text-maroon" />
+  <div className="mb-12 border-b border-zinc-900 pb-10 relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-maroon/5 blur-[80px] rounded-full pointer-events-none"></div>
+    <div className="flex items-center gap-5 relative z-10">
+      <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center shadow-2xl group transition-all duration-500 hover:border-maroon/30">
+        <Icon className="w-8 h-8 text-maroon group-hover:scale-110 transition-transform duration-500" />
       </div>
-      <h2 className="text-2xl font-black text-white uppercase tracking-tight">{title}</h2>
+      <div>
+        <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic leading-none">{title}</h2>
+        {description && <p className="text-[11px] text-zinc-600 font-bold uppercase tracking-[0.25em] mt-3 opacity-60">{description}</p>}
+      </div>
     </div>
-    {description && <p className="text-sm text-zinc-500 ml-[3.25rem]">{description}</p>}
   </div>
 );
 
-const AccordionItem = ({ title, children, onDelete }: any) => {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="border border-zinc-800 rounded-xl bg-zinc-900/10 overflow-hidden mb-4 transition-all hover:border-zinc-700">
-      <div className="flex items-center justify-between p-4 bg-zinc-900/40 cursor-pointer hover:bg-zinc-900/60 transition-colors" onClick={() => setIsOpen(!isOpen)}>
-        <span className="text-xs font-bold text-zinc-300 uppercase tracking-wide flex items-center gap-3">
-          {isOpen ? <ChevronDown className="w-4 h-4 text-maroon" /> : <ChevronRight className="w-4 h-4 text-zinc-600" />}
-          {title}
-        </span>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+const AccordionItem = ({ title, children, isOpen, onToggle, icon: Icon }: any) => (
+  <div className="mb-6 rounded-[2rem] border border-zinc-900/50 bg-zinc-950/20 shadow-2xl overflow-hidden transition-all duration-700 hover:border-maroon/20">
+    <button
+      onClick={onToggle}
+      className="w-full px-10 py-8 flex items-center justify-between group bg-zinc-950/20"
+    >
+      <div className="flex items-center gap-6">
+        {Icon && <Icon className="w-5 h-5 text-zinc-500 group-hover:text-maroon transition-colors duration-500" />}
+        <span className="text-[11px] font-black text-white uppercase tracking-[0.25em] italic">{title}</span>
       </div>
-      {isOpen && <div className="p-6 border-t border-zinc-800 space-y-6 bg-zinc-950/30">{children}</div>}
+      <div className={`p-2 rounded-xl transition-all duration-700 ${isOpen ? 'bg-maroon/10 text-maroon rotate-180' : 'bg-zinc-900 text-zinc-600 group-hover:text-white'}`}>
+        <ChevronDown className="w-4 h-4" />
+      </div>
+    </button>
+    <div className={`transition-all duration-700 ease-in-out ${isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+      <div className="p-10 border-t border-zinc-900/50 bg-gradient-to-b from-white/[0.01] to-transparent">
+        {children}
+      </div>
     </div>
-  );
-};
+  </div>
+);
 
 // --- Main Component ---
 
@@ -216,7 +226,7 @@ const AdminPanel = () => {
   const [txSearchQuery, setTxSearchQuery] = useState('');
   const [explorerView, setExplorerView] = useState<'ledger' | 'directory'>('ledger');
   const [selectedAddressView, setSelectedAddressView] = useState<string | null>(null);
-  const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy'>('landing');
+  const [activeCmsPage, setActiveCmsPage] = useState<'landing' | 'about' | 'architecture' | 'whitepaper' | 'tokenomics' | 'careers' | 'contact' | 'terms' | 'privacy' | 'faq' | 'terminal'>('landing');
   const [activeLandingSection, setActiveLandingSection] = useState<string>('hero');
   const [cmsStatus, setCmsStatus] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -239,6 +249,24 @@ const AdminPanel = () => {
   const [contactConfig, setContactConfig] = useState<ContactConfig>(DEFAULT_CONTACT_CONFIG);
   const [termsConfig, setTermsConfig] = useState<LegalConfig>(DEFAULT_LEGAL_CONFIG.terms);
   const [privacyConfig, setPrivacyConfig] = useState<LegalConfig>(DEFAULT_LEGAL_CONFIG.privacy);
+
+  // New CMS Accordion State
+  const [cmsAccordions, setCmsAccordions] = useState<Record<string, boolean>>({
+    hero: false, socials: false, partners: false, features: false, roadmap: false, faq: false, cta: false, footer: false,
+    about: false, arch: false, whitepaper: false, tokenomics: false, careers: false, contact: false, terms: false, privacy: false
+  });
+
+  // Local state for landing config to manage changes before saving
+  const [localLandingData, setLocalLandingData] = useState<any>(landingConfig);
+  useEffect(() => {
+    setLocalLandingData(landingConfig);
+  }, [landingConfig]);
+
+  const updateLandingData = (key: string, value: any) => {
+    setLocalLandingData((prev: any) => ({ ...prev, [key]: value }));
+    setHasUnsavedChanges(true);
+  };
+
 
   const [capInput, setCapInput] = useState<number>(DEFAULT_MAX_USERS_CAP);
   const [capSaveStatus, setCapSaveStatus] = useState('');
@@ -367,21 +395,24 @@ const AdminPanel = () => {
   };
 
   const handleSaveCMS = async () => {
-    setCmsStatus('SAVING...');
     try {
-      if (activeCmsPage === 'landing') await updateLandingConfig(landingConfig);
-      else if (activeCmsPage === 'about') await updateContent('about', aboutConfig);
-      else if (activeCmsPage === 'architecture') await updateContent('architecture_page', archConfig);
-      else if (activeCmsPage === 'whitepaper') await updateContent('whitepaper', whitepaperConfig);
-      else if (activeCmsPage === 'tokenomics') await updateContent('tokenomics', tokenomicsConfig);
-      else if (activeCmsPage === 'careers') await updateContent('careers', careersConfig);
-      else if (activeCmsPage === 'contact') await updateContent('contact', contactConfig);
-      else if (activeCmsPage === 'terms') await updateContent('terms', termsConfig);
-      else if (activeCmsPage === 'privacy') await updateContent('privacy', privacyConfig);
-      setCmsStatus('SAVED');
+      setCmsStatus('UPLOADING_ARCHIVE...');
+      const adminRef = doc(db, "admin", "config");
+      
+      // Sync local changes back to the main config object before saving
+      const finalConfig = {
+        ...landingConfig,
+        ...localLandingData
+      };
+      
+      await setDoc(adminRef, { landing: finalConfig }, { merge: true });
+      setCmsStatus('REGISTRY_SYNC_COMPLETE');
       setHasUnsavedChanges(false);
-      setTimeout(() => setCmsStatus(''), 2000);
-    } catch (e) { setCmsStatus('ERROR'); }
+      setTimeout(() => setCmsStatus(''), 3000);
+    } catch (error) {
+      console.error("Save error:", error);
+      setCmsStatus('SYNC_FAILURE_RETRY');
+    }
   };
 
   const handleCreateTask = async (e: React.FormEvent) => {
@@ -451,22 +482,23 @@ const AdminPanel = () => {
       )}
 
       {/* ONYX SIDEBAR */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-zinc-950/80 backdrop-blur-3xl border-r border-zinc-900 transition-transform duration-500 ease-out-expo flex flex-col shrink-0 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-8 border-b border-zinc-900/50">
-          <div className="flex items-center gap-4 group cursor-pointer mb-6" onClick={() => navigate('/')}>
-            <div className="w-12 h-12 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center transition-all duration-500 group-hover:border-maroon/40 shadow-inner">
-              <ArgusLogo className="w-7 h-7 text-maroon transition-transform duration-500 group-hover:scale-110" />
+      <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-zinc-950/60 backdrop-blur-[40px] border-r border-zinc-900/50 transition-all duration-700 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col shrink-0 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-[20px_0_100px_rgba(0,0,0,0.8)]' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="p-8 border-b border-zinc-900/30 bg-gradient-to-b from-white/[0.02] to-transparent">
+          <div className="flex items-center gap-4 group cursor-pointer mb-8" onClick={() => navigate('/')}>
+            <div className="w-14 h-14 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center transition-all duration-500 group-hover:border-maroon/40 shadow-2xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-maroon/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <ArgusLogo className="w-9 h-9 text-maroon transition-transform duration-700 group-hover:scale-110 relative z-10" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white uppercase tracking-tighter leading-none">Argus_Panel</h1>
-              <p className="text-[8px] font-mono font-black text-zinc-600 uppercase tracking-widest mt-1">Institutional_v2.4.0</p>
+              <h1 className="text-2xl font-black text-white uppercase tracking-tighter leading-none italic">Argus_Lab</h1>
+              <p className="text-[9px] font-mono font-black text-zinc-500 uppercase tracking-[0.2em] mt-2 opacity-60">System_Control_v4</p>
             </div>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-3 w-full">
             <Link
               to="/"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-xl text-zinc-400 hover:text-white hover:border-maroon/50 hover:bg-maroon/5 transition-all group shadow-2xl"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-xl text-zinc-500 hover:text-white hover:border-maroon/50 hover:bg-maroon/5 transition-all group shadow-inner"
             >
               <span className="text-[10px] font-black uppercase tracking-widest">Return</span>
             </Link>
@@ -482,7 +514,7 @@ const AdminPanel = () => {
                   }
                 }
               }}
-              className="flex items-center justify-center px-4 py-2 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-xl text-zinc-400 hover:text-white hover:border-maroon/50 hover:bg-maroon/5 transition-all group shadow-2xl"
+              className="flex items-center justify-center px-4 py-3 bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-xl text-zinc-500 hover:text-white hover:border-maroon/50 hover:bg-maroon/5 transition-all group shadow-inner"
               title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
@@ -490,77 +522,88 @@ const AdminPanel = () => {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+        <nav className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-10">
           {/* Section 1: Operations */}
-          <div>
-            <p className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-4 px-3 font-mono">Nodes_&_Assets</p>
-            <div className="space-y-1">
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] px-4 font-mono">Infrastructure</p>
+            <div className="space-y-1.5 px-2">
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'dashboard' ? 'bg-zinc-900 text-white border border-white/5 shadow-xl' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 group relative overflow-hidden ${activeTab === 'dashboard' ? 'bg-zinc-900 text-white shadow-2xl border border-white/5' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
               >
-                <Activity className={`w-4 h-4 transition-colors ${activeTab === 'dashboard' ? 'text-maroon' : 'text-zinc-700 group-hover:text-zinc-500'}`} />
+                {activeTab === 'dashboard' && <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-maroon rounded-full" />}
+                <Activity className={`w-4 h-4 transition-colors duration-500 ${activeTab === 'dashboard' ? 'text-maroon' : 'text-zinc-800 group-hover:text-zinc-600'}`} />
                 System Metrics
               </button>
               <button
-                onClick={() => setActiveTab('messages')}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'messages' ? 'bg-zinc-900 text-white border border-white/5 shadow-xl' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
+                onClick={() => setActiveTab('explorer')}
+                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 group relative overflow-hidden ${activeTab === 'explorer' ? 'bg-zinc-900 text-white shadow-2xl border border-white/5' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
               >
-                <MessageSquare className={`w-4 h-4 transition-colors ${activeTab === 'messages' ? 'text-maroon' : 'text-zinc-700 group-hover:text-zinc-500'}`} />
-                Inbound Comms
+                {activeTab === 'explorer' && <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-amber-500 rounded-full" />}
+                <Database className={`w-4 h-4 transition-colors duration-500 ${activeTab === 'explorer' ? 'text-amber-500' : 'text-zinc-800 group-hover:text-zinc-600'}`} />
+                Protocol Ledger
               </button>
             </div>
           </div>
 
-          {/* Section 2: Management */}
-          <div>
-            <p className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-4 px-3 font-mono">Content_Nexus</p>
-            <div className="space-y-1">
+          {/* Section 2: Comms */}
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] px-4 font-mono">Operations</p>
+            <div className="space-y-1.5 px-2">
+              <button
+                onClick={() => setActiveTab('messages')}
+                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 group relative overflow-hidden ${activeTab === 'messages' ? 'bg-zinc-900 text-white shadow-2xl border border-white/5' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
+              >
+                {activeTab === 'messages' && <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-blue-500 rounded-full" />}
+                <MessageSquare className={`w-4 h-4 transition-colors duration-500 ${activeTab === 'messages' ? 'text-blue-500' : 'text-zinc-800 group-hover:text-zinc-600'}`} />
+                Comms Intercept
+              </button>
+            </div>
+          </div>
+
+          {/* Section 3: Configuration */}
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] px-4 font-mono">Protocol_Sync</p>
+            <div className="space-y-1.5 px-2">
               <button
                 onClick={() => setActiveTab('cms')}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'cms' ? 'bg-maroon text-white border border-maroon/20 shadow-lg shadow-maroon/20' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 group relative overflow-hidden ${activeTab === 'cms' ? 'bg-maroon text-white shadow-[0_10px_30px_rgba(128,0,0,0.3)] border border-maroon/20' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
               >
-                <Layout className={`w-4 h-4 transition-colors ${activeTab === 'cms' ? 'text-white' : 'text-zinc-700 group-hover:text-zinc-500'}`} />
+                <Layout className={`w-4 h-4 transition-colors duration-500 ${activeTab === 'cms' ? 'text-white' : 'text-zinc-800 group-hover:text-zinc-600'}`} />
                 CMS Controller
               </button>
               <button
                 onClick={() => setActiveTab('locks')}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'locks' ? 'bg-red-500 text-white border border-red-500/20 shadow-lg shadow-red-500/20' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
+                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 group relative overflow-hidden ${activeTab === 'locks' ? 'bg-red-600 text-white shadow-[0_10px_30px_rgba(220,38,38,0.3)] border border-red-500/20' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
               >
-                <Shield className={`w-4 h-4 transition-colors ${activeTab === 'locks' ? 'text-white' : 'text-zinc-700 group-hover:text-red-500'}`} />
+                <Shield className={`w-4 h-4 transition-colors duration-500 ${activeTab === 'locks' ? 'text-white' : 'text-zinc-800 group-hover:text-red-500'}`} />
                 Registry Locks
-              </button>
-              <button
-                onClick={() => setActiveTab('explorer')}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 group ${activeTab === 'explorer' ? 'bg-amber-500 text-black border border-amber-500/20 shadow-lg shadow-amber-500/20' : 'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'}`}
-              >
-                <Database className={`w-4 h-4 transition-colors ${activeTab === 'explorer' ? 'text-black' : 'text-zinc-700 group-hover:text-amber-500'}`} />
-                ArgusScan Ledger
               </button>
             </div>
           </div>
         </nav>
 
-        <div className="p-8 border-t border-zinc-900/50 space-y-4">
+        <div className="p-8 border-t border-zinc-900/30 bg-gradient-to-t from-white/[0.01] to-transparent space-y-6">
           {activeTab === 'cms' && (
             <div className="space-y-3">
-              <button onClick={() => setIsPreviewMode(!isPreviewMode)} className={`w-full py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest border transition-all ${isPreviewMode ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white'}`}>
-                {isPreviewMode ? 'Exit Preview' : 'Live Preview'}
+              <button onClick={() => setIsPreviewMode(!isPreviewMode)} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-[0.25em] border transition-all duration-700 ${isPreviewMode ? 'bg-amber-500/10 border-amber-500/20 text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-zinc-950/50 border-zinc-900 text-zinc-600 hover:text-white hover:border-zinc-800'}`}>
+                {isPreviewMode ? 'PREVIEW_MODE: RELATIVE' : 'INIT_LIVE_PREVIEW'}
               </button>
-              <button onClick={handleSaveCMS} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-maroon text-white shadow-lg shadow-maroon/20' : 'bg-zinc-900 text-zinc-700 border border-zinc-800'}`}>
-                {cmsStatus || (hasUnsavedChanges ? 'COMMIT_CHANGES' : 'CLIENT_SYNCED')}
+              <button onClick={handleSaveCMS} className={`w-full py-5 rounded-2xl text-[9px] font-black uppercase tracking-[0.25em] transition-all duration-700 ${hasUnsavedChanges ? 'bg-maroon text-white shadow-[0_15px_40px_rgba(128,0,0,0.4)] border border-maroon/30 scale-[1.02]' : 'bg-zinc-950/50 text-zinc-700 border border-zinc-900'}`}>
+                {cmsStatus || (hasUnsavedChanges ? 'COMMIT_CHANGES' : 'REGISTRY_SYNCED')}
               </button>
             </div>
           )}
-          {activeTab === 'locks' && (
+          {(activeTab === 'locks') && (
             <div className="space-y-3">
-              <button onClick={handleSaveLocks} className={`w-full py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${hasUnsavedChanges ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-zinc-900 text-zinc-700 border border-zinc-800'}`}>
-                {cmsStatus || (hasUnsavedChanges ? 'DEPLOY_LOCKS' : 'REGISTRY_SECURED')}
+              <button onClick={handleSaveLocks} className={`w-full py-5 rounded-2xl text-[9px] font-black uppercase tracking-[0.25em] transition-all duration-700 ${hasUnsavedChanges ? 'bg-red-600 text-white shadow-[0_15px_40px_rgba(220,38,38,0.4)] border border-red-500/30 scale-[1.02]' : 'bg-zinc-950/50 text-zinc-700 border border-zinc-900'}`}>
+                {cmsStatus || (hasUnsavedChanges ? 'DEPLOY_LOCKS' : 'PATH_RECORDS_SECURED')}
               </button>
             </div>
           )}
-          <div className="pt-2">
-            <p className="text-[8px] font-mono text-zinc-600">AUTH: {firebaseUser?.email?.split('@')[0].toUpperCase()}</p>
+          <div className="pt-2 px-2 flex items-center justify-between">
+            <p className="text-[8px] font-mono text-zinc-700 uppercase tracking-widest">ID: {firebaseUser?.email?.split('@')[0].toUpperCase()}</p>
+            <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse shadow-[0_0_8px_#800000]"></div>
           </div>
         </div>
       </aside>
@@ -577,107 +620,129 @@ const AdminPanel = () => {
                 <div className="lg:col-span-3 space-y-8">
 
                   {/* Metrics Overview */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/[0.02] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Users</p>
-                      <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{users.length.toLocaleString()}</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group hover:border-zinc-800 transition-all duration-700">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none"></div>
+                      <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mb-4 font-mono">Total_Validators</p>
+                      <div className="flex items-end justify-between">
+                        <p className="text-5xl font-black text-white group-hover:scale-110 transition-transform duration-700 origin-left italic leading-none">{users.length.toLocaleString()}</p>
+                        <div className="w-10 h-10 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-zinc-600" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-maroon/20 transition-all duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-br from-maroon/0 to-maroon/0 group-hover:from-maroon/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                      <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-maroon animate-pulse shadow-[0_0_12px_#800000]"></div>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Nodes</p>
-                      <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{activeMinerCount.toLocaleString()}</p>
+                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-maroon/30 shadow-2xl relative overflow-hidden group hover:border-maroon/30 transition-all duration-700">
+                      <div className="absolute inset-0 bg-gradient-to-br from-maroon/[0.03] to-transparent pointer-events-none"></div>
+                      <div className="absolute top-8 right-8 w-2 h-2 rounded-full bg-maroon animate-pulse shadow-[0_0_15px_#800000]"></div>
+                      <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mb-4 font-mono">Active_Nodes</p>
+                      <div className="flex items-end justify-between">
+                        <p className="text-5xl font-black text-white group-hover:scale-110 transition-transform duration-700 origin-left italic leading-none">{activeMinerCount.toLocaleString()}</p>
+                        <div className="w-10 h-10 bg-maroon/5 rounded-xl border border-maroon/20 flex items-center justify-center">
+                          <Activity className="w-5 h-5 text-maroon" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-zinc-900 shadow-xl relative overflow-hidden group hover:border-zinc-700 transition-all duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/[0.05] group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Registry Units</p>
-                      <p className="text-4xl font-black text-white group-hover:scale-105 transition-transform duration-500 origin-left">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group hover:border-zinc-800 transition-all duration-700">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none"></div>
+                      <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mb-4 font-mono">Registry_Units</p>
+                      <div className="flex items-end justify-between">
+                        <p className="text-5xl font-black text-white group-hover:scale-110 transition-transform duration-700 origin-left italic leading-none">{users.filter(u => u.ownedNFT).length.toLocaleString()}</p>
+                        <div className="w-10 h-10 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center">
+                          <Shield className="w-5 h-5 text-zinc-600" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-6 bg-zinc-950/80 rounded-[2rem] border border-amber-900/30 shadow-2xl relative overflow-hidden group hover:border-amber-500/50 transition-all duration-500 bg-gradient-to-br from-amber-500/[0.02] to-transparent">
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-amber-500/0 group-hover:from-amber-500/10 group-hover:to-transparent transition-all duration-700 pointer-events-none"></div>
-                      <p className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest mb-1 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">Registrations Left <span className="bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded text-[8px] animate-pulse w-fit">COUNTDOWN</span></p>
-                      <p className="text-4xl font-black text-amber-500 group-hover:scale-105 transition-transform duration-500 origin-left">{Math.max(0, capInput - users.length).toLocaleString()}</p>
-                      <p className="text-[9px] text-zinc-500 mt-2 uppercase font-mono tracking-widest">Max Cap: <span className="text-zinc-300">{capInput.toLocaleString()}</span></p>
+                    <div className="p-8 bg-zinc-950/40 rounded-[2.5rem] border border-amber-900/20 shadow-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700 bg-gradient-to-br from-amber-500/[0.01] to-transparent">
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent pointer-events-none"></div>
+                      <div className="flex items-start justify-between mb-4">
+                        <p className="text-[10px] text-amber-500/60 font-black uppercase tracking-[0.25em] font-mono">Cap_Delta</p>
+                        <span className="bg-amber-500/10 text-amber-500 px-2 py-1 rounded-lg text-[8px] font-black animate-pulse border border-amber-500/20">LOW_LATENCY</span>
+                      </div>
+                      <p className="text-5xl font-black text-amber-500 group-hover:scale-110 transition-transform duration-700 origin-left italic leading-none">{Math.max(0, capInput - users.length).toLocaleString()}</p>
+                      <p className="text-[9px] text-zinc-600 mt-4 uppercase font-mono tracking-widest font-black opacity-60">Max_Registry: <span className="text-amber-500/80">{capInput.toLocaleString()}</span></p>
                     </div>
                   </div>
 
                   {/* User Directory */}
-                  <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-maroon/10 rounded-xl border border-maroon/20">
-                          <Users className="w-5 h-5 text-maroon" />
+                  <div className="silk-panel p-10 rounded-[3rem] border-zinc-900/50 shadow-[0_40px_100px_rgba(0,0,0,0.6)] overflow-hidden">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 border-b border-zinc-900 pb-10">
+                      <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center shadow-2xl group transition-all duration-500 hover:border-maroon/30">
+                          <Users className="w-8 h-8 text-maroon group-hover:scale-110 transition-transform duration-500" />
                         </div>
-                        <h2 className="text-2xl font-black text-white uppercase tracking-tight">User Directory</h2>
+                        <div>
+                          <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">Validator_Registry</h2>
+                          <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mt-3 opacity-60 font-mono">Index_Depth: {users.length} Canonical_Entities</p>
+                        </div>
                       </div>
-                      <div className="relative max-w-xs w-full">
-                        <AlignLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                      <div className="relative max-w-sm w-full">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700" />
                         <input
                           type="text"
-                          placeholder="Search Users..."
-                          className={`${INPUT_STYLES} pl-10`}
+                          placeholder="Query_Registry_Address..."
+                          className={`${INPUT_STYLES} pl-12`}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                         />
                       </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
+                    <div className="overflow-x-auto custom-scrollbar">
+                      <table className="w-full text-left border-separate border-spacing-y-3">
                         <thead>
-                          <tr className="text-[10px] font-black text-zinc-600 uppercase tracking-widest border-b border-zinc-900">
-                            <th className="pb-4 px-2">Node Entity</th>
-                            <th className="pb-4 px-2 text-center">Status</th>
-                            <th className="pb-4 px-2 text-right">Balance</th>
-                            <th className="pb-4 px-2 text-right hidden sm:table-cell">Refs</th>
-                            <th className="pb-4 px-2 text-right">Actions</th>
+                          <tr className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em] font-mono">
+                            <th className="pb-4 px-6">Entity_ID</th>
+                            <th className="pb-4 px-6 text-center">Status_Sync</th>
+                            <th className="pb-4 px-6 text-right">Balance_Ledger</th>
+                            <th className="pb-4 px-6 text-right hidden lg:table-cell">Topology_Depth</th>
+                            <th className="pb-4 px-6 text-right">Directive</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-900/50">
                           {users.filter(u =>
                             (u.displayName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (u.email || '').toLowerCase().includes(searchQuery.toLowerCase())
+                            (u.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (u.uid || '').toLowerCase().includes(searchQuery.toLowerCase())
                           ).map((u) => (
-                            <tr key={u.uid} className="group hover:bg-zinc-950/40 transition-colors">
-                              <td className="py-4 px-2">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center overflow-hidden">
-                                    {u.photoURL ? <img src={u.photoURL} alt="" className="w-full h-full object-cover" /> : <Shield className="w-5 h-5 text-zinc-700" />}
+                            <tr key={u.uid} className="group transition-all duration-500">
+                              <td className="py-5 px-6 bg-zinc-950/20 border-l border-y border-zinc-900/50 rounded-l-[1.5rem] group-hover:bg-zinc-900/40 group-hover:border-maroon/20 transition-all duration-500">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-zinc-950 rounded-xl border border-zinc-900 flex items-center justify-center overflow-hidden shadow-2xl relative group-hover:scale-105 transition-transform duration-500">
+                                    {u.photoURL ? <img src={u.photoURL} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center text-zinc-700 font-black text-sm italic">{u.displayName?.[0] || 'U'}</div>}
                                   </div>
                                   <div>
-                                    <p className="text-xs font-bold text-white flex items-center gap-2">
+                                    <p className="text-sm font-black text-white flex items-center gap-3 italic">
                                       {u.displayName}
-                                      {u.role === 'admin' && <span className="text-[8px] bg-maroon/20 text-maroon px-1.5 py-0.5 rounded border border-maroon/20">ADMIN</span>}
+                                      {u.role === 'admin' && <span className="text-[8px] bg-maroon/10 text-maroon px-2 py-0.5 rounded-full border border-maroon/20 font-black tracking-widest">SYS_ADMIN</span>}
                                     </p>
-                                    <p className="text-[9px] text-zinc-500 font-mono lower">{u.email}</p>
+                                    <p className="text-[9px] text-zinc-600 font-mono lower tracking-tight opacity-60 mt-1">{u.email}</p>
                                   </div>
                                 </div>
                               </td>
-                              <td className="py-4 px-2 text-center">
+                              <td className="py-5 px-6 bg-zinc-950/20 border-y border-zinc-900/50 group-hover:bg-zinc-900/40 group-hover:border-maroon/20 transition-all duration-500">
                                 <div className="flex justify-center">
                                   {u.miningActive ? (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-maroon/10 border border-maroon/20 rounded-full shadow-[0_0_15px_rgba(128,0,0,0.1)]">
+                                    <div className="flex items-center gap-2 px-4 py-1.5 bg-maroon/[0.03] border border-maroon/20 rounded-full shadow-[0_0_20px_rgba(128,0,0,0.05)]">
                                       <div className="w-1.5 h-1.5 rounded-full bg-maroon animate-pulse"></div>
-                                      <span className="text-[8px] font-black text-maroon uppercase tracking-widest">ACTIVE_SYNC</span>
+                                      <span className="text-[8px] font-black text-maroon uppercase tracking-[0.2em] font-mono">SYNC_ACTIVE</span>
                                     </div>
                                   ) : (
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
+                                    <div className="flex items-center gap-2 px-4 py-1.5 bg-zinc-900/40 border border-zinc-800/50 rounded-full">
                                       <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
-                                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">IDLE</span>
+                                      <span className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] font-mono">STANDBY</span>
                                     </div>
                                   )}
                                 </div>
                               </td>
-                              <td className="py-4 px-2 text-right">
-                                <p className="text-xs font-mono font-black text-white">{(u.points || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600">ARG</span></p>
-                                <p className="text-[8px] text-zinc-600 font-mono">≈ ${((u.points || 0) * 0.5).toFixed(2)} USD</p>
+                              <td className="py-5 px-6 bg-zinc-950/20 border-y border-zinc-900/50 group-hover:bg-zinc-900/40 group-hover:border-maroon/20 transition-all duration-500 text-right">
+                                <p className="text-sm font-mono font-black text-white italic tracking-tighter">{(u.points || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[9px] text-zinc-600 not-italic">ARG</span></p>
+                                <p className="text-[9px] text-zinc-700 font-mono tracking-tighter mt-1">≈ ${((u.points || 0) * 0.5).toLocaleString(undefined, { minimumFractionDigits: 2 })} USD</p>
                               </td>
-                              <td className="py-4 px-2 text-right hidden sm:table-cell">
-                                <span className={`text-[10px] font-mono font-black ${u.referralCount > 0 ? 'text-maroon' : 'text-zinc-600'}`}>{u.referralCount || 0}</span>
+                              <td className="py-5 px-6 bg-zinc-950/20 border-y border-zinc-900/50 group-hover:bg-zinc-900/40 group-hover:border-maroon/20 transition-all duration-500 text-right hidden lg:table-cell">
+                                <span className={`text-sm font-mono font-black ${u.referralCount > 0 ? 'text-maroon' : 'text-zinc-700'}`}>{u.referralCount || 0}</span>
                               </td>
-                              <td className="py-4 px-2 text-right">
-                                <div className="flex justify-end gap-2">
+                              <td className="py-5 px-6 bg-zinc-950/20 border-r border-y border-zinc-900/50 rounded-r-[1.5rem] group-hover:bg-zinc-900/40 group-hover:border-maroon/20 transition-all duration-500 text-right">
+                                <div className="flex justify-end gap-3 px-2">
                                   <button
                                     onClick={() => {
                                       setActiveTab('explorer');
@@ -685,22 +750,24 @@ const AdminPanel = () => {
                                       setSelectedAddressView(u.argAddress || u.ethAddress || '');
                                       window.scrollTo({ top: 0, behavior: 'smooth' });
                                     }}
-                                    className="p-2 bg-maroon/5 border border-maroon/20 rounded-lg hover:bg-maroon/10 hover:border-maroon/40 transition-colors text-maroon/60 hover:text-maroon group/nav"
-                                    title="View in ArgusScan Explorer"
+                                    className="p-2.5 bg-zinc-950 rounded-xl border border-zinc-900 text-zinc-600 hover:text-amber-500 hover:border-amber-500/20 transition-all duration-500 shadow-xl"
+                                    title="View Entity Ledger"
                                   >
-                                    <ExternalLink className="w-3.5 h-3.5 group-hover/nav:scale-110 transition-transform" />
+                                    <ExternalLink className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => setIsManaging({ ...isManaging, [u.uid]: !isManaging[u.uid] })}
-                                    className="p-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
+                                    className={`p-2.5 bg-zinc-950 rounded-xl border transition-all duration-500 shadow-xl ${isManaging[u.uid] ? 'border-maroon text-maroon bg-maroon/5' : 'border-zinc-900 text-zinc-600 hover:text-white hover:border-zinc-700'}`}
+                                    title="Administrative Control"
                                   >
-                                    <Settings className={`w-3.5 h-3.5 ${isManaging[u.uid] ? 'text-maroon' : 'text-zinc-500'}`} />
+                                    <Settings className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => deleteUserAction(u.uid, u.displayName || '')}
-                                    className="p-2 bg-red-500/5 border border-red-500/10 rounded-lg hover:bg-red-500/20 hover:border-red-500 transition-silk text-red-500/50 hover:text-red-500"
+                                    className="p-2.5 bg-zinc-950 rounded-xl border border-zinc-900 text-zinc-800 hover:text-red-500 hover:border-red-500/20 transition-all duration-500 shadow-xl"
+                                    title="Revoke Path Access"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
                               </td>
@@ -979,25 +1046,27 @@ const AdminPanel = () => {
                 </div>
               </div>
             </div>
-          )}
-
-          {/* Messages Inbox View */}
-          {activeTab === 'messages' && (
-            <div className="space-y-8 relative z-10 animate-fade-in-up">
-              <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 overflow-hidden">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-zinc-800 pb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                      <MessageSquare className="w-5 h-5 text-blue-500" />
+          )}          {activeTab === 'messages' && (
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <SectionHeader title="Intercepted_Comms" icon={MessageSquare} description="Inbound data packets from global relay points" />
+              
+              <div className="silk-panel p-10 rounded-[3rem] border-zinc-900/50 overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 border-b border-zinc-900 pb-10">
+                  <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 bg-zinc-950 rounded-2xl border border-zinc-900 flex items-center justify-center shadow-2xl group transition-all duration-500">
+                      <MessageSquare className="w-8 h-8 text-blue-500 group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">Comms Intercept</h2>
+                    <div>
+                      <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">Comms_Matrix</h2>
+                      <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.25em] mt-3 opacity-60 font-mono">Index_Depth: {messages.length} Data_Segments</p>
+                    </div>
                   </div>
-                  <div className="relative max-w-xs w-full">
-                    <AlignLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                  <div className="relative max-w-sm w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700" />
                     <input
                       type="text"
-                      placeholder="Query Transmissions..."
-                      className={`${INPUT_STYLES} pl-10`}
+                      placeholder="Query_Transmissions..."
+                      className={`${INPUT_STYLES} pl-12`}
                       value={msgSearchQuery}
                       onChange={(e) => setMsgSearchQuery(e.target.value)}
                     />
@@ -1153,993 +1222,108 @@ const AdminPanel = () => {
 
           {/* CMS View */}
           {activeTab === 'cms' && (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start relative">
+            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <div className="flex flex-wrap gap-3 p-2 bg-zinc-950/40 rounded-[2rem] border border-zinc-900/50 w-fit backdrop-blur-3xl shadow-2xl">
+                {[
+                  { id: 'landing', label: 'Primary_Nexus', icon: Globe },
+                  { id: 'whitepaper', label: 'Protocol_Spec', icon: FileText },
+                  { id: 'faq', label: 'Support_Vectors', icon: HelpCircle },
+                  { id: 'terminal', label: 'CLI_Runtime', icon: TerminalIcon },
+                  { id: 'contact', label: 'Inbound_Relay', icon: Mail }
+                ].map((page) => (
+                  <button
+                    key={page.id}
+                    onClick={() => setActiveCmsPage(page.id as any)}
+                    className={`flex items-center gap-3 px-8 py-4 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-500 group ${activeCmsPage === page.id ? 'bg-maroon text-white shadow-[0_10px_30px_rgba(128,0,0,0.3)]' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <page.icon className={`w-4 h-4 ${activeCmsPage === page.id ? 'text-white' : 'text-zinc-800 group-hover:text-zinc-600'}`} />
+                    {page.label}
+                  </button>
+                ))}
+              </div>
 
-              {/* Combined Sticky Sidebar - Z-Index 30 */}
-              <div className="md:col-span-3 space-y-5 md:sticky md:top-32 z-30 h-fit max-h-[calc(100vh-10rem)] overflow-y-auto custom-scrollbar pr-2">
-                <div className="silk-panel p-5 rounded-[2rem] border-zinc-900/50 bg-zinc-950/40 backdrop-blur-md shadow-xl">
-                  <div className="flex items-center gap-2 mb-4 px-2">
-                    <Globe className="w-3.5 h-3.5 text-zinc-500" />
-                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] font-mono">Archive_Index</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {(['landing', 'architecture', 'tokenomics', 'whitepaper', 'about', 'careers', 'contact', 'terms', 'privacy'] as const).map(page => (
-                      <button
-                        key={page}
-                        onClick={() => setActiveCmsPage(page)}
-                        className={`w-full text-left px-5 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] transition-all duration-500 relative overflow-hidden group/btn ${activeCmsPage === page ? 'bg-zinc-800 text-white shadow-lg shadow-black/40' : 'text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900/40'}`}
-                      >
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 bg-maroon transition-transform duration-500 ${activeCmsPage === page ? 'scale-y-100' : 'scale-y-0'}`} />
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+              <div className="space-y-8">
                 {activeCmsPage === 'landing' && (
-                  <div className="silk-panel p-5 rounded-[2rem] border-zinc-900/50 bg-zinc-950/40 backdrop-blur-md shadow-xl animate-in slide-in-from-left-4 duration-500">
-                    <div className="flex items-center gap-2 mb-4 px-2">
-                      <Layers className="w-3.5 h-3.5 text-maroon/60" />
-                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] font-mono">Module_Tree</span>
-                    </div>
-                    <div className="space-y-1">
-                      {['hero', 'socials', 'partners', 'features', 'architecture', 'roadmap', 'faq', 'cta', 'footer'].map(sec => (
-                        <button
-                          key={sec}
-                          onClick={() => setActiveLandingSection(sec)}
-                          className={`w-full text-left px-5 py-3 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all duration-300 ${activeLandingSection === sec ? 'bg-zinc-900 text-maroon border-l-2 border-maroon' : 'text-zinc-600 hover:text-zinc-400 hover:bg-zinc-900/20'}`}
-                        >
-                          {sec}
-                        </button>
-                      ))}
+                  <div className="space-y-10">
+                    <SectionHeader title="System_Matrix" icon={Globe} description="Manage canonical landing surface and interface tokens" />
+                    
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                      {/* Hero Section */}
+                      <AccordionItem title="Hero_Deployment" isOpen={cmsAccordions.hero} onToggle={() => setCmsAccordions(prev => ({ ...prev, hero: !prev.hero }))} icon={Zap}>
+                        <div className="space-y-8">
+                          <InputGroup label="Primary_Directive" value={localLandingData?.hero?.title || ''} onChange={(val: string) => updateLandingData('hero', { ...localLandingData?.hero, title: val })} />
+                          <InputGroup label="Operational_Brief" type="textarea" value={localLandingData?.hero?.subtitle || ''} onChange={(val: string) => updateLandingData('hero', { ...localLandingData?.hero, subtitle: val })} />
+                          <div className="grid grid-cols-2 gap-8">
+                            <InputGroup label="Primary_Call" value={localLandingData?.hero?.ctaPrimary || ''} onChange={(val: string) => updateLandingData('hero', { ...localLandingData?.hero, ctaPrimary: val })} />
+                            <InputGroup label="Secondary_Call" value={localLandingData?.hero?.ctaSecondary || ''} onChange={(val: string) => updateLandingData('hero', { ...localLandingData?.hero, ctaSecondary: val })} />
+                          </div>
+                          <Toggle label="Engage_Matrix_Overlay" checked={localLandingData?.hero?.isVisible !== false} onChange={(val: boolean) => updateLandingData('hero', { ...localLandingData?.hero, isVisible: val })} />
+                        </div>
+                      </AccordionItem>
+
+                      {/* Features Section */}
+                      <AccordionItem title="Feature_Arrays" isOpen={cmsAccordions.features} onToggle={() => setCmsAccordions(prev => ({ ...prev, features: !prev.features }))} icon={Cpu}>
+                         <div className="space-y-8">
+                           <InputGroup label="Module_Header" value={localLandingData?.features?.title || ''} onChange={(val: string) => updateLandingData('features', { ...localLandingData?.features, title: val })} />
+                           <InputGroup label="Module_Descriptor" type="textarea" value={localLandingData?.features?.description || ''} onChange={(val: string) => updateLandingData('features', { ...localLandingData?.features, description: val })} />
+                           <div className="pt-6 border-t border-zinc-900/50 space-y-4">
+                             <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] font-mono">Data_Points</p>
+                             {localLandingData?.features?.items?.map((item: any, idx: number) => (
+                               <div key={idx} className="p-6 bg-zinc-950/40 rounded-2xl border border-zinc-900 group/item relative overflow-hidden">
+                                 <div className="absolute top-4 right-4 flex gap-2">
+                                    <button onClick={() => {
+                                       const newItems = [...(localLandingData?.features?.items || [])];
+                                       newItems.splice(idx, 1);
+                                       updateLandingData('features', { ...localLandingData?.features, items: newItems });
+                                    }} className="p-2 text-zinc-700 hover:text-red-500 transition-colors"><Trash2 className="w-3 h-3" /></button>
+                                 </div>
+                                 <InputGroup label={`Entity_Idx_${idx + 1}`} value={item.title} onChange={(val: string) => {
+                                   const newItems = [...(localLandingData?.features?.items || [])];
+                                   newItems[idx] = { ...item, title: val };
+                                   updateLandingData('features', { ...localLandingData?.features, items: newItems });
+                                 }} />
+                               </div>
+                             ))}
+                             <button onClick={() => {
+                                const newItems = [...(localLandingData?.features?.items || []), { title: 'New_Module', desc: '', icon: 'Zap', isVisible: true }];
+                                updateLandingData('features', { ...localLandingData?.features, items: newItems });
+                             }} className="w-full py-4 bg-zinc-900/40 border border-zinc-800 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 hover:text-white hover:border-maroon/40 transition-all">+ Add_Node</button>
+                           </div>
+                         </div>
+                      </AccordionItem>
                     </div>
                   </div>
                 )}
-              </div>
 
-              <div className="md:col-span-9 space-y-8">
-                <div className="silk-panel p-10 rounded-[2.5rem] border-zinc-900 min-h-[500px]">
-
-                  {/* LANDING PAGE CONFIG */}
-                  {activeCmsPage === 'landing' && (
-                    <>
-                      <SectionHeader title={`Landing / ${activeLandingSection}`} icon={Layout} />
-
-                      {activeLandingSection === 'hero' && (
-                        <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.hero.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['hero', 'isVisible'], v)} />
-                          <InputGroup label="Headline" value={landingConfig.hero.title} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'title'], v)} />
-                          <InputGroup label="Subheadline" type="textarea" value={landingConfig.hero.subtitle} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'subtitle'], v)} />
-                          <div className="grid grid-cols-2 gap-6">
-                            <InputGroup label="Primary CTA" value={landingConfig.hero.ctaPrimary} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'ctaPrimary'], v)} />
-                            <InputGroup label="Secondary CTA" value={landingConfig.hero.ctaSecondary} onChange={(v: string) => updateState(setLandingConfig, ['hero', 'ctaSecondary'], v)} />
-                          </div>
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'socials' && (
-                        <div className="space-y-8">
-                          <div className="p-8 silk-panel border-zinc-900 rounded-[2rem] space-y-6">
-                            <InputGroup
-                              label="Twitter / X URL"
-                              value={landingConfig.socials.twitter}
-                              onChange={(v: string) => handleSocialUpdate('twitter', v)}
-                              placeholder="https://twitter.com/..."
-                            />
-                            <InputGroup
-                              label="Discord Invite URL"
-                              value={landingConfig.socials.discord}
-                              onChange={(v: string) => handleSocialUpdate('discord', v)}
-                              placeholder="https://discord.gg/..."
-                            />
-                            <InputGroup
-                              label="Github Org URL"
-                              value={landingConfig.socials.github}
-                              onChange={(v: string) => handleSocialUpdate('github', v)}
-                              placeholder="https://github.com/..."
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'partners' && (
-                        <div className="space-y-6">
-                          <SectionHeader title="Infrastructure Support (Investors)" icon={Layers} description="Manage visibility and labels for anonymous investors and infrastructure partners." />
-                          <Toggle label="Display on Landing Page" checked={landingConfig.partners.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['partners', 'isVisible'], v)} />
-                          <InputGroup label="Sponsorship Statement (Display Title)" value={landingConfig.partners.title} onChange={(v: string) => updateState(setLandingConfig, ['partners', 'title'], v)} />
-                          <div className="space-y-4">
-                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Partner Logos (Text)</span>
-                            {(landingConfig.partners.items || []).map((item, idx) => (
-                              <div key={`${typeof item === 'string' ? item : item.label}-${idx}`} className="flex flex-col gap-2 p-4 bg-zinc-900/30 rounded-xl border border-zinc-800">
-                                <div className="flex gap-4 items-center">
-                                  <InputGroup value={typeof item === 'string' ? item : item.label} onChange={(v: string) => {
-                                    const newItems = [...(landingConfig.partners.items || [])];
-                                    if (typeof newItems[idx] === 'string') {
-                                      newItems[idx] = { label: v, isVisible: true };
-                                    } else {
-                                      (newItems[idx] as any).label = v;
-                                    }
-                                    updateState(setLandingConfig, ['partners', 'items'], newItems);
-                                  }} />
-                                  <button onClick={() => removeItem(setLandingConfig, ['partners', 'items'], idx)} className="text-red-500 hover:bg-red-500/10 p-2 rounded"><Trash2 className="w-4 h-4" /></button>
-                                </div>
-                                <Toggle 
-                                  label="Partner Visible" 
-                                  checked={typeof item === 'string' ? true : (item.isVisible !== false)} 
-                                  onChange={(v: boolean) => {
-                                    const newItems = [...(landingConfig.partners.items || [])];
-                                    if (typeof newItems[idx] === 'string') {
-                                      newItems[idx] = { label: newItems[idx] as string, isVisible: v };
-                                    } else {
-                                      (newItems[idx] as any).isVisible = v;
-                                    }
-                                    updateState(setLandingConfig, ['partners', 'items'], newItems);
-                                  }} 
-                                />
-                              </div>
-                            ))}
-                            <button onClick={() => addItem(setLandingConfig, ['partners', 'items'], "NEW_PARTNER")} className="text-maroon text-xs font-bold uppercase hover:underline">+ Add Partner</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'features' && (
-                        <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.features.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['features', 'isVisible'], v)} />
-                          <InputGroup label="Title" value={landingConfig.features.title} onChange={(v: string) => updateState(setLandingConfig, ['features', 'title'], v)} />
-                          <InputGroup label="Description" type="textarea" value={landingConfig.features.description} onChange={(v: string) => updateState(setLandingConfig, ['features', 'description'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            {(landingConfig.features.items || []).map((item, idx) => (
-                              <AccordionItem key={`${item.title}-${idx}`} title={item.title || 'New Feature'} onDelete={() => removeItem(setLandingConfig, ['features', 'items'], idx)}>
-                                <Toggle label="Item Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
-                                  const newItems = [...(landingConfig.features.items || [])];
-                                  newItems[idx].isVisible = v;
-                                  updateState(setLandingConfig, ['features', 'items'], newItems);
-                                }} />
-                                <InputGroup label="Title" value={item.title} onChange={(v: string) => {
-                                  const newItems = [...(landingConfig.features.items || [])];
-                                  newItems[idx].title = v;
-                                  updateState(setLandingConfig, ['features', 'items'], newItems);
-                                }} />
-                                <InputGroup label="Description" type="textarea" value={item.desc} onChange={(v: string) => {
-                                  const newItems = [...(landingConfig.features.items || [])];
-                                  newItems[idx].desc = v;
-                                  updateState(setLandingConfig, ['features', 'items'], newItems);
-                                }} />
-                                <InputGroup label="Icon Name" value={item.icon} onChange={(v: string) => {
-                                  const newItems = [...(landingConfig.features.items || [])];
-                                  newItems[idx].icon = v;
-                                  updateState(setLandingConfig, ['features', 'items'], newItems);
-                                }} />
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setLandingConfig, ['features', 'items'], { title: "New Feature", desc: "Description", icon: "Box" })} className="btn-primary w-full py-3">+ Add Feature Card</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'roadmap' && (
-                        <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.roadmap.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['roadmap', 'isVisible'], v)} />
-                          <InputGroup label="Title" value={landingConfig.roadmap.title} onChange={(v: string) => updateState(setLandingConfig, ['roadmap', 'title'], v)} />
-                          <InputGroup label="Description" type="textarea" value={landingConfig.roadmap.description} onChange={(v: string) => updateState(setLandingConfig, ['roadmap', 'description'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            {landingConfig.roadmap.phases.map((phase, idx) => (
-                              <AccordionItem key={`${phase.phase}-${idx}`} title={`Phase ${phase.phase}: ${phase.title}`} onDelete={() => removeItem(setLandingConfig, ['roadmap', 'phases'], idx)}>
-                                <Toggle label="Phase Visible" checked={phase.isVisible !== false} onChange={(v: boolean) => {
-                                  const newPhases = [...landingConfig.roadmap.phases];
-                                  newPhases[idx].isVisible = v;
-                                  updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                }} />
-                                <div className="grid grid-cols-2 gap-4">
-                                  <InputGroup label="Phase Number" value={phase.phase} onChange={(v: string) => {
-                                    const newPhases = [...landingConfig.roadmap.phases];
-                                    newPhases[idx].phase = v;
-                                    updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                  }} />
-                                  <InputGroup label="Status" value={phase.status} onChange={(v: string) => {
-                                    const newPhases = [...landingConfig.roadmap.phases];
-                                    newPhases[idx].status = v;
-                                    updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                  }} />
-                                </div>
-                                <InputGroup label="Title" value={phase.title} onChange={(v: string) => {
-                                  const newPhases = [...landingConfig.roadmap.phases];
-                                  newPhases[idx].title = v;
-                                  updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                }} />
-                                <InputGroup label="Period" value={phase.period} onChange={(v: string) => {
-                                  const newPhases = [...landingConfig.roadmap.phases];
-                                  newPhases[idx].period = v;
-                                  updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                }} />
-                                <InputGroup label="Description" type="textarea" value={phase.desc} onChange={(v: string) => {
-                                  const newPhases = [...landingConfig.roadmap.phases];
-                                  newPhases[idx].desc = v;
-                                  updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                }} />
-                                <div className="space-y-2">
-                                  <span className="text-[10px] font-bold text-zinc-500 uppercase">Features (Comma Separated)</span>
-                                  <textarea
-                                    className={INPUT_STYLES}
-                                    value={phase.features.join(', ')}
-                                    onChange={(e) => {
-                                      const newPhases = [...landingConfig.roadmap.phases];
-                                      newPhases[idx].features = e.target.value.split(',').map(s => s.trim());
-                                      updateState(setLandingConfig, ['roadmap', 'phases'], newPhases);
-                                    }}
-                                  />
-                                </div>
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setLandingConfig, ['roadmap', 'phases'], { phase: "04", title: "Future", period: "Q4 2026", status: "LOCKED", desc: "Desc", features: [] })} className="btn-primary w-full py-3">+ Add Roadmap Phase</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'faq' && (
-                        <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.faq.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['faq', 'isVisible'], v)} />
-                          <InputGroup label="Title" value={landingConfig.faq.title} onChange={(v: string) => updateState(setLandingConfig, ['faq', 'title'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            {landingConfig.faq.items.map((item, idx) => (
-                              <AccordionItem key={idx} title={item.q} onDelete={() => removeItem(setLandingConfig, ['faq', 'items'], idx)}>
-                                <Toggle label="Item Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
-                                  const newItems = [...landingConfig.faq.items];
-                                  newItems[idx].isVisible = v;
-                                  updateState(setLandingConfig, ['faq', 'items'], newItems);
-                                }} />
-                                <InputGroup label="Question" value={item.q} onChange={(v: string) => {
-                                  const newItems = [...landingConfig.faq.items];
-                                  newItems[idx].q = v;
-                                  updateState(setLandingConfig, ['faq', 'items'], newItems);
-                                }} />
-                                <InputGroup label="Answer" type="textarea" value={item.a} onChange={(v: string) => {
-                                  const newItems = [...landingConfig.faq.items];
-                                  newItems[idx].a = v;
-                                  updateState(setLandingConfig, ['faq', 'items'], newItems);
-                                }} />
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setLandingConfig, ['faq', 'items'], { q: "New Question?", a: "Answer." })} className="btn-primary w-full py-3">+ Add FAQ Item</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'cta' && (
-                        <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.cta.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['cta', 'isVisible'], v)} />
-                          <InputGroup label="Title" value={landingConfig.cta.title} onChange={(v: string) => updateState(setLandingConfig, ['cta', 'title'], v)} />
-                          <InputGroup label="Description" type="textarea" value={landingConfig.cta.description} onChange={(v: string) => updateState(setLandingConfig, ['cta', 'description'], v)} />
-                          <InputGroup label="Button Text" value={landingConfig.cta.buttonText} onChange={(v: string) => updateState(setLandingConfig, ['cta', 'buttonText'], v)} />
-                        </div>
-                      )}
-
-                      {activeLandingSection === 'footer' && (
-                        <div className="space-y-6">
-                          <Toggle label="Section Visible" checked={landingConfig.footer.isVisible} onChange={(v: boolean) => updateState(setLandingConfig, ['footer', 'isVisible'], v)} />
-                          <InputGroup label="Brand Name" value={landingConfig.footer.title} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'title'], v)} />
-                          <InputGroup label="Description" type="textarea" value={landingConfig.footer.description} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'description'], v)} />
-                          <InputGroup label="Copyright Text" value={landingConfig.footer.copyright} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'copyright'], v)} />
-                          <InputGroup label="Status Text" value={landingConfig.footer.statusText || ''} onChange={(v: string) => updateState(setLandingConfig, ['footer', 'statusText'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Footer Columns</span>
-                            {landingConfig.footer.columns?.map((col, cIdx) => (
-                              <AccordionItem key={cIdx} title={`Column: ${col.title}`} onDelete={() => removeItem(setLandingConfig, ['footer', 'columns'], cIdx)}>
-                                <InputGroup label="Column Title" value={col.title} onChange={(v: string) => {
-                                  const newCols = [...landingConfig.footer.columns];
-                                  newCols[cIdx].title = v;
-                                  updateState(setLandingConfig, ['footer', 'columns'], newCols);
-                                }} />
-
-                                <div className="mt-4 space-y-3">
-                                  <span className="text-[10px] font-bold text-zinc-500 uppercase">Links</span>
-                                  {col.links?.map((link, lIdx) => (
-                                    <div key={lIdx} className="grid grid-cols-2 gap-4 items-center bg-zinc-900/50 p-3 rounded-xl border border-zinc-800/50 relative">
-                                      <InputGroup label="Label" value={link.label} onChange={(v: string) => {
-                                        const newCols = [...landingConfig.footer.columns];
-                                        newCols[cIdx].links[lIdx].label = v;
-                                        updateState(setLandingConfig, ['footer', 'columns'], newCols);
-                                      }} />
-                                      <InputGroup label="URL" value={link.url} onChange={(v: string) => {
-                                        const newCols = [...landingConfig.footer.columns];
-                                        newCols[cIdx].links[lIdx].url = v;
-                                        updateState(setLandingConfig, ['footer', 'columns'], newCols);
-                                      }} />
-                                      <button onClick={() => {
-                                        const newCols = [...landingConfig.footer.columns];
-                                        newCols[cIdx].links = newCols[cIdx].links.filter((_, i) => i !== lIdx);
-                                        updateState(setLandingConfig, ['footer', 'columns'], newCols);
-                                      }} className="absolute -top-2 -right-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white p-1 rounded-full transition-colors"><Trash2 className="w-3 h-3" /></button>
-                                    </div>
-                                  ))}
-                                  <button onClick={() => {
-                                    const newCols = [...landingConfig.footer.columns];
-                                    if (!newCols[cIdx].links) newCols[cIdx].links = [];
-                                    newCols[cIdx].links = [...newCols[cIdx].links, { label: 'New Link', url: '/' }];
-                                    updateState(setLandingConfig, ['footer', 'columns'], newCols);
-                                  }} className="text-[10px] text-maroon font-bold uppercase hover:underline">+ Add Link</button>
-                                </div>
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setLandingConfig, ['footer', 'columns'], { title: "New Column", links: [] })} className="btn-primary w-full py-3">+ Add Column</button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* ARCHITECTURE CONFIG */}
-                  {activeCmsPage === 'architecture' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Architecture Config" icon={Cpu} />
-                      <InputGroup label="Hero Title" value={archConfig.heroTitle} onChange={(v: string) => updateState(setArchConfig, ['heroTitle'], v)} />
-                      <InputGroup label="Hero Subtitle" type="textarea" value={archConfig.heroSubtitle} onChange={(v: string) => updateState(setArchConfig, ['heroSubtitle'], v)} />
-
-                      <div className="space-y-4 pt-6">
-                        <span className="text-xs font-bold text-zinc-500 uppercase">Tech Layers</span>
-                        {(archConfig.layers || []).map((layer: any, idx: number) => (
-                          <AccordionItem key={idx} title={layer.title} onDelete={() => removeItem(setArchConfig, ['layers'], idx)}>
-                            <Toggle label="Layer Visible" checked={layer.isVisible !== false} onChange={(v: boolean) => {
-                              const newLayers = [...(archConfig.layers || [])];
-                              newLayers[idx].isVisible = v;
-                              updateState(setArchConfig, ['layers'], newLayers);
-                            }} />
-                            <InputGroup label="Layer Title" value={layer.title} onChange={(v: string) => {
-                              const newLayers = [...(archConfig.layers || [])];
-                              newLayers[idx].title = v;
-                              updateState(setArchConfig, ['layers'], newLayers);
-                            }} />
-                            <InputGroup label="Description" value={layer.desc} onChange={(v: string) => {
-                              const newLayers = [...(archConfig.layers || [])];
-                              newLayers[idx].desc = v;
-                              updateState(setArchConfig, ['layers'], newLayers);
-                            }} />
-                            <InputGroup label="Statistic" value={layer.stat} onChange={(v: string) => {
-                              const newLayers = [...(archConfig.layers || [])];
-                              newLayers[idx].stat = v;
-                              updateState(setArchConfig, ['layers'], newLayers);
-                            }} />
-                          </AccordionItem>
-                        ))}
-                        <button onClick={() => addItem(setArchConfig, ['layers'], { title: "New Layer", desc: "Description", stat: "100%" })} className="btn-primary w-full py-3">+ Add Layer</button>
-                      </div>
-
-                      <div className="space-y-4 pt-6">
-                        <span className="text-xs font-bold text-zinc-500 uppercase">Features</span>
-                        {archConfig.features.map((feat, idx) => (
-                          <AccordionItem key={idx} title={feat.title} onDelete={() => removeItem(setArchConfig, ['features'], idx)}>
-                            <Toggle label="Feature Visible" checked={feat.isVisible !== false} onChange={(v: boolean) => {
-                              const newFeats = [...archConfig.features];
-                              newFeats[idx].isVisible = v;
-                              updateState(setArchConfig, ['features'], newFeats);
-                            }} />
-                            <InputGroup label="Feature Title" value={feat.title} onChange={(v: string) => {
-                              const newFeats = [...archConfig.features];
-                              newFeats[idx].title = v;
-                              updateState(setArchConfig, ['features'], newFeats);
-                            }} />
-                            <InputGroup label="Description" value={feat.desc} onChange={(v: string) => {
-                              const newFeats = [...archConfig.features];
-                              newFeats[idx].desc = v;
-                              updateState(setArchConfig, ['features'], newFeats);
-                            }} />
-                          </AccordionItem>
-                        ))}
-                        <button onClick={() => addItem(setArchConfig, ['features'], { title: "New Feature", desc: "Description" })} className="btn-primary w-full py-3">+ Add Feature</button>
-                      </div>
+                {activeCmsPage === 'terminal' && (
+                  <div className="space-y-10">
+                    <SectionHeader title="CLI_Configuration" icon={TerminalIcon} description="Update operational terminal text and environment flags" />
+                    <div className=" silk-panel p-10 rounded-[3rem] border-zinc-900/50 bg-zinc-950/20 backdrop-blur-3xl space-y-8">
+                       <InputGroup label="Startup_Signal" value={localLandingData?.terminal?.welcomeMsg || ''} onChange={(val: string) => updateLandingData('terminal', { ...localLandingData?.terminal, welcomeMsg: val })} />
+                       <InputGroup label="System_Description" type="textarea" value={localLandingData?.terminal?.sysDescription || ''} onChange={(val: string) => updateLandingData('terminal', { ...localLandingData?.terminal, sysDescription: val })} />
+                       <div className="grid grid-cols-2 gap-8">
+                          <Toggle label="Enable_Diagnostic_Logs" checked={localLandingData?.terminal?.enableLogs !== false} onChange={(val: boolean) => updateLandingData('terminal', { ...localLandingData?.terminal, enableLogs: val })} />
+                          <Toggle label="Enforce_Protocol_Alpha" checked={localLandingData?.terminal?.protocolAlpha === true} onChange={(val: boolean) => updateLandingData('terminal', { ...localLandingData?.terminal, protocolAlpha: val })} />
+                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* ABOUT CONFIG */}
-                  {activeCmsPage === 'about' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="About Page Config" icon={Users} />
-                      <InputGroup label="Main Title" value={aboutConfig.title} onChange={(v: string) => updateState(setAboutConfig, ['title'], v)} />
-                      <InputGroup label="Subtitle" type="textarea" value={aboutConfig.subtitle} onChange={(v: string) => updateState(setAboutConfig, ['subtitle'], v)} />
-
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="p-6 silk-panel border-zinc-800 rounded-2xl space-y-4">
-                          <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Target className="w-4 h-4" /> Mission</span>
-                          <InputGroup label="Title" value={aboutConfig.mission.title} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'title'], v)} />
-                          <InputGroup label="Desc" type="textarea" value={aboutConfig.mission.desc} onChange={(v: string) => updateState(setAboutConfig, ['mission', 'desc'], v)} />
-                        </div>
-                        <div className="p-4 border border-zinc-800 rounded-xl space-y-4 bg-zinc-950/50">
-                          <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Globe className="w-4 h-4" /> Vision</span>
-                          <InputGroup label="Title" value={aboutConfig.vision.title} onChange={(v: string) => updateState(setAboutConfig, ['vision', 'title'], v)} />
-                          <InputGroup label="Desc" type="textarea" value={aboutConfig.vision.desc} onChange={(v: string) => updateState(setAboutConfig, ['vision', 'desc'], v)} />
-                        </div>
-                        <div className="p-4 border border-zinc-800 rounded-xl space-y-4 bg-zinc-950/50">
-                          <span className="text-xs font-bold text-white uppercase flex items-center gap-2"><Users className="w-4 h-4" /> Collective</span>
-                          <InputGroup label="Title" value={aboutConfig.collective.title} onChange={(v: string) => updateState(setAboutConfig, ['collective', 'title'], v)} />
-                          <InputGroup label="Desc" type="textarea" value={aboutConfig.collective.desc} onChange={(v: string) => updateState(setAboutConfig, ['collective', 'desc'], v)} />
-                        </div>
-                      </div>
-
-                      <div className="space-y-4 pt-6 border-t border-zinc-800">
-                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Strategic Partners List</span>
-                        {aboutConfig.partners.map((partner, idx) => (
-                          <div key={idx} className="flex gap-4 items-center">
-                            <InputGroup value={partner} onChange={(v: string) => {
-                              const newPartners = [...aboutConfig.partners];
-                              newPartners[idx] = v;
-                              updateState(setAboutConfig, ['partners'], newPartners);
-                            }} />
-                            <button onClick={() => removeItem(setAboutConfig, ['partners'], idx)} className="text-zinc-600 hover:text-red-500 hover:bg-red-500/10 p-2 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
-                          </div>
-                        ))}
-                        <button onClick={() => addItem(setAboutConfig, ['partners'], "NEW_PARTNER")} className="btn-primary w-full py-3 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">+ Add Partner</button>
-                      </div>
+                {activeCmsPage === 'contact' && (
+                  <div className="space-y-10">
+                    <SectionHeader title="Relay_Endpoints" icon={Mail} description="Configure communication vectors and inbound routing" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                       <div className="space-y-8 p-10 silk-panel rounded-[3rem] border-zinc-900/50">
+                          <InputGroup label="Inbound_Subject" value={localLandingData?.contact?.title || ''} onChange={(val: string) => updateLandingData('contact', { ...localLandingData?.contact, title: val })} />
+                          <InputGroup label="Route_Brief" type="textarea" value={localLandingData?.contact?.subtitle || ''} onChange={(val: string) => updateLandingData('contact', { ...localLandingData?.contact, subtitle: val })} />
+                       </div>
+                       <div className="space-y-8 p-10 silk-panel rounded-[3rem] border-zinc-900/50">
+                          <InputGroup label="Global_Proxy" value={localLandingData?.contact?.address || ''} onChange={(val: string) => updateLandingData('contact', { ...localLandingData?.contact, address: val })} />
+                          <InputGroup label="Operating_Hours" value={localLandingData?.contact?.supportHours || ''} onChange={(val: string) => updateLandingData('contact', { ...localLandingData?.contact, supportHours: val })} />
+                       </div>
                     </div>
-                  )}
-
-                  {/* TOKENOMICS CONFIG */}
-                  {activeCmsPage === 'tokenomics' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Tokenomics Config" icon={PieChart} />
-                      <InputGroup label="Title" value={tokenomicsConfig.title} onChange={(v: string) => updateState(setTokenomicsConfig, ['title'], v)} />
-                      <InputGroup label="Subtitle" type="textarea" value={tokenomicsConfig.subtitle} onChange={(v: string) => updateState(setTokenomicsConfig, ['subtitle'], v)} />
-                      <div className="grid grid-cols-2 gap-6">
-                        <InputGroup label="Total Supply" value={tokenomicsConfig.totalSupply} onChange={(v: string) => updateState(setTokenomicsConfig, ['totalSupply'], v)} />
-                        <InputGroup label="Circulating Supply" value={tokenomicsConfig.circulatingSupply} onChange={(v: string) => updateState(setTokenomicsConfig, ['circulatingSupply'], v)} />
-                      </div>
-
-                      <div className="space-y-4">
-                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Distribution Chart</span>
-                        {(tokenomicsConfig.distribution || []).map((item, idx) => (
-                          <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end bg-zinc-900/20 p-4 rounded-xl border border-zinc-800/50">
-                            <InputGroup label="Label" value={item.label} onChange={(v: string) => {
-                              const newDist = [...(tokenomicsConfig.distribution || [])];
-                              newDist[idx].label = v;
-                              updateState(setTokenomicsConfig, ['distribution'], newDist);
-                            }} />
-                            <InputGroup label="Percentage" type="number" value={item.percentage} onChange={(v: number) => {
-                              const newDist = [...(tokenomicsConfig.distribution || [])];
-                              newDist[idx].percentage = v;
-                              updateState(setTokenomicsConfig, ['distribution'], newDist);
-                            }} />
-                            <InputGroup label="Value Text" value={item.value} onChange={(v: string) => {
-                              const newDist = [...(tokenomicsConfig.distribution || [])];
-                              newDist[idx].value = v;
-                              updateState(setTokenomicsConfig, ['distribution'], newDist);
-                            }} />
-                            <InputGroup label="Color Class" value={item.color} onChange={(v: string) => {
-                              const newDist = [...(tokenomicsConfig.distribution || [])];
-                              newDist[idx].color = v;
-                              updateState(setTokenomicsConfig, ['distribution'], newDist);
-                            }} />
-                            <div className="flex flex-col gap-1 pb-1">
-                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Visible</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const newDist = [...(tokenomicsConfig.distribution || [])];
-                                    newDist[idx].isVisible = !(item.isVisible !== false);
-                                    updateState(setTokenomicsConfig, ['distribution'], newDist);
-                                  }}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${item.isVisible !== false ? 'bg-maroon' : 'bg-zinc-800'}`}
-                                >
-                                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${item.isVisible !== false ? 'translate-x-6' : 'translate-x-1'}`} />
-                                </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="space-y-4 pt-6">
-                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Utility Cards</span>
-                        {(tokenomicsConfig.utility || []).map((item, idx) => (
-                          <AccordionItem key={idx} title={item.title} onDelete={() => removeItem(setTokenomicsConfig, ['utility'], idx)}>
-                            <Toggle label="Utility Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
-                              const newUtil = [...(tokenomicsConfig.utility || [])];
-                              newUtil[idx].isVisible = v;
-                              updateState(setTokenomicsConfig, ['utility'], newUtil);
-                            }} />
-                            <InputGroup label="Title" value={item.title} onChange={(v: string) => {
-                              const newUtil = [...(tokenomicsConfig.utility || [])];
-                              newUtil[idx].title = v;
-                              updateState(setTokenomicsConfig, ['utility'], newUtil);
-                            }} />
-                            <InputGroup label="Description" type="textarea" value={item.desc} onChange={(v: string) => {
-                              const newUtil = [...(tokenomicsConfig.utility || [])];
-                              newUtil[idx].desc = v;
-                              updateState(setTokenomicsConfig, ['utility'], newUtil);
-                            }} />
-                            <InputGroup label="Icon (e.g. Zap, Lock)" value={item.icon} onChange={(v: string) => {
-                              const newUtil = [...(tokenomicsConfig.utility || [])];
-                              newUtil[idx].icon = v;
-                              updateState(setTokenomicsConfig, ['utility'], newUtil);
-                            }} />
-                          </AccordionItem>
-                        ))}
-                        <button onClick={() => addItem(setTokenomicsConfig, ['utility'], { title: "New Utility", desc: "Description...", icon: "Zap" })} className="btn-primary w-full py-3">+ Add Utility Card</button>
-                      </div>
-
-                      <div className="space-y-4 pt-6">
-                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Release Schedule</span>
-                        {(tokenomicsConfig.schedule || []).map((item, idx) => (
-                          <AccordionItem key={idx} title={item.phase} onDelete={() => removeItem(setTokenomicsConfig, ['schedule'], idx)}>
-                            <Toggle label="Phase Visible" checked={item.isVisible !== false} onChange={(v: boolean) => {
-                              const newSched = [...(tokenomicsConfig.schedule || [])];
-                              newSched[idx].isVisible = v;
-                              updateState(setTokenomicsConfig, ['schedule'], newSched);
-                            }} />
-                            <div className="grid grid-cols-2 gap-4">
-                              <InputGroup label="Phase Protocol" value={item.phase} onChange={(v: string) => {
-                                const newSched = [...(tokenomicsConfig.schedule || [])];
-                                newSched[idx].phase = v;
-                                updateState(setTokenomicsConfig, ['schedule'], newSched);
-                              }} />
-                              <InputGroup label="Activation Date" value={item.date} onChange={(v: string) => {
-                                const newSched = [...(tokenomicsConfig.schedule || [])];
-                                newSched[idx].date = v;
-                                updateState(setTokenomicsConfig, ['schedule'], newSched);
-                              }} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <InputGroup label="Liquidity Event (Allocation)" value={item.allocation} onChange={(v: string) => {
-                                const newSched = [...(tokenomicsConfig.schedule || [])];
-                                newSched[idx].allocation = v;
-                                updateState(setTokenomicsConfig, ['schedule'], newSched);
-                              }} />
-                              <InputGroup label="Deployment Mechanism (Action)" value={item.action} onChange={(v: string) => {
-                                const newSched = [...(tokenomicsConfig.schedule || [])];
-                                newSched[idx].action = v;
-                                updateState(setTokenomicsConfig, ['schedule'], newSched);
-                              }} />
-                            </div>
-                          </AccordionItem>
-                        ))}
-                        <button onClick={() => addItem(setTokenomicsConfig, ['schedule'], { phase: "New Phase", date: "TBD", allocation: "0%", action: "TBD" })} className="btn-primary w-full py-3">+ Add Schedule Phase</button>
-                      </div>
-
-                      <div className="space-y-4 pt-6">
-                        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Economic Analysis Sections</span>
-                        {(tokenomicsConfig.sections || []).map((sec, idx) => (
-                          <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setTokenomicsConfig, ['sections'], idx)}>
-                            <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
-                              const newSecs = [...(tokenomicsConfig.sections || [])];
-                              newSecs[idx].isVisible = v;
-                              updateState(setTokenomicsConfig, ['sections'], newSecs);
-                            }} />
-                            <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
-                              const newSecs = [...(tokenomicsConfig.sections || [])];
-                              newSecs[idx].title = v;
-                              updateState(setTokenomicsConfig, ['sections'], newSecs);
-                            }} />
-                            <div className="space-y-2">
-                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich content</label>
-                              <AdvancedEditor
-                                content={sec.content}
-                                onChange={(html) => {
-                                  const newSecs = [...(tokenomicsConfig.sections || [])];
-                                  newSecs[idx].content = html;
-                                  updateState(setTokenomicsConfig, ['sections'], newSecs);
-                                }}
-                              />
-                            </div>
-                          </AccordionItem>
-                        ))}
-                        <button onClick={() => addItem(setTokenomicsConfig, ['sections'], { title: "New Analysis Section", content: "" })} className="btn-primary w-full py-3">+ Add Analysis Section</button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* WHITEPAPER CONFIG */}
-                  {activeCmsPage === 'whitepaper' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Whitepaper Config" icon={FileText} />
-                      {isPreviewMode ? (
-                        <div className="silk-panel p-10 rounded-[3rem] border-zinc-900 bg-zinc-950 space-y-12">
-                          <div className="space-y-4 border-b border-zinc-900 pb-10">
-                            <p className="text-maroon font-mono font-black text-xs uppercase tracking-widest">{whitepaperConfig.version}</p>
-                            <h1 className="text-5xl font-black text-white uppercase tracking-tighter">{whitepaperConfig.title}</h1>
-                            <p className="text-zinc-500 text-lg italic">{whitepaperConfig.subtitle}</p>
-                          </div>
-                          <div className="space-y-16">
-                            {whitepaperConfig.sections.map((sec, idx) => (
-                              <div key={idx} className="space-y-6">
-                                <h2 className="text-3xl font-black text-white flex items-center gap-4">
-                                  <span className="text-sm font-mono text-maroon">[{String(idx + 1).padStart(2, '0')}]</span>
-                                  {sec.title}
-                                </h2>
-                                <ContentRenderer html={sec.content} />
-                                {sec.subsections?.map((sub, sIdx) => (
-                                  <div key={sIdx} className="ml-10 pl-6 border-l border-maroon/20 space-y-4">
-                                    <h3 className="text-xl font-bold text-zinc-200">{sub.title}</h3>
-                                    <ContentRenderer html={sub.content} />
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <InputGroup label="Title" value={whitepaperConfig.title} onChange={(v: string) => updateState(setWhitepaperConfig, ['title'], v)} />
-                          <InputGroup label="Subtitle" value={whitepaperConfig.subtitle} onChange={(v: string) => updateState(setWhitepaperConfig, ['subtitle'], v)} />
-                          <InputGroup label="Version" value={whitepaperConfig.version} onChange={(v: string) => updateState(setWhitepaperConfig, ['version'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Document Sections</span>
-                            {whitepaperConfig.sections.map((sec, idx) => (
-                              <AccordionItem key={idx} title={sec.title} onDelete={() => removeItem(setWhitepaperConfig, ['sections'], idx)}>
-                                <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
-                                  const newSecs = [...whitepaperConfig.sections];
-                                  newSecs[idx].isVisible = v;
-                                  updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                }} />
-                                <InputGroup label="Section Title" value={sec.title} onChange={(v: string) => {
-                                  const newSecs = [...whitepaperConfig.sections];
-                                  newSecs[idx].title = v;
-                                  updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                }} />
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich Content</label>
-                                  <AdvancedEditor
-                                    content={sec.content}
-                                    onChange={(html) => {
-                                      const newSecs = [...whitepaperConfig.sections];
-                                      newSecs[idx].content = html;
-                                      updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                    }}
-                                  />
-                                </div>
-
-                                {/* Sub-sections UI */}
-                                <div className="mt-8 pl-8 border-l border-zinc-800 space-y-6">
-                                  <span className="text-[10px] font-black text-maroon uppercase tracking-widest">Sub-Sections</span>
-                                  {sec.subsections?.map((sub, sIdx) => (
-                                    <div key={sIdx} className="bg-zinc-950/50 p-6 rounded-2xl border border-zinc-900 relative">
-                                      <button
-                                        onClick={() => {
-                                          const newSecs = [...whitepaperConfig.sections];
-                                          newSecs[idx].subsections = newSecs[idx].subsections?.filter((_, i) => i !== sIdx);
-                                          updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                        }}
-                                        className="absolute top-4 right-4 text-zinc-700 hover:text-red-500"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                      <InputGroup
-                                        label="Sub-heading"
-                                        className="mb-4"
-                                        value={sub.title}
-                                        onChange={(v: string) => {
-                                          const newSecs = [...whitepaperConfig.sections];
-                                          if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].title = v;
-                                          updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                        }}
-                                      />
-                                      <AdvancedEditor
-                                        content={sub.content}
-                                        onChange={(html) => {
-                                          const newSecs = [...whitepaperConfig.sections];
-                                          if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].content = html;
-                                          updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                        }}
-                                      />
-                                    </div>
-                                  ))}
-                                  <button
-                                    onClick={() => {
-                                      const newSecs = [...whitepaperConfig.sections];
-                                      if (!newSecs[idx].subsections) newSecs[idx].subsections = [];
-                                      newSecs[idx].subsections.push({ title: 'New Sub-section', content: '' });
-                                      updateState(setWhitepaperConfig, ['sections'], newSecs);
-                                    }}
-                                    className="text-[10px] text-maroon font-bold uppercase hover:bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/20"
-                                  >
-                                    + Add Sub-section
-                                  </button>
-                                </div>
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setWhitepaperConfig, ['sections'], { title: "New Section", content: "" })} className="btn-primary w-full py-3">+ Add Section</button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* CAREERS CONFIG */}
-                  {activeCmsPage === 'careers' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Careers Config" icon={Briefcase} />
-                      <InputGroup label="Title" value={careersConfig.title} onChange={(v: string) => updateState(setCareersConfig, ['title'], v)} />
-                      <InputGroup label="Subtitle" type="textarea" value={careersConfig.subtitle} onChange={(v: string) => updateState(setCareersConfig, ['subtitle'], v)} />
-
-                      <div className="space-y-4 pt-6">
-                        {careersConfig.positions.map((job, idx) => (
-                          <AccordionItem key={idx} title={job.title} onDelete={() => removeItem(setCareersConfig, ['positions'], idx)}>
-                            <Toggle label="Job Visible" checked={job.isVisible !== false} onChange={(v: boolean) => {
-                              const newPos = [...careersConfig.positions];
-                              newPos[idx].isVisible = v;
-                              updateState(setCareersConfig, ['positions'], newPos);
-                            }} />
-                            <div className="grid grid-cols-2 gap-4">
-                              <InputGroup label="Job Title" value={job.title} onChange={(v: string) => {
-                                const newPos = [...careersConfig.positions];
-                                newPos[idx].title = v;
-                                updateState(setCareersConfig, ['positions'], newPos);
-                              }} />
-                              <InputGroup label="Department" value={job.department} onChange={(v: string) => {
-                                const newPos = [...careersConfig.positions];
-                                newPos[idx].department = v;
-                                updateState(setCareersConfig, ['positions'], newPos);
-                              }} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <InputGroup label="Location" value={job.location} onChange={(v: string) => {
-                                const newPos = [...careersConfig.positions];
-                                newPos[idx].location = v;
-                                updateState(setCareersConfig, ['positions'], newPos);
-                              }} />
-                              <InputGroup label="Type" value={job.type} onChange={(v: string) => {
-                                const newPos = [...careersConfig.positions];
-                                newPos[idx].type = v;
-                                updateState(setCareersConfig, ['positions'], newPos);
-                              }} />
-                            </div>
-                            <InputGroup label="Description" type="textarea" value={job.description} onChange={(v: string) => {
-                              const newPos = [...careersConfig.positions];
-                              newPos[idx].description = v;
-                              updateState(setCareersConfig, ['positions'], newPos);
-                            }} />
-                          </AccordionItem>
-                        ))}
-                        <button onClick={() => addItem(setCareersConfig, ['positions'], { title: "New Job", department: "Engineering", location: "Remote", type: "Full-time", description: "Desc..." })} className="btn-primary w-full py-3">+ Add Position</button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* CONTACT CONFIG */}
-                  {activeCmsPage === 'contact' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Contact Page Config" icon={Phone} />
-                      <InputGroup label="Main Title" value={contactConfig.title} onChange={(v: string) => updateState(setContactConfig, ['title'], v)} />
-                      <InputGroup label="Subtitle" type="textarea" value={contactConfig.subtitle} onChange={(v: string) => updateState(setContactConfig, ['subtitle'], v)} />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InputGroup label="Support Hours" value={contactConfig.supportHours} onChange={(v: string) => updateState(setContactConfig, ['supportHours'], v)} />
-                        <InputGroup label="Physical Address" value={contactConfig.address} onChange={(v: string) => updateState(setContactConfig, ['address'], v)} />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* TERMS CONFIG */}
-                  {activeCmsPage === 'terms' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Terms of Service Config" icon={BookOpen} />
-                      {isPreviewMode ? (
-                        <div className="silk-panel p-10 rounded-[3rem] border-zinc-900 bg-zinc-950 space-y-12">
-                          <div className="space-y-4 border-b border-zinc-900 pb-10">
-                            <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{termsConfig.title}</h1>
-                            <p className="text-zinc-500 font-mono text-[9px] uppercase tracking-widest">Last Updated: {termsConfig.lastUpdated}</p>
-                          </div>
-                          <div className="space-y-16">
-                            {termsConfig.sections.map((sec, idx) => (
-                              <div key={idx} className="space-y-6">
-                                <h2 className="text-2xl font-black text-white flex items-center gap-4">
-                                  <span className="text-xs font-mono text-maroon">[{String(idx + 1).padStart(2, '0')}]</span>
-                                  {sec.heading}
-                                </h2>
-                                <ContentRenderer html={sec.content} />
-                                {sec.subsections?.map((sub, sIdx) => (
-                                  <div key={sIdx} className="ml-10 pl-6 border-l border-maroon/20 space-y-4">
-                                    <h3 className="text-lg font-bold text-zinc-200">{sub.heading}</h3>
-                                    <ContentRenderer html={sub.content} />
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <InputGroup label="Page Title" value={termsConfig.title} onChange={(v: string) => updateState(setTermsConfig, ['title'], v)} />
-                          <InputGroup label="Last Updated" value={termsConfig.lastUpdated} onChange={(v: string) => updateState(setTermsConfig, ['lastUpdated'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Governance Clauses</span>
-                            {termsConfig.sections.map((sec, idx) => (
-                              <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setTermsConfig, ['sections'], idx)}>
-                                <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
-                                  const newSecs = [...termsConfig.sections];
-                                  newSecs[idx].isVisible = v;
-                                  updateState(setTermsConfig, ['sections'], newSecs);
-                                }} />
-                                <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
-                                  const newSecs = [...termsConfig.sections];
-                                  newSecs[idx].heading = v;
-                                  updateState(setTermsConfig, ['sections'], newSecs);
-                                }} />
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich content</label>
-                                  <AdvancedEditor
-                                    content={sec.content}
-                                    onChange={(html) => {
-                                      const newSecs = [...termsConfig.sections];
-                                      newSecs[idx].content = html;
-                                      updateState(setTermsConfig, ['sections'], newSecs);
-                                    }}
-                                  />
-                                </div>
-
-                                {/* Sub-sections UI */}
-                                <div className="mt-8 pl-8 border-l border-zinc-800 space-y-6">
-                                  <span className="text-[10px] font-black text-maroon uppercase tracking-widest">Nested Sub-sections</span>
-                                  {sec.subsections?.map((sub, sIdx) => (
-                                    <div key={sIdx} className="bg-zinc-950/50 p-6 rounded-2xl border border-zinc-900 relative">
-                                      <button
-                                        onClick={() => {
-                                          const newSecs = [...termsConfig.sections];
-                                          newSecs[idx].subsections = newSecs[idx].subsections?.filter((_, i) => i !== sIdx);
-                                          updateState(setTermsConfig, ['sections'], newSecs);
-                                        }}
-                                        className="absolute top-4 right-4 text-zinc-700 hover:text-red-500"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                      <InputGroup
-                                        label="Sub-heading"
-                                        className="mb-4"
-                                        value={sub.heading}
-                                        onChange={(v: string) => {
-                                          const newSecs = [...termsConfig.sections];
-                                          if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].heading = v;
-                                          updateState(setTermsConfig, ['sections'], newSecs);
-                                        }}
-                                      />
-                                      <AdvancedEditor
-                                        content={sub.content}
-                                        onChange={(html) => {
-                                          const newSecs = [...termsConfig.sections];
-                                          if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].content = html;
-                                          updateState(setTermsConfig, ['sections'], newSecs);
-                                        }}
-                                      />
-                                    </div>
-                                  ))}
-                                  <button
-                                    onClick={() => {
-                                      const newSecs = [...termsConfig.sections];
-                                      if (!newSecs[idx].subsections) newSecs[idx].subsections = [];
-                                      newSecs[idx].subsections.push({ heading: 'New Sub-clause', content: '' });
-                                      updateState(setTermsConfig, ['sections'], newSecs);
-                                    }}
-                                    className="text-[10px] text-maroon font-bold uppercase hover:bg-maroon/5 px-4 py-2 rounded-lg border border-maroon/20"
-                                  >
-                                    + Add Sub-section
-                                  </button>
-                                </div>
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setTermsConfig, ['sections'], { heading: "New Clause", content: "" })} className="btn-primary w-full py-3">+ Add Clause</button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* PRIVACY CONFIG */}
-                  {activeCmsPage === 'privacy' && (
-                    <div className="space-y-8">
-                      <SectionHeader title="Privacy Policy Config" icon={Shield} />
-                      {isPreviewMode ? (
-                        <div className="silk-panel p-10 rounded-[3rem] border-zinc-900 bg-zinc-950 space-y-12">
-                          <div className="space-y-4 border-b border-zinc-900 pb-10">
-                            <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{privacyConfig.title}</h1>
-                            <p className="text-zinc-500 font-mono text-[9px] uppercase tracking-widest">Last Updated: {privacyConfig.lastUpdated}</p>
-                          </div>
-                          <div className="space-y-16">
-                            {privacyConfig.sections.map((sec, idx) => (
-                              <div key={idx} className="space-y-6">
-                                <h2 className="text-2xl font-black text-white flex items-center gap-4">
-                                  <span className="text-xs font-mono text-zinc-500">[{String(idx + 1).padStart(2, '0')}]</span>
-                                  {sec.heading}
-                                </h2>
-                                <ContentRenderer html={sec.content} />
-                                {sec.subsections?.map((sub, sIdx) => (
-                                  <div key={sIdx} className="ml-10 pl-6 border-l border-emerald-500/20 space-y-4">
-                                    <h3 className="text-lg font-bold text-zinc-200">{sub.heading}</h3>
-                                    <ContentRenderer html={sub.content} />
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <InputGroup label="Page Title" value={privacyConfig.title} onChange={(v: string) => updateState(setPrivacyConfig, ['title'], v)} />
-                          <InputGroup label="Last Updated" value={privacyConfig.lastUpdated} onChange={(v: string) => updateState(setPrivacyConfig, ['lastUpdated'], v)} />
-
-                          <div className="space-y-4 pt-6">
-                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Privacy Modules</span>
-                            {privacyConfig.sections.map((sec, idx) => (
-                              <AccordionItem key={idx} title={sec.heading} onDelete={() => removeItem(setPrivacyConfig, ['sections'], idx)}>
-                                <Toggle label="Section Visible" checked={sec.isVisible !== false} onChange={(v: boolean) => {
-                                  const newSecs = [...privacyConfig.sections];
-                                  newSecs[idx].isVisible = v;
-                                  updateState(setPrivacyConfig, ['sections'], newSecs);
-                                }} />
-                                <InputGroup label="Heading" value={sec.heading} onChange={(v: string) => {
-                                  const newSecs = [...privacyConfig.sections];
-                                  newSecs[idx].heading = v;
-                                  updateState(setPrivacyConfig, ['sections'], newSecs);
-                                }} />
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Rich content</label>
-                                  <AdvancedEditor
-                                    content={sec.content}
-                                    onChange={(html) => {
-                                      const newSecs = [...privacyConfig.sections];
-                                      newSecs[idx].content = html;
-                                      updateState(setPrivacyConfig, ['sections'], newSecs);
-                                    }}
-                                  />
-                                </div>
-
-                                {/* Sub-sections UI */}
-                                <div className="mt-8 pl-8 border-l border-zinc-800 space-y-6">
-                                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Nested Sub-sections</span>
-                                  {sec.subsections?.map((sub, sIdx) => (
-                                    <div key={sIdx} className="bg-zinc-950/50 p-6 rounded-2xl border border-zinc-900 relative">
-                                      <button
-                                        onClick={() => {
-                                          const newSecs = [...privacyConfig.sections];
-                                          newSecs[idx].subsections = newSecs[idx].subsections?.filter((_, i) => i !== sIdx);
-                                          updateState(setPrivacyConfig, ['sections'], newSecs);
-                                        }}
-                                        className="absolute top-4 right-4 text-zinc-700 hover:text-red-500"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                      <InputGroup
-                                        label="Sub-heading"
-                                        className="mb-4"
-                                        value={sub.heading}
-                                        onChange={(v: string) => {
-                                          const newSecs = [...privacyConfig.sections];
-                                          if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].heading = v;
-                                          updateState(setPrivacyConfig, ['sections'], newSecs);
-                                        }}
-                                      />
-                                      <AdvancedEditor
-                                        content={sub.content}
-                                        onChange={(html) => {
-                                          const newSecs = [...privacyConfig.sections];
-                                          if (newSecs[idx].subsections) newSecs[idx].subsections[sIdx].content = html;
-                                          updateState(setPrivacyConfig, ['sections'], newSecs);
-                                        }}
-                                      />
-                                    </div>
-                                  ))}
-                                  <button
-                                    onClick={() => {
-                                      const newSecs = [...privacyConfig.sections];
-                                      if (!newSecs[idx].subsections) newSecs[idx].subsections = [];
-                                      newSecs[idx].subsections.push({ heading: 'New Sub-module', content: '' });
-                                      updateState(setPrivacyConfig, ['sections'], newSecs);
-                                    }}
-                                    className="text-[10px] text-emerald-500 font-bold uppercase hover:bg-emerald-500/5 px-4 py-2 rounded-lg border border-emerald-500/20"
-                                  >
-                                    + Add Sub-section
-                                  </button>
-                                </div>
-                              </AccordionItem>
-                            ))}
-                            <button onClick={() => addItem(setPrivacyConfig, ['sections'], { heading: "New Module", content: "" })} className="btn-primary w-full py-3">+ Add Section</button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

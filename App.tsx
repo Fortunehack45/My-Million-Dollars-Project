@@ -23,6 +23,7 @@ import About from './pages/About';
 import Careers from './pages/Careers';
 import Contact from './pages/Contact';
 import Docs from './pages/Docs';
+import ArgusScan from './pages/ArgusScan';
 import PublicLayout from './components/PublicLayout';
 import { Terms, Privacy } from './pages/Legal';
 import CookieConsent from './components/CookieConsent';
@@ -125,6 +126,7 @@ const AppRoutes = () => {
               <Route path="/contact" element={<LockableRoute path="/contact" requireLogin={false}><PageTransition><Contact /></PageTransition></LockableRoute>} />
               <Route path="/terms" element={<LockableRoute path="/terms" requireLogin={false}><PageTransition><Terms /></PageTransition></LockableRoute>} />
               <Route path="/privacy" element={<LockableRoute path="/privacy" requireLogin={false}><PageTransition><Privacy /></PageTransition></LockableRoute>} />
+              <Route path="/argusscan" element={<LockableRoute path="/argusscan" requireLogin={false}><PageTransition><ArgusScan /></PageTransition></LockableRoute>} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </AnimatePresence>

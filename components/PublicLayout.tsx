@@ -63,6 +63,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     { label: 'Architecture', path: '/architecture' },
     { label: 'Tokenomics', path: '/tokenomics' },
     { label: 'Whitepaper', path: '/whitepaper' },
+    { label: 'ArgusScan', path: '/argusscan' },
   ];
 
   const handleConsoleClick = () => {
