@@ -26,7 +26,7 @@ const SEO: React.FC<SEOProps> = ({
   const canonicalUrl = `${siteUrl}${path || pathname}`;
   
   // Professional OG Image
-  const ogImage = image ? (image.startsWith('http') ? image : `${siteUrl}${image}`) : `${siteUrl}/image.png`;
+  const ogImage = image ? (image.startsWith('http') ? image : `${siteUrl}${image}`) : `${siteUrl}/og-preview.jpg`;
 
   return (
     <Helmet>
