@@ -5,6 +5,7 @@ import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services
 import { LandingConfig } from '../types';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
+import CustomCursor from '../components/CustomCursor';
 import {
    ArrowRight,
    Code2,
@@ -162,6 +163,18 @@ const Terminal = () => {
 
          {/* CRT GLOW */}
          <div className="absolute inset-0 pointer-events-none z-20 bg-[radial-gradient(circle_at_center,rgba(128,0,0,0.05)_0%,transparent_70%)]" />
+         
+         {/* DIAGNOSTIC OVERLAY */}
+         <div className="absolute top-12 right-6 z-40 opacity-20 pointer-events-none hidden xl:block">
+            <div className="flex flex-col gap-1 items-end font-mono text-[8px] text-maroon">
+               <span>SYS_SECURE_BOOT: 0xF29A</span>
+               <span>MEM_ALLOC: OK</span>
+               <span>P2P_HANDSHAKE: ACTIVE</span>
+               <div className="w-16 h-1 bg-maroon/20 rounded-full mt-1">
+                  <div className="h-full bg-maroon animate-pulse w-[70%] rounded-full"></div>
+               </div>
+            </div>
+         </div>
 
          {/* Header - macOS Style */}
          <div className="flex items-center justify-between px-5 py-3 bg-zinc-900/40 border-b border-white/[0.03] backdrop-blur-md relative z-40">
@@ -408,9 +421,10 @@ const Landing = () => {
         description="Argus Protocol is the premier institutional-grade compute layer for the decentralized web. Deploy high-performance validator nodes and secure the multi-chain economy."
       />
       <div
-         className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white"
+         className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white cursor-none"
          onMouseMove={handleMouseMove}
       >
+         <CustomCursor />
 
             {/* MATRIX BACKGROUND */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black">
@@ -432,7 +446,7 @@ const Landing = () => {
                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.25em]">Protocol Status: Active</span>
                         </div>
 
-                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.4rem] font-black text-white tracking-[-0.07em] uppercase leading-[0.8] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium" style={{ animationDelay: '0.2s' }}>
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-[6.4rem] xl:text-[7.4rem] font-black text-white tracking-[-0.07em] uppercase leading-[0.8] text-balance break-words animate-fade-in-up opacity-0 lg:will-change-premium animate-text-shimmer" style={{ animationDelay: '0.2s' }}>
                            Argus Protocol
                         </h1>
 
@@ -515,7 +529,7 @@ const Landing = () => {
                         return (
                            <div
                               key={feature.title}
-                              className={`group relative p-10 rounded-[2.5rem] frosted-glass transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+                              className={`group relative p-10 rounded-[2.5rem] frosted-glass glass-shine transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] ${visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
                               style={{ transitionDelay: `${i * 150}ms` }}
                            >
                               <div className="relative z-10">
@@ -562,7 +576,7 @@ const Landing = () => {
                      </div>
                      <div className={`relative animate-float hidden lg:block transition-all duration-1000 delay-300 ${visibleSections.has('architecture') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
                         <div className="absolute inset-0 bg-maroon/10 blur-[150px] rounded-full"></div>
-                        <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl">
+                        <div className="relative border border-zinc-800 bg-zinc-950/60 backdrop-blur-xl rounded-[2.5rem] p-12 space-y-10 shadow-2xl glass-shine">
                            <div className="h-24 bg-maroon/5 border border-maroon/20 rounded-2xl flex items-center justify-center">
                               <span className="text-[10px] font-mono font-bold text-maroon uppercase tracking-[0.2em]">Compute_Sharding_Layer</span>
                            </div>
