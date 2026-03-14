@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useLocks } from '../context/LockContext';
 import { subscribeToLandingConfig, subscribeToLiveValidators } from '../services/firebase';
 import { LandingConfig } from '../types';
 import Logo from '../components/Logo';
+import SEO from '../components/SEO';
 import {
    ArrowRight,
    Code2,
@@ -402,6 +402,11 @@ const Landing = () => {
    );
 
    return (
+    <>
+      <SEO 
+        title="Institutional Compute Infrastructure"
+        description="Argus Protocol is the premier institutional-grade compute layer for the decentralized web. Deploy high-performance validator nodes and secure the multi-chain economy."
+      />
       <div
          className="bg-black text-zinc-100 flex flex-col relative overflow-x-hidden selection:bg-maroon selection:text-white"
          onMouseMove={handleMouseMove}
@@ -663,7 +668,7 @@ const Landing = () => {
                                                    <span className="relative flex h-2 w-2">
                                                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                                   </span>
+                                                    </span>
                                                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Active Protocol</span>
                                                 </div>
                                              )}
@@ -761,6 +766,7 @@ const Landing = () => {
                </section>
             )}
       </div>
+    </>
    );
 };
 

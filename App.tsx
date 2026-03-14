@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LockProvider, useLocks } from './context/LockContext';
 import { AnimatePresence } from 'framer-motion';
@@ -161,15 +162,17 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <LockProvider>
-        <HashRouter>
-          <ScrollToTop />
-          <CookieConsent />
-          <AppRoutes />
-        </HashRouter>
-      </LockProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <LockProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <CookieConsent />
+            <AppRoutes />
+          </BrowserRouter>
+        </LockProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 

@@ -3,6 +3,7 @@ import PublicLayout from '../components/PublicLayout';
 import { subscribeToContent, DEFAULT_WHITEPAPER_CONFIG } from '../services/firebase';
 import { WhitepaperConfig } from '../types';
 import { ContentRenderer } from '../components/ContentRenderer';
+import SEO from '../components/SEO';
 
 const Whitepaper = () => {
    const [content, setContent] = useState<WhitepaperConfig>(DEFAULT_WHITEPAPER_CONFIG);
@@ -45,6 +46,10 @@ const Whitepaper = () => {
 
    return (
       <>
+         <SEO 
+            title="Technical Whitepaper" 
+            description="Read the Argus Protocol whitepaper to understand the mathematical foundations of GhostDAG and our vision for a decentralized compute layer."
+         />
          <div className="relative pt-28 md:pt-32 pb-48 overflow-hidden bg-[#050505]">
             {/* Editorial Background Accents */}
             <div className="absolute top-0 right-0 w-[40%] h-full bg-gradient-to-l from-maroon/[0.02] to-transparent pointer-events-none"></div>

@@ -2,6 +2,19 @@
   "version": 2,
   "outputDirectory": "dist",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.argus-protocol.xyz"
+        }
+      ],
+      "destination": "https://argus-protocol.xyz/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],

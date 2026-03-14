@@ -3,6 +3,7 @@ import { subscribeToContent, DEFAULT_CAREERS_CONFIG } from '../services/firebase
 import { CareersConfig } from '../types';
 import { Briefcase, MapPin, ArrowUpRight, Users, Terminal, Radio } from 'lucide-react';
 import MatrixBackground from '../components/MatrixBackground';
+import SEO from '../components/SEO';
 
 const Careers = () => {
    const [content, setContent] = useState<CareersConfig>(DEFAULT_CAREERS_CONFIG);
@@ -14,6 +15,10 @@ const Careers = () => {
 
    return (
       <div className="relative min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+         <SEO 
+            title="Careers" 
+            description="Join the Argus Collective and help build the next generation of institutional compute infrastructure for the multi-chain economy."
+         />
          
          {/* SYSTEM OVERLAY */}
          <div className="fixed inset-0 z-0 pointer-events-none opacity-40">

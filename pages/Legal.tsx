@@ -4,6 +4,7 @@ import PublicLayout from '../components/PublicLayout';
 import { subscribeToContent, DEFAULT_LEGAL_CONFIG } from '../services/firebase';
 import { LegalConfig } from '../types';
 import { ContentRenderer } from '../components/ContentRenderer';
+import SEO from '../components/SEO';
 
 export const Terms = () => {
   const [config, setConfig] = useState<LegalConfig>(DEFAULT_LEGAL_CONFIG.terms);
@@ -15,6 +16,10 @@ export const Terms = () => {
 
   return (
     <>
+      <SEO 
+        title="Terms of Service" 
+        description="Review the terms of service governing the use of Argus Protocol infrastructure and services."
+      />
       <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 space-y-24 relative">
         {/* Background Atmospheric Glow */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-maroon/[0.03] blur-[150px] -z-10 animate-pulse-slow"></div>
@@ -106,6 +111,10 @@ export const Privacy = () => {
 
   return (
     <>
+      <SEO 
+        title="Privacy Policy" 
+        description="Learn how Argus Protocol protects your data and maintains privacy within our decentralized compute network."
+      />
       <div className="pt-28 md:pt-32 pb-32 max-w-7xl mx-auto px-4 md:px-6 space-y-24 relative">
         {/* Background Subtle Accents */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-maroon/[0.03] blur-[150px] -z-10 animate-pulse-slow"></div>

@@ -4,6 +4,7 @@ import { subscribeToContent, DEFAULT_ABOUT_CONFIG } from '../services/firebase';
 import { AboutConfig } from '../types';
 import { motion } from 'framer-motion';
 import MatrixBackground from '../components/MatrixBackground';
+import SEO from '../components/SEO';
 
 const About = () => {
    const [content, setContent] = useState<AboutConfig>(DEFAULT_ABOUT_CONFIG);
@@ -15,6 +16,10 @@ const About = () => {
 
    return (
       <div className="relative min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+         <SEO 
+            title="About Us" 
+            description="Learn about the mission and vision of Argus Protocol, the institutional-grade infrastructure layer for the decentralized web."
+         />
          
          {/* SYSTEM OVERLAY */}
          <div className="fixed inset-0 z-0 pointer-events-none opacity-40">

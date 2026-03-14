@@ -8,6 +8,7 @@ import {
 import { subscribeToContent, DEFAULT_ARCHITECTURE_CONFIG } from '../services/firebase';
 import { ArchitecturePageConfig } from '../types';
 import MatrixBackground from '../components/MatrixBackground';
+import SEO from '../components/SEO';
 
 const GhostDAGExplainer = () => {
    return (
@@ -190,6 +191,10 @@ const Architecture = () => {
 
    return (
       <>
+         <SEO 
+            title="Protocol Architecture" 
+            description="Explore the Argus Protocol architecture, featuring GhostDAG topology for sub-second finality and institutional-grade throughput."
+         />
          <div className="relative pt-28 md:pt-32 pb-32 overflow-hidden min-h-screen">
             {/* Matrix Background */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-20 bg-black">

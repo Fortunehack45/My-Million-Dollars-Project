@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /setup
+Disallow: /dashboard
+Disallow: /tasks
+Disallow: /leaderboard
+Disallow: /referrals
+Disallow: /nft
+Disallow: /vault
+
+Sitemap: https://argus-protocol.xyz/sitemap.xml

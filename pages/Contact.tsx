@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { submitContactMessage, subscribeToContent, DEFAULT_CONTACT_CONFIG } from '../services/firebase';
 import { ContactConfig } from '../types';
 import MatrixBackground from '../components/MatrixBackground';
+import SEO from '../components/SEO';
 
 const Contact = () => {
    const { user } = useAuth();
@@ -42,6 +43,10 @@ const Contact = () => {
 
    return (
       <div className="relative min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white overflow-x-hidden">
+         <SEO 
+            title="Contact Us" 
+            description="Establish an uplink with Argus Protocol. Secure communication channels for institutional inquiries and support."
+         />
          
          {/* SYSTEM OVERLAY */}
          <div className="fixed inset-0 z-0 pointer-events-none opacity-40">

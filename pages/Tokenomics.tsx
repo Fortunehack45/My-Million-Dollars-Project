@@ -5,6 +5,7 @@ import { TokenomicsConfig, NetworkStats } from '../types';
 import { PieChart, Zap, ShieldCheck, Lock, Activity, Layers, ArrowRight, TrendingUp, Info, LayoutTemplate, Globe, Server, Minus, ChevronRight, Binary, Cpu, Database, Blocks, Fingerprint, Terminal, Share2, Box, Radio } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MatrixBackground from '../components/MatrixBackground';
+import SEO from '../components/SEO';
 
 const IconMap: any = { Zap, ShieldCheck, Lock, Activity, Layers, TrendingUp, Globe, Server, Binary, Cpu, Database, Blocks, Fingerprint };
 
@@ -49,6 +50,10 @@ const Tokenomics = () => {
 
    return (
       <div className="relative pt-32 pb-40 min-h-screen bg-[#050505] text-zinc-300 font-mono selection:bg-maroon selection:text-white">
+         <SEO 
+            title="Network Tokenomics" 
+            description="Insight into Argus Protocol's economic model, token distribution, and the utility of ARG credits in the decentralized compute economy."
+         />
          
          {/* DASHBOARD SYSTEM OVERLAY */}
          <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
