@@ -693,7 +693,7 @@ const ArgusLaunchpad: React.FC = () => {
   }
 
   return (
-    <div className="relative text-zinc-300 font-mono animate-in fade-in duration-500">
+    <div className="space-y-10 font-mono text-zinc-300 pb-10">
       {/* Notification Toast */}
       <AnimatePresence>
         {notification && (
@@ -709,7 +709,7 @@ const ArgusLaunchpad: React.FC = () => {
         {showCreate && <CoinCreationForm userWallet={userWallet} onCreated={handleCreated} onClose={() => setShowCreate(false)} />}
       </AnimatePresence>
 
-      <div className="max-w-[1400px] mx-auto relative z-10 space-y-10">
+      <div className="relative z-10 space-y-10">
         {/* Header */}
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
