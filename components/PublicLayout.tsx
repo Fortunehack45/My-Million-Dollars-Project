@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useLocks } from '../context/LockContext';
-import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
+import { ChevronRight, Menu, X, ArrowUpRight, Rocket } from 'lucide-react';
 import { subscribeToLandingConfig, DEFAULT_LANDING_CONFIG } from '../services/firebase';
 import { LandingConfig } from '../types';
 import Logo from './Logo';
@@ -64,6 +64,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     { label: 'Tokenomics', path: '/tokenomics' },
     { label: 'Whitepaper', path: '/whitepaper' },
     { label: 'ArgusScan', path: '/argusscan' },
+    { label: 'Launchpad', path: '/launchpad', highlight: true },
   ];
 
   const handleConsoleClick = () => {
@@ -96,9 +97,16 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                     key={item.path}
                     to={isLocked(item.path) ? '#' : item.path}
                     onClick={isLocked(item.path) ? (e) => e.preventDefault() : undefined}
-                    className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-500 relative py-1 px-1 group/item ${isLocked(item.path) ? 'opacity-30 grayscale cursor-not-allowed' : location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
+                    className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-500 relative py-1 px-1 group/item ${
+                      isLocked(item.path) ? 'opacity-30 grayscale cursor-not-allowed'
+                      : (item as any).highlight ? (location.pathname === item.path ? 'text-maroon' : 'text-maroon/70 hover:text-maroon')
+                      : location.pathname === item.path ? 'text-white' : 'text-zinc-500 hover:text-white'}`}
                   >
+                    {(item as any).highlight && <Rocket className="w-3 h-3 inline mr-1 -mt-0.5 animate-pulse" />}
                     {item.label}
+                    {(item as any).highlight && location.pathname !== item.path && (
+                      <span className="ml-1.5 px-1.5 py-0.5 bg-maroon/20 border border-maroon/30 text-maroon text-[6px] font-black rounded uppercase tracking-widest align-middle">NEW</span>
+                    )}
                     {!isLocked(item.path) && (
                       <span className={`absolute -bottom-1 left-0 h-[1.5px] bg-maroon transition-all duration-500 ${location.pathname === item.path ? 'w-full' : 'w-0 group-hover/item:w-full'}`}></span>
                     )}
@@ -146,7 +154,11 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 to={isLocked(item.path) ? '#' : item.path}
                 onClick={isLocked(item.path) ? (e) => { e.preventDefault(); } : () => setIsMobileMenuOpen(false)}
                 style={{ transitionDelay: `${index * 50 + 100}ms` }}
-                className={`text-3xl font-black uppercase tracking-tighter transition-all transform ${isLocked(item.path) ? 'opacity-20 grayscale cursor-not-allowed' : 'text-white hover:text-maroon'} ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                className={`text-3xl font-black uppercase tracking-tighter transition-all transform ${
+                  isLocked(item.path) ? 'opacity-20 grayscale cursor-not-allowed'
+                  : (item as any).highlight ? 'text-maroon hover:text-maroon/70'
+                  : 'text-white hover:text-maroon'
+                } ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
               >
                 {item.label}
               </Link>

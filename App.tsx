@@ -172,6 +172,8 @@ const AppRoutes = () => {
                 <Route path="/nft" element={<LockableRoute path="/nft" requireLogin={true}><PageTransition><NFTSection /></PageTransition></LockableRoute>} />
                 <Route path="/vault" element={<LockableRoute path="/vault" requireLogin={true}><PageTransition><Vault /></PageTransition></LockableRoute>} />
                 <Route path="/admin" element={<AdminRoute><PageTransition><AdminPanel /></PageTransition></AdminRoute>} />
+                <Route path="/launchpad" element={<LockableRoute path="/launchpad" requireLogin={false}><PageTransition><ArgusLaunchpad /></PageTransition></LockableRoute>} />
+                <Route path="/argusscan" element={<LockableRoute path="/argusscan" requireLogin={false}><PageTransition><ArgusScan /></PageTransition></LockableRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AnimatePresence>

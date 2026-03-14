@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   CreditCard,
+  Rocket,
+  Search,
   ShieldCheck as VaultIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -34,7 +36,7 @@ const DesktopNavItem = ({ to, label, icon: Icon, highlight = false, isDisabled =
         : isActive
           ? 'bg-zinc-900/80 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] border border-white/5'
           : highlight
-            ? 'text-maroon hover:bg-maroon/5'
+            ? 'text-maroon hover:bg-maroon/5 border border-maroon/10'
             : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/40'
         }`}
     >
@@ -44,6 +46,7 @@ const DesktopNavItem = ({ to, label, icon: Icon, highlight = false, isDisabled =
 
       <Icon className={`w-4 h-4 relative z-10 transition-all duration-500 ${isActive || highlight ? 'text-maroon scale-110' : 'text-zinc-600 group-hover:text-zinc-400 group-hover:scale-110'}`} />
       <span className={`text-[10px] font-bold uppercase tracking-widest relative z-10 transition-all duration-500 ${isActive ? 'translate-x-1' : 'group-hover:translate-x-1'}`}>{label}</span>
+      {highlight && !isActive && <span className="ml-auto text-[6px] font-black bg-maroon/20 border border-maroon/30 text-maroon px-1.5 py-0.5 rounded uppercase tracking-widest">NEW</span>}
 
       {/* Background glow on hover */}
       <div className={`absolute inset-0 bg-gradient-to-r from-maroon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isActive ? 'hidden' : ''}`}></div>
@@ -83,6 +86,8 @@ const Sidebar = () => {
     { to: '/nft', label: 'Mint', icon: CreditCard },
     { to: '/referrals', label: 'Network', icon: Users },
     { to: '/leaderboard', label: 'Rank', icon: Trophy },
+    { to: '/launchpad', label: 'Launchpad', icon: Rocket, highlight: true },
+    { to: '/argusscan', label: 'ArgusScan', icon: Search },
   ];
 
   const handleLogout = async (e: React.MouseEvent) => {
